@@ -9,4 +9,6 @@ public class ApplicationUser : IdentityUser
     public string LastName { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
+    public bool IsActive { get; internal set; }
+
 }
