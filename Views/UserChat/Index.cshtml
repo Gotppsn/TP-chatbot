@@ -1,257 +1,704 @@
-@model Dictionary<string, List<Chatbot>>
+@model AIHelpdeskSupport.ViewModels.UserChatViewModel
 @{
-    ViewData["Title"] = "Your Chatbots";
+    ViewData["Title"] = "Chat Support";
 }
 
-<div class="user-dashboard">
-    <div class="page-header">
-        <div class="header-content">
-            <h1 class="page-title">Your Chatbots</h1>
-            @if (User.FindFirst("Department") != null)
-            {
-                <p class="department-badge">@User.FindFirst("Department").Value Department</p>
-            }
-            else
-            {
-                <p class="department-badge">Customer Service Department</p>
-            }
+<div class="chat-container">
+    <div class="chat-sidebar">
+        <div class="sidebar-header">
+            <h2>Support Chat</h2>
+        </div>
+        <div class="department-selector">
+            <label for="department">Department</label>
+            <select id="department" class="form-select">
+                <option value="Customer Service" selected>Customer Service</option>
+                <option value="IT Support">IT Support</option>
+                <option value="Sales">Sales</option>
+                <option value="Billing">Billing</option>
+            </select>
+        </div>
+        <div class="chat-info">
+            <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value status-online">Online</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Response Time:</span>
+                <span class="info-value">~30 seconds</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Support Hours:</span>
+                <span class="info-value">24/7</span>
+            </div>
+        </div>
+        <div class="session-actions">
+            <button id="startNewChat" class="btn btn-outline-primary">
+                <i class="bi bi-plus-circle"></i> New Chat
+            </button>
+            <button id="downloadTranscript" class="btn btn-outline-secondary" disabled>
+                <i class="bi bi-download"></i> Save Chat
+            </button>
         </div>
     </div>
 
-    @if (!Model.Any())
-    {
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="bi bi-robot"></i>
+    <div class="chat-main">
+        <div class="chat-header">
+            <div class="chat-title">
+                <div class="dept-icon customer-service">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <div class="chat-info">
+                    <h3 id="chatbotName">Customer Service</h3>
+                    <span class="chat-status">
+                        <span class="status-dot online"></span> Online
+                    </span>
+                </div>
             </div>
-            <h2>No chatbots available</h2>
-            <p>There are currently no chatbots assigned to your department.</p>
+            <div class="chat-actions">
+                <button id="refreshChat" class="btn-icon" title="Refresh Chat">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </button>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="chatbot-grid">
-            @foreach (var department in Model)
-            {
-                <div class="department-section">
-                    <h2>@department.Key</h2>
-                    
-                    <div class="chatbot-cards">
-                        @foreach (var chatbot in department.Value)
-                        {
-                            <a href="@Url.Action("Chat", new { id = chatbot.Id })" class="chatbot-card">
-                                <div class="chatbot-icon">
-                                    <i class="bi @GetDepartmentIcon(chatbot.Department)"></i>
-                                </div>
-                                <div class="chatbot-info">
-                                    <h3>@chatbot.Name</h3>
-                                    <div class="chatbot-meta">
-                                        <span class="model-badge">@chatbot.AiModel</span>
-                                    </div>
-                                    <p class="chatbot-description">@(string.IsNullOrEmpty(chatbot.Description) ? "No description available" : chatbot.Description)</p>
-                                </div>
-                                <div class="card-action">
-                                    <span>Start Chat <i class="bi bi-arrow-right"></i></span>
-                                </div>
-                            </a>
-                        }
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p>👋 Hello! I'm your Customer Service assistant. How can I help you today?</p>
+                    </div>
+                    <div class="message-info">
+                        <span class="message-time">@DateTime.Now.ToString("h:mm tt")</span>
                     </div>
                 </div>
-            }
+            </div>
         </div>
-    }
+
+        <div class="chat-input-container">
+            <div class="input-wrapper">
+                <textarea id="messageInput" placeholder="Type your message..." rows="1"></textarea>
+                <button id="voiceInput" class="input-action" title="Voice Input">
+                    <i class="bi bi-mic"></i>
+                </button>
+            </div>
+            <button id="sendMessage" class="send-button" disabled>
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </div>
 </div>
 
-<style>
-    .user-dashboard {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-    
-    .page-header {
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--color-gray-200);
-    }
-    
-    .header-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .department-badge {
-        background-color: var(--color-primary);
-        color: white;
-        font-weight: 500;
-        padding: 0.5rem 1rem;
-        border-radius: 2rem;
-        margin: 0;
-    }
-    
-    .page-title {
-        font-size: 1.75rem;
-        margin: 0;
-    }
-    
-    .chatbot-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 2.5rem;
-    }
-    
-    .department-section h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid var(--color-gray-200);
-    }
-    
-    .chatbot-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .chatbot-card {
-        background: white;
-        border-radius: 1rem;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        border: 1px solid var(--color-gray-200);
-    }
-    
-    .chatbot-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border-color: var(--color-primary);
-    }
-    
-    .chatbot-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        background: rgba(13, 110, 253, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.75rem;
-        color: var(--color-primary);
-        margin-bottom: 1rem;
-    }
-    
-    .chatbot-info {
-        padding: 1.5rem;
-        flex: 1;
-    }
-    
-    .chatbot-info h3 {
-        font-size: 1.25rem;
-        margin: 0 0 0.5rem;
-    }
-    
-    .chatbot-meta {
-        display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .model-badge {
-        background: rgba(13, 110, 253, 0.1);
-        color: var(--color-primary);
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-weight: 500;
-    }
-    
-    .chatbot-description {
-        color: var(--color-gray-600);
-        font-size: 0.875rem;
-        line-height: 1.5;
-        margin: 0;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-    
-    .card-action {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid var(--color-gray-200);
-        text-align: right;
-        font-weight: 500;
-        color: var(--color-primary);
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-    }
-    
-    .card-action i {
-        margin-left: 0.5rem;
-        transition: transform 0.3s ease;
-    }
-    
-    .chatbot-card:hover .card-action i {
-        transform: translateX(4px);
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        max-width: 500px;
-        margin: 3rem auto;
-    }
-    
-    .empty-icon {
-        font-size: 4rem;
-        color: var(--color-gray-300);
-        margin-bottom: 1.5rem;
-    }
-    
-    .empty-state h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-state p {
-        color: var(--color-gray-500);
-    }
-    
-    @@media (max-width: 768px) {
-        .header-content {
+@section Styles {
+    <style>
+        /* Chat Container */
+        .chat-container {
+            display: flex;
+            gap: 1.5rem;
+            height: calc(100vh - 120px);
+            min-height: 500px;
+        }
+        
+        /* Chat Sidebar */
+        .chat-sidebar {
+            width: 280px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .sidebar-header h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .department-selector {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .department-selector label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+        }
+        
+        .chat-info {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .info-item {
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-label {
+            font-weight: 500;
+            color: var(--color-gray-700);
+            margin-right: 0.5rem;
+        }
+        
+        .info-value {
+            color: var(--color-gray-800);
+        }
+        
+        .status-online {
+            color: var(--color-success);
+            font-weight: 500;
+        }
+        
+        .session-actions {
+            padding: 1.25rem;
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        /* Chat Main */
+        .chat-main {
+            flex: 1;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-title {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dept-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+        }
+        
+        .dept-icon.customer-service {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+        }
+        
+        .dept-icon.it-support {
+            background-color: rgba(13, 202, 240, 0.1);
+            color: var(--color-info);
+        }
+        
+        .dept-icon.sales {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--color-warning);
+        }
+        
+        .dept-icon.billing {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--color-danger);
+        }
+        
+        .chat-info h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+        
+        .chat-status {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.375rem;
+        }
+        
+        .status-dot.online {
+            background-color: var(--color-success);
+        }
+        
+        .chat-actions {
+            display: flex;
+            align-items: center;
             gap: 0.5rem;
         }
         
-        .chatbot-cards {
-            grid-template-columns: 1fr;
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            background: none;
+            border: none;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
-    }
-</style>
+        
+        .btn-icon:hover {
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-800);
+        }
+        
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background-color: var(--color-gray-50);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .message {
+            display: flex;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            margin-left: auto;
+            flex-direction: row-reverse;
+        }
+        
+        .message-content {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-bubble {
+            padding: 0.875rem 1.25rem;
+            border-radius: 1rem;
+            position: relative;
+        }
+        
+        .message.bot .message-bubble {
+            background-color: white;
+            border: 1px solid var(--color-gray-200);
+            border-bottom-left-radius: 0.25rem;
+        }
+        
+        .message.user .message-bubble {
+            background-color: var(--color-primary);
+            color: white;
+            border-bottom-right-radius: 0.25rem;
+        }
+        
+        .message-bubble p {
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .message-info {
+            margin-top: 0.25rem;
+            font-size: 0.6875rem;
+            color: var(--color-gray-500);
+            padding: 0 0.5rem;
+        }
+        
+        /* Chat Input */
+        .chat-input-container {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: flex-end;
+            gap: 0.75rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+        
+        .input-wrapper textarea {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: 0.75rem;
+            resize: none;
+            font-size: 0.9375rem;
+            line-height: 1.5;
+            max-height: 120px;
+            overflow-y: auto;
+            transition: all 0.2s ease;
+        }
+        
+        .input-wrapper textarea:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+        
+        .input-action {
+            position: absolute;
+            right: 0.75rem;
+            bottom: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            font-size: 1.125rem;
+            padding: 0;
+        }
+        
+        .input-action:hover {
+            color: var(--color-primary);
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--color-primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.125rem;
+        }
+        
+        .send-button:disabled {
+            background-color: var(--color-gray-300);
+            cursor: not-allowed;
+        }
+        
+        .send-button:not(:disabled):hover {
+            background-color: var(--color-primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0;
+        }
+        
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-gray-400);
+            animation: typing 1s infinite ease-in-out;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @@keyframes typing {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 991px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .chat-sidebar {
+                width: 100%;
+            }
+            
+            .chat-main {
+                height: 70vh;
+            }
+        }
+    </style>
+}
 
-@functions {
-    private string GetDepartmentIcon(string department)
-    {
-        return department switch
-        {
-            "Customer Service" => "bi-headset",
-            "IT Support" => "bi-pc-display",
-            "Sales" => "bi-currency-dollar",
-            "Billing" => "bi-credit-card",
-            "Technical" => "bi-wrench",
-            _ => "bi-robot"
-        };
-    }
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendMessage');
+            const chatMessages = document.getElementById('chatMessages');
+            const departmentSelect = document.getElementById('department');
+            const chatbotName = document.getElementById('chatbotName');
+            const deptIcon = document.querySelector('.dept-icon');
+            const refreshButton = document.getElementById('refreshChat');
+            const startNewButton = document.getElementById('startNewChat');
+            const downloadButton = document.getElementById('downloadTranscript');
+            
+            let sessionId = '@Model.SessionId' || generateSessionId(); // Use model session ID or generate new one
+            
+            // Auto-resize textarea
+            messageInput.addEventListener('input', function() {
+                // Reset height to auto to properly calculate new height
+                this.style.height = 'auto';
+                
+                // Set new height based on scroll height (with a max height)
+                const newHeight = Math.min(this.scrollHeight, 120);
+                this.style.height = `${newHeight}px`;
+                
+                // Enable/disable send button
+                sendButton.disabled = this.value.trim() === '';
+            });
+            
+            // Send message on button click
+            sendButton.addEventListener('click', sendMessage);
+            
+            // Send message on Enter key (but not with Shift+Enter for new line)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) {
+                        sendMessage();
+                    }
+                }
+            });
+            
+            // Department change handler
+            departmentSelect.addEventListener('change', function() {
+                const department = this.value;
+                
+                // Update chatbot name and icon
+                chatbotName.textContent = department;
+                
+                // Update icon class
+                deptIcon.className = 'dept-icon';
+                
+                switch (department) {
+                    case 'Customer Service':
+                        deptIcon.classList.add('customer-service');
+                        deptIcon.innerHTML = '<i class="bi bi-headset"></i>';
+                        break;
+                    case 'IT Support':
+                        deptIcon.classList.add('it-support');
+                        deptIcon.innerHTML = '<i class="bi bi-pc-display"></i>';
+                        break;
+                    case 'Sales':
+                        deptIcon.classList.add('sales');
+                        deptIcon.innerHTML = '<i class="bi bi-currency-dollar"></i>';
+                        break;
+                    case 'Billing':
+                        deptIcon.classList.add('billing');
+                        deptIcon.innerHTML = '<i class="bi bi-credit-card"></i>';
+                        break;
+                }
+                
+                // Clear chat and add welcome message from new department
+                resetChat();
+            });
+            
+            // Refresh chat button
+            refreshButton.addEventListener('click', function() {
+                resetChat();
+            });
+            
+            // Start new chat button
+            startNewButton.addEventListener('click', function() {
+                // Generate new session ID
+                sessionId = generateSessionId();
+                
+                // Reset chat with new session
+                resetChat();
+            });
+            
+            // Initialize UI
+            resetChat();
+            
+            // Message sending function
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (!message) return;
+                
+                // Add user message to chat
+                addMessage('user', message);
+                
+                // Clear input and disable send button
+                messageInput.value = '';
+                messageInput.style.height = 'auto';
+                sendButton.disabled = true;
+                
+                // Show typing indicator
+                addTypingIndicator();
+                
+                // Send message to API
+                callChatApi(message)
+                    .then(response => {
+                        // Remove typing indicator
+                        removeTypingIndicator();
+                        
+                        // Add bot response
+                        addMessage('bot', response);
+                        
+                        // Enable download button after conversation starts
+                        downloadButton.disabled = false;
+                    })
+                    .catch(error => {
+                        // Remove typing indicator
+                        removeTypingIndicator();
+                        
+                        // Add error message
+                        addMessage('bot', 'Sorry, there was an error processing your request. Please try again.');
+                        console.error('API error:', error);
+                    });
+            }
+            
+            // Add message to chat
+            function addMessage(type, text) {
+                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>${text}</p>
+                        </div>
+                        <div class="message-info">
+                            <span class="message-time">${timestamp}</span>
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+            
+            // Add typing indicator
+            function addTypingIndicator() {
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.className = 'message bot typing';
+                indicatorDiv.id = 'typingIndicator';
+                
+                indicatorDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="typing-indicator">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.appendChild(indicatorDiv);
+                scrollToBottom();
+            }
+            
+            // Remove typing indicator
+            function removeTypingIndicator() {
+                const indicator = document.getElementById('typingIndicator');
+                if (indicator) {
+                    indicator.remove();
+                }
+            }
+            
+            // Scroll to bottom of chat
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            // Reset chat
+            function resetChat() {
+                // Clear chat messages
+                chatMessages.innerHTML = '';
+                
+                // Add welcome message
+                const department = departmentSelect.value;
+                const welcomeMessage = `👋 Hello! I'm your ${department} assistant. How can I help you today?`;
+                addMessage('bot', welcomeMessage);
+                
+                // Disable download button
+                downloadButton.disabled = true;
+            }
+            
+            // Generate session ID
+            function generateSessionId() {
+                return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            }
+            
+            // Call chat API
+            async function callChatApi(message) {
+                try {
+                    const department = departmentSelect.value;
+                    
+                    const response = await fetch('/api/userchat/message', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            sessionId: sessionId,
+                            chatbotId: 1 // Default to ID 1 for demonstration
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (!data.success) {
+                        throw new Error(data.errorMessage || 'Unknown error');
+                    }
+                    
+                    return data.response;
+                } catch (error) {
+                    console.error('API call failed:', error);
+                    throw error;
+                }
+            }
+        });
+    </script>
 }
