@@ -16,11 +16,13 @@ namespace AIHelpdeskSupport.Controllers
     {
         private readonly IFlowiseService _flowiseService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<UserChatController> _logger;
 
-        public UserChatController(IFlowiseService flowiseService, UserManager<ApplicationUser> userManager)
+        public UserChatController(IFlowiseService flowiseService, UserManager<ApplicationUser> userManager, ILogger<UserChatController> logger)
         {
             _flowiseService = flowiseService;
             _userManager = userManager;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
@@ -92,7 +94,77 @@ namespace AIHelpdeskSupport.Controllers
         // Keep other action methods as they are
         public IActionResult History()
         {
-            return View();
+            // Sample data for frontend development
+            var chatHistory = new List<ChatHistoryViewModel>
+    {
+        new ChatHistoryViewModel
+        {
+            SessionId = "session-1234-abcd",
+            ChatbotName = "Customer Support Bot",
+            Department = "Customer Service",
+            StartTime = DateTime.Now.AddDays(-2),
+            EndTime = DateTime.Now.AddDays(-2).AddHours(1),
+            MessageCount = 12,
+            LastMessage = "Thank you for your help!",
+            Status = "Closed",
+            Rating = 5,
+            Feedback = "The assistant was extremely helpful and resolved my issue quickly."
+        },
+        new ChatHistoryViewModel
+        {
+            SessionId = "session-5678-efgh",
+            ChatbotName = "IT Helper",
+            Department = "IT Support",
+            StartTime = DateTime.Now.AddDays(-1),
+            EndTime = DateTime.Now.AddDays(-1).AddMinutes(45),
+            MessageCount = 8,
+            LastMessage = "I'll try that solution, thanks.",
+            Status = "Closed",
+            Rating = 4,
+            Feedback = "Good advice, but took some time to understand my issue."
+        },
+        new ChatHistoryViewModel
+        {
+            SessionId = "session-9012-ijkl",
+            ChatbotName = "Sales Assistant",
+            Department = "Sales",
+            StartTime = DateTime.Now.AddHours(-3),
+            EndTime = null,
+            MessageCount = 5,
+            LastMessage = "What are the pricing options?",
+            Status = "Active",
+            Rating = null,
+            Feedback = ""
+        },
+        new ChatHistoryViewModel
+        {
+            SessionId = "session-3456-mnop",
+            ChatbotName = "Billing Support",
+            Department = "Billing",
+            StartTime = DateTime.Now.AddDays(-3),
+            EndTime = DateTime.Now.AddDays(-3).AddHours(2),
+            MessageCount = 15,
+            LastMessage = "Your invoice has been updated and sent to your email.",
+            Status = "Closed",
+            Rating = 3,
+            Feedback = "Eventually solved my problem, but the process was complicated."
+        },
+        new ChatHistoryViewModel
+        {
+            SessionId = "session-7890-qrst",
+            ChatbotName = "Technical Support",
+            Department = "Technical",
+            StartTime = DateTime.Now.AddHours(-5),
+            EndTime = null,
+            MessageCount = 7,
+            LastMessage = "Could you please provide the error code?",
+            Status = "Active",
+            Rating = null,
+            Feedback = ""
+        }
+    };
+
+            return View(chatHistory);
         }
 
         public IActionResult Support()
@@ -105,5 +177,130 @@ namespace AIHelpdeskSupport.Controllers
             var user = await _userManager.GetUserAsync(User);
             return View(user);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitSupportRequest([FromBody] SupportRequest request)
+        {
+            try
+            {
+                // Get current user
+                var currentUser = await _userManager.GetUserAsync(User);
+                if (currentUser == null)
+                {
+                    return Unauthorized(new { success = false, message = "User not authorized" });
+                }
+
+                // Log support request
+                _logger.LogInformation(
+                    "Support request submitted - User: {Username}, Category: {Category}, Subject: {Subject}, Priority: {Priority}",
+                    currentUser.UserName,
+                    request.IssueCategory,
+                    request.Subject,
+                    request.Priority
+                );
+
+                // In a real app, you would save to database and notify IT team
+                // Here's a simple placeholder for the implementation
+
+                // Return success response
+                return Json(new { success = true, requestId = Guid.NewGuid().ToString() });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting support request");
+                return StatusCode(500, new { success = false, message = "An error occurred while processing your request" });
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(ApplicationUser model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = "Your profile has been updated";
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateContact(ApplicationUser model)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            user.Email = model.Email;
+            user.PhoneNumber = model.PhoneNumber;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = "Your contact information has been updated";
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return RedirectToAction(nameof(Profile));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
+        {
+            if (newPassword != confirmPassword)
+            {
+                ModelState.AddModelError(string.Empty, "The new password and confirmation password do not match.");
+                return RedirectToAction(nameof(Profile));
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded)
+            {
+                TempData["StatusMessage"] = "Your password has been changed";
+                //await _signInManager.RefreshSignInAsync(user);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+            }
+
+            return RedirectToAction(nameof(Profile));
+        }
     }
+
 }

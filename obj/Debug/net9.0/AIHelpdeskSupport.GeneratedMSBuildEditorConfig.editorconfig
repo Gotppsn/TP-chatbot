@@ -124,8 +124,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcQ2hhdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/got01/Desktop/TP-chatbot/Views/UserChat/History.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcSGlzdG9yeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/got01/Desktop/TP-chatbot/Views/UserChat/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/got01/Desktop/TP-chatbot/Views/UserChat/Profile.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcUHJvZmlsZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/got01/Desktop/TP-chatbot/Views/UserChat/Support.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcU3VwcG9ydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/got01/Desktop/TP-chatbot/Views/Users/Edit.cshtml]

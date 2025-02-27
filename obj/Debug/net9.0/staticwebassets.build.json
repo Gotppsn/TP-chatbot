@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "CzV48fIYM19gWMWs6WIXEQTQ7fsnlFI66BOLhfMuwEc=",
+  "Hash": "jWEHkovAazuSzlU+FScvuigpryEvZ+wAdu6DWHits+s=",
   "Source": "AIHelpdeskSupport",
   "BasePath": "_content/AIHelpdeskSupport",
   "Mode": "Default",
@@ -101,12 +101,12 @@
       "OriginalItemSpec": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\lib\\jquery\\LICENSE.txt"
     },
     {
-      "Identity": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-p9tdv7h4cn.gz",
+      "Identity": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
       "SourceId": "AIHelpdeskSupport",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/AIHelpdeskSupport",
-      "RelativePath": "css/site#[.{fingerprint=p9tdv7h4cn}]?.css.gz",
+      "RelativePath": "css/site#[.{fingerprint=b0bnu5poun}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -115,8 +115,8 @@
       "RelatedAsset": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "dspz4hrcru",
-      "Integrity": "s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U=",
+      "Fingerprint": "j9js5w721k",
+      "Integrity": "h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css"
@@ -1543,8 +1543,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "p9tdv7h4cn",
-      "Integrity": "kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg=",
+      "Fingerprint": "b0bnu5poun",
+      "Integrity": "ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -4344,13 +4344,13 @@
       ]
     },
     {
-      "Route": "css/site.css",
-      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-p9tdv7h4cn.gz",
+      "Route": "css/site.b0bnu5poun.css",
+      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000283286119"
+          "Quality": "0.000272628135"
         }
       ],
       "ResponseHeaders": [
@@ -4360,19 +4360,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3529"
+          "Value": "3667"
         },
         {
           "Name": "ETag",
-          "Value": "\"s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U=\""
+          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "no-cache"
+          "Value": "max-age=31536000, immutable"
         },
         {
           "Name": "Content-Encoding",
@@ -4388,18 +4388,26 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg=\""
+          "Value": "W/\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
         }
       ],
       "EndpointProperties": [
         {
+          "Name": "fingerprint",
+          "Value": "b0bnu5poun"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
           "Name": "integrity",
-          "Value": "sha256-kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg="
+          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
         }
       ]
     },
     {
-      "Route": "css/site.css",
+      "Route": "css/site.b0bnu5poun.css",
       "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4409,7 +4417,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "18992"
+          "Value": "19905"
         },
         {
           "Name": "Content-Type",
@@ -4417,121 +4425,21 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg=\""
+          "Value": "\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.css.gz",
-      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-p9tdv7h4cn.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3529"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.p9tdv7h4cn.css",
-      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-p9tdv7h4cn.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000283286119"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3529"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
         },
         {
           "Name": "Cache-Control",
           "Value": "max-age=31536000, immutable"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "p9tdv7h4cn"
+          "Value": "b0bnu5poun"
         },
         {
           "Name": "label",
@@ -4539,13 +4447,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg="
+          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
         }
       ]
     },
     {
-      "Route": "css/site.p9tdv7h4cn.css",
-      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
+      "Route": "css/site.b0bnu5poun.css.gz",
+      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4554,7 +4462,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "18992"
+          "Value": "3667"
         },
         {
           "Name": "Content-Type",
@@ -4562,56 +4470,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg=\""
+          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "p9tdv7h4cn"
-        },
-        {
-          "Name": "label",
-          "Value": "css/site.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-kx/AT6EzHCqdNYvrH7x5ghtk7ieYWXbxsn7HBfe6rxg="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.p9tdv7h4cn.css.gz",
-      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-p9tdv7h4cn.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3529"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 27 Feb 2025 10:41:00 GMT"
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4629,7 +4492,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "p9tdv7h4cn"
+          "Value": "b0bnu5poun"
         },
         {
           "Name": "label",
@@ -4637,7 +4500,144 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-s3pmCQltPofRKQiY3EVeVH0IcLPnb4G+W3psEYMDa+U="
+          "Value": "sha256-h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css",
+      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000272628135"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3667"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css",
+      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "19905"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css.gz",
+      "AssetFile": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3667"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 27 Feb 2025 12:48:09 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI="
         }
       ]
     },

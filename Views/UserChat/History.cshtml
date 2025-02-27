@@ -1,0 +1,389 @@
+@model IEnumerable<AIHelpdeskSupport.ViewModels.ChatHistoryViewModel>
+@{
+    ViewData["Title"] = "Chat History";
+}
+
+<div class="history-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Chat History</h1>
+            <p class="text-muted">View your previous conversations with our AI assistants</p>
+        </div>
+        <div class="history-actions">
+            <div class="form-group search-box">
+                <input type="text" id="historySearch" class="form-control" placeholder="Search history...">
+                <i class="bi bi-search search-icon"></i>
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-outline active" data-filter="all">All</button>
+                <button type="button" class="btn btn-outline" data-filter="active">Active</button>
+                <button type="button" class="btn btn-outline" data-filter="closed">Closed</button>
+            </div>
+        </div>
+    </div>
+    
+    @if (Model.Any())
+    {
+        <div class="history-list">
+            @foreach (var chat in Model)
+            {
+                <div class="history-item" data-status="@chat.Status.ToLower()">
+                    <div class="history-item-header">
+                        <div class="history-item-title">
+                            <h3>@chat.ChatbotName</h3>
+                            <span class="history-department">@chat.Department</span>
+                            <span class="history-status @(chat.Status.ToLower())">@chat.Status</span>
+                        </div>
+                        <div class="history-item-time">
+                            @chat.StartTime.ToString("MMM d, yyyy h:mm tt")
+                        </div>
+                    </div>
+                    <div class="history-item-body">
+                        <div class="history-meta">
+                            <div class="history-meta-item">
+                                <i class="bi bi-chat-left-text"></i>
+                                <span>@chat.MessageCount messages</span>
+                            </div>
+                            <div class="history-meta-item">
+                                <i class="bi bi-clock"></i>
+                                <span>
+                                    @if (chat.EndTime.HasValue)
+                                    {
+                                        @((chat.EndTime.Value - chat.StartTime).TotalMinutes.ToString("F0"))
+                                        <text> minutes</text>
+                                    }
+                                    else
+                                    {
+                                        <text>Ongoing</text>
+                                    }
+                                </span>
+                            </div>
+                        </div>
+                        @if (chat.Rating.HasValue || !string.IsNullOrEmpty(chat.Feedback))
+{
+    <div class="history-feedback">
+        @if (chat.Rating.HasValue)
+        {
+            <div class="history-rating">
+                <div class="rating-label">Your Rating:</div>
+                <div class="star-rating">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= chat.Rating.Value)
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-star"></i>
+                        }
+                    }
+                </div>
+            </div>
+        }
+        
+        @if (!string.IsNullOrEmpty(chat.Feedback))
+        {
+            <div class="feedback-container">
+                <div class="feedback-label">Your Feedback:</div>
+                <div class="feedback-content">@chat.Feedback</div>
+            </div>
+        }
+    </div>
+}
+                        <div class="history-last-message">
+                            <div class="message-label">Last message:</div>
+                            <div class="message-content">@chat.LastMessage</div>
+                        </div>
+                    </div>
+                    <div class="history-item-footer">
+                        <button type="button" class="btn btn-primary" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
+                            <i class="bi bi-eye"></i>
+                            <span>View Conversation</span>
+                        </button>
+                        @if (chat.Status.ToLower() == "active")
+                        {
+                            <button type="button" class="btn btn-outline" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
+                                <i class="bi bi-chat-dots"></i>
+                                <span>Continue Chat</span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h3>No Chat History</h3>
+            <p>You haven't had any conversations with our AI assistants yet. Start a new chat to get help with your questions.</p>
+            <a href="/UserChat" class="btn btn-primary mt-3">Start a New Chat</a>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .history-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .history-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 240px;
+            margin: 0;
+        }
+        
+        .search-icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            color: var(--color-gray-500);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-group .btn-outline {
+            background: none;
+            border: 1px solid var(--color-gray-300);
+            color: var(--color-gray-700);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+        
+        .btn-group .btn-outline.active {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+            color: white;
+        }
+        
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .history-item {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .history-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .history-item-header {
+            padding: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .history-item-title {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .history-item-title h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .history-department {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-700);
+        }
+        
+        .history-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+        }
+        
+        .history-status.active {
+            background-color: rgba(32, 201, 151, 0.1);
+            color: var(--color-success);
+        }
+        
+        .history-status.closed {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+        
+        .history-item-time {
+            font-size: 0.875rem;
+            color: var(--color-gray-500);
+        }
+        
+        .history-item-body {
+            padding: 1.25rem;
+        }
+        
+        .history-meta {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .history-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+        }
+        
+        .history-last-message {
+            background-color: var(--color-gray-50);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+        }
+        
+        .message-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-bottom: 0.25rem;
+        }
+        
+        .message-content {
+            font-size: 0.9375rem;
+        }
+        
+        .history-item-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .empty-state p {
+            color: var(--color-gray-600);
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .history-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .history-item-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .history-item-footer {
+                flex-direction: column;
+            }
+            
+            .history-item-footer .btn {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('[data-filter]');
+            const historyItems = document.querySelectorAll('.history-item');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Update active button
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Filter history items
+                    historyItems.forEach(item => {
+                        if (filter === 'all' || item.getAttribute('data-status') === filter) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            // Search functionality
+            const searchInput = document.getElementById('historySearch');
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    
+                    historyItems.forEach(item => {
+                        const title = item.querySelector('.history-item-title').textContent.toLowerCase();
+                        const lastMessage = item.querySelector('.message-content').textContent.toLowerCase();
+                        
+                        if (title.includes(searchTerm) || lastMessage.includes(searchTerm)) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}
