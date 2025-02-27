@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "GMDoUmZlwDu7MJkqtnWwPc4go7VEETYUalkclM6pH/8=",
+  "Hash": "93ZNH3XQiGnOwQ8ucizw5k5uDjgNDDMuyyFUyA8iPT0=",
   "Source": "AIHelpdeskSupport",
   "BasePath": "_content/AIHelpdeskSupport",
   "Mode": "Default",
@@ -437,12 +437,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\lib\\bootstrap\\dist\\css\\bootstrap.rtl.min.css.map"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-294ejhk077.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-avikhdupvb.gz",
       "SourceId": "AIHelpdeskSupport",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/AIHelpdeskSupport",
-      "RelativePath": "css/login#[.{fingerprint=294ejhk077}]?.css.gz",
+      "RelativePath": "css/login#[.{fingerprint=avikhdupvb}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -451,8 +451,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\login.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "0qnqqr63x4",
-      "Integrity": "aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw=",
+      "Fingerprint": "bkxx9ffndz",
+      "Integrity": "1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\login.css"
@@ -1501,8 +1501,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "294ejhk077",
-      "Integrity": "BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ=",
+      "Fingerprint": "avikhdupvb",
+      "Integrity": "ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\login.css"
@@ -3748,13 +3748,13 @@
       ]
     },
     {
-      "Route": "css/login.294ejhk077.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-294ejhk077.gz",
+      "Route": "css/login.avikhdupvb.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-avikhdupvb.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.003021148036"
+          "Quality": "0.001851851852"
         }
       ],
       "ResponseHeaders": [
@@ -3764,15 +3764,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "330"
+          "Value": "539"
         },
         {
           "Name": "ETag",
-          "Value": "\"aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw=\""
+          "Value": "\"1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3792,13 +3792,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ=\""
+          "Value": "W/\"ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "294ejhk077"
+          "Value": "avikhdupvb"
         },
         {
           "Name": "label",
@@ -3806,12 +3806,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ="
+          "Value": "sha256-ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI="
         }
       ]
     },
     {
-      "Route": "css/login.294ejhk077.css",
+      "Route": "css/login.avikhdupvb.css",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\login.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -3821,7 +3821,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "703"
+          "Value": "1519"
         },
         {
           "Name": "Content-Type",
@@ -3829,11 +3829,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ=\""
+          "Value": "\"ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3843,7 +3843,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "294ejhk077"
+          "Value": "avikhdupvb"
         },
         {
           "Name": "label",
@@ -3851,13 +3851,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ="
+          "Value": "sha256-ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI="
         }
       ]
     },
     {
-      "Route": "css/login.294ejhk077.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-294ejhk077.gz",
+      "Route": "css/login.avikhdupvb.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-avikhdupvb.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -3866,7 +3866,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "330"
+          "Value": "539"
         },
         {
           "Name": "Content-Type",
@@ -3874,11 +3874,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw=\""
+          "Value": "\"1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3896,7 +3896,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "294ejhk077"
+          "Value": "avikhdupvb"
         },
         {
           "Name": "label",
@@ -3904,18 +3904,18 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw="
+          "Value": "sha256-1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4="
         }
       ]
     },
     {
       "Route": "css/login.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-294ejhk077.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-avikhdupvb.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.003021148036"
+          "Quality": "0.001851851852"
         }
       ],
       "ResponseHeaders": [
@@ -3925,15 +3925,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "330"
+          "Value": "539"
         },
         {
           "Name": "ETag",
-          "Value": "\"aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw=\""
+          "Value": "\"1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3953,13 +3953,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ=\""
+          "Value": "W/\"ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ="
+          "Value": "sha256-ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI="
         }
       ]
     },
@@ -3974,7 +3974,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "703"
+          "Value": "1519"
         },
         {
           "Name": "Content-Type",
@@ -3982,11 +3982,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ=\""
+          "Value": "\"ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -3996,13 +3996,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-BiSmyAnXWT9wWGEbQU7ait8OMh2d7c5lZXihmDyvPrQ="
+          "Value": "sha256-ej5wYhH0CH+zQZ1SychE1LCLmx6e2oDsCUblmmlbidI="
         }
       ]
     },
     {
       "Route": "css/login.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-294ejhk077.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\a18zdfqr0q-avikhdupvb.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4011,7 +4011,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "330"
+          "Value": "539"
         },
         {
           "Name": "Content-Type",
@@ -4019,11 +4019,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw=\""
+          "Value": "\"1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 26 Feb 2025 14:07:43 GMT"
+          "Value": "Thu, 27 Feb 2025 04:35:55 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4041,7 +4041,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-aD8torSyvxTz1EA6Ofe6HzK/V3hvWTwOzSaH8WE7ocw="
+          "Value": "sha256-1eKegU9K2wCSOnCoQMEmDOM40KMjFfVFaoixKHWvVl4="
         }
       ]
     },

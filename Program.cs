@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=(localdb)\\mssqllocaldb;Database=AIHelpdeskSupport;Trusted_Connection=True;MultipleActiveResultSets=true";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
@@ -29,6 +29,10 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     // Lockout settings
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
+    
+    // Sign in settings
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = false;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
@@ -66,7 +70,7 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate(); // Ensure database is created and migrations applied
+        context.Database.EnsureCreated(); // Just create database without migrations for testing
         
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
@@ -128,6 +132,11 @@ static class IdentityDataInitializer
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
             }
+            else
+            {
+                var errorString = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Error creating admin user: {errorString}");
+            }
         }
 
         // Create regular user
@@ -150,6 +159,11 @@ static class IdentityDataInitializer
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(regularUser, "User");
+            }
+            else
+            {
+                var errorString = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Error creating regular user: {errorString}");
             }
         }
     }
