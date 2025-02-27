@@ -1,0 +1,147 @@
+@model Dictionary<string, List<Chatbot>>
+<div class="container user-chat-selection">
+    <div class="page-header">
+        <h1 class="page-title">Select a Department</h1>
+        <p class="text-muted">Choose a department to start a conversation</p>
+    </div>
+    <div class="department-grid">
+        @foreach (var department in Model)
+        {
+            <div class="department-card">
+                <div class="department-header">
+                    <h2>@department.Key</h2>
+                    <span class="chatbot-count">@department.Value.Count Chatbots</span>
+                </div>
+                <div class="department-chatbots">
+                    @foreach (var chatbot in department.Value)
+                    {
+                        <a href="@Url.Action("Chat", new { id = chatbot.Id })" class="chatbot-item">
+                            <div class="chatbot-icon">
+                                <i class="bi @GetDepartmentIcon(department.Key)"></i>
+                            </div>
+                            <div class="chatbot-info">
+                                <h3>@chatbot.Name</h3>
+                                <p>@chatbot.Description</p>
+                            </div>
+                            <div class="chatbot-badge">
+                                <span class="badge @(chatbot.IsActive ? "bg-success" : "bg-secondary")">
+                                    @(chatbot.IsActive ? "Available" : "Unavailable")
+                                </span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Optional: Add interactive animations or filtering
+        });
+    </script>
+}
+@section Styles {
+    <style>
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .department-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .department-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-gray-50);
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .department-header h2 {
+            margin: 0;
+            font-size: 1.125rem;
+        }
+
+        .chatbot-count {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+
+        .department-chatbots {
+            padding: 1rem;
+        }
+
+        .chatbot-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--color-gray-800);
+        }
+
+        .chatbot-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+            border-color: var(--color-primary);
+        }
+
+        .chatbot-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius);
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .chatbot-info {
+            flex: 1;
+        }
+
+        .chatbot-info h3 {
+            margin: 0 0 0.25rem;
+            font-size: 1rem;
+        }
+
+        .chatbot-info p {
+            margin: 0;
+            color: var(--color-gray-500);
+            font-size: 0.875rem;
+        }
+
+        .chatbot-badge {
+            margin-left: 0.5rem;
+        }
+    </style>
+}
+@functions {
+    private string GetDepartmentIcon(string department)
+    {
+        return department switch
+        {
+            "Customer Service" => "bi-headset",
+            "IT Support" => "bi-pc-display",
+            "Sales" => "bi-currency-dollar",
+            "Billing" => "bi-credit-card",
+            "Technical" => "bi-wrench",
+            _ => "bi-robot"
+        };
+    }
+}

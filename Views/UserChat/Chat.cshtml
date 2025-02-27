@@ -1,0 +1,254 @@
+@model AIHelpdeskSupport.ViewModels.UserChatViewModel
+<div class="user-chat-container">
+    <div class="chat-header">
+        <div class="chat-info">
+            <div class="chatbot-avatar">
+                <i class="bi @GetDepartmentIcon(Model.Chatbot.Department)"></i>
+            </div>
+            <div class="chatbot-details">
+                <h2>@Model.Chatbot.Name</h2>
+                <p>@Model.Chatbot.Department Department</p>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <button id="resetChat" class="btn btn-sm btn-outline-secondary">
+                <i class="bi bi-arrow-clockwise"></i> Reset
+            </button>
+        </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+        <!-- Initial welcome message -->
+        <div class="message bot">
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    @Model.Chatbot.Description
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <textarea id="userMessage" placeholder="Type your message..." rows="1"></textarea>
+        <button id="sendMessage" class="btn btn-primary">
+            <i class="bi bi-send"></i>
+        </button>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatbotId = @Model.Chatbot.Id;
+            const sessionId = "@Model.SessionId";
+            const chatMessages = document.getElementById('chatMessages');
+            const userMessageInput = document.getElementById('userMessage');
+            const sendMessageButton = document.getElementById('sendMessage');
+            const resetChatButton = document.getElementById('resetChat');
+            // Send message function
+            function sendMessage() {
+                const userMessage = userMessageInput.value.trim();
+                if (!userMessage) return;
+
+                // Add user message to chat
+                addMessageToChat('user', userMessage);
+
+                // Send to server
+                fetch('@Url.Action("SendMessage", "UserChat")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        chatbotId: chatbotId,
+                        message: userMessage,
+                        sessionId: sessionId
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Add bot response
+                        addMessageToChat('bot', data.response);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        addMessageToChat('bot', 'Sorry, there was an error processing your message.');
+                    });
+
+                // Clear input
+                userMessageInput.value = '';
+            }
+
+            // Add message to chat interface
+            function addMessageToChat(type, message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = `message ${type}`;
+                messageElement.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="bi ${type === 'user' ? 'bi-person' : 'bi-robot'}"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageElement);
+                scrollToBottom();
+            }
+
+            // Scroll to bottom of chat
+            function scrollToBottom() {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Event Listeners
+            sendMessageButton.addEventListener('click', sendMessage);
+            userMessageInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            resetChatButton.addEventListener('click', function () {
+                chatMessages.innerHTML = '';
+                // Optional: Add initial message back
+                addMessageToChat('bot', '@Model.Chatbot.Description');
+            });
+        });
+    </script>
+}
+@section Styles {
+    <style>
+        .user-chat-container {
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+        }
+
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: var(--color-gray-50);
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .chat-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .chatbot-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius);
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .chatbot-details h2 {
+            margin: 0;
+            font-size: 1.125rem;
+        }
+
+        .chatbot-details p {
+            margin: 0;
+            color: var(--color-gray-500);
+            font-size: 0.875rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            background-color: var(--color-gray-50);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+
+        .message-content {
+            max-width: 80%;
+        }
+
+        .message-bubble {
+            background-color: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1rem;
+            line-height: 1.5;
+        }
+
+        .message.user .message-bubble {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .chat-input-container {
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            background-color: white;
+        }
+
+        #userMessage {
+            flex: 1;
+            margin-right: 1rem;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            resize: none;
+            max-height: 120px;
+        }
+    </style>
+}
+@functions {
+    private string GetDepartmentIcon(string department)
+    {
+        return department switch
+        {
+            "Customer Service" => "bi-headset",
+            "IT Support" => "bi-pc-display",
+            "Sales" => "bi-currency-dollar",
+            "Billing" => "bi-credit-card",
+            "Technical" => "bi-wrench",
+            _ => "bi-robot"
+        };
+    }
+}

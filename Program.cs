@@ -41,4 +41,9 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(
+    name: "userchat",
+    pattern: "UserChat/{action}/{id?}",
+    defaults: new { controller = "UserChat", action = "Index" });
+
 app.Run();
