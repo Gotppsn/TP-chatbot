@@ -1,3 +1,4 @@
+// Controllers/DashboardController.cs
 using Microsoft.AspNetCore.Mvc;
 using AIHelpdeskSupport.Services;
 using AIHelpdeskSupport.Models;
@@ -5,9 +6,11 @@ using AIHelpdeskSupport.ViewModels;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AIHelpdeskSupport.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class DashboardController : Controller
     {
         private readonly IFlowiseService _flowiseService;

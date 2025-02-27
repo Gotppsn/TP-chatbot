@@ -1,6 +1,8 @@
+// Controllers/HomeController.cs
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using AIHelpdeskSupport.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AIHelpdeskSupport.Controllers;
 
@@ -15,7 +17,19 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View();
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Admin"))
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+                return RedirectToAction("Index", "UserChat");
+            }
+        }
+        
+        return RedirectToAction("Login", "Account");
     }
 
     public IActionResult Privacy()

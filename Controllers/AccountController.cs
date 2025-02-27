@@ -12,7 +12,7 @@ public class AccountController : Controller
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
-        SignInManager<ApplicationUser> signInManager, 
+        SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         ILogger<AccountController> logger)
     {
@@ -36,43 +36,33 @@ public class AccountController : Controller
 
         if (ModelState.IsValid)
         {
-            // Verify credentials first
-            var user = await _userManager.FindByEmailAsync(model.Email);
-            
-            if (user == null)
-            {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return View(model);
-            }
-
-            // Check if account is active
-            if (!user.IsActive)
-            {
-                ModelState.AddModelError(string.Empty, "Your account is currently inactive.");
-                return View(model);
-            }
-
             // Attempt sign in
             var result = await _signInManager.PasswordSignInAsync(
-                model.Email, 
-                model.Password, 
-                model.RememberMe, 
+                model.Email,
+                model.Password,
+                model.RememberMe,
                 lockoutOnFailure: true);
 
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
-                
+
+                // Get user
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
                 // Determine redirect based on user role
-                var roles = await _userManager.GetRolesAsync(user);
-                
-                if (roles.Contains("Admin"))
+                if (user != null)
                 {
-                    return RedirectToAction("Index", "Dashboard");
-                }
-                else if (roles.Contains("User"))
-                {
-                    return RedirectToAction("Index", "UserChat");
+                    var roles = await _userManager.GetRolesAsync(user);
+
+                    if (roles.Contains("Admin"))
+                    {
+                        return RedirectToAction("Index", "Dashboard");
+                    }
+                    else if (roles.Contains("User"))
+                    {
+                        return RedirectToAction("Index", "UserChat");
+                    }
                 }
 
                 return RedirectToLocal(returnUrl);

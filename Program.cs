@@ -5,7 +5,6 @@ using AIHelpdeskSupport.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add database
@@ -16,23 +15,38 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
 {
-    // Configure password requirements
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = true;
-    options.Password.RequiredLength = 8;
+    // User settings
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true;
 
-    // Configure lockout settings
+    // Password settings - Simplified for development
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 3;
+
+    // Lockout settings
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     options.Lockout.MaxFailedAccessAttempts = 5;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
+// Configure cookie settings
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+});
+
 // Add Flowise service
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFlowiseService, FlowiseService>();
+builder.Services.AddScoped<IKnowledgeService, KnowledgeService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -45,12 +59,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// Seed users after database creation
+// Create scope for database initialization and user seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try 
     {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate(); // Ensure database is created and migrations applied
+        
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         await IdentityDataInitializer.SeedUsers(userManager, roleManager);
@@ -72,7 +89,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.Run();app.Run();
+app.Run();
 
 // User Seeding Method
 static class IdentityDataInitializer
@@ -91,21 +108,22 @@ static class IdentityDataInitializer
         }
 
         // Create admin user
-        var adminUser = await userManager.FindByEmailAsync("admin@example.com");
+        var adminUser = await userManager.FindByNameAsync("admin");
         if (adminUser == null)
         {
             adminUser = new ApplicationUser
             {
-                UserName = "admin@example.com",
+                UserName = "admin",
                 Email = "admin@example.com",
                 FirstName = "Admin",
                 LastName = "User",
                 Department = "Administration",
                 Role = "Administrator",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                IsActive = true
             };
 
-            var result = await userManager.CreateAsync(adminUser, "Admin123!");
+            var result = await userManager.CreateAsync(adminUser, "admin");
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(adminUser, "Admin");
@@ -113,21 +131,22 @@ static class IdentityDataInitializer
         }
 
         // Create regular user
-        var regularUser = await userManager.FindByEmailAsync("user@example.com");
+        var regularUser = await userManager.FindByNameAsync("user");
         if (regularUser == null)
         {
             regularUser = new ApplicationUser
             {
-                UserName = "user@example.com",
+                UserName = "user",
                 Email = "user@example.com",
                 FirstName = "Regular",
                 LastName = "User",
                 Department = "Customer Service",
                 Role = "User",
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                IsActive = true
             };
 
-            var result = await userManager.CreateAsync(regularUser, "User123!");
+            var result = await userManager.CreateAsync(regularUser, "user");
             if (result.Succeeded)
             {
                 await userManager.AddToRoleAsync(regularUser, "User");

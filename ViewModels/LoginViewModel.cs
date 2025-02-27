@@ -5,9 +5,8 @@ namespace AIHelpdeskSupport.ViewModels;
 
 public class LoginViewModel
 {
-    [Required(ErrorMessage = "Email is required")]
-    [EmailAddress(ErrorMessage = "Invalid email address")]
-    [Display(Name = "Email")]
+    [Required(ErrorMessage = "Username or Email is required")]
+    [Display(Name = "Username or Email")]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Password is required")]
