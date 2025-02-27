@@ -417,6 +417,28 @@
             }
             
             function sendMessage(message) {
+                // Simulate API call
+                setTimeout(() => {
+                    // Hide typing indicator
+                    typingIndicator.classList.add('d-none');
+                    
+                    // Add bot response (simulated)
+                    let botResponse = "Thank you for your message. I'm a demo chatbot for development purposes. This is a placeholder response since we're not connecting to a real API yet.";
+                    
+                    // Add different responses based on user message
+                    if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
+                        botResponse = "Hello there! How can I help you today?";
+                    } else if (message.toLowerCase().includes('help')) {
+                        botResponse = "I'm here to help! Please tell me what you need assistance with.";
+                    } else if (message.toLowerCase().includes('thanks') || message.toLowerCase().includes('thank you')) {
+                        botResponse = "You're welcome! Is there anything else I can help you with?";
+                    }
+                    
+                    addMessage('bot', botResponse);
+                }, 1000);
+                
+                // This is the actual API call that would be used in production
+                /*
                 fetch('/api/userchat/message', {
                     method: 'POST',
                     headers: {
@@ -445,6 +467,7 @@
                     typingIndicator.classList.add('d-none');
                     addMessage('bot', 'Sorry, I encountered an error. Please try again.');
                 });
+                */
             }
         });
     </script>
