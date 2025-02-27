@@ -1,63 +1,67 @@
-@model List<AIHelpdeskSupport.Models.Chatbot>
+@model IEnumerable<AIHelpdeskSupport.Models.Chatbot>
 @{
-    ViewData["Title"] = "AI Support";
+    ViewData["Title"] = "My Support Chatbots";
 }
 
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="page-title">AI Support Assistants</h1>
-            <p class="text-muted">Select a chatbot based on your support needs</p>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6">My Support Assistants</h1>
+            <p class="text-secondary mb-0">Access chatbots available for your department</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("History")" class="btn btn-outline-primary">
+                <i class="bi bi-clock-history"></i> History
+            </a>
+            <a href="@Url.Action("Support")" class="btn btn-outline-secondary">
+                <i class="bi bi-question-circle"></i> Help
+            </a>
         </div>
     </div>
 
     @if (!Model.Any())
     {
-        <div class="alert alert-info">
-            <i class="bi bi-info-circle me-2"></i>
-            No chatbots are currently available. Please check back later.
+        <div class="alert alert-info d-flex align-items-center">
+            <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+            <div>
+                No chatbots are currently available for your department. Please contact support for assistance.
+            </div>
         </div>
     }
     else
     {
-        <div class="department-groups">
-            @{
-                var departments = Model.Select(c => c.Department).Distinct().OrderBy(d => d);
-            }
-
-            @foreach (var department in departments)
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var chatbot in Model)
             {
-                var departmentChatbots = Model.Where(c => c.Department == department && c.IsActive).ToList();
-                if (departmentChatbots.Any())
-                {
-                    <div class="department-section mb-4">
-                        <h2 class="department-title">@department</h2>
-
-                        <div class="chatbot-cards">
-                            @foreach (var chatbot in departmentChatbots)
-                            {
-                                <div class="chatbot-card">
-                                    <div class="chatbot-card-body">
-                                        <div class="chatbot-icon @GetColorClass(chatbot.Department)">
-                                            <i class="bi @GetIconClass(chatbot.Department)"></i>
-                                        </div>
-                                        <div class="chatbot-details">
-                                            <h3 class="chatbot-name">@chatbot.Name</h3>
-                                            <p class="chatbot-description">@chatbot.Description</p>
-                                        </div>
-                                    </div>
-                                    <div class="chatbot-card-footer">
-                                        <a href="@Url.Action("Chat", "UserChat", new { id = chatbot.Id })"
-                                            class="btn btn-primary btn-sm">
-                                            <i class="bi bi-chat-dots me-1"></i>
-                                            Start Conversation
-                                        </a>
-                                    </div>
+                string colorClass = GetColorClass(chatbot.Department);
+                string iconClass = GetIconClass(chatbot.Department);
+                
+                <div class="col">
+                    <div class="card h-100 shadow-sm hover-elevate">
+                        <div class="card-body">
+                            <div class="d-flex mb-3">
+                                <div class="chatbot-icon bg-@colorClass-subtle text-@colorClass me-3">
+                                    <i class="bi @iconClass"></i>
                                 </div>
-                            }
+                                <div>
+                                    <h5 class="card-title mb-1">@chatbot.Name</h5>
+                                    <span class="badge bg-@colorClass-subtle text-@colorClass">@chatbot.Department</span>
+                                    <span class="badge bg-secondary-subtle text-secondary ms-1">@chatbot.AiModel</span>
+                                </div>
+                            </div>
+                            <p class="card-text mb-3 small text-secondary description-text">
+                                @(string.IsNullOrEmpty(chatbot.Description) 
+                                    ? "This chatbot can answer questions and provide assistance related to " + chatbot.Department + "." 
+                                    : chatbot.Description)
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 p-3">
+                            <a href="@Url.Action("Chat", new { id = chatbot.Id })" class="btn btn-primary w-100">
+                                <i class="bi bi-chat-dots me-2"></i> Start Chat
+                            </a>
                         </div>
                     </div>
-                }
+                </div>
             }
         </div>
     }
@@ -65,125 +69,53 @@
 
 @section Styles {
     <style>
-        .department-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-
-        .chatbot-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .chatbot-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--color-gray-200);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chatbot-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-gray-300);
-        }
-
-        .chatbot-card-body {
-            padding: 1.25rem;
-            display: flex;
-            flex: 1;
-        }
-
         .chatbot-icon {
             width: 48px;
             height: 48px;
-            border-radius: var(--border-radius);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.5rem;
-            margin-right: 1rem;
-            flex-shrink: 0;
         }
-
-        .chatbot-icon.primary {
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
-        }
-
-        .chatbot-icon.info {
-            background-color: rgba(13, 202, 240, 0.1);
-            color: var(--color-info);
-        }
-
-        .chatbot-icon.warning {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: var(--color-warning);
-        }
-
-        .chatbot-icon.danger {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: var(--color-danger);
-        }
-
-        .chatbot-icon.success {
-            background-color: rgba(32, 201, 151, 0.1);
-            color: var(--color-success);
-        }
-
-        .chatbot-icon.secondary {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--color-secondary);
-        }
-
-        .chatbot-details {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chatbot-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin: 0 0 0.5rem;
-        }
-
-        .chatbot-description {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-            margin: 0;
+        
+        .description-text {
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
+            text-overflow: ellipsis;
+            height: 3em;
         }
-
-        .chatbot-card-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid var(--color-gray-200);
-            background-color: var(--color-gray-50);
+        
+        .hover-elevate {
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-
-        @@media(max - width: 768px) {
-                .chatbot-cards {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-    }
+        
+        .hover-elevate:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        /* Bootstrap color utility extensions */
+        .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.1); }
+        .bg-success-subtle { background-color: rgba(25, 135, 84, 0.1); }
+        .bg-info-subtle { background-color: rgba(13, 202, 240, 0.1); }
+        .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.1); }
+        .bg-danger-subtle { background-color: rgba(220, 53, 69, 0.1); }
+        .bg-secondary-subtle { background-color: rgba(108, 117, 125, 0.1); }
+        
+        .text-primary { color: #0d6efd !important; }
+        .text-success { color: #198754 !important; }
+        .text-info { color: #0dcaf0 !important; }
+        .text-warning { color: #ffc107 !important; }
+        .text-danger { color: #dc3545 !important; }
+    </style>
+}
 
 @functions {
-    string GetColorClass(string department)
-    {
-        return department switch
-        {
+    string GetColorClass(string department) {
+        return department switch {
             "Customer Service" => "primary",
             "IT Support" => "info",
             "Sales" => "warning",
@@ -192,11 +124,9 @@
             _ => "secondary"
         };
     }
-
-    string GetIconClass(string department)
-    {
-        return department switch
-        {
+    
+    string GetIconClass(string department) {
+        return department switch {
             "Customer Service" => "bi-headset",
             "IT Support" => "bi-pc-display",
             "Sales" => "bi-currency-dollar",

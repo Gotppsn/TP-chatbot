@@ -1,10 +1,12 @@
 // Controllers/UserChatController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using AIHelpdeskSupport.Models;
 using AIHelpdeskSupport.ViewModels;
 using AIHelpdeskSupport.Services;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AIHelpdeskSupport.Controllers
@@ -13,16 +15,33 @@ namespace AIHelpdeskSupport.Controllers
     public class UserChatController : Controller
     {
         private readonly IFlowiseService _flowiseService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public UserChatController(IFlowiseService flowiseService)
+        public UserChatController(IFlowiseService flowiseService, UserManager<ApplicationUser> userManager)
         {
             _flowiseService = flowiseService;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            var chatbots = await _flowiseService.GetAllChatbotsAsync();
-            return View(chatbots);
+            // Get current user
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            // Get all chatbots
+            var allChatbots = await _flowiseService.GetAllChatbotsAsync();
+            
+            // Filter chatbots by user's department
+            var filteredChatbots = allChatbots.Where(c => 
+                c.IsActive && 
+                (c.Department == currentUser.Department || c.Department == "General")
+            ).ToList();
+
+            return View(filteredChatbots);
         }
 
         public async Task<IActionResult> Chat(int id)
@@ -33,14 +52,28 @@ namespace AIHelpdeskSupport.Controllers
                 return NotFound();
             }
 
+            // Verify user has access to this chatbot
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            if (chatbot.Department != currentUser.Department && chatbot.Department != "General")
+            {
+                return Forbid();
+            }
+
             var viewModel = new UserChatViewModel
             {
                 Chatbot = chatbot,
-                SessionId = Guid.NewGuid().ToString()
+                SessionId = System.Guid.NewGuid().ToString()
             };
 
             return View(viewModel);
         }
+
+        // Keep other action methods as they are
         public IActionResult History()
         {
             return View();
@@ -51,9 +84,10 @@ namespace AIHelpdeskSupport.Controllers
             return View();
         }
 
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            return View(user);
         }
     }
 }
