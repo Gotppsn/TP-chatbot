@@ -1,0 +1,1221 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-container">
+    <!-- Stats Overview Section -->
+    <div class="stats-overview">
+        <div class="stat-card primary animate-card">
+            <div class="stat-icon">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">8</div>
+                <div class="stat-label">Active Chatbots</div>
+                <div class="stat-trend up">
+                    <i class="bi bi-arrow-up"></i>
+                    <span>12% this month</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card success animate-card" style="animation-delay: 0.1s">
+            <div class="stat-icon">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">2,487</div>
+                <div class="stat-label">Total Conversations</div>
+                <div class="stat-trend up">
+                    <i class="bi bi-arrow-up"></i>
+                    <span>8% this week</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card info animate-card" style="animation-delay: 0.2s">
+            <div class="stat-icon">
+                <i class="bi bi-clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">2.4<small>s</small></div>
+                <div class="stat-label">Avg. Response Time</div>
+                <div class="stat-trend down">
+                    <i class="bi bi-arrow-down"></i>
+                    <span>0.3s improvement</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stat-card warning animate-card" style="animation-delay: 0.3s">
+            <div class="stat-icon">
+                <i class="bi bi-star"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">94<small>%</small></div>
+                <div class="stat-label">User Satisfaction</div>
+                <div class="stat-trend up">
+                    <i class="bi bi-arrow-up"></i>
+                    <span>2% this month</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-flex-container">
+        <!-- Main Content Area -->
+        <div class="dashboard-main">
+            <!-- Conversations Chart -->
+            <div class="dashboard-card animate-card" style="animation-delay: 0.4s">
+                <div class="card-header">
+                    <h2>Conversations</h2>
+                    <div class="card-actions">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline dropdown-toggle" id="timeRangeDropdown">
+                                Last 7 Days
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item active" href="#">Last 7 Days</a>
+                                <a class="dropdown-item" href="#">Last 30 Days</a>
+                                <a class="dropdown-item" href="#">This Quarter</a>
+                                <a class="dropdown-item" href="#">This Year</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="conversationsChart" height="300"></canvas>
+                </div>
+            </div>
+            
+            <!-- Chatbot Performance -->
+            <div class="dashboard-card animate-card" style="animation-delay: 0.5s">
+                <div class="card-header">
+                    <h2>Chatbot Performance</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline">
+                            <i class="bi bi-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="performance-table">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Chatbot</th>
+                                    <th>Department</th>
+                                    <th>Conversations</th>
+                                    <th class="hide-on-mobile">Avg. Time</th>
+                                    <th class="hide-on-mobile">Satisfaction</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-primary-soft text-primary">
+                                                <i class="bi bi-headset"></i>
+                                            </div>
+                                            <div class="ms-2">Customer Support Bot</div>
+                                        </div>
+                                    </td>
+                                    <td>Customer Service</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-small me-2">
+                                                <div class="progress-bar" style="width: 92%"></div>
+                                            </div>
+                                            <span>824</span>
+                                        </div>
+                                    </td>
+                                    <td class="hide-on-mobile">2.1s</td>
+                                    <td class="hide-on-mobile">96%</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-info-soft text-info">
+                                                <i class="bi bi-pc-display"></i>
+                                            </div>
+                                            <div class="ms-2">IT Helper</div>
+                                        </div>
+                                    </td>
+                                    <td>IT Support</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-small me-2">
+                                                <div class="progress-bar" style="width: 75%"></div>
+                                            </div>
+                                            <span>613</span>
+                                        </div>
+                                    </td>
+                                    <td class="hide-on-mobile">2.8s</td>
+                                    <td class="hide-on-mobile">91%</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-warning-soft text-warning">
+                                                <i class="bi bi-currency-dollar"></i>
+                                            </div>
+                                            <div class="ms-2">Sales Assistant</div>
+                                        </div>
+                                    </td>
+                                    <td>Sales</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-small me-2">
+                                                <div class="progress-bar" style="width: 62%"></div>
+                                            </div>
+                                            <span>547</span>
+                                        </div>
+                                    </td>
+                                    <td class="hide-on-mobile">2.4s</td>
+                                    <td class="hide-on-mobile">88%</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-danger-soft text-danger">
+                                                <i class="bi bi-credit-card"></i>
+                                            </div>
+                                            <div class="ms-2">Billing Support</div>
+                                        </div>
+                                    </td>
+                                    <td>Billing</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-small me-2">
+                                                <div class="progress-bar" style="width: 48%"></div>
+                                            </div>
+                                            <span>421</span>
+                                        </div>
+                                    </td>
+                                    <td class="hide-on-mobile">2.3s</td>
+                                    <td class="hide-on-mobile">92%</td>
+                                    <td><span class="badge bg-success">Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm bg-secondary-soft text-secondary">
+                                                <i class="bi bi-tools"></i>
+                                            </div>
+                                            <div class="ms-2">Operations Bot</div>
+                                        </div>
+                                    </td>
+                                    <td>Operations</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress-small me-2">
+                                                <div class="progress-bar" style="width: 12%"></div>
+                                            </div>
+                                            <span>82</span>
+                                        </div>
+                                    </td>
+                                    <td class="hide-on-mobile">3.1s</td>
+                                    <td class="hide-on-mobile">85%</td>
+                                    <td><span class="badge bg-secondary">Inactive</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="/Chatbot" class="btn-text">
+                        View All Chatbots <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Content -->
+        <div class="dashboard-sidebar">
+            <!-- User Satisfaction -->
+            <div class="dashboard-card animate-card" style="animation-delay: 0.6s">
+                <div class="card-header">
+                    <h2>Satisfaction</h2>
+                </div>
+                <div class="card-body chart-container">
+                    <canvas id="satisfactionChart"></canvas>
+                    <div class="chart-center-text">
+                        <div class="percentage">94%</div>
+                        <div class="label">Satisfied</div>
+                    </div>
+                </div>
+                <div class="satisfaction-stats">
+                    <div class="satisfaction-stat">
+                        <div class="stat-label">5★</div>
+                        <div class="stat-bar">
+                            <div class="stat-value" style="width: 72%"></div>
+                        </div>
+                        <div class="stat-percentage">72%</div>
+                    </div>
+                    <div class="satisfaction-stat">
+                        <div class="stat-label">4★</div>
+                        <div class="stat-bar">
+                            <div class="stat-value" style="width: 22%"></div>
+                        </div>
+                        <div class="stat-percentage">22%</div>
+                    </div>
+                    <div class="satisfaction-stat">
+                        <div class="stat-label">3★</div>
+                        <div class="stat-bar">
+                            <div class="stat-value" style="width: 4%"></div>
+                        </div>
+                        <div class="stat-percentage">4%</div>
+                    </div>
+                    <div class="satisfaction-stat">
+                        <div class="stat-label">2★</div>
+                        <div class="stat-bar">
+                            <div class="stat-value" style="width: 1%"></div>
+                        </div>
+                        <div class="stat-percentage">1%</div>
+                    </div>
+                    <div class="satisfaction-stat">
+                        <div class="stat-label">1★</div>
+                        <div class="stat-bar">
+                            <div class="stat-value" style="width: 1%"></div>
+                        </div>
+                        <div class="stat-percentage">1%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="dashboard-card animate-card" style="animation-delay: 0.7s">
+                <div class="card-header">
+                    <h2>Recent Activity</h2>
+                    <div class="card-actions">
+                        <button class="btn-icon" title="Refresh">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="activity-feed">
+                        <div class="activity-item">
+                            <div class="activity-icon success">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Customer Support Bot resolved ticket #1234</p>
+                                <span class="activity-time">10:24 AM</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon warning">
+                                <i class="bi bi-arrow-up-circle"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>IT Helper escalated ticket #5678 to human agent</p>
+                                <span class="activity-time">09:45 AM</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon info">
+                                <i class="bi bi-person-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Sales Assistant captured new lead from website chat</p>
+                                <span class="activity-time">09:32 AM</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon primary">
+                                <i class="bi bi-credit-card"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Billing Support updated payment information for client</p>
+                                <span class="activity-time">09:15 AM</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon secondary">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>System updated AI models for all chatbots</p>
+                                <span class="activity-time">08:50 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn-text">View All Activity <i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="dashboard-card animate-card" style="animation-delay: 0.8s">
+                <div class="card-header">
+                    <h2>Quick Actions</h2>
+                </div>
+                <div class="card-body">
+                    <div class="quick-actions">
+                        <a href="/Chatbot/Create" class="quick-action">
+                            <div class="quick-action-icon primary">
+                                <i class="bi bi-plus-circle"></i>
+                            </div>
+                            <div class="quick-action-text">New Chatbot</div>
+                        </a>
+                        <a href="/KnowledgeBase/Create" class="quick-action">
+                            <div class="quick-action-icon info">
+                                <i class="bi bi-journals"></i>
+                            </div>
+                            <div class="quick-action-text">Add Knowledge</div>
+                        </a>
+                        <a href="/Analytics" class="quick-action">
+                            <div class="quick-action-icon success">
+                                <i class="bi bi-graph-up"></i>
+                            </div>
+                            <div class="quick-action-text">View Reports</div>
+                        </a>
+                        <a href="/Settings" class="quick-action">
+                            <div class="quick-action-icon warning">
+                                <i class="bi bi-gear"></i>
+                            </div>
+                            <div class="quick-action-text">Settings</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Conversations Chart
+            const conversationsCtx = document.getElementById('conversationsChart').getContext('2d');
+            const conversationsGradient = conversationsCtx.createLinearGradient(0, 0, 0, 300);
+            conversationsGradient.addColorStop(0, 'rgba(13, 110, 253, 0.2)');
+            conversationsGradient.addColorStop(1, 'rgba(13, 110, 253, 0.0)');
+            
+            new Chart(conversationsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Conversations',
+                            data: [324, 386, 475, 412, 498, 390, 502],
+                            borderColor: '#0d6efd',
+                            backgroundColor: conversationsGradient,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#0d6efd',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Resolved',
+                            data: [290, 346, 421, 370, 452, 354, 472],
+                            borderColor: '#20c997',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#20c997',
+                            pointBorderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                usePointStyle: true,
+                                boxWidth: 6,
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#ffffff',
+                            titleColor: '#212529',
+                            bodyColor: '#212529',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f3f4f6'
+                            },
+                            ticks: {
+                                stepSize: 100
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Satisfaction Chart
+            const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
+            
+            new Chart(satisfactionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Satisfied', 'Neutral', 'Unsatisfied'],
+                    datasets: [{
+                        data: [94, 4, 2],
+                        backgroundColor: [
+                            '#20c997',
+                            '#6c757d',
+                            '#dc3545'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            titleColor: '#212529',
+                            bodyColor: '#212529',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Initialize dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const dropdown = this.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.previousElementSibling.contains(event.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Initialize dropdown item selection
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update dropdown button text
+                    const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle');
+                    dropdownButton.textContent = this.textContent;
+                    
+                    // Hide dropdown
+                    this.closest('.dropdown-menu').classList.remove('show');
+                    
+                    // Update active state
+                    this.closest('.dropdown-menu').querySelectorAll('.dropdown-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            // Handle window resize for responsiveness
+            window.addEventListener('resize', function() {
+                // Redraw charts if needed
+                if (window.conversationsChart) {
+                    window.conversationsChart.resize();
+                }
+                if (window.satisfactionChart) {
+                    window.satisfactionChart.resize();
+                }
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Dashboard Grid Layout */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .dashboard-flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+        }
+        
+        .dashboard-main {
+            flex: 1;
+            min-width: 0; /* Prevents flex items from overflowing */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .dashboard-sidebar {
+            width: 360px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        /* Animations */
+        .animate-card {
+            animation: slideUpFade 0.5s ease forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        @@keyframes slideUpFade {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Stat Cards */
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        
+        .stat-card.primary::before { background-color: var(--color-primary); }
+        .stat-card.success::before { background-color: var(--color-success); }
+        .stat-card.info::before { background-color: var(--color-info); }
+        .stat-card.warning::before { background-color: var(--color-warning); }
+        
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.25rem;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-card.primary .stat-icon { 
+            background-color: rgba(13, 110, 253, 0.1); 
+            color: var(--color-primary); 
+        }
+        .stat-card.success .stat-icon { 
+            background-color: rgba(32, 201, 151, 0.1); 
+            color: var(--color-success); 
+        }
+        .stat-card.info .stat-icon { 
+            background-color: rgba(13, 202, 240, 0.1); 
+            color: var(--color-info); 
+        }
+        .stat-card.warning .stat-icon { 
+            background-color: rgba(255, 193, 7, 0.1); 
+            color: var(--color-warning); 
+        }
+        
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem;
+            line-height: 1.2;
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .stat-value small {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: 2px;
+            opacity: 0.7;
+        }
+        
+        .stat-label {
+            color: var(--color-gray-500);
+            margin: 0 0 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .stat-trend.up { color: var(--color-success); }
+        .stat-trend.down { color: var(--color-danger); }
+        
+        .stat-trend i {
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Dashboard Cards */
+        .dashboard-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+            flex: 1;
+            min-height: 200px; /* Ensures cards have minimum height */
+        }
+        
+        .card-body.p-0 {
+            padding: 0;
+        }
+        
+        .card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        /* Performance Table */
+        .performance-table {
+            overflow-x: auto;
+            width: 100%;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        
+        .table th {
+            padding: 0.75rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-gray-500);
+            text-align: left;
+            border-bottom: 1px solid var(--color-gray-200);
+            white-space: nowrap;
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--color-gray-200);
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table tbody tr:hover {
+            background-color: var(--color-gray-50);
+        }
+        
+        .progress-small {
+            height: 6px;
+            width: 80px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        
+        .progress-small .progress-bar {
+            height: 100%;
+            background-color: var(--color-primary);
+            border-radius: 100px;
+        }
+        
+        .avatar-sm {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 600;
+            border-radius: 100px;
+            white-space: nowrap;
+        }
+        
+        .bg-success {
+            background-color: var(--color-success);
+            color: white;
+        }
+        
+        .bg-secondary {
+            background-color: var(--color-secondary);
+            color: white;
+        }
+        
+        .bg-primary-soft { background-color: rgba(13, 110, 253, 0.1); }
+        .bg-success-soft { background-color: rgba(32, 201, 151, 0.1); }
+        .bg-info-soft { background-color: rgba(13, 202, 240, 0.1); }
+        .bg-warning-soft { background-color: rgba(255, 193, 7, 0.1); }
+        .bg-danger-soft { background-color: rgba(220, 53, 69, 0.1); }
+        .bg-secondary-soft { background-color: rgba(108, 117, 125, 0.1); }
+        
+        .text-primary { color: var(--color-primary); }
+        .text-success { color: var(--color-success); }
+        .text-info { color: var(--color-info); }
+        .text-warning { color: var(--color-warning); }
+        .text-danger { color: var(--color-danger); }
+        .text-secondary { color: var(--color-secondary); }
+        
+        /* Satisfaction Stats */
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+        
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .chart-center-text .percentage {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--color-success);
+        }
+        
+        .chart-center-text .label {
+            font-size: 0.875rem;
+            color: var(--color-gray-500);
+        }
+        
+        .satisfaction-stats {
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .satisfaction-stat {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .satisfaction-stat:last-child {
+            margin-bottom: 0;
+        }
+        
+        .satisfaction-stat .stat-label {
+            width: 30px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-700);
+            margin: 0;
+        }
+        
+        .satisfaction-stat .stat-bar {
+            flex: 1;
+            height: 6px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            margin: 0 0.75rem;
+            overflow: hidden;
+        }
+        
+        .satisfaction-stat .stat-bar .stat-value {
+            height: 100%;
+            background-color: var(--color-success);
+            border-radius: 100px;
+            margin: 0;
+        }
+        
+        .satisfaction-stat .stat-percentage {
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+            width: 30px;
+            text-align: right;
+        }
+        
+        /* Activity Feed */
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .activity-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
+        .activity-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
+        .activity-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
+        .activity-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
+        .activity-icon.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
+        .activity-icon.secondary { background-color: rgba(108, 117, 125, 0.1); color: var(--color-secondary); }
+        
+        .activity-content {
+            flex: 1;
+            min-width: 0; /* Prevents content from expanding beyond container */
+        }
+        
+        .activity-content p {
+            margin: 0 0 0.25rem;
+            font-size: 0.875rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .quick-action {
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--color-gray-700);
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            background-color: var(--color-gray-100);
+            transform: translateY(-3px);
+            text-decoration: none;
+        }
+        
+        .quick-action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .quick-action-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
+        .quick-action-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
+        .quick-action-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
+        .quick-action-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
+        
+        .quick-action-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Dropdown */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown-toggle::after {
+            content: '';
+            display: inline-block;
+            width: 0.3em;
+            height: 0.3em;
+            margin-left: 0.5em;
+            border-right: 0.15em solid;
+            border-bottom: 0.15em solid;
+            transform: rotate(45deg);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 1000;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            background-color: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1.25rem;
+            clear: both;
+            font-weight: 400;
+            color: var(--color-gray-700);
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            text-decoration: none;
+        }
+        
+        .dropdown-item:hover, .dropdown-item:focus {
+            color: var(--color-gray-900);
+            text-decoration: none;
+            background-color: var(--color-gray-100);
+        }
+        
+        .dropdown-item.active {
+            color: var(--color-primary);
+            font-weight: 500;
+            background-color: var(--color-gray-50);
+        }
+        
+        /* Helper Classes */
+        .d-flex { display: flex; }
+        .align-items-center { align-items: center; }
+        .me-2 { margin-right: 0.5rem; }
+        .ms-2 { margin-left: 0.5rem; }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 1199px) {
+            .dashboard-flex-container {
+                flex-direction: column;
+            }
+            
+            .dashboard-sidebar {
+                width: 100%;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+        
+        @@media (max-width: 991px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @@media (max-width: 767px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .hide-on-mobile {
+                display: none;
+            }
+            
+            .table th, .table td {
+                padding: 0.75rem 0.5rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .card-header {
+                padding: 1rem;
+            }
+            
+            .card-footer {
+                padding: 0.75rem 1rem;
+            }
+            
+            .activity-item {
+                padding: 0.75rem 1rem;
+            }
+            
+            .activity-content p {
+                white-space: normal;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+            }
+        }
+        
+        @@media (max-width: 480px) {
+            .stat-icon {
+                width: 42px;
+                height: 42px;
+                font-size: 1.25rem;
+                margin-right: 0.75rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .stat-card {
+                padding: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-action {
+                padding: 0.75rem;
+            }
+            
+            .quick-action-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+}

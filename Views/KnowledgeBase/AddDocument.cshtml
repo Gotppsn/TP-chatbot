@@ -1,0 +1,538 @@
+
+@model AIHelpdeskSupport.Models.KnowledgeDocument
+@{
+    ViewData["Title"] = "Add Document";
+    var knowledgeBase = ViewBag.KnowledgeBase as AIHelpdeskSupport.Models.KnowledgeBase;
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Add Document</h1>
+        <p class="text-muted">Add a new document to "@knowledgeBase.Name"</p>
+    </div>
+    <div class="page-actions">
+        <a href="@Url.Action("Details", new { id = Model.KnowledgeBaseId })" class="btn btn-outline">
+            <i class="bi bi-arrow-left"></i>
+            Back
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="AddDocument" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            
+            <input type="hidden" asp-for="KnowledgeBaseId" />
+            
+            <div class="document-type-selector">
+                <h3>Document Type</h3>
+                <div class="document-types">
+                    <div class="document-type">
+                        <input type="radio" name="Type" id="type-text" value="@DocumentType.Text" checked class="type-radio" />
+                        <label for="type-text" class="type-label">
+                            <div class="type-icon">
+                                <i class="bi bi-file-text"></i>
+                            </div>
+                            <div class="type-info">
+                                <div class="type-name">Text</div>
+                                <div class="type-description">Directly enter text content</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="document-type">
+                        <input type="radio" name="Type" id="type-file" value="@DocumentType.TextFile" class="type-radio" />
+                        <label for="type-file" class="type-label">
+                            <div class="type-icon">
+                                <i class="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div class="type-info">
+                                <div class="type-name">File Upload</div>
+                                <div class="type-description">Upload documents (PDF, TXT, DOC, etc.)</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="document-type">
+                        <input type="radio" name="Type" id="type-web" value="@DocumentType.Webpage" class="type-radio" />
+                        <label for="type-web" class="type-label">
+                            <div class="type-icon">
+                                <i class="bi bi-globe"></i>
+                            </div>
+                            <div class="type-info">
+                                <div class="type-name">Webpage</div>
+                                <div class="type-description">Add content from a URL</div>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="document-type">
+                        <input type="radio" name="Type" id="type-qa" value="@DocumentType.QAPair" class="type-radio" />
+                        <label for="type-qa" class="type-label">
+                            <div class="type-icon">
+                                <i class="bi bi-question-circle"></i>
+                            </div>
+                            <div class="type-info">
+                                <div class="type-name">Q&A Pair</div>
+                                <div class="type-description">Add question and answer pairs</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="form-group">
+                    <label asp-for="Title" class="form-label">Title <span class="required">*</span></label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Product User Guide" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="2" placeholder="Brief description of this document..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div class="document-content-sections">
+                <!-- Text Content Section -->
+                <div class="content-section active" id="content-text">
+                    <div class="form-group">
+                        <label asp-for="Content" class="form-label">Content <span class="required">*</span></label>
+                        <textarea asp-for="Content" class="form-control content-editor" rows="10" placeholder="Enter document content here..."></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <!-- File Upload Section -->
+                <div class="content-section" id="content-file">
+                    <div class="form-group">
+                        <label for="file" class="form-label">Document File <span class="required">*</span></label>
+                        <div class="file-upload-area">
+                            <input type="file" id="file" name="file" class="file-input" accept=".pdf,.txt,.doc,.docx,.xls,.xlsx,.csv" />
+                            <div class="file-upload-placeholder">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <p>Drag and drop a file here or click to browse</p>
+                                <span>Supports PDF, TXT, DOC, DOCX, XLS, XLSX, CSV</span>
+                            </div>
+                            <div class="file-preview"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Webpage Section -->
+                <div class="content-section" id="content-web">
+                    <div class="form-group">
+                        <label asp-for="SourceUrl" class="form-label">Webpage URL <span class="required">*</span></label>
+                        <input asp-for="SourceUrl" class="form-control" placeholder="https://www.example.com/page" />
+                        <div class="form-text">Enter the URL of the webpage you want to add to the knowledge base</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Content" class="form-label">Content Preview</label>
+                        <div class="content-preview">
+                            <p class="text-muted">Content will be fetched from the URL when saved</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Q&A Pair Section -->
+                <div class="content-section" id="content-qa">
+                    <div class="qa-editor">
+                        <div class="form-group">
+                            <label class="form-label">Question <span class="required">*</span></label>
+                            <input type="text" id="question" class="form-control" placeholder="e.g. How do I reset my password?" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Answer <span class="required">*</span></label>
+                            <textarea id="answer" class="form-control" rows="5" placeholder="Provide a detailed answer to the question..."></textarea>
+                        </div>
+                        
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="addQAPair">
+                            <i class="bi bi-plus-lg"></i>
+                            Add Q&A Pair
+                        </button>
+                    </div>
+                    
+                    <div class="qa-pairs mt-4">
+                        <h4>Added Q&A Pairs</h4>
+                        <div class="qa-pairs-list" id="qaPairsList"></div>
+                        <input type="hidden" asp-for="Content" id="qaContent" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="form-switch">
+                    <input asp-for="IsActive" class="form-switch-input" checked />
+                    <label asp-for="IsActive" class="form-switch-label">Active</label>
+                </div>
+                <div class="form-text">Enable or disable this document in the knowledge base</div>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Add Document
+                </button>
+                <a href="@Url.Action("Details", new { id = Model.KnowledgeBaseId })" class="btn btn-outline">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Document Type Selector */
+        .document-type-selector {
+            margin-bottom: 1.5rem;
+        }
+        
+        .document-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .document-type {
+            position: relative;
+        }
+        
+        .type-radio {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .type-label {
+            display: flex;
+            padding: 1rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .type-radio:checked + .type-label {
+            border-color: var(--color-primary);
+            background-color: rgba(13, 110, 253, 0.05);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+        }
+        
+        .type-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            font-size: 1.25rem;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+        }
+        
+        .type-info {
+            flex: 1;
+        }
+        
+        .type-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .type-description {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            line-height: 1.4;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* Content Editor */
+        .content-editor {
+            font-family: monospace;
+            letter-spacing: -0.025em;
+        }
+        
+        /* File Upload */
+        .file-upload-area {
+            position: relative;
+            border: 2px dashed var(--color-gray-300);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: var(--color-gray-50);
+            cursor: pointer;
+        }
+        
+        .file-upload-area:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
+        .file-upload-placeholder {
+            pointer-events: none;
+        }
+        
+        .file-upload-placeholder i {
+            font-size: 3rem;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .file-upload-placeholder p {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-upload-placeholder span {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        .file-preview {
+            display: none;
+            margin-top: 1rem;
+        }
+        
+        .file-preview.active {
+            display: block;
+        }
+        
+        /* Q&A Editor */
+        .qa-editor {
+            padding: 1rem;
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .qa-pairs {
+            margin-top: 1.5rem;
+        }
+        
+        .qa-pairs h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .qa-pair {
+            background-color: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .qa-pair-question {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .qa-pair-answer {
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+        }
+        
+        .qa-pair-remove {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .qa-pair-remove:hover {
+            color: var(--color-danger);
+        }
+        
+        .qa-pairs-empty {
+            padding: 1.5rem;
+            text-align: center;
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius);
+            color: var(--color-gray-600);
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Document type switching
+            const typeRadios = document.querySelectorAll('.type-radio');
+            const contentSections = document.querySelectorAll('.content-section');
+            
+            typeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const selectedType = this.id.replace('type-', '');
+                    
+                    // Hide all content sections
+                    contentSections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show selected content section
+                    document.getElementById(`content-${selectedType}`).classList.add('active');
+                });
+            });
+            
+            // File upload preview
+            const fileInput = document.getElementById('file');
+            const filePreview = document.querySelector('.file-preview');
+            const filePlaceholder = document.querySelector('.file-upload-placeholder');
+            
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        
+                        // Display file info
+                        filePreview.innerHTML = `
+                            <div class="file-info">
+                                <div class="file-name">
+                                    <i class="bi bi-file-earmark"></i>
+                                    <span>${file.name}</span>
+                                </div>
+                                <div class="file-size">${formatFileSize(file.size)}</div>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-danger" id="removeFile">
+                                <i class="bi bi-x"></i> Remove
+                            </button>
+                        `;
+                        
+                        filePreview.classList.add('active');
+                        filePlaceholder.style.display = 'none';
+                        
+                        // Remove file button
+                        const removeFileBtn = document.getElementById('removeFile');
+                        removeFileBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            fileInput.value = '';
+                            filePreview.classList.remove('active');
+                            filePlaceholder.style.display = 'block';
+                        });
+                    }
+                });
+            }
+            
+            // Q&A Pair handling
+            const addQAPairBtn = document.getElementById('addQAPair');
+            const qaPairsList = document.getElementById('qaPairsList');
+            const qaContent = document.getElementById('qaContent');
+            
+            let qaPairs = [];
+            
+            if (addQAPairBtn && qaPairsList) {
+                addQAPairBtn.addEventListener('click', function() {
+                    const question = document.getElementById('question').value.trim();
+                    const answer = document.getElementById('answer').value.trim();
+                    
+                    if (question && answer) {
+                        // Add to pairs array
+                        qaPairs.push({ question, answer });
+                        
+                        // Update hidden input with JSON
+                        qaContent.value = JSON.stringify(qaPairs);
+                        
+                        // Render pairs
+                        renderQAPairs();
+                        
+                        // Clear form
+                        document.getElementById('question').value = '';
+                        document.getElementById('answer').value = '';
+                    } else {
+                        alert('Please enter both a question and an answer');
+                    }
+                });
+                
+                function renderQAPairs() {
+                    if (qaPairs.length === 0) {
+                        qaPairsList.innerHTML = `
+                            <div class="qa-pairs-empty">
+                                No Q&A pairs added yet. Add your first pair above.
+                            </div>
+                        `;
+                        return;
+                    }
+                    
+                    qaPairsList.innerHTML = '';
+                    
+                    qaPairs.forEach((pair, index) => {
+                        const pairElement = document.createElement('div');
+                        pairElement.className = 'qa-pair';
+                        pairElement.innerHTML = `
+                            <div class="qa-pair-question">Q: ${pair.question}</div>
+                            <div class="qa-pair-answer">A: ${pair.answer}</div>
+                            <button type="button" class="qa-pair-remove" data-index="${index}">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        `;
+                        
+                        qaPairsList.appendChild(pairElement);
+                    });
+                    
+                    // Add remove event listeners
+                    document.querySelectorAll('.qa-pair-remove').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const index = parseInt(this.getAttribute('data-index'));
+                            qaPairs.splice(index, 1);
+                            qaContent.value = JSON.stringify(qaPairs);
+                            renderQAPairs();
+                        });
+                    });
+                }
+                
+                // Initial render
+                renderQAPairs();
+            }
+            
+            // Helper functions
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+        });
+    </script>
+}

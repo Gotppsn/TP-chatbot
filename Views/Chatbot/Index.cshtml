@@ -1,0 +1,447 @@
+@model IEnumerable<AIHelpdeskSupport.Models.Chatbot>
+@{
+    ViewData["Title"] = "Chatbots";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Chatbots</h1>
+        <p class="text-muted">Manage and monitor your AI-powered chatbots</p>
+    </div>
+    <div class="page-actions">
+        <div class="dropdown me-2">
+            <button class="btn btn-outline dropdown-toggle">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item active" href="#">All Chatbots</a>
+                <a class="dropdown-item" href="#">Active Only</a>
+                <a class="dropdown-item" href="#">Inactive Only</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Customer Service</a>
+                <a class="dropdown-item" href="#">IT Support</a>
+                <a class="dropdown-item" href="#">Sales</a>
+                <a class="dropdown-item" href="#">Billing</a>
+            </div>
+        </div>
+        <a href="/Chatbot/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create Chatbot</span>
+        </a>
+    </div>
+</div>
+
+<!-- Chatbot Grid View -->
+<div class="tab-content">
+    <div class="tab-pane show active" id="grid-view">
+        <div class="chatbot-grid">
+            @foreach (var chatbot in Model)
+            {
+                <div class="chatbot-card animate-card">
+                    <div class="chatbot-header">
+                        <div class="d-flex align-items-center">
+                            @{
+                                string iconClass = chatbot.Department switch
+                                {
+                                    "Customer Service" => "bi-headset",
+                                    "IT Support" => "bi-pc-display",
+                                    "Sales" => "bi-currency-dollar",
+                                    "Billing" => "bi-credit-card",
+                                    "Technical" => "bi-wrench",
+                                    _ => "bi-robot"
+                                };
+                                
+                                string colorClass = chatbot.Department switch
+                                {
+                                    "Customer Service" => "primary",
+                                    "IT Support" => "info",
+                                    "Sales" => "warning",
+                                    "Billing" => "danger",
+                                    "Technical" => "success",
+                                    _ => "secondary"
+                                };
+                            }
+                            
+                            <div class="chatbot-icon @colorClass">
+                                <i class="bi @iconClass"></i>
+                            </div>
+                            <div class="chatbot-info">
+                                <div class="chatbot-name">@chatbot.Name</div>
+                                <div class="chatbot-model">@chatbot.AiModel</div>
+                            </div>
+                        </div>
+                        <span class="chatbot-status @(chatbot.IsActive ? "active" : "inactive")">
+                            @(chatbot.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </div>
+                    
+                    <div class="chatbot-body">
+                        <div class="chatbot-department">
+                            <i class="bi bi-building"></i>
+                            <span>@chatbot.Department</span>
+                        </div>
+                        <div class="chatbot-description">
+                            @if (string.IsNullOrEmpty(chatbot.Description))
+                            {
+                                <span class="text-muted">No description provided</span>
+                            }
+                            else
+                            {
+                                @chatbot.Description
+                            }
+                        </div>
+                        
+                        <div class="chatbot-metrics">
+                            <div class="metric">
+                                <div class="metric-value">254</div>
+                                <div class="metric-label">Conversations</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">93%</div>
+                                <div class="metric-label">Success Rate</div>
+                            </div>
+                            <div class="metric">
+                                <div class="metric-value">2.6s</div>
+                                <div class="metric-label">Avg. Response</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chatbot-footer">
+                        <button class="btn btn-sm btn-outline-primary" onclick="location.href='/Chatbot/Edit/@chatbot.Id'">
+                            <i class="bi bi-pencil"></i>
+                            <span>Edit</span>
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="location.href='/Chatbot/Test/@chatbot.Id'">
+                            <i class="bi bi-chat-dots"></i>
+                            <span>Test</span>
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-sm btn-icon dropdown-toggle">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="/Chatbot/Details/@chatbot.Id">
+                                    <i class="bi bi-info-circle me-2"></i> Details
+                                </a>
+                                <a class="dropdown-item" href="/ChatWidget/Embed/@chatbot.Id">
+                                    <i class="bi bi-code-slash me-2"></i> Get Embed Code
+                                </a>
+                                <a class="dropdown-item" href="/Analytics/Chatbot/@chatbot.Id">
+                                    <i class="bi bi-graph-up me-2"></i> View Analytics
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item @(chatbot.IsActive ? "text-warning" : "text-success")">
+                                        <i class="bi @(chatbot.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                        @(chatbot.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                                <div class="dropdown-divider"></div>
+                                <form action="/Chatbot/Delete/@chatbot.Id" method="post" class="d-inline" 
+                                      onsubmit="return confirm('Are you sure you want to delete this chatbot?');">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-trash me-2"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Create New Chatbot Card -->
+            <div class="chatbot-card create-card animate-card" onclick="location.href='/Chatbot/Create'">
+                <div class="create-card-content">
+                    <div class="create-icon">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <div class="create-text">Create New Chatbot</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const dropdown = this.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.previousElementSibling.contains(event.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Handle dropdown item selection
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Don't prevent default for submit buttons in forms
+                    if (!this.closest('form')) {
+                        e.preventDefault();
+                    }
+                    
+                    // If it's a filter dropdown, update active state
+                    const filterDropdown = this.closest('.page-actions .dropdown-menu');
+                    if (filterDropdown) {
+                        filterDropdown.querySelectorAll('.dropdown-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Update dropdown button text
+                        const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle span');
+                        dropdownButton.textContent = this.textContent;
+                    }
+                    
+                    // Hide dropdown
+                    this.closest('.dropdown-menu').classList.remove('show');
+                });
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Chatbot Grid */
+        .chatbot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .chatbot-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+            height: 100%;
+        }
+        
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .chatbot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .chatbot-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+        }
+        
+        .chatbot-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .chatbot-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
+        .chatbot-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
+        .chatbot-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
+        .chatbot-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
+        .chatbot-icon.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
+        .chatbot-icon.secondary { background-color: rgba(108, 117, 125, 0.1); color: var(--color-secondary); }
+        
+        .chatbot-info {
+            min-width: 0;
+        }
+        
+        .chatbot-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .chatbot-model {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        .chatbot-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .chatbot-status.active {
+            background-color: rgba(32, 201, 151, 0.1);
+            color: var(--color-success);
+        }
+        
+        .chatbot-status.inactive {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+        
+        .chatbot-body {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chatbot-department {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: var(--color-gray-600);
+            font-size: 0.875rem;
+        }
+        
+        .chatbot-department i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .chatbot-description {
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        .chatbot-metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            border-top: 1px solid var(--color-gray-200);
+            padding-top: 1rem;
+        }
+        
+        .metric {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .metric-value {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--color-gray-900);
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        .chatbot-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Create New Card */
+        .create-card {
+            border: 2px dashed var(--color-gray-300);
+            background-color: var(--color-gray-50);
+            cursor: pointer;
+            min-height: 280px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .create-card:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .create-card-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .create-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .create-card:hover .create-icon {
+            transform: scale(1.1);
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .create-text {
+            font-weight: 500;
+            color: var(--color-gray-700);
+        }
+        
+        .create-card:hover .create-text {
+            color: var(--color-primary);
+        }
+        
+        /* Helper classes */
+        .d-inline { display: inline; }
+        .d-flex { display: flex; }
+        .align-items-center { align-items: center; }
+        .ms-auto { margin-left: auto; }
+        .me-2 { margin-right: 0.5rem; }
+        .text-muted { color: var(--color-gray-500); }
+        .text-danger { color: var(--color-danger); }
+        .text-success { color: var(--color-success); }
+        .text-warning { color: var(--color-warning); }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .chatbot-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}

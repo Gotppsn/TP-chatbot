@@ -1,0 +1,941 @@
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.csproj.AssemblyReference.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfoInputs.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfo.cs
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.csproj.CoreCompileInputs.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cs
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\appsettings.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.runtime.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.endpoints.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.exe
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.deps.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.runtimeconfig.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Azure.Core.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Azure.Identity.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Humanizer.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Build.Locator.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Identity.Stores.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Identity.Client.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\Mono.TextTemplating.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.ClientModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.AttributedModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Convention.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Hosting.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Runtime.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Formats.Asn1.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Memory.Data.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Security.Permissions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Text.Json.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\bundle\AIHelpdeskSupport.styles.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\projectbundle\AIHelpdeskSupport.bundle.scp.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\kga01zt9nh-61n19gt1b8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\lu8fhplpv1-xtxxf3hu2r.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\ookzxa6o9e-bqjiyaj88i.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\d0ourj8yno-c2jlpeoesf.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4io5f5hf03-erw9l3u2r3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\6o459615nz-aexeepp0ev.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tq07h6k6je-d7shbmvgxk.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dvgie90tz9-ausgxo2sd3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\nxog6uxw47-k8d9w2qqmf.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\de38qut082-cosvhxvwiu.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\xbbxk398fl-ub07r2b239.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qvin0wd7ev-fvhpjtyr6v.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qc0rr7kg7g-b7pk76d08c.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\uy5tyg7672-fsbi9cje9m.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\2uxxw1hhar-rzd6atqjts.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\gkgtc2qpnu-ee0r1s7dh0.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4bh8vugj7n-dxx9fxp4il.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\vmaiilenix-jd9uben2k1.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\g4kj2nl4k1-khv3u5hwcm.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\5cr3xm7tqy-r4e9w2rdcm.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\yskzb6z8dh-lcd1t2u6c8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\gzm7e50eq3-c2oey78nd0.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dhhx6j5jue-tdbxkamptv.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\u5d6fx0ouy-j5mq2jizvt.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\m96fkq6swl-06098lyss8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\xdinfkq593-nvvlpmu67g.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\08u3ti46zk-s35ty4nyc5.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\quutrfmqlw-pj5nd1wqec.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\w53vqsykyy-46ein0sx1k.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jtw7lpqhhd-v0zj4ognzu.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\0zed07h7zd-37tfw0ft22.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\wby9zosvut-hrwsygsryq.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4c6oljuzw0-pk9g2wxc8p.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\70uvod5px8-ft3s53vfgj.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\z4ohmupvdo-6cfz1n2cew.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jh3qorg1yr-6pdc2jztkx.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\33dn6ids2z-493y06b0oq.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\f1xhjjnh44-iovd86k7lj.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dm0l7gx7eq-vr1egmr9el.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\pel3whlauu-kbrnm935zg.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\3qu7sqliu2-jj8uyg4cgr.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\16xp71fuci-y7v9cxd14o.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\ic8leeftzm-notf2xhcfb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\2nijzf2ik5-h1s4sie4z3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4hznpdhi7s-63fj8s7r0e.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\kmxzy4pei9-0j3bgjxly4.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\x5hw7adiep-47otxtyo56.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\adh8u9jo82-4v8eqarkd7.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jhosh7g80t-356vix0kms.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tzuwrpwm9w-83jwlth58m.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\cde8fqhlse-mrlpezrjn3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\zv2rj2mpn0-lzl9nlhx6b.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\6fo3b405rh-ag7o75518u.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\cz6fuekbk0-x0q3zqp4vz.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tq0vglwccz-0i3buxo5is.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\o4qqx650ss-o1o13a6vjx.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\50chewiigi-ttgo8qnofa.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\3c6jw7z9mu-2z0ns9nrw6.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\b8fhnlje4l-muycvpuwrr.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\x2pn2hi6yp-87fc7y1x7t.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\225vl3oiqi-mlv21k5csn.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qa4hy8zsw8-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\k2wt6knkwi-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.build.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.pack.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpde.543DF030.Up2Date
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\refint\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.genruntimeconfig.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\ref\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4juo3d6crd-c749kre10r.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\a18zdfqr0q-fnrp6341e4.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\appsettings.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.endpoints.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.runtime.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.exe
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.deps.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.runtimeconfig.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Azure.Core.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Azure.Identity.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Humanizer.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Build.Locator.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Identity.Stores.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Identity.Client.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\Mono.TextTemplating.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.ClientModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Composition.AttributedModel.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Composition.Convention.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Composition.Hosting.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Composition.Runtime.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Formats.Asn1.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Memory.Data.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Security.Permissions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Text.Json.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.csproj.AssemblyReference.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfoInputs.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfo.cs
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.csproj.CoreCompileInputs.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cs
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.sourcelink.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\scopedcss\bundle\AIHelpdeskSupport.styles.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\scopedcss\projectbundle\AIHelpdeskSupport.bundle.scp.css
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\4juo3d6crd-c749kre10r.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\a18zdfqr0q-fnrp6341e4.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\23cdt1o6pc-461ipnksbt.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\kga01zt9nh-61n19gt1b8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\lu8fhplpv1-xtxxf3hu2r.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\ookzxa6o9e-bqjiyaj88i.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\d0ourj8yno-c2jlpeoesf.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\4io5f5hf03-erw9l3u2r3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\6o459615nz-aexeepp0ev.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\tq07h6k6je-d7shbmvgxk.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\dvgie90tz9-ausgxo2sd3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\nxog6uxw47-k8d9w2qqmf.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\de38qut082-cosvhxvwiu.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\xbbxk398fl-ub07r2b239.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\qvin0wd7ev-fvhpjtyr6v.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\qc0rr7kg7g-b7pk76d08c.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\uy5tyg7672-fsbi9cje9m.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\2uxxw1hhar-rzd6atqjts.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\gkgtc2qpnu-ee0r1s7dh0.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\4bh8vugj7n-dxx9fxp4il.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\vmaiilenix-jd9uben2k1.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\g4kj2nl4k1-khv3u5hwcm.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\5cr3xm7tqy-r4e9w2rdcm.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\yskzb6z8dh-lcd1t2u6c8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\gzm7e50eq3-c2oey78nd0.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\dhhx6j5jue-tdbxkamptv.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\u5d6fx0ouy-j5mq2jizvt.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\m96fkq6swl-06098lyss8.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\xdinfkq593-nvvlpmu67g.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\08u3ti46zk-s35ty4nyc5.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\quutrfmqlw-pj5nd1wqec.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\w53vqsykyy-46ein0sx1k.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\jtw7lpqhhd-v0zj4ognzu.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\0zed07h7zd-37tfw0ft22.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\wby9zosvut-hrwsygsryq.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\4c6oljuzw0-pk9g2wxc8p.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\70uvod5px8-ft3s53vfgj.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\z4ohmupvdo-6cfz1n2cew.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\jh3qorg1yr-6pdc2jztkx.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\33dn6ids2z-493y06b0oq.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\f1xhjjnh44-iovd86k7lj.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\dm0l7gx7eq-vr1egmr9el.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\pel3whlauu-kbrnm935zg.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\3qu7sqliu2-jj8uyg4cgr.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\16xp71fuci-y7v9cxd14o.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\ic8leeftzm-notf2xhcfb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\2nijzf2ik5-h1s4sie4z3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\4hznpdhi7s-63fj8s7r0e.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\kmxzy4pei9-0j3bgjxly4.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\x5hw7adiep-47otxtyo56.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\adh8u9jo82-4v8eqarkd7.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\jhosh7g80t-356vix0kms.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\tzuwrpwm9w-83jwlth58m.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\cde8fqhlse-mrlpezrjn3.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\zv2rj2mpn0-lzl9nlhx6b.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\6fo3b405rh-ag7o75518u.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\cz6fuekbk0-x0q3zqp4vz.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\tq0vglwccz-0i3buxo5is.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\o4qqx650ss-o1o13a6vjx.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\50chewiigi-ttgo8qnofa.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\3c6jw7z9mu-2z0ns9nrw6.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\b8fhnlje4l-muycvpuwrr.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\x2pn2hi6yp-87fc7y1x7t.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\225vl3oiqi-mlv21k5csn.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\qa4hy8zsw8-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\compressed\k2wt6knkwi-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets\msbuild.build.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\staticwebassets.pack.json
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpde.543DF030.Up2Date
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\refint\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\AIHelpdeskSupport.genruntimeconfig.cache
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\flo-helpdesk\obj\Debug\net9.0\ref\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\23cdt1o6pc-p9tdv7h4cn.gz
+C:\Users\panupol\Desktop\flwchatbot\AIHelpdeskSupport\obj\Debug\net9.0\compressed\zygnymujis-v9ww5q9loc.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\appsettings.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.endpoints.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.runtime.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.exe
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.deps.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.runtimeconfig.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Azure.Core.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Azure.Identity.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Humanizer.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Build.Locator.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Data.SqlClient.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Identity.Client.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\Mono.TextTemplating.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.ClientModel.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.AttributedModel.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Convention.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Hosting.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.Runtime.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Memory.Data.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Runtime.Caching.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Security.Permissions.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\System.Windows.Extensions.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.csproj.AssemblyReference.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfoInputs.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfo.cs
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.csproj.CoreCompileInputs.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cs
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\bundle\AIHelpdeskSupport.styles.css
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\scopedcss\projectbundle\AIHelpdeskSupport.bundle.scp.css
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4juo3d6crd-c749kre10r.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\a18zdfqr0q-fnrp6341e4.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\23cdt1o6pc-p9tdv7h4cn.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\kga01zt9nh-61n19gt1b8.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\lu8fhplpv1-xtxxf3hu2r.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\ookzxa6o9e-bqjiyaj88i.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\d0ourj8yno-c2jlpeoesf.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4io5f5hf03-erw9l3u2r3.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\6o459615nz-aexeepp0ev.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tq07h6k6je-d7shbmvgxk.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dvgie90tz9-ausgxo2sd3.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\nxog6uxw47-k8d9w2qqmf.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\de38qut082-cosvhxvwiu.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\xbbxk398fl-ub07r2b239.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qvin0wd7ev-fvhpjtyr6v.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qc0rr7kg7g-b7pk76d08c.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\uy5tyg7672-fsbi9cje9m.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\2uxxw1hhar-rzd6atqjts.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\gkgtc2qpnu-ee0r1s7dh0.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4bh8vugj7n-dxx9fxp4il.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\vmaiilenix-jd9uben2k1.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\g4kj2nl4k1-khv3u5hwcm.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\5cr3xm7tqy-r4e9w2rdcm.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\yskzb6z8dh-lcd1t2u6c8.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\gzm7e50eq3-c2oey78nd0.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dhhx6j5jue-tdbxkamptv.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\u5d6fx0ouy-j5mq2jizvt.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\m96fkq6swl-06098lyss8.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\xdinfkq593-nvvlpmu67g.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\08u3ti46zk-s35ty4nyc5.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\quutrfmqlw-pj5nd1wqec.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\w53vqsykyy-46ein0sx1k.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jtw7lpqhhd-v0zj4ognzu.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\0zed07h7zd-37tfw0ft22.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\wby9zosvut-hrwsygsryq.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4c6oljuzw0-pk9g2wxc8p.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\70uvod5px8-ft3s53vfgj.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\z4ohmupvdo-6cfz1n2cew.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jh3qorg1yr-6pdc2jztkx.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\33dn6ids2z-493y06b0oq.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\f1xhjjnh44-iovd86k7lj.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\dm0l7gx7eq-vr1egmr9el.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\pel3whlauu-kbrnm935zg.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\3qu7sqliu2-jj8uyg4cgr.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\16xp71fuci-y7v9cxd14o.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\ic8leeftzm-notf2xhcfb.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\2nijzf2ik5-h1s4sie4z3.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\4hznpdhi7s-63fj8s7r0e.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\kmxzy4pei9-0j3bgjxly4.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\x5hw7adiep-47otxtyo56.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\adh8u9jo82-4v8eqarkd7.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\jhosh7g80t-356vix0kms.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tzuwrpwm9w-83jwlth58m.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\cde8fqhlse-mrlpezrjn3.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\zv2rj2mpn0-lzl9nlhx6b.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\6fo3b405rh-ag7o75518u.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\cz6fuekbk0-x0q3zqp4vz.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\tq0vglwccz-0i3buxo5is.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\o4qqx650ss-o1o13a6vjx.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\50chewiigi-ttgo8qnofa.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\3c6jw7z9mu-2z0ns9nrw6.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\b8fhnlje4l-muycvpuwrr.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\x2pn2hi6yp-87fc7y1x7t.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\225vl3oiqi-mlv21k5csn.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\qa4hy8zsw8-6hyvtt3ebb.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\k2wt6knkwi-6hyvtt3ebb.gz
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.build.AIHelpdeskSupport.props
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.AIHelpdeskSupport.props
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.AIHelpdeskSupport.props
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\staticwebassets.pack.json
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpde.543DF030.Up2Date
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\refint\AIHelpdeskSupport.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\AIHelpdeskSupport.genruntimeconfig.cache
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\ref\AIHelpdeskSupport.dll
+C:\Users\got01\Desktop\AIHelpdeskSupport 1.1\AIHelpdeskSupport\obj\Debug\net9.0\compressed\zygnymujis-p1s0yxkflr.gz
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\appsettings.Development.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\appsettings.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.runtime.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.staticwebassets.endpoints.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.exe
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.deps.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.runtimeconfig.json
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Azure.Core.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Azure.Identity.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Humanizer.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Build.Locator.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.CSharp.Workspaces.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.CodeAnalysis.Workspaces.MSBuild.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Design.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.Relational.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.EntityFrameworkCore.SqlServer.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Caching.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.DependencyModel.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Identity.Core.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Identity.Stores.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Logging.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Options.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Extensions.Primitives.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Identity.Client.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Identity.Client.Extensions.Msal.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.SqlServer.Server.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\Mono.TextTemplating.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.ClientModel.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.CodeDom.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Composition.AttributedModel.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Composition.Convention.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Composition.Hosting.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Composition.Runtime.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Composition.TypedParts.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Configuration.ConfigurationManager.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Formats.Asn1.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Memory.Data.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Security.Permissions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Text.Json.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\cs\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\de\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\es\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\fr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\it\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ja\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ko\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pl\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\pt-BR\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\ru\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\unix\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Data.SqlClient.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win-arm\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win-arm64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win-x64\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\Microsoft.Win32.SystemEvents.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\unix\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Drawing.Common.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Runtime.Caching.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Security.Cryptography.ProtectedData.dll
+C:\Users\panupol\Desktop\flowiseUI\bin\Debug\net9.0\runtimes\win\lib\net6.0\System.Windows.Extensions.dll
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.csproj.AssemblyReference.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfoInputs.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.AssemblyInfo.cs
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.csproj.CoreCompileInputs.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.RazorAssemblyInfo.cs
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\scopedcss\bundle\AIHelpdeskSupport.styles.css
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\scopedcss\projectbundle\AIHelpdeskSupport.bundle.scp.css
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\4juo3d6crd-8pjlfxm4sy.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\a18zdfqr0q-294ejhk077.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\zygnymujis-a7npsxpiuc.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\23cdt1o6pc-w0utwz6lk5.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\kga01zt9nh-61n19gt1b8.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\lu8fhplpv1-fr7q2aak1r.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\ookzxa6o9e-bqjiyaj88i.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\d0ourj8yno-c2jlpeoesf.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\4io5f5hf03-erw9l3u2r3.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\6o459615nz-aexeepp0ev.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\tq07h6k6je-d7shbmvgxk.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\dvgie90tz9-ausgxo2sd3.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\nxog6uxw47-k8d9w2qqmf.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\de38qut082-cosvhxvwiu.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\xbbxk398fl-ub07r2b239.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\qvin0wd7ev-fvhpjtyr6v.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\qc0rr7kg7g-b7pk76d08c.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\uy5tyg7672-fsbi9cje9m.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\2uxxw1hhar-rzd6atqjts.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\gkgtc2qpnu-ee0r1s7dh0.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\4bh8vugj7n-dxx9fxp4il.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\vmaiilenix-jd9uben2k1.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\g4kj2nl4k1-khv3u5hwcm.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\5cr3xm7tqy-r4e9w2rdcm.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\yskzb6z8dh-lcd1t2u6c8.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\gzm7e50eq3-c2oey78nd0.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\dhhx6j5jue-tdbxkamptv.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\u5d6fx0ouy-j5mq2jizvt.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\m96fkq6swl-06098lyss8.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\xdinfkq593-nvvlpmu67g.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\08u3ti46zk-s35ty4nyc5.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\quutrfmqlw-pj5nd1wqec.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\w53vqsykyy-46ein0sx1k.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\jtw7lpqhhd-v0zj4ognzu.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\0zed07h7zd-37tfw0ft22.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\wby9zosvut-hrwsygsryq.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\4c6oljuzw0-pk9g2wxc8p.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\70uvod5px8-ft3s53vfgj.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\z4ohmupvdo-6cfz1n2cew.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\jh3qorg1yr-6pdc2jztkx.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\33dn6ids2z-493y06b0oq.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\f1xhjjnh44-iovd86k7lj.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\dm0l7gx7eq-vr1egmr9el.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\pel3whlauu-kbrnm935zg.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\3qu7sqliu2-jj8uyg4cgr.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\16xp71fuci-y7v9cxd14o.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\ic8leeftzm-notf2xhcfb.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\2nijzf2ik5-h1s4sie4z3.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\4hznpdhi7s-63fj8s7r0e.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\kmxzy4pei9-0j3bgjxly4.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\x5hw7adiep-47otxtyo56.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\adh8u9jo82-4v8eqarkd7.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\jhosh7g80t-l3n5xuwxn8.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\tzuwrpwm9w-ilo7uva0vt.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\cde8fqhlse-qlccset4i1.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\zv2rj2mpn0-lzl9nlhx6b.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\6fo3b405rh-ag7o75518u.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\cz6fuekbk0-xzw0cte36n.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\tq0vglwccz-0i3buxo5is.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\o4qqx650ss-o1o13a6vjx.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\50chewiigi-ttgo8qnofa.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\3c6jw7z9mu-2z0ns9nrw6.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\b8fhnlje4l-muycvpuwrr.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\x2pn2hi6yp-87fc7y1x7t.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\225vl3oiqi-jfsiqqwiad.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\qa4hy8zsw8-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\compressed\k2wt6knkwi-6hyvtt3ebb.gz
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets.development.json
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets.build.endpoints.json
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets\msbuild.AIHelpdeskSupport.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets\msbuild.build.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets\msbuild.buildMultiTargeting.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets\msbuild.buildTransitive.AIHelpdeskSupport.props
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\staticwebassets.pack.json
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpde.543DF030.Up2Date
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\refint\AIHelpdeskSupport.dll
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.pdb
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\AIHelpdeskSupport.genruntimeconfig.cache
+C:\Users\panupol\Desktop\flowiseUI\obj\Debug\net9.0\ref\AIHelpdeskSupport.dll

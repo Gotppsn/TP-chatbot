@@ -1,0 +1,779 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="dashboard-hero mb-4">
+    <div class="hero-content">
+        <h1>Welcome to AI Helpdesk Support</h1>
+        <p>Monitor and manage your AI-powered chatbots from a single dashboard</p>
+    </div>
+    <div class="hero-actions">
+        <a href="/Chatbot/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Create New Chatbot
+        </a>
+        <a href="/Analytics" class="btn btn-outline">
+            <i class="bi bi-graph-up"></i>
+            View Analytics
+        </a>
+    </div>
+</div>
+
+<div class="stats-overview">
+    <div class="stat-card primary animate-card">
+        <div class="stat-icon">
+            <i class="bi bi-robot"></i>
+        </div>
+        <div class="stat-content">
+            <h2 class="stat-value">8</h2>
+            <div class="stat-label">Active Chatbots</div>
+            <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i>
+                <span>12% this month</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card success animate-card" style="animation-delay: 0.1s">
+        <div class="stat-icon">
+            <i class="bi bi-chat-dots"></i>
+        </div>
+        <div class="stat-content">
+            <h2 class="stat-value">127</h2>
+            <div class="stat-label">Today's Conversations</div>
+            <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i>
+                <span>8% vs yesterday</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card info animate-card" style="animation-delay: 0.2s">
+        <div class="stat-icon">
+            <i class="bi bi-clock"></i>
+        </div>
+        <div class="stat-content">
+            <h2 class="stat-value">2.4<small>s</small></h2>
+            <div class="stat-label">Avg. Response Time</div>
+            <div class="stat-trend down">
+                <i class="bi bi-arrow-down"></i>
+                <span>0.3s improvement</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card warning animate-card" style="animation-delay: 0.3s">
+        <div class="stat-icon">
+            <i class="bi bi-star"></i>
+        </div>
+        <div class="stat-content">
+            <h2 class="stat-value">94<small>%</small></h2>
+            <div class="stat-label">User Satisfaction</div>
+            <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i>
+                <span>2% this month</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card animate-card wide" style="animation-delay: 0.4s">
+        <div class="card-header">
+            <h2>Conversations by Department</h2>
+            <div class="card-actions">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline dropdown-toggle" type="button">
+                        <span>Last 7 Days</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item active" href="#">Last 7 Days</a></li>
+                        <li><a class="dropdown-item" href="#">Last 30 Days</a></li>
+                        <li><a class="dropdown-item" href="#">This Quarter</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="conversationsChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="dashboard-card animate-card" style="animation-delay: 0.5s">
+        <div class="card-header">
+            <h2>Chatbot Usage</h2>
+            <div class="card-actions">
+                <button class="btn-icon" title="Refresh Data">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="usageChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="dashboard-card animate-card" style="animation-delay: 0.6s">
+        <div class="card-header">
+            <h2>Recent Activity</h2>
+        </div>
+        <div class="card-body p-0">
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon success">
+                        <i class="bi bi-check-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>Customer Support Bot resolved ticket #1234</p>
+                        <span class="activity-time">10:24 AM</span>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon warning">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>IT Helper escalated ticket #5678 to human agent</p>
+                        <span class="activity-time">09:45 AM</span>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon info">
+                        <i class="bi bi-person-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>Sales Assistant captured new lead from website chat</p>
+                        <span class="activity-time">09:32 AM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="#" class="btn-text">
+                View All Activity <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <div class="dashboard-card animate-card" style="animation-delay: 0.7s">
+        <div class="card-header">
+            <h2>Quick Actions</h2>
+        </div>
+        <div class="card-body">
+            <div class="quick-actions">
+                <a href="/Chatbot/Create" class="quick-action">
+                    <div class="quick-action-icon primary">
+                        <i class="bi bi-plus-circle"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h3>New Chatbot</h3>
+                        <p>Create a custom AI assistant</p>
+                    </div>
+                </a>
+                <a href="/KnowledgeBase/Create" class="quick-action">
+                    <div class="quick-action-icon info">
+                        <i class="bi bi-journals"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h3>Add Knowledge</h3>
+                        <p>Train your chatbots</p>
+                    </div>
+                </a>
+                <a href="/Analytics" class="quick-action">
+                    <div class="quick-action-icon success">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h3>Analytics</h3>
+                        <p>View conversation insights</p>
+                    </div>
+                </a>
+                <a href="/Settings" class="quick-action">
+                    <div class="quick-action-icon warning">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <div class="quick-action-text">
+                        <h3>Settings</h3>
+                        <p>Configure your platform</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const dropdown = this.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.previousElementSibling.contains(event.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Conversations by Department Chart
+            new Chart(document.getElementById('conversationsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Sales', 'IT Support', 'Customer Service', 'Billing', 'Technical', 'Operations'],
+                    datasets: [{
+                        label: 'Daily Conversations',
+                        data: [65, 98, 124, 43, 76, 35],
+                        backgroundColor: '#0d6efd',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Chatbot Usage Chart
+            new Chart(document.getElementById('usageChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Sales Bot', 'IT Helper', 'Customer Support', 'Other Bots'],
+                    datasets: [{
+                        data: [35, 25, 30, 10],
+                        backgroundColor: ['#0d6efd', '#20c997', '#fd7e14', '#6c757d'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    cutout: '65%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Dashboard Hero Section */
+        .dashboard-hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-md);
+        }
+        
+        .hero-content h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem;
+        }
+        
+        .hero-content p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .hero-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .hero-actions .btn-outline {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+        
+        .hero-actions .btn-outline:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        /* Stats Overview */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+        }
+        
+        .stat-card.primary::before { background-color: var(--color-primary); }
+        .stat-card.success::before { background-color: var(--color-success); }
+        .stat-card.info::before { background-color: var(--color-info); }
+        .stat-card.warning::before { background-color: var(--color-warning); }
+        
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1.25rem;
+            font-size: 1.75rem;
+            flex-shrink: 0;
+        }
+        
+        .stat-card.primary .stat-icon { 
+            background-color: rgba(13, 110, 253, 0.1); 
+            color: var(--color-primary); 
+        }
+        .stat-card.success .stat-icon { 
+            background-color: rgba(32, 201, 151, 0.1); 
+            color: var(--color-success); 
+        }
+        .stat-card.info .stat-icon { 
+            background-color: rgba(13, 202, 240, 0.1); 
+            color: var(--color-info); 
+        }
+        .stat-card.warning .stat-icon { 
+            background-color: rgba(255, 193, 7, 0.1); 
+            color: var(--color-warning); 
+        }
+        
+        .stat-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem;
+            line-height: 1.2;
+            display: flex;
+            align-items: baseline;
+            color: var(--color-gray-900);
+        }
+        
+        .stat-value small {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: 2px;
+            opacity: 0.7;
+        }
+        
+        .stat-label {
+            color: var(--color-gray-500);
+            margin: 0 0 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+            width: fit-content;
+        }
+        
+        .stat-trend.up { 
+            color: var(--color-success);
+            background-color: rgba(32, 201, 151, 0.1);
+        }
+        .stat-trend.down { 
+            color: var(--color-danger);
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        
+        .stat-trend i {
+            margin-right: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .dashboard-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .dashboard-card.wide {
+            grid-column: span 2;
+        }
+        
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-header h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--color-gray-800);
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+            flex: 1;
+        }
+        
+        .card-body.p-0 {
+            padding: 0;
+        }
+        
+        .card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Activity List */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .activity-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.125rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
+        .activity-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
+        .activity-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
+        .activity-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
+        .activity-icon.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-content p {
+            margin: 0 0 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .quick-action {
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--color-gray-700);
+            transition: all 0.3s ease;
+            border: 1px solid var(--color-gray-200);
+        }
+        
+        .quick-action:hover {
+            background-color: white;
+            transform: translateY(-3px);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            border-color: var(--color-gray-300);
+        }
+        
+        .quick-action-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .quick-action-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
+        .quick-action-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
+        .quick-action-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
+        .quick-action-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
+        
+        .quick-action-text {
+            flex: 1;
+        }
+        
+        .quick-action-text h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+            color: var(--color-gray-800);
+        }
+        
+        .quick-action-text p {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin: 0;
+        }
+        
+        /* Animation */
+        .animate-card {
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        @@keyframes fadeInUp {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .dropdown-toggle i {
+            font-size: 0.75rem;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 1000;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            background-color: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            display: none;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1.25rem;
+            clear: both;
+            font-weight: 400;
+            color: var(--color-gray-700);
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            text-decoration: none;
+        }
+        
+        .dropdown-item:hover, .dropdown-item:focus {
+            color: var(--color-gray-900);
+            text-decoration: none;
+            background-color: var(--color-gray-100);
+        }
+        
+        .dropdown-item.active {
+            color: var(--color-primary);
+            font-weight: 500;
+            background-color: var(--color-gray-50);
+        }
+        
+        /* Button Text Link */
+        .btn-text {
+            display: inline-flex;
+            align-items: center;
+            color: var(--color-primary);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-text i {
+            margin-left: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn-text:hover {
+            color: var(--color-primary-dark);
+            text-decoration: none;
+        }
+        
+        .btn-text:hover i {
+            transform: translateX(3px);
+        }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @@media (max-width: 991px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-card.wide {
+                grid-column: span 1;
+            }
+            
+            .dashboard-hero {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .hero-actions {
+                width: 100%;
+            }
+        }
+        
+        @@media (max-width: 767px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}

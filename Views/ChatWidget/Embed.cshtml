@@ -1,0 +1,281 @@
+// Views/ChatWidget/Embed.cshtml
+@model AIHelpdeskSupport.Models.ChatWidgetSettings
+@{
+    ViewData["Title"] = "Chat Widget";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Chat Widget</h1>
+        <p class="text-muted">Embed your chatbot on any website</p>
+    </div>
+    <div class="page-actions">
+        <a href="/Chatbot/Test/@Model.ChatbotId" class="btn btn-outline">
+            <i class="bi bi-chat-dots"></i>
+            Test Chatbot
+        </a>
+        <a href="/ChatWidget/CustomizeWidget/@Model.ChatbotId" class="btn btn-primary">
+            <i class="bi bi-sliders"></i>
+            Customize Widget
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-7 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h2>Embed Code</h2>
+                <p class="text-muted">Copy this code to embed the chatbot on your website</p>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.EmbedCode != null)
+                {
+                    <div class="embed-code-container">
+                        <pre class="embed-code"><code>@ViewBag.EmbedCode</code></pre>
+                        <button class="btn btn-sm btn-primary copy-button" id="copyEmbedCode">
+                            <i class="bi bi-clipboard"></i> Copy Code
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="GenerateEmbedCode" method="post">
+                        <input type="hidden" asp-for="ChatbotId" />
+                        <input type="hidden" asp-for="WidgetTitle" />
+                        <input type="hidden" asp-for="WelcomeMessage" />
+                        <input type="hidden" asp-for="Placeholder" />
+                        <input type="hidden" asp-for="PrimaryColor" />
+                        <input type="hidden" asp-for="LogoUrl" />
+                        <input type="hidden" asp-for="Position" />
+                        <input type="hidden" asp-for="AutoOpen" />
+                        <input type="hidden" asp-for="ShowTimestamp" />
+                        <input type="hidden" asp-for="EnableFileUpload" />
+                        <input type="hidden" asp-for="EnableVoiceInput" />
+                        
+                        <p>Click the button below to generate the embed code for your chatbot:</p>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-code-slash"></i> Generate Embed Code
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h2>Installation Instructions</h2>
+            </div>
+            <div class="card-body">
+                <ol class="installation-steps">
+                    <li>
+                        <strong>Copy the embed code</strong>
+                        <p>Click the "Copy Code" button above to copy the embed code to your clipboard.</p>
+                    </li>
+                    <li>
+                        <strong>Paste into your website</strong>
+                        <p>Paste the code into the HTML of your website, just before the closing &lt;/body&gt; tag.</p>
+                    </li>
+                    <li>
+                        <strong>Test the widget</strong>
+                        <p>Refresh your website and check that the chat widget appears in the bottom corner.</p>
+                    </li>
+                </ol>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Need help? Contact support for assistance with installation.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-5 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h2>Widget Preview</h2>
+            </div>
+            <div class="card-body preview-container">
+                <div class="widget-preview">
+                    <div class="preview-device">
+                        <div class="preview-website">
+                            <div class="preview-header">
+                                <div class="preview-url">www.yourwebsite.com</div>
+                            </div>
+                            <div class="preview-content"></div>
+                            
+                            <!-- Chat Widget Preview -->
+                            @await Html.PartialAsync("_ChatWidgetPartial", Model)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Embed Code Styles */
+        .embed-code-container {
+            position: relative;
+        }
+        
+        .embed-code {
+            background-color: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin: 0;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .copy-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+        }
+        
+        /* Installation Steps */
+        .installation-steps {
+            padding-left: 1.5rem;
+        }
+        
+        .installation-steps li {
+            margin-bottom: 1rem;
+        }
+        
+        .installation-steps p {
+            margin: 0.5rem 0 0 0;
+            color: var(--color-gray-600);
+            font-size: 0.875rem;
+        }
+        
+        /* Alert Styles */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1.5rem;
+        }
+        
+        .alert-info {
+            background-color: rgba(13, 202, 240, 0.1);
+            border: 1px solid rgba(13, 202, 240, 0.2);
+            color: var(--color-info);
+        }
+        
+        .alert i {
+            font-size: 1.25rem;
+            margin-right: 0.75rem;
+            margin-top: 0.125rem;
+        }
+        
+        /* Preview Styles */
+        .preview-container {
+            padding: 0;
+        }
+        
+        .widget-preview {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        .preview-device {
+            width: 100%;
+            max-width: 375px;
+            height: 600px;
+            background-color: #e9ecef;
+            border-radius: 2rem;
+            padding: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .preview-website {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .preview-header {
+            height: 3rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+        
+        .preview-url {
+            background-color: #f8f9fa;
+            border-radius: 100px;
+            padding: 0.375rem 1rem;
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+            width: 100%;
+            text-align: center;
+        }
+        
+        .preview-content {
+            height: calc(100% - 3rem);
+            background-color: white;
+            overflow: hidden;
+        }
+        
+        /* Override widget styles for preview */
+        .widget-preview .chat-widget-container {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+        }
+        
+        .widget-preview .chat-widget-popup {
+            width: 300px;
+            height: 400px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Copy embed code functionality
+            const copyButton = document.getElementById('copyEmbedCode');
+            
+            if (copyButton) {
+                copyButton.addEventListener('click', function() {
+                    const embedCode = document.querySelector('.embed-code').textContent;
+                    
+                    navigator.clipboard.writeText(embedCode)
+                        .then(() => {
+                            // Change button text temporarily
+                            const originalText = copyButton.innerHTML;
+                            copyButton.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+                            
+                            setTimeout(() => {
+                                copyButton.innerHTML = originalText;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy text: ', err);
+                        });
+                });
+            }
+            
+            // Auto-open widget in preview
+            setTimeout(() => {
+                document.querySelector('.widget-preview .chat-widget-container').classList.add('open');
+            }, 1000);
+        });
+    </script>
+}

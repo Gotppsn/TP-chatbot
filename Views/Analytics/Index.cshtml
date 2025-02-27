@@ -1,0 +1,698 @@
+@{
+    ViewData["Title"] = "Analytics Dashboard";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Analytics Dashboard</h1>
+        <p class="text-muted">Track the performance of your AI chatbots</p>
+    </div>
+    <div class="page-actions">
+        <div class="btn-group">
+            <button class="btn btn-outline active">Day</button>
+            <button class="btn btn-outline">Week</button>
+            <button class="btn btn-outline">Month</button>
+        </div>
+        <button class="btn btn-primary">
+            <i class="bi bi-download"></i>
+            Export Report
+        </button>
+    </div>
+</div>
+
+<div class="stats-overview">
+    <div class="stat-card primary">
+        <div class="stat-icon">
+            <i class="bi bi-chat-dots"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">3,425</div>
+            <div class="stat-label">Total Conversations</div>
+            <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i>
+                12% increase
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card success">
+        <div class="stat-icon">
+            <i class="bi bi-check-circle"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">87.1%</div>
+            <div class="stat-label">Resolution Rate</div>
+            <div class="stat-trend up">
+                <i class="bi bi-arrow-up"></i>
+                3.2% increase
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card info">
+        <div class="stat-icon">
+            <i class="bi bi-clock"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">2.4s</div>
+            <div class="stat-label">Avg. Response Time</div>
+            <div class="stat-trend down">
+                <i class="bi bi-arrow-down"></i>
+                0.3s improvement
+            </div>
+        </div>
+    </div>
+    
+    <div class="stat-card warning">
+        <div class="stat-icon">
+            <i class="bi bi-person"></i>
+        </div>
+        <div class="stat-content">
+            <div class="stat-value">12.9%</div>
+            <div class="stat-label">Human Escalation</div>
+            <div class="stat-trend down">
+                <i class="bi bi-arrow-down"></i>
+                2.1% decrease
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="analytics-grid">
+    <!-- Activity Chart -->
+    <div class="analytics-card lg">
+        <div class="card-header">
+            <h2>Conversations Over Time</h2>
+            <div class="card-actions">
+                <button class="btn-icon dropdown-toggle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Satisfaction Chart -->
+    <div class="analytics-card md">
+        <div class="card-header">
+            <h2>User Satisfaction</h2>
+            <div class="card-actions">
+                <button class="btn-icon dropdown-toggle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="satisfactionChart"></canvas>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="satisfaction-stats">
+                <div class="satisfaction-stat">
+                    <div class="stat-number">4.7</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+                <div class="satisfaction-stat">
+                    <div class="stat-number">94%</div>
+                    <div class="stat-label">Positive Reviews</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resolution Chart -->
+    <div class="analytics-card md">
+        <div class="card-header">
+            <h2>Resolution Rate</h2>
+            <div class="card-actions">
+                <button class="btn-icon dropdown-toggle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="resolutionChart"></canvas>
+            </div>
+        </div>
+        <div class="card-footer data-summary">
+            <div class="summary-item success">
+                <div class="item-value">2,984</div>
+                <div class="item-label">Resolved</div>
+            </div>
+            <div class="summary-item warning">
+                <div class="item-value">287</div>
+                <div class="item-label">Escalated</div>
+            </div>
+            <div class="summary-item danger">
+                <div class="item-value">154</div>
+                <div class="item-label">Unresolved</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Department Performance -->
+    <div class="analytics-card md">
+        <div class="card-header">
+            <h2>Department Performance</h2>
+            <div class="card-actions">
+                <button class="btn-icon dropdown-toggle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="performance-table">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th class="text-center">Volume</th>
+                                <th class="text-center">Resolution</th>
+                                <th class="text-center">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="department-name">Customer Service</div>
+                                </td>
+                                <td class="text-center">1,284</td>
+                                <td class="text-center">
+                                    <div class="progress-bar">
+                                        <div class="progress-value" style="width: 92%"></div>
+                                        <span>92%</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">2.1s</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="department-name">IT Support</div>
+                                </td>
+                                <td class="text-center">876</td>
+                                <td class="text-center">
+                                    <div class="progress-bar">
+                                        <div class="progress-value" style="width: 85%"></div>
+                                        <span>85%</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">2.8s</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="department-name">Sales</div>
+                                </td>
+                                <td class="text-center">692</td>
+                                <td class="text-center">
+                                    <div class="progress-bar">
+                                        <div class="progress-value" style="width: 78%"></div>
+                                        <span>78%</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">2.4s</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="department-name">Billing</div>
+                                </td>
+                                <td class="text-center">573</td>
+                                <td class="text-center">
+                                    <div class="progress-bar">
+                                        <div class="progress-value" style="width: 89%"></div>
+                                        <span>89%</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">2.3s</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Popular Topics -->
+    <div class="analytics-card md">
+        <div class="card-header">
+            <h2>Popular Topics</h2>
+            <div class="card-actions">
+                <button class="btn-icon dropdown-toggle">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="topicsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Analytics Dashboard Styles */
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .analytics-card {
+            background-color: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .analytics-card.lg {
+            grid-column: span 2;
+        }
+        
+        .analytics-card.md {
+            grid-column: span 1;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .card-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .card-body {
+            flex: 1;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        /* Chart Containers */
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+        }
+        
+        /* Satisfaction Stats */
+        .satisfaction-stats {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .satisfaction-stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Data Summary */
+        .data-summary {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 0 1rem;
+        }
+        
+        .summary-item.success .item-value {
+            color: var(--color-success);
+        }
+        
+        .summary-item.warning .item-value {
+            color: var(--color-warning);
+        }
+        
+        .summary-item.danger .item-value {
+            color: var(--color-danger);
+        }
+        
+        .item-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .item-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Table Styles */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .department-name {
+            font-weight: 500;
+            color: var(--color-gray-800);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            height: 6px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+            width: 100px;
+            display: inline-block;
+        }
+        
+        .progress-value {
+            height: 100%;
+            background-color: var(--color-primary);
+            border-radius: 100px;
+        }
+        
+        .progress-bar span {
+            position: absolute;
+            top: -18px;
+            right: 0;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .analytics-card.lg,
+            .analytics-card.md {
+                grid-column: span 1;
+            }
+        }
+        
+        @@media (max-width: 576px) {
+            .stats-overview {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set Chart.js defaults
+            Chart.defaults.font.family = "'Inter', sans-serif";
+            Chart.defaults.font.size = 12;
+            Chart.defaults.color = '#6B7280';
+            Chart.defaults.plugins.legend.position = 'bottom';
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
+            Chart.defaults.plugins.legend.labels.boxWidth = 6;
+            Chart.defaults.plugins.legend.labels.padding = 20;
+            Chart.defaults.elements.point.radius = 4;
+            Chart.defaults.elements.point.hoverRadius = 6;
+            
+            // Activity Chart
+            const activityCtx = document.getElementById('activityChart').getContext('2d');
+            const activityGradient = activityCtx.createLinearGradient(0, 0, 0, 300);
+            activityGradient.addColorStop(0, 'rgba(13, 110, 253, 0.2)');
+            activityGradient.addColorStop(1, 'rgba(13, 110, 253, 0)');
+            
+            new Chart(activityCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        {
+                            label: 'Conversations',
+                            data: [124, 146, 132, 155, 142, 98, 87],
+                            borderColor: '#0d6efd',
+                            backgroundColor: activityGradient,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#0d6efd',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Resolved',
+                            data: [110, 128, 118, 135, 125, 86, 77],
+                            borderColor: '#20c997',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#20c997',
+                            pointBorderWidth: 2,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: '#ffffff',
+                            titleColor: '#111827',
+                            bodyColor: '#111827',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: '#f3f4f6'
+                            },
+                            ticks: {
+                                stepSize: 50
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Satisfaction Chart
+            const satisfactionCtx = document.getElementById('satisfactionChart').getContext('2d');
+            
+            new Chart(satisfactionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star'],
+                    datasets: [{
+                        data: [62, 32, 4, 1, 1],
+                        backgroundColor: [
+                            '#22c55e',
+                            '#10b981',
+                            '#3b82f6',
+                            '#f59e0b',
+                            '#ef4444'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            titleColor: '#111827',
+                            bodyColor: '#111827',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Resolution Chart
+            const resolutionCtx = document.getElementById('resolutionChart').getContext('2d');
+            
+            new Chart(resolutionCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Resolved', 'Escalated', 'Unresolved'],
+                    datasets: [{
+                        data: [87, 8, 5],
+                        backgroundColor: [
+                            '#20c997',
+                            '#ffc107',
+                            '#dc3545'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 5
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            titleColor: '#111827',
+                            bodyColor: '#111827',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Topics Chart
+            const topicsCtx = document.getElementById('topicsChart').getContext('2d');
+            
+            new Chart(topicsCtx, {
+                type: 'radar',
+                data: {
+                    labels: ['Product Features', 'Billing', 'Technical Issues', 'Account', 'Pricing', 'Shipping', 'Returns'],
+                    datasets: [{
+                        label: 'Topic Frequency',
+                        data: [85, 72, 92, 60, 45, 35, 40],
+                        backgroundColor: 'rgba(13, 110, 253, 0.2)',
+                        borderColor: '#0d6efd',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#0d6efd',
+                        pointBorderColor: '#ffffff',
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#0d6efd',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            angleLines: {
+                                color: '#e5e7eb'
+                            },
+                            grid: {
+                                color: '#e5e7eb'
+                            },
+                            ticks: {
+                                display: false
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            backgroundColor: '#ffffff',
+                            titleColor: '#111827',
+                            bodyColor: '#111827',
+                            borderColor: '#e5e7eb',
+                            borderWidth: 1,
+                            padding: 12,
+                            boxPadding: 6,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

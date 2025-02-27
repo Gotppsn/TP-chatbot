@@ -1,0 +1,897 @@
+@model IEnumerable<AIHelpdeskSupport.ViewModels.UserViewModel>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="page-header">
+    <div>
+        <h1 class="page-title">User Management</h1>
+        <p class="text-muted">Manage users, roles, and permissions for the AI Helpdesk platform</p>
+    </div>
+    <div class="page-actions">
+        <div class="dropdown me-2">
+            <button class="btn btn-outline dropdown-toggle">
+                <i class="bi bi-funnel"></i>
+                <span>Filter</span>
+            </button>
+            <div class="dropdown-menu">
+                <a class="dropdown-item active" href="#">All Users</a>
+                <a class="dropdown-item" href="#">Active Only</a>
+                <a class="dropdown-item" href="#">Inactive Only</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#">Administrators</a>
+                <a class="dropdown-item" href="#">Department Managers</a>
+                <a class="dropdown-item" href="#">Support Agents</a>
+            </div>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+            <i class="bi bi-plus-lg"></i>
+            <span>Create User</span>
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-header-actions">
+            <div class="search-box">
+                <i class="bi bi-search search-icon"></i>
+                <input type="text" id="userSearch" class="search-input" placeholder="Search users...">
+            </div>
+            <div class="view-options">
+                <button class="btn-icon view-option active" id="gridView" title="Grid View">
+                    <i class="bi bi-grid"></i>
+                </button>
+                <button class="btn-icon view-option" id="listView" title="List View">
+                    <i class="bi bi-list-ul"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <!-- Grid View (Default) -->
+        <div class="users-grid" id="usersGridView">
+            @foreach (var user in Model)
+            {
+                <div class="user-card animate-card">
+                    <div class="user-card-header">
+                        <div class="user-avatar @(user.IsActive ? "active" : "inactive")">
+                            @user.FirstName[0]@user.LastName[0]
+                        </div>
+                        <div class="user-status @(user.IsActive ? "active" : "inactive")">
+                            @(user.IsActive ? "Active" : "Inactive")
+                        </div>
+                    </div>
+                    
+                    <div class="user-card-body">
+                        <h3 class="user-name">@user.FullName</h3>
+                        <div class="user-email">@user.Email</div>
+                        
+                        <div class="user-details">
+                            <div class="user-detail">
+                                <div class="detail-label">Department</div>
+                                <div class="detail-value">@user.Department</div>
+                            </div>
+                            <div class="user-detail">
+                                <div class="detail-label">Role</div>
+                                <div class="detail-value">@user.Role</div>
+                            </div>
+                        </div>
+                        
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="stat-label">Created</div>
+                                <div class="stat-value">@user.CreatedAt.ToString("MMM d, yyyy")</div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="stat-label">Last Login</div>
+                                <div class="stat-value">
+                                    @if (user.LastLogin.HasValue)
+                                    {
+                                        <span>@GetTimeAgo(user.LastLogin.Value)</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Never</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="user-card-footer">
+                        <button class="btn btn-sm btn-outline-primary" onclick="location.href='/Users/Edit/@user.Id'">
+                            <i class="bi bi-pencil"></i>
+                            <span>Edit</span>
+                        </button>
+                        <div class="dropdown ms-auto">
+                            <button class="btn btn-sm btn-icon dropdown-toggle">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item" href="/Users/Details/@user.Id">
+                                    <i class="bi bi-info-circle me-2"></i> View Details
+                                </a>
+                                <a class="dropdown-item" href="#" onclick="resetPassword('@user.Id')">
+                                    <i class="bi bi-key me-2"></i> Reset Password
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                        <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                        @(user.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Create New User Card -->
+            <div class="user-card create-card animate-card" onclick="$('#createUserModal').modal('show')">
+                <div class="create-card-content">
+                    <div class="create-icon">
+                        <i class="bi bi-plus-lg"></i>
+                    </div>
+                    <div class="create-text">Create New User</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- List View (Hidden by default) -->
+        <div class="users-list" id="usersListView" style="display: none;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Department</th>
+                        <th>Role</th>
+                        <th>Created</th>
+                        <th>Last Login</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="list-avatar @(user.IsActive ? "active" : "inactive")">
+                                        @user.FirstName[0]@user.LastName[0]
+                                    </div>
+                                    <div class="list-user-info">
+                                        <div class="list-user-name">@user.FullName</div>
+                                        <div class="list-user-email">@user.Email</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@user.Department</td>
+                            <td>@user.Role</td>
+                            <td>@user.CreatedAt.ToString("MMM d, yyyy")</td>
+                            <td>
+                                @if (user.LastLogin.HasValue)
+                                {
+                                    <span>@GetTimeAgo(user.LastLogin.Value)</span>
+                                }
+                                else
+                                {
+                                    <span>Never</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(user.IsActive ? "bg-success" : "bg-secondary")">
+                                    @(user.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="list-actions">
+                                    <button class="btn-icon" onclick="location.href='/Users/Edit/@user.Id'" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <div class="dropdown">
+                                        <button class="btn-icon dropdown-toggle">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a class="dropdown-item" href="/Users/Details/@user.Id">
+                                                <i class="bi bi-info-circle me-2"></i> View Details
+                                            </a>
+                                            <a class="dropdown-item" href="#" onclick="resetPassword('@user.Id')">
+                                                <i class="bi bi-key me-2"></i> Reset Password
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                                    <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                                    @(user.IsActive ? "Deactivate" : "Activate")
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Create New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm">
+                    <div class="form-group mb-3">
+                        <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="FirstName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="LastName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="email" class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="Email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="department" class="form-label">Department <span class="required">*</span></label>
+                        <select id="department" name="Department" class="form-select" required>
+                            <option value="">Select Department</option>
+                            <option value="Administration">Administration</option>
+                            <option value="Customer Service">Customer Service</option>
+                            <option value="IT Support">IT Support</option>
+                            <option value="Sales">Sales</option>
+                            <option value="Billing">Billing</option>
+                            <option value="Technical">Technical</option>
+                            <option value="Operations">Operations</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="role" class="form-label">Role <span class="required">*</span></label>
+                        <select id="role" name="Role" class="form-select" required>
+                            <option value="">Select Role</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="Department Manager">Department Manager</option>
+                            <option value="Support Agent">Support Agent</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <div class="form-switch">
+                            <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input" checked>
+                            <label for="isActive" class="form-switch-label">Active</label>
+                        </div>
+                        <div class="form-text">Activate this user immediately</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">Create User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize view toggle
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const usersGridView = document.getElementById('usersGridView');
+            const usersListView = document.getElementById('usersListView');
+            
+            gridView.addEventListener('click', function() {
+                gridView.classList.add('active');
+                listView.classList.remove('active');
+                usersGridView.style.display = 'grid';
+                usersListView.style.display = 'none';
+            });
+            
+            listView.addEventListener('click', function() {
+                listView.classList.add('active');
+                gridView.classList.remove('active');
+                usersListView.style.display = 'block';
+                usersGridView.style.display = 'none';
+            });
+            
+            // Search functionality
+            const userSearch = document.getElementById('userSearch');
+            
+            userSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                // Search in grid view
+                const userCards = document.querySelectorAll('.user-card:not(.create-card)');
+                userCards.forEach(card => {
+                    const userName = card.querySelector('.user-name').textContent.toLowerCase();
+                    const userEmail = card.querySelector('.user-email').textContent.toLowerCase();
+                    const userDept = card.querySelector('.detail-value').textContent.toLowerCase();
+                    
+                    if (userName.includes(searchTerm) || userEmail.includes(searchTerm) || userDept.includes(searchTerm)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Search in list view
+                const userRows = document.querySelectorAll('#usersListView tbody tr');
+                userRows.forEach(row => {
+                    const userName = row.querySelector('.list-user-name').textContent.toLowerCase();
+                    const userEmail = row.querySelector('.list-user-email').textContent.toLowerCase();
+                    const userDept = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    
+                    if (userName.includes(searchTerm) || userEmail.includes(searchTerm) || userDept.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Handle create user form submission
+            const saveUserBtn = document.getElementById('saveUserBtn');
+            const createUserForm = document.getElementById('createUserForm');
+            
+            saveUserBtn.addEventListener('click', function() {
+                if (createUserForm.checkValidity()) {
+                    // In a real app, this would submit to the server
+                    // For now, we'll just show a success message and close the modal
+                    
+                    // Show success toast
+                    showToast('success', 'User created successfully!');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
+                    modal.hide();
+                    
+                    // Reset form
+                    createUserForm.reset();
+                } else {
+                    // Trigger form validation
+                    createUserForm.reportValidity();
+                }
+            });
+            
+            // Initialize dropdowns
+            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const dropdown = this.nextElementSibling;
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.previousElementSibling.contains(event.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+            
+            // Handle dropdown item selection
+            document.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Don't prevent default for submit buttons in forms
+                    if (!this.closest('form')) {
+                        e.preventDefault();
+                    }
+                    
+                    // If it's a filter dropdown, update active state
+                    const filterDropdown = this.closest('.page-actions .dropdown-menu');
+                    if (filterDropdown) {
+                        filterDropdown.querySelectorAll('.dropdown-item').forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Update dropdown button text
+                        const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle span');
+                        dropdownButton.textContent = this.textContent;
+                    }
+                    
+                    // Hide dropdown
+                    this.closest('.dropdown-menu').classList.remove('show');
+                });
+            });
+        });
+        
+        // Reset password function
+        function resetPassword(userId) {
+            // In a real app, this would call a server endpoint
+            // For now, we'll just show a success message
+            showToast('success', 'Password reset email has been sent!');
+        }
+        
+        // Toast notification function
+        function showToast(type, message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            const icon = type === 'success' 
+                ? '<i class="bi bi-check-circle"></i>' 
+                : '<i class="bi bi-exclamation-circle"></i>';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${icon}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto-hide toast after 5 seconds
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 5000);
+            
+            // Close button functionality
+            const closeBtn = toast.querySelector('.toast-close');
+            closeBtn.addEventListener('click', function() {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            });
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* User Management Styles */
+        
+        /* Card Header Actions */
+        .card-header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .view-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .view-option {
+            width: 36px;
+            height: 36px;
+        }
+        
+        .view-option.active {
+            background-color: var(--color-gray-100);
+            color: var(--color-primary);
+        }
+        
+        /* Users Grid */
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .user-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-200);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.5s ease forwards;
+            opacity: 0;
+            height: 100%;
+        }
+        
+        @@keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-gray-300);
+        }
+        
+        .user-card-header {
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: white;
+        }
+        
+        .user-avatar.active {
+            background-color: var(--color-primary);
+        }
+        
+        .user-avatar.inactive {
+            background-color: var(--color-secondary);
+        }
+        
+        .user-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .user-status.active {
+            background-color: rgba(32, 201, 151, 0.1);
+            color: var(--color-success);
+        }
+        
+        .user-status.inactive {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+        
+        .user-card-body {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .user-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+        
+        .user-email {
+            font-size: 0.875rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1.25rem;
+            word-break: break-all;
+        }
+        
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+        
+        .user-detail {
+            min-width: 0;
+        }
+        
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        .user-stat {
+            min-width: 0;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 0.875rem;
+            color: var(--color-gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-card-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Create Card */
+        .create-card {
+            border: 2px dashed var(--color-gray-300);
+            background-color: var(--color-gray-50);
+            cursor: pointer;
+            min-height: 280px;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .create-card:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+        
+        .create-card-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .create-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .create-card:hover .create-icon {
+            transform: scale(1.1);
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .create-text {
+            font-weight: 500;
+            color: var(--color-gray-700);
+        }
+        
+        .create-card:hover .create-text {
+            color: var(--color-primary);
+        }
+        
+        /* List View */
+        .list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            margin-right: 1rem;
+        }
+        
+        .list-avatar.active {
+            background-color: var(--color-primary);
+        }
+        
+        .list-avatar.inactive {
+            background-color: var(--color-secondary);
+        }
+        
+        .list-user-info {
+            min-width: 0;
+        }
+        
+        .list-user-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+        
+        .list-user-email {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        .list-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: flex-start;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            width: 320px;
+            z-index: 1000;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-notification.success {
+            border-left: 4px solid var(--color-success);
+        }
+        
+        .toast-notification.error {
+            border-left: 4px solid var(--color-danger);
+        }
+        
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .toast-notification.success .toast-icon {
+            color: var(--color-success);
+        }
+        
+        .toast-notification.error .toast-icon {
+            color: var(--color-danger);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.75rem;
+        }
+        
+        .toast-close:hover {
+            color: var(--color-gray-700);
+        }
+        
+        /* Helper Classes */
+        .required {
+            color: var(--color-danger);
+        }
+        
+        .mb-3 {
+            margin-bottom: 1rem;
+        }
+        
+        .ms-auto {
+            margin-left: auto;
+        }
+        
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .d-flex {
+            display: flex;
+        }
+        
+        .align-items-center {
+            align-items: center;
+        }
+        
+        .d-inline {
+            display: inline;
+        }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .users-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @@media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-details,
+            .user-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+@functions {
+    public string GetTimeAgo(DateTime dateTime)
+    {
+        var timeSpan = DateTime.Now - dateTime;
+        
+        if (timeSpan.TotalMinutes < 1)
+            return "Just now";
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes} minutes ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours} hours ago";
+        if (timeSpan.TotalDays < 7)
+            return $"{(int)timeSpan.TotalDays} days ago";
+        
+        return dateTime.ToString("MMM d, yyyy");
+    }
+}
