@@ -1,3 +1,4 @@
+// Models/ChatRequest.cs
 namespace AIHelpdeskSupport.Models
 {
     public class ChatRequest
