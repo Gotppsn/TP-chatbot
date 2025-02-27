@@ -1,10 +1,20 @@
 @model Dictionary<string, List<Chatbot>>
+@{
+    ViewData["Title"] = "Your Chatbots";
+}
 
 <div class="user-dashboard">
     <div class="page-header">
         <div class="header-content">
-            <h1 class="page-title">@User.Identity.Name's Dashboard</h1>
-            <p class="department-badge">@User.FindFirst("Department")?.Value Department</p>
+            <h1 class="page-title">Your Chatbots</h1>
+            @if (User.FindFirst("Department") != null)
+            {
+                <p class="department-badge">@User.FindFirst("Department").Value Department</p>
+            }
+            else
+            {
+                <p class="department-badge">Customer Service Department</p>
+            }
         </div>
     </div>
 
@@ -56,7 +66,7 @@
     .user-dashboard {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 1rem;
+        padding: 2rem 1rem;
     }
     
     .page-header {
@@ -77,6 +87,12 @@
         font-weight: 500;
         padding: 0.5rem 1rem;
         border-radius: 2rem;
+        margin: 0;
+    }
+    
+    .page-title {
+        font-size: 1.75rem;
+        margin: 0;
     }
     
     .chatbot-grid {

@@ -1,4 +1,14 @@
 @model AIHelpdeskSupport.ViewModels.UserChatViewModel
+@{
+    ViewData["Title"] = Model.Chatbot.Name;
+    
+    // Add anti-forgery token
+    @Html.AntiForgeryToken()
+}
+
+<meta name="chatbot-id" content="@Model.Chatbot.Id" />
+<meta name="session-id" content="@Model.SessionId" />
+<meta name="chatbot-description" content="@Model.Chatbot.Description" />
 
 <div class="chat-interface">
     <div class="chat-container">
@@ -53,6 +63,25 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/chat.js"></script>
+}
+
+@functions {
+    private string GetDepartmentIcon(string department)
+    {
+        return department switch
+        {
+            "Customer Service" => "bi-headset",
+            "IT Support" => "bi-pc-display",
+            "Sales" => "bi-currency-dollar",
+            "Billing" => "bi-credit-card",
+            "Technical" => "bi-wrench",
+            _ => "bi-robot"
+        };
+    }
+}
 
 <style>
     .chat-interface {
@@ -529,18 +558,3 @@
         });
     });
 </script>
-
-@functions {
-    private string GetDepartmentIcon(string department)
-    {
-        return department switch
-        {
-            "Customer Service" => "bi-headset",
-            "IT Support" => "bi-pc-display",
-            "Sales" => "bi-currency-dollar",
-            "Billing" => "bi-credit-card",
-            "Technical" => "bi-wrench",
-            _ => "bi-robot"
-        };
-    }
-}

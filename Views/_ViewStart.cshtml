@@ -1,3 +1,13 @@
 ﻿@{
-    Layout = "_Layout";
+    // Use different layouts based on user role
+    if (User.Identity.IsAuthenticated && User.IsInRole("User"))
+    {
+        // Simplified layout for regular users
+        Layout = "_LayoutUser";
+    }
+    else
+    {
+        // Default layout for admins and other roles
+        Layout = "_Layout";
+    }
 }

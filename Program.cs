@@ -1,9 +1,9 @@
-// Program.cs
 using AIHelpdeskSupport.Data;
 using AIHelpdeskSupport.Models;
 using AIHelpdeskSupport.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,7 +74,11 @@ using (var scope = app.Services.CreateScope())
         
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-        await IdentityDataInitializer.SeedUsers(userManager, roleManager);
+        
+        // Seed users and roles
+        await IdentityDataInitializer.SeedRolesAsync(roleManager);
+        await IdentityDataInitializer.SeedUsersAsync(userManager);
+        await IdentityDataInitializer.UpdateUserDepartmentClaims(userManager);
     }
     catch (Exception ex)
     {
@@ -95,11 +99,10 @@ app.MapControllerRoute(
 
 app.Run();
 
-// User Seeding Method
-static class IdentityDataInitializer
+// User Seeding Class
+public static class IdentityDataInitializer
 {
-    public static async Task SeedUsers(UserManager<ApplicationUser> userManager, 
-        RoleManager<IdentityRole> roleManager)
+    public static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
         // Create roles if they don't exist
         string[] roleNames = { "Admin", "User" };
@@ -110,7 +113,10 @@ static class IdentityDataInitializer
                 await roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
+    }
 
+    public static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager)
+    {
         // Create admin user
         var adminUser = await userManager.FindByNameAsync("admin");
         if (adminUser == null)
@@ -164,6 +170,97 @@ static class IdentityDataInitializer
             {
                 var errorString = string.Join(", ", result.Errors.Select(e => e.Description));
                 throw new Exception($"Error creating regular user: {errorString}");
+            }
+        }
+
+        // Create IT support user
+        var itUser = await userManager.FindByNameAsync("it");
+        if (itUser == null)
+        {
+            itUser = new ApplicationUser
+            {
+                UserName = "it",
+                Email = "it@example.com",
+                FirstName = "IT",
+                LastName = "Support",
+                Department = "IT Support",
+                Role = "User",
+                EmailConfirmed = true,
+                IsActive = true
+            };
+
+            var result = await userManager.CreateAsync(itUser, "it");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(itUser, "User");
+            }
+        }
+
+        // Create sales user
+        var salesUser = await userManager.FindByNameAsync("sales");
+        if (salesUser == null)
+        {
+            salesUser = new ApplicationUser
+            {
+                UserName = "sales",
+                Email = "sales@example.com",
+                FirstName = "Sales",
+                LastName = "Representative",
+                Department = "Sales",
+                Role = "User",
+                EmailConfirmed = true,
+                IsActive = true
+            };
+
+            var result = await userManager.CreateAsync(salesUser, "sales");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(salesUser, "User");
+            }
+        }
+
+        // Create billing user
+        var billingUser = await userManager.FindByNameAsync("billing");
+        if (billingUser == null)
+        {
+            billingUser = new ApplicationUser
+            {
+                UserName = "billing",
+                Email = "billing@example.com",
+                FirstName = "Billing",
+                LastName = "Specialist",
+                Department = "Billing",
+                Role = "User",
+                EmailConfirmed = true,
+                IsActive = true
+            };
+
+            var result = await userManager.CreateAsync(billingUser, "billing");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(billingUser, "User");
+            }
+        }
+    }
+
+    public static async Task UpdateUserDepartmentClaims(UserManager<ApplicationUser> userManager)
+    {
+        var users = userManager.Users.ToList();
+        foreach (var user in users)
+        {
+            var currentClaims = await userManager.GetClaimsAsync(user);
+            var departmentClaim = currentClaims.FirstOrDefault(c => c.Type == "Department");
+                
+            // Remove existing department claim if exists
+            if (departmentClaim != null)
+            {
+                await userManager.RemoveClaimAsync(user, departmentClaim);
+            }
+                
+            // Add department claim
+            if (!string.IsNullOrEmpty(user.Department))
+            {
+                await userManager.AddClaimAsync(user, new Claim("Department", user.Department));
             }
         }
     }
