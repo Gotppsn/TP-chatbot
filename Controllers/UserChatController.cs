@@ -21,22 +21,10 @@ namespace AIHelpdeskSupport.Controllers
 
         public async Task<IActionResult> Index()
         {
-            // Get chatbots the user has access to based on their department
             var chatbots = await _flowiseService.GetAllChatbotsAsync();
-            
-            // Default to first chatbot if available
-            var defaultChatbot = chatbots.FirstOrDefault();
-            
-            // Create the view model
-            var viewModel = new UserChatViewModel
-            {
-                Chatbot = defaultChatbot,
-                SessionId = Guid.NewGuid().ToString()
-            };
-            
-            return View(viewModel);
+            return View(chatbots);
         }
-        
+
         public async Task<IActionResult> Chat(int id)
         {
             var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
@@ -44,26 +32,25 @@ namespace AIHelpdeskSupport.Controllers
             {
                 return NotFound();
             }
-            
+
             var viewModel = new UserChatViewModel
             {
                 Chatbot = chatbot,
                 SessionId = Guid.NewGuid().ToString()
             };
-            
-            return View("Index", viewModel);
+
+            return View(viewModel);
         }
-        
         public IActionResult History()
         {
             return View();
         }
-        
+
         public IActionResult Support()
         {
             return View();
         }
-        
+
         public IActionResult Profile()
         {
             return View();

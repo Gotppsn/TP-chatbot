@@ -1,704 +1,208 @@
-@model AIHelpdeskSupport.ViewModels.UserChatViewModel
+@model List<AIHelpdeskSupport.Models.Chatbot>
 @{
-    ViewData["Title"] = "Chat Support";
+    ViewData["Title"] = "AI Support";
 }
 
-<div class="chat-container">
-    <div class="chat-sidebar">
-        <div class="sidebar-header">
-            <h2>Support Chat</h2>
-        </div>
-        <div class="department-selector">
-            <label for="department">Department</label>
-            <select id="department" class="form-select">
-                <option value="Customer Service" selected>Customer Service</option>
-                <option value="IT Support">IT Support</option>
-                <option value="Sales">Sales</option>
-                <option value="Billing">Billing</option>
-            </select>
-        </div>
-        <div class="chat-info">
-            <div class="info-item">
-                <span class="info-label">Status:</span>
-                <span class="info-value status-online">Online</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Response Time:</span>
-                <span class="info-value">~30 seconds</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Support Hours:</span>
-                <span class="info-value">24/7</span>
-            </div>
-        </div>
-        <div class="session-actions">
-            <button id="startNewChat" class="btn btn-outline-primary">
-                <i class="bi bi-plus-circle"></i> New Chat
-            </button>
-            <button id="downloadTranscript" class="btn btn-outline-secondary" disabled>
-                <i class="bi bi-download"></i> Save Chat
-            </button>
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="page-title">AI Support Assistants</h1>
+            <p class="text-muted">Select a chatbot based on your support needs</p>
         </div>
     </div>
 
-    <div class="chat-main">
-        <div class="chat-header">
-            <div class="chat-title">
-                <div class="dept-icon customer-service">
-                    <i class="bi bi-headset"></i>
-                </div>
-                <div class="chat-info">
-                    <h3 id="chatbotName">Customer Service</h3>
-                    <span class="chat-status">
-                        <span class="status-dot online"></span> Online
-                    </span>
-                </div>
-            </div>
-            <div class="chat-actions">
-                <button id="refreshChat" class="btn-icon" title="Refresh Chat">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-            </div>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            No chatbots are currently available. Please check back later.
         </div>
+    }
+    else
+    {
+        <div class="department-groups">
+            @{
+                var departments = Model.Select(c => c.Department).Distinct().OrderBy(d => d);
+            }
 
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>👋 Hello! I'm your Customer Service assistant. How can I help you today?</p>
-                    </div>
-                    <div class="message-info">
-                        <span class="message-time">@DateTime.Now.ToString("h:mm tt")</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+            @foreach (var department in departments)
+            {
+                var departmentChatbots = Model.Where(c => c.Department == department && c.IsActive).ToList();
+                if (departmentChatbots.Any())
+                {
+                    <div class="department-section mb-4">
+                        <h2 class="department-title">@department</h2>
 
-        <div class="chat-input-container">
-            <div class="input-wrapper">
-                <textarea id="messageInput" placeholder="Type your message..." rows="1"></textarea>
-                <button id="voiceInput" class="input-action" title="Voice Input">
-                    <i class="bi bi-mic"></i>
-                </button>
-            </div>
-            <button id="sendMessage" class="send-button" disabled>
-                <i class="bi bi-send"></i>
-            </button>
+                        <div class="chatbot-cards">
+                            @foreach (var chatbot in departmentChatbots)
+                            {
+                                <div class="chatbot-card">
+                                    <div class="chatbot-card-body">
+                                        <div class="chatbot-icon @GetColorClass(chatbot.Department)">
+                                            <i class="bi @GetIconClass(chatbot.Department)"></i>
+                                        </div>
+                                        <div class="chatbot-details">
+                                            <h3 class="chatbot-name">@chatbot.Name</h3>
+                                            <p class="chatbot-description">@chatbot.Description</p>
+                                        </div>
+                                    </div>
+                                    <div class="chatbot-card-footer">
+                                        <a href="@Url.Action("Chat", "UserChat", new { id = chatbot.Id })"
+                                            class="btn btn-primary btn-sm">
+                                            <i class="bi bi-chat-dots me-1"></i>
+                                            Start Conversation
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
         </div>
-    </div>
+    }
 </div>
 
 @section Styles {
     <style>
-        /* Chat Container */
-        .chat-container {
-            display: flex;
-            gap: 1.5rem;
-            height: calc(100vh - 120px);
-            min-height: 500px;
-        }
-        
-        /* Chat Sidebar */
-        .chat-sidebar {
-            width: 280px;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        
-        .sidebar-header {
-            padding: 1.25rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .sidebar-header h2 {
+        .department-title {
             font-size: 1.25rem;
             font-weight: 600;
-            margin: 0;
-        }
-        
-        .department-selector {
-            padding: 1.25rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
             border-bottom: 1px solid var(--color-gray-200);
         }
-        
-        .department-selector label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
+
+        .chatbot-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
         }
-        
-        .chat-info {
-            padding: 1.25rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .info-item {
-            margin-bottom: 0.75rem;
-            font-size: 0.875rem;
-        }
-        
-        .info-item:last-child {
-            margin-bottom: 0;
-        }
-        
-        .info-label {
-            font-weight: 500;
-            color: var(--color-gray-700);
-            margin-right: 0.5rem;
-        }
-        
-        .info-value {
-            color: var(--color-gray-800);
-        }
-        
-        .status-online {
-            color: var(--color-success);
-            font-weight: 500;
-        }
-        
-        .session-actions {
-            padding: 1.25rem;
-            margin-top: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-        
-        /* Chat Main */
-        .chat-main {
-            flex: 1;
+
+        .chatbot-card {
             background-color: white;
             border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            border: 1px solid var(--color-gray-200);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
-        
-        .chat-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
+
+        .chatbot-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-gray-300);
+        }
+
+        .chatbot-card-body {
+            padding: 1.25rem;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
+            flex: 1;
         }
-        
-        .chat-title {
-            display: flex;
-            align-items: center;
-        }
-        
-        .dept-icon {
-            width: 40px;
-            height: 40px;
+
+        .chatbot-icon {
+            width: 48px;
+            height: 48px;
             border-radius: var(--border-radius);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.5rem;
             margin-right: 1rem;
-            font-size: 1.25rem;
+            flex-shrink: 0;
         }
-        
-        .dept-icon.customer-service {
+
+        .chatbot-icon.primary {
             background-color: rgba(13, 110, 253, 0.1);
             color: var(--color-primary);
         }
-        
-        .dept-icon.it-support {
+
+        .chatbot-icon.info {
             background-color: rgba(13, 202, 240, 0.1);
             color: var(--color-info);
         }
-        
-        .dept-icon.sales {
+
+        .chatbot-icon.warning {
             background-color: rgba(255, 193, 7, 0.1);
             color: var(--color-warning);
         }
-        
-        .dept-icon.billing {
+
+        .chatbot-icon.danger {
             background-color: rgba(220, 53, 69, 0.1);
             color: var(--color-danger);
         }
-        
-        .chat-info h3 {
+
+        .chatbot-icon.success {
+            background-color: rgba(32, 201, 151, 0.1);
+            color: var(--color-success);
+        }
+
+        .chatbot-icon.secondary {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--color-secondary);
+        }
+
+        .chatbot-details {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chatbot-name {
             font-size: 1.125rem;
             font-weight: 600;
-            margin: 0 0 0.25rem;
+            margin: 0 0 0.5rem;
         }
-        
-        .chat-status {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            display: flex;
-            align-items: center;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 0.375rem;
-        }
-        
-        .status-dot.online {
-            background-color: var(--color-success);
-        }
-        
-        .chat-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .btn-icon {
-            width: 36px;
-            height: 36px;
-            background: none;
-            border: none;
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-gray-600);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-icon:hover {
-            background-color: var(--color-gray-100);
-            color: var(--color-gray-800);
-        }
-        
-        /* Chat Messages */
-        .chat-messages {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
-            background-color: var(--color-gray-50);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .message {
-            display: flex;
-            max-width: 80%;
-        }
-        
-        .message.user {
-            margin-left: auto;
-            flex-direction: row-reverse;
-        }
-        
-        .message-content {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .message-bubble {
-            padding: 0.875rem 1.25rem;
-            border-radius: 1rem;
-            position: relative;
-        }
-        
-        .message.bot .message-bubble {
-            background-color: white;
-            border: 1px solid var(--color-gray-200);
-            border-bottom-left-radius: 0.25rem;
-        }
-        
-        .message.user .message-bubble {
-            background-color: var(--color-primary);
-            color: white;
-            border-bottom-right-radius: 0.25rem;
-        }
-        
-        .message-bubble p {
-            margin: 0;
-            line-height: 1.5;
-        }
-        
-        .message-info {
-            margin-top: 0.25rem;
-            font-size: 0.6875rem;
-            color: var(--color-gray-500);
-            padding: 0 0.5rem;
-        }
-        
-        /* Chat Input */
-        .chat-input-container {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--color-gray-200);
-            display: flex;
-            align-items: flex-end;
-            gap: 0.75rem;
-        }
-        
-        .input-wrapper {
-            position: relative;
-            flex: 1;
-        }
-        
-        .input-wrapper textarea {
-            width: 100%;
-            padding: 0.75rem 2.5rem 0.75rem 1rem;
-            border: 1px solid var(--color-gray-300);
-            border-radius: 0.75rem;
-            resize: none;
-            font-size: 0.9375rem;
-            line-height: 1.5;
-            max-height: 120px;
-            overflow-y: auto;
-            transition: all 0.2s ease;
-        }
-        
-        .input-wrapper textarea:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
-        }
-        
-        .input-action {
-            position: absolute;
-            right: 0.75rem;
-            bottom: 0.75rem;
-            background: none;
-            border: none;
-            color: var(--color-gray-500);
-            cursor: pointer;
-            transition: color 0.2s ease;
-            font-size: 1.125rem;
-            padding: 0;
-        }
-        
-        .input-action:hover {
-            color: var(--color-primary);
-        }
-        
-        .send-button {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--color-primary);
-            color: white;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 1.125rem;
-        }
-        
-        .send-button:disabled {
-            background-color: var(--color-gray-300);
-            cursor: not-allowed;
-        }
-        
-        .send-button:not(:disabled):hover {
-            background-color: var(--color-primary-dark);
-            transform: translateY(-2px);
-        }
-        
-        /* Typing Indicator */
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            padding: 0.25rem 0;
-        }
-        
-        .typing-indicator span {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--color-gray-400);
-            animation: typing 1s infinite ease-in-out;
-        }
-        
-        .typing-indicator span:nth-child(1) {
-            animation-delay: 0s;
-        }
-        
-        .typing-indicator span:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        
-        .typing-indicator span:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-        
-        @@keyframes typing {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        /* Responsive Adjustments */
-        @@media (max-width: 991px) {
-            .chat-container {
-                flex-direction: column;
-                height: auto;
-            }
-            
-            .chat-sidebar {
-                width: 100%;
-            }
-            
-            .chat-main {
-                height: 70vh;
-            }
-        }
-    </style>
-}
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM Elements
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendMessage');
-            const chatMessages = document.getElementById('chatMessages');
-            const departmentSelect = document.getElementById('department');
-            const chatbotName = document.getElementById('chatbotName');
-            const deptIcon = document.querySelector('.dept-icon');
-            const refreshButton = document.getElementById('refreshChat');
-            const startNewButton = document.getElementById('startNewChat');
-            const downloadButton = document.getElementById('downloadTranscript');
-            
-            let sessionId = '@Model.SessionId' || generateSessionId(); // Use model session ID or generate new one
-            
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                // Reset height to auto to properly calculate new height
-                this.style.height = 'auto';
-                
-                // Set new height based on scroll height (with a max height)
-                const newHeight = Math.min(this.scrollHeight, 120);
-                this.style.height = `${newHeight}px`;
-                
-                // Enable/disable send button
-                sendButton.disabled = this.value.trim() === '';
-            });
-            
-            // Send message on button click
-            sendButton.addEventListener('click', sendMessage);
-            
-            // Send message on Enter key (but not with Shift+Enter for new line)
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!sendButton.disabled) {
-                        sendMessage();
-                    }
-                }
-            });
-            
-            // Department change handler
-            departmentSelect.addEventListener('change', function() {
-                const department = this.value;
-                
-                // Update chatbot name and icon
-                chatbotName.textContent = department;
-                
-                // Update icon class
-                deptIcon.className = 'dept-icon';
-                
-                switch (department) {
-                    case 'Customer Service':
-                        deptIcon.classList.add('customer-service');
-                        deptIcon.innerHTML = '<i class="bi bi-headset"></i>';
-                        break;
-                    case 'IT Support':
-                        deptIcon.classList.add('it-support');
-                        deptIcon.innerHTML = '<i class="bi bi-pc-display"></i>';
-                        break;
-                    case 'Sales':
-                        deptIcon.classList.add('sales');
-                        deptIcon.innerHTML = '<i class="bi bi-currency-dollar"></i>';
-                        break;
-                    case 'Billing':
-                        deptIcon.classList.add('billing');
-                        deptIcon.innerHTML = '<i class="bi bi-credit-card"></i>';
-                        break;
-                }
-                
-                // Clear chat and add welcome message from new department
-                resetChat();
-            });
-            
-            // Refresh chat button
-            refreshButton.addEventListener('click', function() {
-                resetChat();
-            });
-            
-            // Start new chat button
-            startNewButton.addEventListener('click', function() {
-                // Generate new session ID
-                sessionId = generateSessionId();
-                
-                // Reset chat with new session
-                resetChat();
-            });
-            
-            // Initialize UI
-            resetChat();
-            
-            // Message sending function
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (!message) return;
-                
-                // Add user message to chat
-                addMessage('user', message);
-                
-                // Clear input and disable send button
-                messageInput.value = '';
-                messageInput.style.height = 'auto';
-                sendButton.disabled = true;
-                
-                // Show typing indicator
-                addTypingIndicator();
-                
-                // Send message to API
-                callChatApi(message)
-                    .then(response => {
-                        // Remove typing indicator
-                        removeTypingIndicator();
-                        
-                        // Add bot response
-                        addMessage('bot', response);
-                        
-                        // Enable download button after conversation starts
-                        downloadButton.disabled = false;
-                    })
-                    .catch(error => {
-                        // Remove typing indicator
-                        removeTypingIndicator();
-                        
-                        // Add error message
-                        addMessage('bot', 'Sorry, there was an error processing your request. Please try again.');
-                        console.error('API error:', error);
-                    });
-            }
-            
-            // Add message to chat
-            function addMessage(type, text) {
-                const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}`;
-                
-                messageDiv.innerHTML = `
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>${text}</p>
-                        </div>
-                        <div class="message-info">
-                            <span class="message-time">${timestamp}</span>
-                        </div>
-                    </div>
-                `;
-                
-                chatMessages.appendChild(messageDiv);
-                scrollToBottom();
-            }
-            
-            // Add typing indicator
-            function addTypingIndicator() {
-                const indicatorDiv = document.createElement('div');
-                indicatorDiv.className = 'message bot typing';
-                indicatorDiv.id = 'typingIndicator';
-                
-                indicatorDiv.innerHTML = `
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <div class="typing-indicator">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                chatMessages.appendChild(indicatorDiv);
-                scrollToBottom();
-            }
-            
-            // Remove typing indicator
-            function removeTypingIndicator() {
-                const indicator = document.getElementById('typingIndicator');
-                if (indicator) {
-                    indicator.remove();
+        .chatbot-description {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .chatbot-card-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
+            background-color: var(--color-gray-50);
+        }
+
+        @@media(max - width: 768px) {
+                .chatbot-cards {
+                    grid-template-columns: 1fr;
                 }
             }
-            
-            // Scroll to bottom of chat
-            function scrollToBottom() {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-            
-            // Reset chat
-            function resetChat() {
-                // Clear chat messages
-                chatMessages.innerHTML = '';
-                
-                // Add welcome message
-                const department = departmentSelect.value;
-                const welcomeMessage = `👋 Hello! I'm your ${department} assistant. How can I help you today?`;
-                addMessage('bot', welcomeMessage);
-                
-                // Disable download button
-                downloadButton.disabled = true;
-            }
-            
-            // Generate session ID
-            function generateSessionId() {
-                return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-            }
-            
-            // Call chat API
-            async function callChatApi(message) {
-                try {
-                    const department = departmentSelect.value;
-                    
-                    const response = await fetch('/api/userchat/message', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            message: message,
-                            sessionId: sessionId,
-                            chatbotId: 1 // Default to ID 1 for demonstration
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    
-                    const data = await response.json();
-                    
-                    if (!data.success) {
-                        throw new Error(data.errorMessage || 'Unknown error');
-                    }
-                    
-                    return data.response;
-                } catch (error) {
-                    console.error('API call failed:', error);
-                    throw error;
-                }
-            }
-        });
-    </script>
+        </style>
+    }
+
+@functions {
+    string GetColorClass(string department)
+    {
+        return department switch
+        {
+            "Customer Service" => "primary",
+            "IT Support" => "info",
+            "Sales" => "warning",
+            "Billing" => "danger",
+            "Technical" => "success",
+            _ => "secondary"
+        };
+    }
+
+    string GetIconClass(string department)
+    {
+        return department switch
+        {
+            "Customer Service" => "bi-headset",
+            "IT Support" => "bi-pc-display",
+            "Sales" => "bi-currency-dollar",
+            "Billing" => "bi-credit-card",
+            "Technical" => "bi-wrench",
+            _ => "bi-robot"
+        };
+    }
 }
