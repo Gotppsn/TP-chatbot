@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\AIHelpdeskSupport.csproj": {}
+    "C:\\Users\\got01\\Desktop\\TP-chatbot\\AIHelpdeskSupport.csproj": {}
   },
   "projects": {
-    "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\AIHelpdeskSupport.csproj": {
+    "C:\\Users\\got01\\Desktop\\TP-chatbot\\AIHelpdeskSupport.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\AIHelpdeskSupport.csproj",
+        "projectUniqueName": "C:\\Users\\got01\\Desktop\\TP-chatbot\\AIHelpdeskSupport.csproj",
         "projectName": "AIHelpdeskSupport",
-        "projectPath": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\AIHelpdeskSupport.csproj",
-        "packagesPath": "C:\\Users\\panupol\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\",
+        "projectPath": "C:\\Users\\got01\\Desktop\\TP-chatbot\\AIHelpdeskSupport.csproj",
+        "packagesPath": "C:\\Users\\got01\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\got01\\Desktop\\TP-chatbot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\panupol\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\got01\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -84,7 +84,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
