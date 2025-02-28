@@ -7,6 +7,8 @@ using AIHelpdeskSupport.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ModelMessage = AIHelpdeskSupport.Models.ChatMessage;
+using ViewModelMessage = AIHelpdeskSupport.ViewModels.ChatMessage;
 
 namespace AIHelpdeskSupport.Controllers
 {
@@ -85,15 +87,15 @@ namespace AIHelpdeskSupport.Controllers
             {
                 Chatbot = chatbot,
                 SessionId = Guid.NewGuid().ToString(),
-                Messages = new List<ChatMessage>
+                Messages = new List<ViewModelMessage>
                 {
-                    new ChatMessage
+                    new ViewModelMessage
                     {
                         IsUser = false,
                         Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I assist you today?",
                         Timestamp = DateTime.Now.AddMinutes(-5)
                     },
-                    new ChatMessage
+                    new ViewModelMessage
                     {
                         IsUser = false,
                         Content = $"I can help with common questions about our products, technical issues, account questions, and more. Just type your question below to get started!",
@@ -496,7 +498,7 @@ namespace AIHelpdeskSupport.Controllers
             {
                 Chatbot = chatbot,
                 SessionId = sessionId,
-                Messages = new List<ChatMessage>()
+                Messages = new List<ViewModelMessage>()
             };
 
             return View("Chat", viewModel);
