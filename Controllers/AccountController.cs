@@ -140,6 +140,9 @@ namespace AIHelpdeskSupport.Controllers
                     {
                         _logger.LogInformation("User logged in: {Email}", model.Email);
 
+                            user.LastLoginAt = DateTime.UtcNow;
+                            await _userManager.UpdateAsync(user);
+
                         // Determine redirect based on user role
                         var roles = await _userManager.GetRolesAsync(user);
                         if (roles.Contains("Admin"))

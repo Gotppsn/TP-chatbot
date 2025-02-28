@@ -257,26 +257,39 @@ public static class IdentityDataInitializer
         }
     }
 
-    public static async Task UpdateUserDepartmentClaims(UserManager<ApplicationUser> userManager)
+public static async Task UpdateUserDepartmentClaims(UserManager<ApplicationUser> userManager)
+{
+    var users = userManager.Users.ToList();
+    foreach (var user in users)
     {
-        var users = userManager.Users.ToList();
-        foreach (var user in users)
+        var currentClaims = await userManager.GetClaimsAsync(user);
+        var departmentClaim = currentClaims.FirstOrDefault(c => c.Type == "Department");
+        var roleClaim = currentClaims.FirstOrDefault(c => c.Type == "Role");
+            
+        // Remove existing department claim if exists
+        if (departmentClaim != null)
         {
-            var currentClaims = await userManager.GetClaimsAsync(user);
-            var departmentClaim = currentClaims.FirstOrDefault(c => c.Type == "Department");
-                
-            // Remove existing department claim if exists
-            if (departmentClaim != null)
-            {
-                await userManager.RemoveClaimAsync(user, departmentClaim);
-            }
-                
-            // Add department claim
-            if (!string.IsNullOrEmpty(user.Department))
-            {
-                await userManager.AddClaimAsync(user, new Claim("Department", user.Department));
-            }
+            await userManager.RemoveClaimAsync(user, departmentClaim);
+        }
+        
+        // Remove existing role claim if exists
+        if (roleClaim != null)
+        {
+            await userManager.RemoveClaimAsync(user, roleClaim);
+        }
+            
+        // Add department claim
+        if (!string.IsNullOrEmpty(user.Department))
+        {
+            await userManager.AddClaimAsync(user, new Claim("Department", user.Department));
+        }
+        
+        // Add role claim
+        if (!string.IsNullOrEmpty(user.Role))
+        {
+            await userManager.AddClaimAsync(user, new Claim("Role", user.Role));
         }
     }
+}
     
 }

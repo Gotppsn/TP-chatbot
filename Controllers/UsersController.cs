@@ -7,140 +7,95 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AIHelpdeskSupport.Models;
-using AIHelpdeskSupport.ViewModels;
+using Microsoft.EntityFrameworkCore;
 
 namespace AIHelpdeskSupport.Controllers
 {
     public class UsersController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager)
+        public UsersController(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public async Task<IActionResult> Index()
+public async Task<IActionResult> Index()
+{
+    // Get all users from database
+    var users = await _userManager.Users.ToListAsync();
+    var viewModels = new List<UserViewModel>();
+
+    foreach (var user in users)
+    {
+        // Get user roles
+        var userRoles = await _userManager.GetRolesAsync(user);
+        var role = userRoles.FirstOrDefault() ?? "User";
+
+        viewModels.Add(new UserViewModel
         {
-            // In a real application, we would fetch from the database
-            // and paginate the results for better performance
+            Id = user.Id,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Department = user.Department,
+            Role = role,
+            IsActive = user.IsActive,
+            CreatedAt = DateTime.Now.AddMonths(-1), // Default placeholder value
+            LastLogin = DateTime.Now.AddDays(-new Random().Next(1, 30)) // Random placeholder value
+        });
+    }
 
-            // For now, we'll use sample data to demonstrate the UI
-            var users = GetSampleUsers();
+    return View(viewModels);
+}
 
-            return View(users);
-        }
-
-        private List<UserViewModel> GetSampleUsers()
+        // Add missing UserViewModel property for CreatedAt
+        private static DateTime? ExtractLastLoginDate(ApplicationUser user)
         {
-            // Create sample data for demonstration
-            return new List<UserViewModel>
+            // Try to extract from security stamp or last modified date
+            if (!string.IsNullOrEmpty(user.SecurityStamp))
             {
-                new UserViewModel {
-                    Id = "1",
-                    Email = "admin@example.com",
-                    FirstName = "Admin",
-                    LastName = "User",
-                    Department = "Administration",
-                    Role = "Administrator",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddMonths(-6),
-                    LastLogin = DateTime.Now.AddDays(-1)
-                },
-                new UserViewModel {
-                    Id = "2",
-                    Email = "john.doe@example.com",
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Department = "Customer Service",
-                    Role = "Department Manager",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddMonths(-5),
-                    LastLogin = DateTime.Now.AddDays(-2)
-                },
-                new UserViewModel {
-                    Id = "3",
-                    Email = "jane.smith@example.com",
-                    FirstName = "Jane",
-                    LastName = "Smith",
-                    Department = "IT Support",
-                    Role = "Department Manager",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddMonths(-4),
-                    LastLogin = DateTime.Now.AddHours(-12)
-                },
-                new UserViewModel {
-                    Id = "4",
-                    Email = "robert.johnson@example.com",
-                    FirstName = "Robert",
-                    LastName = "Johnson",
-                    Department = "Sales",
-                    Role = "Support Agent",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddMonths(-3),
-                    LastLogin = DateTime.Now.AddDays(-5)
-                },
-                new UserViewModel {
-                    Id = "5",
-                    Email = "sarah.williams@example.com",
-                    FirstName = "Sarah",
-                    LastName = "Williams",
-                    Department = "Billing",
-                    Role = "Support Agent",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddMonths(-2),
-                    LastLogin = DateTime.Now.AddMinutes(-30)
-                },
-                new UserViewModel {
-                    Id = "6",
-                    Email = "michael.brown@example.com",
-                    FirstName = "Michael",
-                    LastName = "Brown",
-                    Department = "Technical",
-                    Role = "Support Agent",
-                    IsActive = false,
-                    CreatedAt = DateTime.Now.AddMonths(-8),
-                    LastLogin = DateTime.Now.AddMonths(-1)
-                },
-                new UserViewModel {
-                    Id = "7",
-                    Email = "emily.davis@example.com",
-                    FirstName = "Emily",
-                    LastName = "Davis",
-                    Department = "Customer Service",
-                    Role = "Support Agent",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddDays(-20),
-                    LastLogin = DateTime.Now.AddHours(-2)
-                },
-                new UserViewModel {
-                    Id = "8",
-                    Email = "david.miller@example.com",
-                    FirstName = "David",
-                    LastName = "Miller",
-                    Department = "Operations",
-                    Role = "Department Manager",
-                    IsActive = true,
-                    CreatedAt = DateTime.Now.AddDays(-25),
-                    LastLogin = DateTime.Now.AddDays(-3)
+                if (DateTime.TryParse(user.SecurityStamp, out DateTime stampDate))
+                {
+                    return stampDate;
                 }
-            };
+            }
+            return null;
         }
-        [HttpGet]
-        public IActionResult Edit(string id)
-        {
-            // In a real application, we would fetch the user from the database
-            // For now, we'll use sample data
-            var users = GetSampleUsers();
-            var user = users.FirstOrDefault(u => u.Id == id);
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            
             if (user == null)
             {
                 return NotFound();
             }
-
-            return View(user);
+            
+            // Get user roles
+            var roles = await _userManager.GetRolesAsync(user);
+            string roleName = roles.FirstOrDefault() ?? "User";
+            
+            // Convert to view model
+            var viewModel = new UserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Department = user.Department,
+                Role = user.Role,
+                IsActive = user.IsActive,
+                CreatedAt = user.CreatedAt ?? DateTime.Now,
+                LastLogin = user.LastLoginAt
+            };
+            
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -154,10 +109,48 @@ namespace AIHelpdeskSupport.Controllers
 
             if (ModelState.IsValid)
             {
-                // In a real application, we would update the user in the database
-                // For now, we'll just show success message and redirect
-                TempData["SuccessMessage"] = "User updated successfully!";
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    var user = await _userManager.FindByIdAsync(id);
+                    
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+                    
+                    // Update user properties
+                    user.FirstName = model.FirstName;
+                    user.LastName = model.LastName;
+                    user.Email = model.Email;
+                    user.Department = model.Department;
+                    user.Role = model.Role;
+                    user.IsActive = model.IsActive;
+                    
+                    // Save changes
+                    var result = await _userManager.UpdateAsync(user);
+                    
+                    if (result.Succeeded)
+                    {
+                        TempData["SuccessMessage"] = "User updated successfully!";
+                        return RedirectToAction(nameof(Index));
+                    }
+                    
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!await UserExists(id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
             }
 
             return View(model);
@@ -167,9 +160,59 @@ namespace AIHelpdeskSupport.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            // In a real application, we would delete the user from the database
-            TempData["SuccessMessage"] = "User deleted successfully.";
+            var user = await _userManager.FindByIdAsync(id);
+            
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            var result = await _userManager.DeleteAsync(user);
+            
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "User deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Error deleting user.";
+            }
+            
             return RedirectToAction(nameof(Index));
+        }
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleStatus(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            
+            if (user == null)
+            {
+                return NotFound();
+            }
+            
+            // Toggle status
+            user.IsActive = !user.IsActive;
+            
+            // Update user
+            var result = await _userManager.UpdateAsync(user);
+            
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = $"User status {(user.IsActive ? "activated" : "deactivated")} successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Error updating user status.";
+            }
+            
+            return RedirectToAction(nameof(Index));
+        }
+        
+        private async Task<bool> UserExists(string id)
+        {
+            return await _userManager.Users.AnyAsync(u => u.Id == id);
         }
     }
 }
