@@ -47,6 +47,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 });
 
+//LDAP
+builder.Services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();
+builder.Services.AddScoped<ILdapUserDataParser, LdapUserDataParser>();
+
 // Add Flowise service
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFlowiseService, FlowiseService>();
