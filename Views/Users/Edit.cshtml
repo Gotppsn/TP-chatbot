@@ -502,6 +502,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -514,9 +515,10 @@
             }
             
             // Initialize Bootstrap components
-            if (typeof bootstrap !== 'undefined') {
-                const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-            }
+if (typeof bootstrap !== 'undefined') {
+    // Just declare it without instantiating immediately
+    // Will only create the modal when confirmDelete() is called
+}
             
             // Tab navigation
             const tabs = document.querySelectorAll('.form-tab');
@@ -867,18 +869,24 @@
         });
         
         // Delete confirmation modal
-        function confirmDelete(id) {
-            const modal = document.getElementById('deleteConfirmModal');
-            if (modal && typeof bootstrap !== 'undefined') {
-                const bootstrapModal = new bootstrap.Modal(modal);
-                
-                // Reset confirmation input
-                document.getElementById('deleteConfirmInput').value = '';
-                document.getElementById('confirmDeleteBtn').disabled = true;
-                
-                bootstrapModal.show();
-            }
-        }
+function confirmDelete(id) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal && typeof bootstrap !== 'undefined') {
+        // Create the modal only when needed
+        const bootstrapModal = new bootstrap.Modal(modal, {
+            keyboard: true,
+            focus: true,
+            show: false  // Don't show immediately on creation
+        });
+        
+        // Reset confirmation input
+        document.getElementById('deleteConfirmInput').value = '';
+        document.getElementById('confirmDeleteBtn').disabled = true;
+        
+        // Now explicitly show it
+        bootstrapModal.show();
+    }
+}
         
         // Toast notification function
         function showToast(type, message) {
