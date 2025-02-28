@@ -9,7 +9,7 @@
         <p class="text-muted">Manage and monitor your AI-powered chatbots</p>
     </div>
     <div class="page-actions">
-        <div class="dropdown me-2">
+        <div class="filter-wrapper">
             <button class="btn btn-outline dropdown-toggle">
                 <i class="bi bi-funnel"></i>
                 <span>Filter</span>
@@ -107,20 +107,20 @@
                                 @chatbot.Description
                             }
                         </div>
-                        
-                        <div class="chatbot-stats">
-                            <div class="chatbot-stat">
-                                <div class="stat-value">254</div>
-                                <div class="stat-label">Conversations</div>
-                            </div>
-                            <div class="chatbot-stat">
-                                <div class="stat-value">93%</div>
-                                <div class="stat-label">Success Rate</div>
-                            </div>
-                            <div class="chatbot-stat">
-                                <div class="stat-value">2.6s</div>
-                                <div class="stat-label">Avg. Response</div>
-                            </div>
+                    </div>
+                    
+                    <div class="chatbot-stats">
+                        <div class="chatbot-stat">
+                            <div class="stat-value">254</div>
+                            <div class="stat-label">Conversations</div>
+                        </div>
+                        <div class="chatbot-stat">
+                            <div class="stat-value">93%</div>
+                            <div class="stat-label">Success Rate</div>
+                        </div>
+                        <div class="chatbot-stat">
+                            <div class="stat-value">2.6s</div>
+                            <div class="stat-label">Avg. Response</div>
                         </div>
                     </div>
                     
@@ -351,8 +351,18 @@
             
             // Initialize dropdowns
             document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function() {
+                toggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     const dropdown = this.nextElementSibling;
+                    
+                    // Close all other open dropdowns first
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== dropdown) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle this dropdown
                     dropdown.classList.toggle('show');
                 });
             });
@@ -460,7 +470,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: fadeInUp 0.5s ease forwards;
             opacity: 0;
-            height: 100%;
+            min-height: 400px; /* Set a minimum height */
         }
         
         @@keyframes fadeInUp {
@@ -577,15 +587,20 @@
             line-height: 1.5;
             margin-bottom: 1rem;
             flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
         }
         
+        /* Stats section as a separate component from card body */
         .chatbot-stats {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
+            background-color: var(--color-gray-50);
         }
         
         .chatbot-stat {
@@ -618,7 +633,7 @@
             border: 2px dashed var(--color-gray-300);
             background-color: var(--color-gray-50);
             cursor: pointer;
-            min-height: 280px;
+            min-height: 400px; /* Match height of other cards */
             justify-content: center;
             align-items: center;
         }
@@ -663,6 +678,11 @@
         }
         
         /* List View */
+        .chatbots-list {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+        
         .list-avatar {
             width: 36px;
             height: 36px;
@@ -739,6 +759,7 @@
             z-index: 1000;
             min-width: 180px;
             padding: 0.5rem 0;
+            margin-top: 0.125rem;
             background-color: white;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow-md);
@@ -748,6 +769,18 @@
         
         .dropdown-menu.show {
             display: block;
+            animation: dropdownFadeIn 0.2s ease;
+        }
+        
+        @@keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         .dropdown-menu-end {
@@ -768,6 +801,7 @@
             text-decoration: none;
             color: var(--color-gray-700);
             font-size: 0.875rem;
+            transition: all 0.2s ease;
         }
         
         .dropdown-item:hover {
@@ -779,6 +813,12 @@
             margin: 0.5rem 0;
             overflow: hidden;
             border-top: 1px solid var(--color-gray-200);
+        }
+        
+        /* Enhanced Filter Wrapper */
+        .filter-wrapper {
+            position: relative;
+            margin-right: 0.75rem;
         }
         
         /* Table Styles */
@@ -794,6 +834,7 @@
             font-weight: 600;
             font-size: 0.875rem;
             color: var(--color-gray-700);
+            white-space: nowrap;
         }
         
         .table td {
@@ -803,10 +844,20 @@
             font-size: 0.875rem;
         }
         
+        .table tbody tr:hover {
+            background-color: var(--color-gray-50);
+        }
+        
         /* Responsive Adjustments */
         @@media (max-width: 1200px) {
             .chatbots-grid {
                 grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+        
+        @@media (max-width: 991px) {
+            .chatbots-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
         }
         
@@ -823,18 +874,18 @@
                 justify-content: space-between;
             }
             
-            .search-box {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-            
             .card-header-actions {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .search-box {
+                width: 100%;
             }
             
             .view-options {
-                margin-top: 1rem;
+                margin-top: 0.5rem;
                 align-self: flex-end;
             }
             
@@ -842,8 +893,9 @@
                 grid-template-columns: 1fr;
             }
             
-            .chatbot-stat {
-                text-align: left;
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
         }
         
@@ -892,6 +944,11 @@
         .bg-secondary {
             background-color: var(--color-secondary);
             color: white;
+        }
+        
+        /* Animation for new cards */
+        .animate-card {
+            animation-delay: calc(var(--i, 0) * 0.1s);
         }
     </style>
 }
