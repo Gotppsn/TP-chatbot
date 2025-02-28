@@ -1,6 +1,36 @@
 @model AIHelpdeskSupport.ViewModels.UserChatViewModel
 @{
     ViewData["Title"] = "Chat Support";
+    
+    // This is just for frontend demo
+    bool isContinuingConversation = Context.Request.Path.Value.Contains("session-");
+    string sessionId = Context.Request.Path.Value.Split('/').Last();
+    var previousMessages = new List<(string message, bool isBot, string time)>();
+    
+    // Load previous messages based on session ID for demo
+    if (sessionId == "session-1234-abcd") {
+        previousMessages = new List<(string, bool, string)> {
+            ("Hello! I'm the Customer Support Bot. How can I help you today?", true, "10:30 AM"),
+            ("I need help with my recent order #12345", false, "10:31 AM"),
+            ("I'd be happy to help you with that order. Let me check the status for you.", true, "10:31 AM"),
+            ("I can see that your order #12345 has been shipped on Monday and is expected to arrive tomorrow.", true, "10:32 AM"),
+            ("Thank you for checking. Can you also tell me if partial refunds are possible?", false, "10:33 AM"),
+            ("Yes, we do offer partial refunds for items you wish to return while keeping others. Would you like me to process a return for part of your order?", true, "10:34 AM"),
+            ("Not right now, I'll wait for the package to arrive first", false, "10:35 AM"),
+            ("Understood. Once your package arrives, you can initiate a return through your account or contact us again and we'll help you with the process.", true, "10:36 AM"),
+            ("Thank you for your help!", false, "10:37 AM")
+        };
+    } 
+    else if (sessionId == "session-9012-ijkl") {
+        previousMessages = new List<(string, bool, string)> {
+            ("Hello! I'm the Sales Assistant. How can I help you today?", true, "2:15 PM"),
+            ("I'm interested in your business subscription plans", false, "2:16 PM"),
+            ("Great! We offer several business subscription tiers designed to meet different organizational needs. Are you looking for something specific?", true, "2:17 PM"),
+            ("We have a team of 15 people. What would you recommend?", false, "2:18 PM"),
+            ("For a team of 15, I'd recommend our Professional plan at $199/month which includes 20 user seats, premium support, and all advanced features. Would you like to know more specific details?", true, "2:19 PM"),
+            ("What are the pricing options?", false, "2:20 PM")
+        };
+    }
 }
 
 <div class="chat-container">
@@ -65,10 +95,10 @@
             <div class="chat-header-info">
                 <div class="bot-icon"><i class="bi bi-robot"></i></div>
                 <div class="bot-details">
-                    <div class="bot-name">Customer Support Bot</div>
+                    <div class="bot-name">@(sessionId == "session-1234-abcd" ? "Customer Support Bot" : (sessionId == "session-9012-ijkl" ? "Sales Assistant" : "AI Assistant"))</div>
                     <div class="bot-status">
                         <span class="status-indicator online"></span>
-                        <span>Online - Customer Service</span>
+                        <span>Online - @(sessionId == "session-1234-abcd" ? "Customer Service" : (sessionId == "session-9012-ijkl" ? "Sales" : "Support"))</span>
                     </div>
                 </div>
             </div>
@@ -83,31 +113,39 @@
         </div>
         
         <div class="chat-messages">
-            <div class="message-date">Today</div>
+            <div class="message-date">@(isContinuingConversation ? previousMessages.Count > 0 ? DateTime.Now.AddDays(-2).ToString("MMMM d, yyyy") : "Today" : "Today")</div>
             
-            <div class="message bot">
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>👋 Hello! I'm Customer Support Bot, your AI support agent for Customer Service. How can I assist you today?</p>
+            @if (isContinuingConversation && previousMessages.Count > 0)
+            {
+                foreach (var msg in previousMessages)
+                {
+                    <div class="message @(msg.isBot ? "bot" : "user")">
+                        <div class="message-avatar">
+                            <i class="bi @(msg.isBot ? "bi-robot" : "bi-person")"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="message-bubble">
+                                <p>@msg.message</p>
+                            </div>
+                            <div class="message-time">@msg.time</div>
+                        </div>
                     </div>
-                    <div class="message-time">5:53 PM</div>
-                </div>
-            </div>
-            
-            <div class="message bot">
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>I can help with common questions about our products, technical issues, account questions, and more. Just type your question below to get started!</p>
+                }
+            }
+            else
+            {
+                <div class="message bot">
+                    <div class="message-avatar">
+                        <i class="bi bi-robot"></i>
                     </div>
-                    <div class="message-time">5:53 PM</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>👋 Hello! I'm your AI support agent. How can I assist you today?</p>
+                        </div>
+                        <div class="message-time">@DateTime.Now.ToString("h:mm tt")</div>
+                    </div>
                 </div>
-            </div>
+            }
         </div>
         
         <div class="chat-input-container">
@@ -677,6 +715,9 @@
             const sendButton = document.getElementById('sendMessage');
             const chatMessages = document.querySelector('.chat-messages');
             
+            // Scroll to bottom of chat on load (important for continued conversations)
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
             // Enable/disable send button based on input
             messageInput.addEventListener('input', function() {
                 sendButton.disabled = this.value.trim() === '';
@@ -693,14 +734,6 @@
                         sendMessage();
                     }
                 }
-            });
-            
-            // Add click event to suggested topics
-            document.querySelectorAll('.topic-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    messageInput.value = this.textContent;
-                    sendButton.disabled = false;
-                });
             });
             
             function sendMessage() {
@@ -763,16 +796,20 @@
                     // Add bot message to chat
                     chatMessages.appendChild(botMessageElement);
                     
-                    // Update message count
-                    const messageCount = document.querySelector('.stats-grid .stat-value');
-                    if (messageCount) {
-                        const currentCount = parseInt(messageCount.textContent);
-                        messageCount.textContent = currentCount + 2; // +2 for user message and bot response
-                    }
+                    // Update message count in stats
+                    updateMessageCount();
                     
                     // Scroll to bottom
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, 1500);
+            }
+            
+            function updateMessageCount() {
+                const messageCount = document.querySelector('.stats-grid .stat-value');
+                if (messageCount) {
+                    const currentCount = parseInt(messageCount.textContent);
+                    messageCount.textContent = currentCount + 2; // +2 for user message and bot response
+                }
             }
             
             function showTypingIndicator() {
@@ -806,17 +843,64 @@
             }
             
             function getBotResponse(message) {
-                // Simple response generation - in a real app this would call your API
+                // Contextual responses based on session ID
+                const path = window.location.pathname;
+                const sessionId = path.substring(path.lastIndexOf('/') + 1);
+                
+                if (sessionId === "session-1234-abcd") {
+                    // Customer Support bot responses
+                    if (message.toLowerCase().includes("refund") || message.toLowerCase().includes("return")) {
+                        return "Based on our previous conversation, I can confirm that partial refunds are available. Would you like me to provide the detailed return process now?";
+                    }
+                    if (message.toLowerCase().includes("order") || message.toLowerCase().includes("delivery")) {
+                        return "Your order #12345 is still on track for delivery tomorrow. The carrier's tracking number is TRK78901234, in case you'd like to follow its progress.";
+                    }
+                } else if (sessionId === "session-9012-ijkl") {
+                    // Sales Assistant bot responses
+                    if (message.toLowerCase().includes("price") || message.toLowerCase().includes("cost") || message.toLowerCase().includes("discount")) {
+                        return "Our Professional plan is $199/month billed annually or $249/month billed monthly. We also offer a 15% discount for non-profits and educational institutions. Would you like me to send you our detailed pricing sheet?";
+                    }
+                    if (message.toLowerCase().includes("feature") || message.toLowerCase().includes("include")) {
+                        return "The Professional plan includes: 20 user seats, priority email support, advanced analytics, custom integrations, unlimited projects, 100GB storage, and all our premium features. Is there a specific feature you're interested in?";
+                    }
+                }
+                
+                // Generic responses if no contextual match
                 const responses = [
-                    "I understand your question about that. Let me help you with that.",
-                    "Thanks for reaching out! Here's what I can tell you about that.",
-                    "That's a good question. Based on what you're asking, I think I can help.",
-                    "I'd be happy to assist with that. Here's what you need to know.",
-                    "Let me look into that for you. Here's what I found."
+                    "I understand your question. Let me get you some more information about that.",
+                    "Thanks for providing those details. Based on what you've shared, here's what I can tell you.",
+                    "I appreciate your question. Here's what you need to know about that.",
+                    "That's a good point. Let me address that for you specifically.",
+                    "I can definitely help with that. Here's the information you're looking for."
                 ];
                 
                 return responses[Math.floor(Math.random() * responses.length)];
             }
         });
     </script>
+        <style>
+        /* Add styling for typing indicator */
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 6px 0;
+        }
+        
+        .typing-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--color-gray-400);
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+       @@keyframes typingAnimation {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+    </style>
 }

@@ -102,19 +102,19 @@
                         </div>
                     </div>
                     
-                    <div class="history-card-footer">
-                        <button type="button" class="btn btn-primary" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
-                            <i class="bi bi-eye"></i>
-                            <span>View</span>
-                        </button>
-                        @if (chat.Status.ToLower() == "active")
-                        {
-                            <button type="button" class="btn btn-outline" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
-                                <i class="bi bi-chat-dots"></i>
-                                <span>Continue</span>
-                            </button>
-                        }
-                    </div>
+<div class="history-card-footer">
+    <button type="button" class="btn btn-primary" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
+        <i class="bi bi-eye"></i>
+        <span>View</span>
+    </button>
+    @if (chat.Status.ToLower() == "active")
+    {
+        <button type="button" class="btn btn-outline" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
+            <i class="bi bi-chat-dots"></i>
+            <span>Continue</span>
+        </button>
+    }
+</div>
                 </div>
             }
         </div>
