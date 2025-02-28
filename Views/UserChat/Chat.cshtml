@@ -3,8 +3,8 @@
     ViewData["Title"] = "Chat Support";
     
     // This is just for frontend demo
-    bool isContinuingConversation = Context.Request.Path.Value.Contains("session-");
-    string sessionId = Context.Request.Path.Value.Split('/').Last();
+    bool isContinuingConversation = Model.SessionId.StartsWith("session-");
+    string sessionId = Model.SessionId;
     var previousMessages = new List<(string message, bool isBot, string time)>();
     
     // Load previous messages based on session ID for demo
@@ -148,20 +148,22 @@
             }
         </div>
         
-        <div class="chat-input-container">
-            <button class="input-attachment-btn" title="Add attachment">
-                <i class="bi bi-paperclip"></i>
-            </button>
-            <div class="input-wrapper">
-                <input type="text" id="messageInput" placeholder="Type your message...">
-                <button class="voice-input-btn" title="Voice input">
-                    <i class="bi bi-mic"></i>
-                </button>
-            </div>
-            <button class="send-btn" id="sendMessage" disabled>
-                <i class="bi bi-send"></i>
-            </button>
-        </div>
+<div class="chat-input-container">
+    <input type="hidden" id="sessionId" value="@Model.SessionId">
+    <input type="hidden" id="chatbotId" value="@Model.Chatbot.Id">
+    <button class="input-attachment-btn" title="Add attachment">
+        <i class="bi bi-paperclip"></i>
+    </button>
+    <div class="input-wrapper">
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <button class="voice-input-btn" title="Voice input">
+            <i class="bi bi-mic"></i>
+        </button>
+    </div>
+    <button class="send-btn" id="sendMessage" disabled>
+        <i class="bi bi-send"></i>
+    </button>
+</div>
     </div>
     
     <!-- Right panel with conversation details -->

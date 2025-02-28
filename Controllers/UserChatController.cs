@@ -448,14 +448,16 @@ namespace AIHelpdeskSupport.Controllers
         }
 
         [HttpGet("UserChat/Chat/{sessionId}")]
-        public IActionResult ChatSession(string sessionId)
+        public async Task<IActionResult> ChatSession(string sessionId)
         {
             if (string.IsNullOrEmpty(sessionId) || !sessionId.StartsWith("session-"))
             {
                 return NotFound();
             }
 
-            // Get chatbot info based on session
+            // Extract chatbot ID from localStorage or fallback to default
+            // In a real app, this would come from a database
+            // For now we'll handle specific known session IDs
             Chatbot chatbot = null;
 
             if (sessionId == "session-1234-abcd")
@@ -490,7 +492,6 @@ namespace AIHelpdeskSupport.Controllers
                 };
             }
 
-            // No need to load messages here - they're loaded in the View based on sessionId
             var viewModel = new UserChatViewModel
             {
                 Chatbot = chatbot,

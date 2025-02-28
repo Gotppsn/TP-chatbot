@@ -16,8 +16,8 @@
         {
             foreach (var chatbot in Model.Where(c => c.IsActive))
             {
-                <div class="assistant-card animate-card" 
-                     onclick="location.href='@Url.Action("Chat", "UserChat", new { id = chatbot.Id })'">
+<div class="assistant-card animate-card" 
+     onclick="startNewChat(@chatbot.Id)">
                     @{
                         string iconClass = chatbot.Department switch
                         {
@@ -308,5 +308,24 @@
                 recentChatsEl.appendChild(chatList);
             }
         }
+
+        function startNewChat(chatbotId) {
+    // Generate a session ID in the same format as History
+    const randomPart1 = Math.floor(1000 + Math.random() * 9000);
+    const randomPart2 = Array.from({length: 4}, () => 
+        'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]
+    ).join('');
+    const sessionId = `session-${randomPart1}-${randomPart2}`;
+    
+    // Store in localStorage for potential recovery
+    const chatData = {
+        chatbotId: chatbotId,
+        createdAt: new Date().toISOString()
+    };
+    localStorage.setItem(sessionId, JSON.stringify(chatData));
+    
+    // Navigate to chat with session ID
+    location.href = `/UserChat/Chat/${sessionId}`;
+}
     </script>
 }
