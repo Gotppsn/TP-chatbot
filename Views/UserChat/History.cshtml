@@ -24,27 +24,35 @@
     
     @if (Model.Any())
     {
-        <div class="history-list">
+        <div class="history-grid">
             @foreach (var chat in Model)
             {
-                <div class="history-item" data-status="@chat.Status.ToLower()">
-                    <div class="history-item-header">
-                        <div class="history-item-title">
-                            <h3>@chat.ChatbotName</h3>
-                            <span class="history-department">@chat.Department</span>
-                            <span class="history-status @(chat.Status.ToLower())">@chat.Status</span>
+                <div class="history-card" data-status="@chat.Status.ToLower()">
+                    <div class="history-card-header">
+                        <div class="history-card-title">
+                            <div class="bot-avatar">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div>
+                                <h3>@chat.ChatbotName</h3>
+                                <div class="history-meta-tags">
+                                    <span class="history-department">@chat.Department</span>
+                                    <span class="history-status @(chat.Status.ToLower())">@chat.Status</span>
+                                </div>
+                            </div>
                         </div>
                         <div class="history-item-time">
                             @chat.StartTime.ToString("MMM d, yyyy h:mm tt")
                         </div>
                     </div>
-                    <div class="history-item-body">
-                        <div class="history-meta">
-                            <div class="history-meta-item">
+                    
+                    <div class="history-card-body">
+                        <div class="history-metrics">
+                            <div class="metric">
                                 <i class="bi bi-chat-left-text"></i>
                                 <span>@chat.MessageCount messages</span>
                             </div>
-                            <div class="history-meta-item">
+                            <div class="metric">
                                 <i class="bi bi-clock"></i>
                                 <span>
                                     @if (chat.EndTime.HasValue)
@@ -59,53 +67,51 @@
                                 </span>
                             </div>
                         </div>
+                        
                         @if (chat.Rating.HasValue || !string.IsNullOrEmpty(chat.Feedback))
-{
-    <div class="history-feedback">
-        @if (chat.Rating.HasValue)
-        {
-            <div class="history-rating">
-                <div class="rating-label">Your Rating:</div>
-                <div class="star-rating">
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        if (i <= chat.Rating.Value)
                         {
-                            <i class="bi bi-star-fill"></i>
+                            <div class="history-feedback">
+                                @if (chat.Rating.HasValue)
+                                {
+                                    <div class="history-rating">
+                                        <div class="rating-stars">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                if (i <= chat.Rating.Value)
+                                                {
+                                                    <i class="bi bi-star-fill"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-star"></i>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                                
+                                @if (!string.IsNullOrEmpty(chat.Feedback))
+                                {
+                                    <div class="feedback-content">@chat.Feedback</div>
+                                }
+                            </div>
                         }
-                        else
-                        {
-                            <i class="bi bi-star"></i>
-                        }
-                    }
-                </div>
-            </div>
-        }
-        
-        @if (!string.IsNullOrEmpty(chat.Feedback))
-        {
-            <div class="feedback-container">
-                <div class="feedback-label">Your Feedback:</div>
-                <div class="feedback-content">@chat.Feedback</div>
-            </div>
-        }
-    </div>
-}
+                        
                         <div class="history-last-message">
-                            <div class="message-label">Last message:</div>
-                            <div class="message-content">@chat.LastMessage</div>
+                            <div class="message-bubble">@chat.LastMessage</div>
                         </div>
                     </div>
-                    <div class="history-item-footer">
+                    
+                    <div class="history-card-footer">
                         <button type="button" class="btn btn-primary" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
                             <i class="bi bi-eye"></i>
-                            <span>View Conversation</span>
+                            <span>View</span>
                         </button>
                         @if (chat.Status.ToLower() == "active")
                         {
                             <button type="button" class="btn btn-outline" onclick="location.href='/UserChat/Chat/@chat.SessionId'">
                                 <i class="bi bi-chat-dots"></i>
-                                <span>Continue Chat</span>
+                                <span>Continue</span>
                             </button>
                         }
                     </div>
@@ -174,58 +180,75 @@
             color: white;
         }
         
-        .history-list {
-            display: flex;
-            flex-direction: column;
+        /* New Grid Layout */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1rem;
         }
         
-        .history-item {
+        .history-card {
             background-color: white;
-            border-radius: var(--border-radius-lg);
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
-            transition: transform 0.3s ease;
+            height: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
         
-        .history-item:hover {
+        .history-card:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-md);
         }
         
-        .history-item-header {
-            padding: 1.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        .history-card-header {
+            padding: 1rem;
             border-bottom: 1px solid var(--color-gray-200);
         }
         
-        .history-item-title {
+        .history-card-title {
             display: flex;
             align-items: center;
-            flex-wrap: wrap;
             gap: 0.75rem;
+            margin-bottom: 0.5rem;
         }
         
-        .history-item-title h3 {
-            font-size: 1.125rem;
+        .bot-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .history-card-title h3 {
+            font-size: 1rem;
             font-weight: 600;
-            margin: 0;
+            margin: 0 0 0.25rem;
+        }
+        
+        .history-meta-tags {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .history-department,
+        .history-status {
+            font-size: 0.7rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 100px;
+            white-space: nowrap;
         }
         
         .history-department {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
             background-color: var(--color-gray-100);
             color: var(--color-gray-700);
-        }
-        
-        .history-status {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
         }
         
         .history-status.active {
@@ -239,49 +262,88 @@
         }
         
         .history-item-time {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             color: var(--color-gray-500);
+            text-align: right;
         }
         
-        .history-item-body {
-            padding: 1.25rem;
-        }
-        
-        .history-meta {
+        .history-card-body {
+            padding: 1rem;
+            flex: 1;
             display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+            flex-direction: column;
+            gap: 0.75rem;
         }
         
-        .history-meta-item {
+        .history-metrics {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .metric {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
+            gap: 0.375rem;
+            font-size: 0.75rem;
             color: var(--color-gray-600);
         }
         
-        .history-last-message {
-            background-color: var(--color-gray-50);
-            padding: 1rem;
+        .history-feedback {
+            background-color: rgba(13, 110, 253, 0.05);
             border-radius: var(--border-radius);
+            padding: 0.75rem;
+            border-left: 3px solid var(--color-primary);
         }
         
-        .message-label {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
+        .history-rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 0.5rem;
         }
         
-        .message-content {
-            font-size: 0.9375rem;
+        .rating-stars {
+            color: #ffc107;
         }
         
-        .history-item-footer {
-            padding: 1rem 1.25rem;
+        .feedback-content {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: var(--color-gray-700);
+            text-align: center;
+        }
+        
+        .history-last-message {
+            margin-top: auto;
+        }
+        
+        .message-bubble {
+            background-color: var(--color-gray-50);
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            color: var(--color-gray-800);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+        
+        .history-card-footer {
+            padding: 0.75rem 1rem;
             border-top: 1px solid var(--color-gray-200);
             display: flex;
-            gap: 0.75rem;
+            gap: 0.5rem;
+        }
+        
+        .history-card-footer .btn {
+            flex: 1;
+            font-size: 0.8rem;
+            padding: 0.375rem 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
         }
         
         /* Empty state */
@@ -289,7 +351,7 @@
             text-align: center;
             padding: 3rem;
             background-color: white;
-            border-radius: var(--border-radius-lg);
+            border-radius: var(--border-radius);
             box-shadow: var(--shadow);
         }
         
@@ -316,6 +378,7 @@
             .history-actions {
                 flex-direction: column;
                 align-items: flex-start;
+                width: 100%;
                 gap: 0.75rem;
             }
             
@@ -323,17 +386,13 @@
                 width: 100%;
             }
             
-            .history-item-header {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .history-item-footer {
-                flex-direction: column;
-            }
-            
-            .history-item-footer .btn {
+            .btn-group {
                 width: 100%;
+                justify-content: space-between;
+            }
+            
+            .history-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -344,7 +403,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Filter functionality
             const filterButtons = document.querySelectorAll('[data-filter]');
-            const historyItems = document.querySelectorAll('.history-item');
+            const historyItems = document.querySelectorAll('.history-card');
             
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
@@ -373,8 +432,8 @@
                     const searchTerm = this.value.toLowerCase();
                     
                     historyItems.forEach(item => {
-                        const title = item.querySelector('.history-item-title').textContent.toLowerCase();
-                        const lastMessage = item.querySelector('.message-content').textContent.toLowerCase();
+                        const title = item.querySelector('h3').textContent.toLowerCase();
+                        const lastMessage = item.querySelector('.message-bubble').textContent.toLowerCase();
                         
                         if (title.includes(searchTerm) || lastMessage.includes(searchTerm)) {
                             item.style.display = '';
