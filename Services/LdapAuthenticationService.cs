@@ -1,4 +1,3 @@
-// Services/LdapAuthenticationService.cs
 using System.DirectoryServices.AccountManagement;
 using AIHelpdeskSupport.Models;
 
@@ -12,12 +11,12 @@ namespace AIHelpdeskSupport.Services
 
     public class LdapAuthenticationService : ILdapAuthenticationService
     {
-        private readonly string _domain;
+        private readonly IConfiguration _configuration;
         private readonly ILogger<LdapAuthenticationService> _logger;
 
         public LdapAuthenticationService(IConfiguration configuration, ILogger<LdapAuthenticationService> logger)
         {
-            _domain = configuration["LDAP:Domain"] ?? "thaiparkerizing";
+            _configuration = configuration;
             _logger = logger;
         }
 
@@ -25,7 +24,8 @@ namespace AIHelpdeskSupport.Services
         {
             try
             {
-                bool isValid = ValidateCredentials(username, password, _domain);
+                string domain = _configuration["LDAP:Domain"] ?? "thaiparkerizing";
+                bool isValid = ValidateCredentials(username, password, domain);
                 
                 if (!isValid)
                 {
@@ -46,7 +46,8 @@ namespace AIHelpdeskSupport.Services
         {
             try
             {
-                using (var context = new PrincipalContext(ContextType.Domain, _domain))
+                string domain = _configuration["LDAP:Domain"] ?? "thaiparkerizing";
+                using (var context = new PrincipalContext(ContextType.Domain, domain))
                 {
                     var user = UserPrincipal.FindByIdentity(context, username);
                     
@@ -55,14 +56,19 @@ namespace AIHelpdeskSupport.Services
                         return null;
                     }
 
-                    // Create ApplicationUser from LDAP user
+                    // Try to get department from directory entry
+                    string department = GetUserDepartment(user);
+                    
+                    // Map LDAP user to application user
                     var appUser = new ApplicationUser
                     {
                         UserName = username,
-                        Email = user.EmailAddress,
-                        FirstName = user.GivenName ?? "",
+                        Email = user.EmailAddress ?? $"{username}@{domain}.com",
+                        FirstName = user.GivenName ?? username,
                         LastName = user.Surname ?? "",
-                        Department = GetUserDepartment(user)
+                        Department = department,
+                        Role = "User",
+                        IsActive = true
                     };
 
                     return appUser;
@@ -79,27 +85,39 @@ namespace AIHelpdeskSupport.Services
         {
             try
             {
+                // Default department from config
+                string defaultDepartment = _configuration["LDAP:DefaultDepartment"] ?? "Customer Service";
+                
                 // Try to get department from directory entry
                 var directoryEntry = (user.GetUnderlyingObject() as System.DirectoryServices.DirectoryEntry);
                 if (directoryEntry?.Properties["department"]?.Value != null)
                 {
-                    return directoryEntry.Properties["department"].Value.ToString() ?? "";
+                    return directoryEntry.Properties["department"].Value.ToString() ?? defaultDepartment;
                 }
                 
-                // Default department if not found
-                return "Customer Service";
+                // Fallback to default department
+                return defaultDepartment;
             }
-            catch
+            catch (Exception ex)
             {
-                return "Customer Service";
+                _logger.LogWarning(ex, "Error retrieving department for user {Username}", user.SamAccountName);
+                return "Customer Service"; // Default on error
             }
         }
 
         private bool ValidateCredentials(string username, string password, string domain)
         {
-            using (var context = new PrincipalContext(ContextType.Domain, domain))
+            try
             {
-                return context.ValidateCredentials(username, password);
+                using (var context = new PrincipalContext(ContextType.Domain, domain))
+                {
+                    return context.ValidateCredentials(username, password);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating credentials for {Username}", username);
+                return false;
             }
         }
     }

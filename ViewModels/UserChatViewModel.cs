@@ -1,3 +1,4 @@
+// ViewModels/UserChatViewModel.cs
 using AIHelpdeskSupport.Models;
 
 namespace AIHelpdeskSupport.ViewModels

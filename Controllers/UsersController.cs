@@ -7,6 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AIHelpdeskSupport.Models;
+using AIHelpdeskSupport.ViewModels;
 
 namespace AIHelpdeskSupport.Controllers
 {
