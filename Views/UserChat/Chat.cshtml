@@ -180,12 +180,6 @@
             }
         </div>
         
-        <div class="suggestion-chips" id="suggestionChips">
-            <button class="suggestion-chip">How do I reset my password?</button>
-            <button class="suggestion-chip">What's the status of my order?</button>
-            <button class="suggestion-chip">I need help with billing</button>
-        </div>
-        
         <div class="chat-input-container">
             <input type="hidden" id="sessionId" value="@Model.SessionId">
             <input type="hidden" id="chatbotId" value="@Model.Chatbot.Id">
@@ -311,12 +305,20 @@
     --chat-bubble-radius: 18px;
 }
 
+/* Global Reset for Chat Layout */
+body, html {
+    overflow: hidden;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 /* Main Container */
 .chat-container {
     display: grid;
     grid-template-columns: var(--chat-sidebar-width) 1fr var(--chat-info-width);
-    height: calc(100vh - 150px);
-    min-height: 500px;
+    height: calc(100vh - 70px); /* Reduced space subtracted */
+    min-height: 600px; /* Increased minimum height */
     background-color: var(--chat-bg);
     border-radius: var(--chat-border-radius);
     overflow: hidden;
@@ -333,6 +335,7 @@
     flex-direction: column;
     transition: var(--transition-normal);
     z-index: 20;
+    overflow-y: auto;
 }
 
 .sidebar-header {
@@ -341,6 +344,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--chat-sidebar-bg);
+    z-index: 2;
 }
 
 .search-container {
@@ -447,6 +454,10 @@
 .sidebar-footer {
     border-top: 1px solid var(--chat-border);
     padding: 16px;
+    position: sticky;
+    bottom: 0;
+    background: var(--chat-sidebar-bg);
+    z-index: 2;
 }
 
 .btn-new-chat {
@@ -474,6 +485,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--chat-main-bg);
+    overflow: hidden;
 }
 
 .chat-header {
@@ -610,8 +622,8 @@
     /* Improved scrolling with momentum scrolling for touch devices */
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
-    height: calc(100vh - var(--chat-header-height) - var(--chat-input-height) - 200px);
-    min-height: 200px;
+    height: calc(100vh - var(--chat-header-height) - var(--chat-input-height) - 120px);
+    min-height: 300px;
 }
 
 /* Custom scrollbar for webkit browsers */
@@ -769,37 +781,7 @@
     color: var(--chat-text);
 }
 
-/* Suggestion Chips */
-.suggestion-chips {
-    padding: 8px 16px;
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    border-top: 1px solid var(--chat-border);
-    scrollbar-width: none; /* Firefox */
-}
 
-.suggestion-chips::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Edge */
-}
-
-.suggestion-chip {
-    white-space: nowrap;
-    padding: 8px 12px;
-    background-color: var(--chat-border-light);
-    border: 1px solid var(--chat-border);
-    border-radius: 50px;
-    font-size: 13px;
-    color: var(--chat-text);
-    cursor: pointer;
-    transition: var(--transition-fast);
-}
-
-.suggestion-chip:hover {
-    background-color: var(--chat-primary-light);
-    border-color: var(--chat-primary-light);
-    color: var(--chat-primary);
-}
 
 /* Chat Input */
 .chat-input-container {
@@ -915,6 +897,10 @@
     justify-content: space-between;
     padding: 16px;
     border-bottom: 1px solid var(--chat-border);
+    position: sticky;
+    top: 0;
+    background: var(--chat-info-bg);
+    z-index: 2;
 }
 
 .info-header h3 {
@@ -1102,7 +1088,20 @@
     transform: translateY(0);
 }
 
-/* Responsive Design */
+/* Responsive Adjustments for Various Screen Sizes */
+@@media (max-height: 768px) {
+    .chat-container {
+        height: calc(100vh - 60px);
+        min-height: 500px;
+    }
+    
+    .chat-messages {
+        height: calc(100vh - var(--chat-header-height) - var(--chat-input-height) - 60px);
+    }
+    
+
+}
+
 @@media (max-width: 1200px) {
     .chat-container {
         grid-template-columns: var(--chat-sidebar-width) 1fr 0;
@@ -1131,9 +1130,17 @@
     }
 }
 
+@@media (max-width: 992px) {
+    :root {
+        --chat-sidebar-width: 250px;
+        --chat-info-width: 280px;
+    }
+}
+
 @@media (max-width: 768px) {
     .chat-container {
         grid-template-columns: 0 1fr 0;
+        height: calc(100vh - 60px);
     }
     
     .chat-sidebar {
@@ -1152,6 +1159,10 @@
     
     .mobile-toggle {
         display: block;
+    }
+    
+    .chat-messages {
+        height: calc(100vh - var(--chat-header-height) - var(--chat-input-height) - 90px);
     }
 }
 
@@ -1181,7 +1192,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatContainer = document.querySelector('.chat-container');
     const sidebar = document.querySelector('.chat-sidebar');
     const chatInfo = document.querySelector('.chat-info');
-    const suggestionChips = document.querySelectorAll('.suggestion-chip');
+
     const messageCount = document.getElementById('messageCount');
     const chatDuration = document.getElementById('chatDuration');
     
@@ -1265,14 +1276,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Handle suggestion chips
-    suggestionChips.forEach(chip => {
-        chip.addEventListener('click', function() {
-            messageInput.value = this.textContent;
-            messageInput.dispatchEvent(new Event('input'));
-            sendMessage();
-        });
-    });
+
     
     // Send message function
     function sendMessage() {
@@ -1312,8 +1316,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Scroll to bottom
             scrollToBottom();
             
-            // Update suggestion chips
-            updateSuggestionChips(message);
+
         }, Math.random() * 1000 + 1000); // Random delay between 1-2 seconds
     }
     
@@ -1420,75 +1423,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return responses[Math.floor(Math.random() * responses.length)];
     }
     
-    // Update suggestion chips based on conversation
-    function updateSuggestionChips(lastMessage) {
-        const container = document.getElementById('suggestionChips');
-        
-        // Different suggestions based on context
-        const path = window.location.pathname;
-        const sessionId = path.substring(path.lastIndexOf('/') + 1);
-        
-        let suggestions = [];
-        
-        if (sessionId === "session-1234-abcd") {
-            // Customer support suggestions
-            if (lastMessage.toLowerCase().includes("refund")) {
-                suggestions = [
-                    "What's the refund policy?",
-                    "How long do refunds take?",
-                    "Can I return just part of my order?"
-                ];
-            } else if (lastMessage.toLowerCase().includes("delivery")) {
-                suggestions = [
-                    "Can I change delivery address?",
-                    "What if I'm not home?",
-                    "Do you offer express shipping?"
-                ];
-            } else {
-                suggestions = [
-                    "Track my order",
-                    "Return policy",
-                    "Speak to a human agent"
-                ];
-            }
-        } else if (sessionId === "session-9012-ijkl") {
-            // Sales suggestions
-            if (lastMessage.toLowerCase().includes("price") || lastMessage.toLowerCase().includes("plan")) {
-                suggestions = [
-                    "Enterprise pricing",
-                    "Annual vs Monthly",
-                    "Available discounts"
-                ];
-            } else {
-                suggestions = [
-                    "Product features",
-                    "Free trial options",
-                    "Schedule a demo"
-                ];
-            }
-        } else {
-            // Default suggestions
-            suggestions = [
-                "How can I get started?",
-                "What services do you offer?",
-                "I need technical support"
-            ];
-        }
-        
-        // Clear and update suggestions
-        container.innerHTML = '';
-        suggestions.forEach(text => {
-            const chip = document.createElement('button');
-            chip.className = 'suggestion-chip';
-            chip.textContent = text;
-            chip.addEventListener('click', function() {
-                messageInput.value = this.textContent;
-                messageInput.dispatchEvent(new Event('input'));
-                sendMessage();
-            });
-            container.appendChild(chip);
-        });
-    }
+
     
     // Update message count in the info panel
     function updateMessageCount() {
