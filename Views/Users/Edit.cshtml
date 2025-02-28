@@ -56,7 +56,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form id="userEditForm" asp-action="Edit" method="post">
+        <form id="userEditForm" asp-controller="Users" asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreatedAt" />
@@ -447,8 +447,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteUserForm" method="post" action="/Users/Delete/@Model.Id">
+                <form id="deleteUserForm" method="post" asp-controller="Users" asp-action="Delete">
                     @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
                     <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Permanently</button>
                 </form>
             </div>
@@ -483,7 +484,9 @@
             }
             
             // Initialize Bootstrap components
-            const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            if (typeof bootstrap !== 'undefined') {
+                const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            }
             
             // Tab navigation
             const tabs = document.querySelectorAll('.form-tab');
@@ -499,26 +502,28 @@
                 
                 // Show the target section
                 const targetSection = document.getElementById(tabId);
-                targetSection.classList.add('active');
-                targetSection.setAttribute('aria-hidden', 'false');
-                
-                // Update active tab
-                tabs.forEach(tab => {
-                    tab.classList.remove('active');
-                    tab.setAttribute('aria-selected', 'false');
-                    if (tab.getAttribute('data-tab') === tabId) {
-                        tab.classList.add('active');
-                        tab.setAttribute('aria-selected', 'true');
-                    }
-                });
-                
-                // Update progress bar
-                const tabIndex = Array.from(tabs).findIndex(tab => tab.getAttribute('data-tab') === tabId);
-                const progressPercentage = (tabIndex + 1) / tabs.length * 100;
-                progressBar.style.width = `${progressPercentage}%`;
-                
-                // Save current tab to session storage
-                sessionStorage.setItem('currentUserEditTab', tabId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    targetSection.setAttribute('aria-hidden', 'false');
+                    
+                    // Update active tab
+                    tabs.forEach(tab => {
+                        tab.classList.remove('active');
+                        tab.setAttribute('aria-selected', 'false');
+                        if (tab.getAttribute('data-tab') === tabId) {
+                            tab.classList.add('active');
+                            tab.setAttribute('aria-selected', 'true');
+                        }
+                    });
+                    
+                    // Update progress bar
+                    const tabIndex = Array.from(tabs).findIndex(tab => tab.getAttribute('data-tab') === tabId);
+                    const progressPercentage = (tabIndex + 1) / tabs.length * 100;
+                    progressBar.style.width = `${progressPercentage}%`;
+                    
+                    // Save current tab to session storage
+                    sessionStorage.setItem('currentUserEditTab', tabId);
+                }
             }
             
             // Add click event to tabs
@@ -554,15 +559,17 @@
             const resetOptions = document.querySelectorAll('input[name="resetPasswordOption"]');
             const manualPasswordFields = document.getElementById('manualPasswordFields');
             
-            resetOptions.forEach(option => {
-                option.addEventListener('change', function() {
-                    if (this.value === 'manual') {
-                        manualPasswordFields.style.display = 'block';
-                    } else {
-                        manualPasswordFields.style.display = 'none';
-                    }
+            if (resetOptions && manualPasswordFields) {
+                resetOptions.forEach(option => {
+                    option.addEventListener('change', function() {
+                        if (this.value === 'manual') {
+                            manualPasswordFields.style.display = 'block';
+                        } else {
+                            manualPasswordFields.style.display = 'none';
+                        }
+                    });
                 });
-            });
+            }
             
             // Password toggle visibility
             document.querySelectorAll('.password-toggle').forEach(toggle => {
@@ -589,13 +596,17 @@
             const passwordMatch = document.querySelector('.password-match');
             const passwordMismatch = document.querySelector('.password-mismatch');
             
-            newPassword.addEventListener('input', function() {
-                const strength = calculatePasswordStrength(this.value);
-                updatePasswordStrengthUI(strength);
-                checkPasswordMatch();
-            });
+            if (newPassword && passwordStrength) {
+                newPassword.addEventListener('input', function() {
+                    const strength = calculatePasswordStrength(this.value);
+                    updatePasswordStrengthUI(strength);
+                    checkPasswordMatch();
+                });
+            }
             
-            confirmPassword.addEventListener('input', checkPasswordMatch);
+            if (confirmPassword && passwordMatch && passwordMismatch) {
+                confirmPassword.addEventListener('input', checkPasswordMatch);
+            }
             
             function calculatePasswordStrength(password) {
                 if (!password) return 0;
@@ -617,22 +628,28 @@
             }
             
             function updatePasswordStrengthUI(strength) {
+                if (!passwordStrength) return;
+                
                 const strengthMeter = passwordStrength.querySelector('.strength-meter-fill');
                 const strengthText = passwordStrength.querySelector('.strength-text span');
                 
-                // Update strength meter fill
-                strengthMeter.setAttribute('data-strength', strength);
-                
-                // Update strength text
-                const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-                strengthText.textContent = strengthLabels[strength];
-                
-                // Update color classes
-                strengthMeter.className = 'strength-meter-fill';
-                strengthMeter.classList.add(`strength-${strength}`);
+                if (strengthMeter && strengthText) {
+                    // Update strength meter fill
+                    strengthMeter.setAttribute('data-strength', strength);
+                    
+                    // Update strength text
+                    const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+                    strengthText.textContent = strengthLabels[strength];
+                    
+                    // Update color classes
+                    strengthMeter.className = 'strength-meter-fill';
+                    strengthMeter.classList.add(`strength-${strength}`);
+                }
             }
             
             function checkPasswordMatch() {
+                if (!newPassword || !confirmPassword || !passwordMatch || !passwordMismatch) return;
+                
                 const pwd = newPassword.value;
                 const confirm = confirmPassword.value;
                 
@@ -655,29 +672,101 @@
             const deleteConfirmInput = document.getElementById('deleteConfirmInput');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
             
-            deleteConfirmInput.addEventListener('input', function() {
-                confirmDeleteBtn.disabled = this.value !== 'DELETE';
-            });
+            if (deleteConfirmInput && confirmDeleteBtn) {
+                deleteConfirmInput.addEventListener('input', function() {
+                    confirmDeleteBtn.disabled = this.value !== 'DELETE';
+                });
+            }
             
             // Role-based permissions
             const roleSelect = document.getElementById('roleSelect');
             const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
             
-            roleSelect.addEventListener('change', function() {
-                const selectedRole = this.value;
+            if (roleSelect) {
+                roleSelect.addEventListener('change', function() {
+                    const selectedRole = this.value;
+                    
+                    // Reset all permissions first
+                    permissionCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    
+                    // Set permissions based on role
+                    if (selectedRole === 'Administrator') {
+                        // Admins get all permissions
+                        permissionCheckboxes.forEach(checkbox => {
+                            checkbox.checked = true;
+                        });
+                    } else if (selectedRole === 'Department Manager') {
+                        // Department managers get view permissions and some management permissions
+                        permissionCheckboxes.forEach(checkbox => {
+                            const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                            const viewPermissions = ['0', '1', '3', '7']; // IDs of view permissions
+                            const managerPermissions = ['2', '8']; // IDs of additional manager permissions
+                            
+                            checkbox.checked = viewPermissions.includes(permName) || managerPermissions.includes(permName);
+                        });
+                    } else if (selectedRole === 'Support Agent') {
+                        // Support agents get only basic view permissions
+                        permissionCheckboxes.forEach(checkbox => {
+                            const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                            const agentPermissions = ['0', '3', '7']; // IDs of agent permissions
+                            
+                            checkbox.checked = agentPermissions.includes(permName);
+                        });
+                    }
+                });
+            }
+            
+            // Select/clear all permissions
+            const selectAllPermissions = document.getElementById('selectAllPermissions');
+            const clearAllPermissions = document.getElementById('clearAllPermissions');
+            
+            if (selectAllPermissions) {
+                selectAllPermissions.addEventListener('click', function() {
+                    permissionCheckboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                });
+            }
+            
+            if (clearAllPermissions) {
+                clearAllPermissions.addEventListener('click', function() {
+                    permissionCheckboxes.forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                });
+            }
+            
+            // Initialize permissions based on current role on page load
+            function initializePermissionsForCurrentRole() {
+                if (!roleSelect) return;
                 
+                const currentRole = roleSelect.value;
+                if (currentRole) {
+                    // Only auto-set permissions if the form is new/unused
+                    const anyPermissionSet = Array.from(permissionCheckboxes)
+                        .some(checkbox => checkbox.checked);
+                        
+                    if (!anyPermissionSet) {
+                        simulateRoleChange(currentRole);
+                    }
+                }
+            }
+            
+            function simulateRoleChange(role) {
                 // Reset all permissions first
                 permissionCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
                 
                 // Set permissions based on role
-                if (selectedRole === 'Administrator') {
+                if (role === 'Administrator') {
                     // Admins get all permissions
                     permissionCheckboxes.forEach(checkbox => {
                         checkbox.checked = true;
                     });
-                } else if (selectedRole === 'Department Manager') {
+                } else if (role === 'Department Manager') {
                     // Department managers get view permissions and some management permissions
                     permissionCheckboxes.forEach(checkbox => {
                         const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
@@ -686,7 +775,7 @@
                         
                         checkbox.checked = viewPermissions.includes(permName) || managerPermissions.includes(permName);
                     });
-                } else if (selectedRole === 'Support Agent') {
+                } else if (role === 'Support Agent') {
                     // Support agents get only basic view permissions
                     permissionCheckboxes.forEach(checkbox => {
                         const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
@@ -695,77 +784,49 @@
                         checkbox.checked = agentPermissions.includes(permName);
                     });
                 }
-            });
+            }
             
-            // Select/clear all permissions
-            document.getElementById('selectAllPermissions').addEventListener('click', function() {
-                permissionCheckboxes.forEach(checkbox => {
-                    checkbox.checked = true;
-                });
-            });
+            // Initialize permissions on page load
+            initializePermissionsForCurrentRole();
             
-            document.getElementById('clearAllPermissions').addEventListener('click', function() {
-                permissionCheckboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-            });
-            
-            // Form submission with AJAX
+            // Form validation
             const userEditForm = document.getElementById('userEditForm');
             
-            userEditForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                if (!this.checkValidity()) {
-                    this.classList.add('was-validated');
-                    return;
-                }
-                
-                const formData = new FormData(this);
-                
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+            if (userEditForm) {
+                userEditForm.addEventListener('submit', function(e) {
+                    if (!this.checkValidity()) {
+                        e.preventDefault();
+                        this.classList.add('was-validated');
+                        return;
                     }
-                })
-                .then(response => {
-                    if (response.redirected) {
-                        // Show success toast before redirecting
-                        showToast('success', 'User updated successfully!');
-                        
-                        // Wait a moment for the toast to be visible, then redirect
-                        setTimeout(() => {
-                            window.location.href = response.url;
-                        }, 1500);
-                    } else if (response.ok) {
-                        showToast('success', 'User updated successfully!');
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Error updating user');
-                        });
+                    
+                    // Check password match if manual reset selected
+                    const resetOption = document.querySelector('input[name="resetPasswordOption"]:checked');
+                    if (resetOption && resetOption.value === 'manual') {
+                        if (newPassword.value !== confirmPassword.value) {
+                            e.preventDefault();
+                            passwordMismatch.style.display = 'block';
+                            passwordMatch.style.display = 'none';
+                            showTab('account'); // Switch to account tab to show the error
+                            return;
+                        }
                     }
-                })
-                .catch(error => {
-                    showToast('error', error.message || 'An error occurred. Please try again.');
                 });
-            });
+            }
         });
         
         // Delete confirmation modal
         function confirmDelete(id) {
             const modal = document.getElementById('deleteConfirmModal');
-            const bootstrapModal = new bootstrap.Modal(modal);
-            
-            // Reset confirmation input
-            document.getElementById('deleteConfirmInput').value = '';
-            document.getElementById('confirmDeleteBtn').disabled = true;
-            
-            // Update form action if needed
-            document.getElementById('deleteUserForm').action = `/Users/Delete/${id}`;
-            
-            bootstrapModal.show();
+            if (modal && typeof bootstrap !== 'undefined') {
+                const bootstrapModal = new bootstrap.Modal(modal);
+                
+                // Reset confirmation input
+                document.getElementById('deleteConfirmInput').value = '';
+                document.getElementById('confirmDeleteBtn').disabled = true;
+                
+                bootstrapModal.show();
+            }
         }
         
         // Toast notification function
@@ -850,11 +911,11 @@
         }
         
         .user-avatar.active {
-            background-color: var(--color-primary);
+            background-color: var(--bs-primary);
         }
         
         .user-avatar.inactive {
-            background-color: var(--color-secondary);
+            background-color: var(--bs-secondary);
         }
         
         .user-info {
@@ -885,12 +946,52 @@
         .stat-value {
             font-size: 1rem;
             font-weight: 600;
-            color: var(--color-gray-800);
+            color: var(--bs-gray-800);
         }
         
         .stat-label {
             font-size: 0.75rem;
-            color: var(--color-gray-500);
+            color: var(--bs-gray-500);
+        }
+        
+        /* Page header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+        
+        .page-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Card styles */
+        .card {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.125);
+        }
+        
+        .card-header {
+            padding: 1rem 1.25rem;
+            background-color: rgba(0,0,0,0.03);
+            border-bottom: 1px solid rgba(0,0,0,0.125);
+        }
+        
+        .card-body {
+            padding: 1.25rem;
         }
         
         /* Form Tabs */
@@ -916,7 +1017,7 @@
             text-align: center;
             background: none;
             border: none;
-            color: var(--color-gray-600);
+            color: var(--bs-gray-600);
             font-weight: 500;
             display: flex;
             align-items: center;
@@ -932,17 +1033,17 @@
         }
         
         .form-tab:hover {
-            color: var(--color-gray-900);
+            color: var(--bs-gray-900);
         }
         
         .form-tab.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
+            color: var(--bs-primary);
+            border-bottom-color: var(--bs-primary);
         }
         
         .form-tabs-progress {
             height: 4px;
-            background-color: var(--color-gray-200);
+            background-color: var(--bs-gray-200);
             margin-top: 1px;
             border-radius: 100px;
             overflow: hidden;
@@ -950,7 +1051,7 @@
         
         .form-tabs-progress .progress-bar {
             height: 100%;
-            background-color: var(--color-primary);
+            background-color: var(--bs-primary);
             border-radius: 100px;
             transition: width 0.3s ease;
         }
@@ -985,7 +1086,7 @@
             justify-content: space-between;
             margin-top: 2rem;
             padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
+            border-top: 1px solid var(--bs-gray-200);
         }
         
         /* Permissions Section */
@@ -1011,27 +1112,27 @@
         }
         
         .permission-group {
-            border: 1px solid var(--color-gray-200);
-            border-radius: var(--border-radius);
+            border: 1px solid var(--bs-gray-200);
+            border-radius: 0.375rem;
             overflow: hidden;
             transition: box-shadow 0.3s ease;
         }
         
         .permission-group:hover {
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
         }
         
         .permission-group-header {
-            background-color: var(--color-gray-50);
+            background-color: var(--bs-gray-100);
             padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-gray-200);
+            border-bottom: 1px solid var(--bs-gray-200);
         }
         
         .permission-group-header h4 {
             font-size: 0.875rem;
             font-weight: 600;
             margin: 0;
-            color: var(--color-gray-700);
+            color: var(--bs-gray-700);
         }
         
         .permission-list {
@@ -1043,7 +1144,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-gray-100);
+            border-bottom: 1px solid var(--bs-gray-100);
         }
         
         .permission-item:last-child {
@@ -1058,12 +1159,68 @@
         .permission-label span {
             display: block;
             font-size: 0.875rem;
-            color: var(--color-gray-700);
+            color: var(--bs-gray-700);
             margin-bottom: 0.25rem;
         }
         
         .permission-label small {
             font-size: 0.75rem;
+        }
+        
+        /* Form switch */
+        .form-switch {
+            position: relative;
+            display: inline-block;
+            padding-left: 3.5rem;
+            line-height: 1.7;
+        }
+        
+        .form-switch-input {
+            position: absolute;
+            left: -9999px;
+            width: 1px;
+            height: 1px;
+        }
+        
+        .form-switch-label {
+            position: relative;
+            margin-bottom: 0;
+            vertical-align: top;
+            cursor: pointer;
+        }
+        
+        .form-switch-label::before {
+            position: absolute;
+            top: 0.25rem;
+            left: -3.5rem;
+            display: block;
+            width: 3rem;
+            height: 1.5rem;
+            pointer-events: all;
+            content: "";
+            background-color: #e9ecef;
+            border-radius: 1.5rem;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-switch-label::after {
+            position: absolute;
+            top: 0.35rem;
+            left: -3.4rem;
+            width: 1.3rem;
+            height: 1.3rem;
+            content: "";
+            background-color: #fff;
+            border-radius: 1.5rem;
+            transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .form-switch-input:checked ~ .form-switch-label::before {
+            background-color: var(--bs-primary);
+        }
+        
+        .form-switch-input:checked ~ .form-switch-label::after {
+            transform: translateX(1.5rem);
         }
         
         /* Password Reset Options */
@@ -1076,9 +1233,9 @@
         }
         
         .password-fields {
-            background-color: var(--color-gray-50);
+            background-color: var(--bs-gray-100);
             padding: 1rem;
-            border-radius: var(--border-radius);
+            border-radius: 0.375rem;
             margin-top: 1rem;
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -1096,12 +1253,13 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: var(--color-gray-500);
+            color: var(--bs-gray-500);
             cursor: pointer;
+            padding: 0;
         }
         
         .password-toggle:hover {
-            color: var(--color-gray-700);
+            color: var(--bs-gray-700);
         }
         
         .password-strength {
@@ -1110,1413 +1268,444 @@
         
         .strength-meter {
             height: 4px;
-            background-color: var(--color-gray-200);
+            background-color: var(--bs-gray-200);
             border-radius: 100px;
             margin-bottom: 0.25rem;
             overflow: hidden;
         }
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    border-radius: 100px;
-    transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-.strength-meter-fill[data-strength="0"] {
-    width: 20%;
-    background-color: #dc3545;
-}
-
-.strength-meter-fill[data-strength="1"] {
-    width: 40%;
-    background-color: #ffc107;
-}
-
-.strength-meter-fill[data-strength="2"] {
-    width: 60%;
-    background-color: #fd7e14;
-}
-
-.strength-meter-fill[data-strength="3"] {
-    width: 80%;
-    background-color: #28a745;
-}
-
-.strength-meter-fill[data-strength="4"] {
-    width: 100%;
-    background-color: #20c997;
-}
-
-.strength-text {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-.password-match, .password-mismatch {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-}
-
-/* Danger Zone */
-.danger-zone {
-    background-color: #fff5f5;
-    border: 1px solid #ffe3e3;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-}
-
-.danger-zone-title {
-    background-color: #ffe3e3;
-    color: var(--color-danger);
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.75rem 1.25rem;
-    margin: 0;
-}
-
-.danger-zone-content {
-    padding: 1.25rem;
-}
-
-.danger-action {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.danger-info {
-    flex: 1;
-    padding-right: 1.5rem;
-}
-
-.danger-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.danger-description {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    overflow: auto;
-}
-
-.modal.show {
-    display: block;
-}
-
-.modal-dialog {
-    margin: 1.75rem auto;
-    max-width: 600px;
-    position: relative;
-}
-
-.modal-content {
-    position: relative;
-    background-color: white;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    flex-direction: column;
-    outline: 0;
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.btn-close {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: var(--color-gray-500);
-    cursor: pointer;
-}
-
-.modal-body {
-    position: relative;
-    flex: 1 1 auto;
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--color-gray-200);
-    gap: 0.75rem;
-}
-
-/* Toast Notification */
-.toast-notification {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    align-items: flex-start;
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-lg);
-    padding: 1rem;
-    width: 320px;
-    z-index: 1000;
-    transform: translateY(100%);
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.toast-notification.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.toast-notification.success {
-    border-left: 4px solid var(--color-success);
-}
-
-.toast-notification.error {
-    border-left: 4px solid var(--color-danger);
-}
-
-.toast-icon {
-    margin-right: 0.75rem;
-    font-size: 1.25rem;
-}
-
-.toast-notification.success .toast-icon {
-    color: var(--color-success);
-}
-
-.toast-notification.error .toast-icon {
-    color: var(--color-danger);
-}
-
-.toast-content {
-    flex: 1;
-}
-
-.toast-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.toast-message {
-    font-size: 0.875rem;
-    color: var(--color-gray-600);
-}
-
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: var(--color-gray-500);
-    cursor: pointer;
-    padding: 0;
-    margin-left: 0.75rem;
-}
-
-.toast-close:hover {
-    color: var(--color-gray-700);
-}
-
-/* Alerts */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: var(--border-radius);
-}
-
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.2);
-    color: var(--color-danger);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-}
-
-.alert i {
-    font-size: 1.25rem;
-    margin-top: 0.125rem;
-}
-
-/* Form Validation */
-.text-danger {
-    color: var(--color-danger);
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.text-success {
-    color: var(--color-success);
-}
-
-/* Utility Classes */
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-5 { margin-top: 3rem; }
-.mb-3 { margin-bottom: 1rem; }
-.ms-4 { margin-left: 1.5rem; }
-.d-flex { display: flex; }
-.d-block { display: block; }
-.justify-content-between { justify-content: space-between; }
-.align-items-center { align-items: center; }
-.required { color: var(--color-danger); }
-
-/* Responsive Adjustments */
-@@media (max-width: 992px) {
-    .user-edit-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .user-stats {
-        align-self: flex-start;
-        margin-top: 1rem;
-    }
-    
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .permission-groups {
-        grid-template-columns: 1fr;
-    }
-    
-    .password-fields {
-        grid-template-columns: 1fr;
-    }
-}
-
-@@media (max-width: 768px) {
-    .form-tab {
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
-    }
-    
-    .form-tab i {
-        margin-right: 0.25rem;
-    }
-    
-    .danger-action {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .danger-info {
-        padding-right: 0;
-    }
-}
-
-@@media (max-width: 576px) {
-    .form-tabs-header {
-        flex-wrap: wrap;
-    }
-    
-    .form-tab {
-        flex: 1 0 100%;
-    }
-    
-    .user-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .form-buttons {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .form-buttons button {
-        width: 100%;
-    }
-}
-    </style>
-}
-    <style>
-        /* User Edit Header */
-        .user-edit-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
         
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.125rem;
-            color: white;
-            margin-right: 1rem;
-            text-transform: uppercase;
-        }
-        
-        .user-avatar.active {
-            background-color: var(--color-primary);
-        }
-        
-        .user-avatar.inactive {
-            background-color: var(--color-secondary);
-        }
-        
-        .user-info {
-            flex: 1;
-        }
-        
-        .user-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0 0 0.375rem;
-        }
-        
-        .user-meta {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        
-        .user-stats {
-            display: flex;
-            gap: 1.5rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--color-gray-800);
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-        }
-        
-        /* Form Tabs */
-        .form-tabs {
-            margin-bottom: 2rem;
-        }
-        
-        .form-tabs-header {
-            display: flex;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none; /* Firefox */
-            -ms-overflow-style: none; /* IE and Edge */
-        }
-        
-        .form-tabs-header::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
-        }
-        
-        .form-tab {
-            padding: 1rem 1.5rem;
-            flex: 1;
-            text-align: center;
-            background: none;
-            border: none;
-            color: var(--color-gray-600);
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .form-tab i {
-            margin-right: 0.5rem;
-            font-size: 1.125rem;
-        }
-        
-        .form-tab:hover {
-            color: var(--color-gray-900);
-        }
-        
-        .form-tab.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
-        }
-        
-        .form-tabs-progress {
-            height: 4px;
-            background-color: var(--color-gray-200);
-            margin-top: 1px;
-            border-radius: 100px;
-            overflow: hidden;
-        }
-        
-        .form-tabs-progress .progress-bar {
+        .strength-meter-fill {
             height: 100%;
-            background-color: var(--color-primary);
+            width: 0;
             border-radius: 100px;
-            transition: width 0.3s ease;
+            transition: width 0.3s ease, background-color 0.3s ease;
         }
         
-        /* Form Sections */
-        .form-sections {
-            position: relative;
+        .strength-meter-fill[data-strength="0"] {
+            width: 20%;
+            background-color: #dc3545;
         }
         
-        .form-section {
-            display: none;
-            animation: fadeIn 0.3s ease;
+        .strength-meter-fill[data-strength="1"] {
+            width: 40%;
+            background-color: #ffc107;
         }
         
-        .form-section.active {
-            display: block;
+        .strength-meter-fill[data-strength="2"] {
+            width: 60%;
+            background-color: #fd7e14;
         }
         
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .strength-meter-fill[data-strength="3"] {
+            width: 80%;
+            background-color: #28a745;
         }
         
-        .form-grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
+        .strength-meter-fill[data-strength="4"] {
+            width: 100%;
+            background-color: #20c997;
         }
         
-        .form-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
+        .strength-text {
+            font-size: 0.75rem;
+            color: var(--bs-gray-600);
         }
         
-        /* Permissions Section */
-        .permissions-section {
-            margin-top: 1.5rem;
+        .password-match, .password-mismatch {
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
         }
         
-        .permissions-section h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        .permission-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .permission-groups {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
-        }
-        
-        .permission-group {
-            border: 1px solid var(--color-gray-200);
-            border-radius: var(--border-radius);
+        /* Danger Zone */
+        .danger-zone {
+            background-color: #fff5f5;
+            border: 1px solid #ffe3e3;
+            border-radius: 0.375rem;
             overflow: hidden;
-            transition: box-shadow 0.3s ease;
         }
         
-        .permission-group:hover {
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .permission-group-header {
-            background-color: var(--color-gray-50);
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .permission-group-header h4 {
+        .danger-zone-title {
+            background-color: #ffe3e3;
+            color: var(--bs-danger);
             font-size: 0.875rem;
             font-weight: 600;
+            padding: 0.75rem 1.25rem;
             margin: 0;
-            color: var(--color-gray-700);
         }
         
-        .permission-list {
-            padding: 0.5rem 0;
+        .danger-zone-content {
+            padding: 1.25rem;
         }
         
-        .permission-item {
+        .danger-action {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-gray-100);
         }
         
-        .permission-item:last-child {
-            border-bottom: none;
-        }
-        
-        .permission-label {
+        .danger-info {
             flex: 1;
-            padding-right: 1rem;
+            padding-right: 1.5rem;
         }
         
-        .permission-label span {
-            display: block;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
+        .danger-title {
+            font-weight: 600;
             margin-bottom: 0.25rem;
         }
         
-        .permission-label small {
+        .danger-description {
             font-size: 0.75rem;
+            color: var(--bs-gray-600);
         }
         
-        /* Password Reset Options */
-        .reset-password-options {
-            margin-top: 0.5rem;
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            overflow: auto;
         }
         
-        .form-check {
-            margin-bottom: 0.5rem;
+        .modal.show {
+            display: block;
         }
         
-        .password-fields {
-            background-color: var(--color-gray-50);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            margin-top: 1rem;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        
-        .password-input-container {
+        .modal-dialog {
+            margin: 1.75rem auto;
+            max-width: 600px;
             position: relative;
         }
         
-        .password-toggle {
-            position: absolute;
-            right: 0.75rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--color-gray-500);
+        .modal-content {
+            position: relative;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            outline: 0;
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--bs-gray-200);
+        }
+        
+        .modal-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .btn-close {
+            padding: 0;
+            background: transparent;
+            border: 0;
+            font-size: 1.5rem;
+            line-height: 1;
+            color: var(--bs-gray-500);
             cursor: pointer;
         }
         
-        .password-toggle:hover {
-            color: var(--color-gray-700);
+        .modal-body {
+            position: relative;
+            flex: 1 1 auto;
+            padding: 1.5rem;
         }
         
-        .password-strength {
-            margin-top: 0.5rem;
+        .modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 1.25rem 1.5rem;
+            border-top: 1px solid var(--bs-gray-200);
+            gap: 0.75rem;
         }
         
-        .strength-meter {
-            height: 4px;
-            background-color: var(--color-gray-200);
-            border-radius: 100px;
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: flex-start;
+            background-color: white;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            padding: 1rem;
+            width: 320px;
+            z-index: 1000;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .toast-notification.success {
+            border-left: 4px solid var(--bs-success);
+        }
+        
+        .toast-notification.error {
+            border-left: 4px solid var(--bs-danger);
+        }
+        
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .toast-notification.success .toast-icon {
+            color: var(--bs-success);
+        }
+        
+        .toast-notification.error .toast-icon {
+            color: var(--bs-danger);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
             margin-bottom: 0.25rem;
-            overflow: hidden;
         }
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    border-radius: 100px;
-    transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-.strength-meter-fill[data-strength="0"] {
-    width: 20%;
-    background-color: #dc3545;
-}
-
-.strength-meter-fill[data-strength="1"] {
-    width: 40%;
-    background-color: #ffc107;
-}
-
-.strength-meter-fill[data-strength="2"] {
-    width: 60%;
-    background-color: #fd7e14;
-}
-
-.strength-meter-fill[data-strength="3"] {
-    width: 80%;
-    background-color: #28a745;
-}
-
-.strength-meter-fill[data-strength="4"] {
-    width: 100%;
-    background-color: #20c997;
-}
-
-.strength-text {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-.password-match, .password-mismatch {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-}
-
-/* Danger Zone */
-.danger-zone {
-    background-color: #fff5f5;
-    border: 1px solid #ffe3e3;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-}
-
-.danger-zone-title {
-    background-color: #ffe3e3;
-    color: var(--color-danger);
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.75rem 1.25rem;
-    margin: 0;
-}
-
-.danger-zone-content {
-    padding: 1.25rem;
-}
-
-.danger-action {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.danger-info {
-    flex: 1;
-    padding-right: 1.5rem;
-}
-
-.danger-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.danger-description {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    overflow: auto;
-}
-
-.modal.show {
-    display: block;
-}
-
-.modal-dialog {
-    margin: 1.75rem auto;
-    max-width: 600px;
-    position: relative;
-}
-
-.modal-content {
-    position: relative;
-    background-color: white;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    flex-direction: column;
-    outline: 0;
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.btn-close {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: var(--color-gray-500);
-    cursor: pointer;
-}
-
-.modal-body {
-    position: relative;
-    flex: 1 1 auto;
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--color-gray-200);
-    gap: 0.75rem;
-}
-
-/* Toast Notification */
-.toast-notification {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    align-items: flex-start;
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-lg);
-    padding: 1rem;
-    width: 320px;
-    z-index: 1000;
-    transform: translateY(100%);
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.toast-notification.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.toast-notification.success {
-    border-left: 4px solid var(--color-success);
-}
-
-.toast-notification.error {
-    border-left: 4px solid var(--color-danger);
-}
-
-.toast-icon {
-    margin-right: 0.75rem;
-    font-size: 1.25rem;
-}
-
-.toast-notification.success .toast-icon {
-    color: var(--color-success);
-}
-
-.toast-notification.error .toast-icon {
-    color: var(--color-danger);
-}
-
-.toast-content {
-    flex: 1;
-}
-
-.toast-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.toast-message {
-    font-size: 0.875rem;
-    color: var(--color-gray-600);
-}
-
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: var(--color-gray-500);
-    cursor: pointer;
-    padding: 0;
-    margin-left: 0.75rem;
-}
-
-.toast-close:hover {
-    color: var(--color-gray-700);
-}
-
-/* Alerts */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: var(--border-radius);
-}
-
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.2);
-    color: var(--color-danger);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-}
-
-.alert i {
-    font-size: 1.25rem;
-    margin-top: 0.125rem;
-}
-
-/* Form Validation */
-.text-danger {
-    color: var(--color-danger);
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.text-success {
-    color: var(--color-success);
-}
-
-/* Utility Classes */
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-5 { margin-top: 3rem; }
-.mb-3 { margin-bottom: 1rem; }
-.ms-4 { margin-left: 1.5rem; }
-.d-flex { display: flex; }
-.d-block { display: block; }
-.justify-content-between { justify-content: space-between; }
-.align-items-center { align-items: center; }
-.required { color: var(--color-danger); }
-
-/* Responsive Adjustments */
-@@media (max-width: 992px) {
-    .user-edit-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .user-stats {
-        align-self: flex-start;
-        margin-top: 1rem;
-    }
-    
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .permission-groups {
-        grid-template-columns: 1fr;
-    }
-    
-    .password-fields {
-        grid-template-columns: 1fr;
-    }
-}
-
-@@media (max-width: 768px) {
-    .form-tab {
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
-    }
-    
-    .form-tab i {
-        margin-right: 0.25rem;
-    }
-    
-    .danger-action {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .danger-info {
-        padding-right: 0;
-    }
-}
-
-@@media (max-width: 576px) {
-    .form-tabs-header {
-        flex-wrap: wrap;
-    }
-    
-    .form-tab {
-        flex: 1 0 100%;
-    }
-    
-    .user-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .form-buttons {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .form-buttons button {
-        width: 100%;
-    }
-}
-.strength-meter-fill {
-    height: 100%;
-    width: 0;
-    border-radius: 100px;
-    transition: width 0.3s ease, background-color 0.3s ease;
-}
-
-.strength-meter-fill[data-strength="0"] {
-    width: 20%;
-    background-color: #dc3545;
-}
-
-.strength-meter-fill[data-strength="1"] {
-    width: 40%;
-    background-color: #ffc107;
-}
-
-.strength-meter-fill[data-strength="2"] {
-    width: 60%;
-    background-color: #fd7e14;
-}
-
-.strength-meter-fill[data-strength="3"] {
-    width: 80%;
-    background-color: #28a745;
-}
-
-.strength-meter-fill[data-strength="4"] {
-    width: 100%;
-    background-color: #20c997;
-}
-
-.strength-text {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-.password-match, .password-mismatch {
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-}
-
-/* Danger Zone */
-.danger-zone {
-    background-color: #fff5f5;
-    border: 1px solid #ffe3e3;
-    border-radius: var(--border-radius);
-    overflow: hidden;
-}
-
-.danger-zone-title {
-    background-color: #ffe3e3;
-    color: var(--color-danger);
-    font-size: 0.875rem;
-    font-weight: 600;
-    padding: 0.75rem 1.25rem;
-    margin: 0;
-}
-
-.danger-zone-content {
-    padding: 1.25rem;
-}
-
-.danger-action {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.danger-info {
-    flex: 1;
-    padding-right: 1.5rem;
-}
-
-.danger-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.danger-description {
-    font-size: 0.75rem;
-    color: var(--color-gray-600);
-}
-
-/* Modal */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1050;
-    overflow: auto;
-}
-
-.modal.show {
-    display: block;
-}
-
-.modal-dialog {
-    margin: 1.75rem auto;
-    max-width: 600px;
-    position: relative;
-}
-
-.modal-content {
-    position: relative;
-    background-color: white;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-lg);
-    display: flex;
-    flex-direction: column;
-    outline: 0;
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--color-gray-200);
-}
-
-.modal-title {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin: 0;
-}
-
-.btn-close {
-    padding: 0;
-    background: transparent;
-    border: 0;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: var(--color-gray-500);
-    cursor: pointer;
-}
-
-.modal-body {
-    position: relative;
-    flex: 1 1 auto;
-    padding: 1.5rem;
-}
-
-.modal-footer {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 1.25rem 1.5rem;
-    border-top: 1px solid var(--color-gray-200);
-    gap: 0.75rem;
-}
-
-/* Toast Notification */
-.toast-notification {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    display: flex;
-    align-items: flex-start;
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow-lg);
-    padding: 1rem;
-    width: 320px;
-    z-index: 1000;
-    transform: translateY(100%);
-    opacity: 0;
-    transition: all 0.3s ease;
-}
-
-.toast-notification.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.toast-notification.success {
-    border-left: 4px solid var(--color-success);
-}
-
-.toast-notification.error {
-    border-left: 4px solid var(--color-danger);
-}
-
-.toast-icon {
-    margin-right: 0.75rem;
-    font-size: 1.25rem;
-}
-
-.toast-notification.success .toast-icon {
-    color: var(--color-success);
-}
-
-.toast-notification.error .toast-icon {
-    color: var(--color-danger);
-}
-
-.toast-content {
-    flex: 1;
-}
-
-.toast-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.toast-message {
-    font-size: 0.875rem;
-    color: var(--color-gray-600);
-}
-
-.toast-close {
-    background: none;
-    border: none;
-    font-size: 1.25rem;
-    color: var(--color-gray-500);
-    cursor: pointer;
-    padding: 0;
-    margin-left: 0.75rem;
-}
-
-.toast-close:hover {
-    color: var(--color-gray-700);
-}
-
-/* Alerts */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: var(--border-radius);
-}
-
-.alert-danger {
-    background-color: rgba(220, 53, 69, 0.1);
-    border: 1px solid rgba(220, 53, 69, 0.2);
-    color: var(--color-danger);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-}
-
-.alert i {
-    font-size: 1.25rem;
-    margin-top: 0.125rem;
-}
-
-/* Form Validation */
-.text-danger {
-    color: var(--color-danger);
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
-    display: block;
-}
-
-.text-success {
-    color: var(--color-success);
-}
-
-/* Utility Classes */
-.mt-3 { margin-top: 1rem; }
-.mt-4 { margin-top: 1.5rem; }
-.mt-5 { margin-top: 3rem; }
-.mb-3 { margin-bottom: 1rem; }
-.ms-4 { margin-left: 1.5rem; }
-.d-flex { display: flex; }
-.d-block { display: block; }
-.justify-content-between { justify-content: space-between; }
-.align-items-center { align-items: center; }
-.required { color: var(--color-danger); }
-
-/* Responsive Adjustments */
-@@media (max-width: 992px) {
-    .user-edit-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .user-stats {
-        align-self: flex-start;
-        margin-top: 1rem;
-    }
-    
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-    }
-    
-    .permission-groups {
-        grid-template-columns: 1fr;
-    }
-    
-    .password-fields {
-        grid-template-columns: 1fr;
-    }
-}
-
-@@media (max-width: 768px) {
-    .form-tab {
-        font-size: 0.875rem;
-        padding: 0.75rem 1rem;
-    }
-    
-    .form-tab i {
-        margin-right: 0.25rem;
-    }
-    
-    .danger-action {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .danger-info {
-        padding-right: 0;
-    }
-}
-
-@@media (max-width: 576px) {
-    .form-tabs-header {
-        flex-wrap: wrap;
-    }
-    
-    .form-tab {
-        flex: 1 0 100%;
-    }
-    
-    .user-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .form-buttons {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .form-buttons button {
-        width: 100%;
-    }
-}
-// Additional JavaScript for Edit.cshtml to enhance functionality
-
-// Dynamic permission handling based on user actions
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize current permissions based on role
-    initializePermissionsForCurrentRole();
-    
-    // Form validation for password fields
-    const newPasswordField = document.getElementById('newPassword');
-    const confirmPasswordField = document.getElementById('confirmPassword');
-    const saveButton = document.querySelector('button[type="submit"]');
-    
-    // Validate passwords match before submission
-    document.getElementById('userEditForm').addEventListener('submit', function(e) {
-        // Check if we're setting a manual password
-        const passwordOption = document.querySelector('input[name="resetPasswordOption"]:checked').value;
-        if (passwordOption === 'manual') {
-            if (newPasswordField.value !== confirmPasswordField.value) {
-                e.preventDefault();
-                showToast('error', 'Passwords do not match');
-                showTab('account'); // Move back to account tab
-                return false;
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--bs-gray-600);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--bs-gray-500);
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.75rem;
+        }
+        
+        .toast-close:hover {
+            color: var(--bs-gray-700);
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.375rem;
+        }
+        
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            color: var(--bs-danger);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+        
+        .alert i {
+            font-size: 1.25rem;
+            margin-top: 0.125rem;
+        }
+        
+        /* Form Validation */
+        .text-danger {
+            color: var(--bs-danger);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .text-success {
+            color: var(--bs-success);
+        }
+        
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            line-height: 1.5;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            border-radius: 0.375rem;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0a58ca;
+        }
+        
+        .btn-success {
+            color: #fff;
+            background-color: var(--bs-success);
+            border-color: var(--bs-success);
+        }
+        
+        .btn-success:hover {
+            background-color: #157347;
+            border-color: #146c43;
+        }
+        
+        .btn-outline {
+            color: var(--bs-gray-700);
+            border-color: var(--bs-gray-300);
+            background-color: #fff;
+        }
+        
+        .btn-outline:hover {
+            color: var(--bs-gray-900);
+            background-color: var(--bs-gray-100);
+            border-color: var(--bs-gray-400);
+        }
+        
+        .btn-outline-danger {
+            color: var(--bs-danger);
+            border-color: var(--bs-danger);
+            background-color: transparent;
+        }
+        
+        .btn-outline-danger:hover {
+            color: #fff;
+            background-color: var(--bs-danger);
+            border-color: var(--bs-danger);
+        }
+        
+        .btn-danger {
+            color: #fff;
+            background-color: var(--bs-danger);
+            border-color: var(--bs-danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #b02a37;
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+        
+        .btn i {
+            margin-right: 0.375rem;
+        }
+        
+        .btn:disabled {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+        
+        /* Utility Classes */
+        .mt-3 { margin-top: 1rem; }
+        .mt-4 { margin-top: 1.5rem; }
+        .mt-5 { margin-top: 3rem; }
+        .mb-3 { margin-bottom: 1rem; }
+        .ms-4 { margin-left: 1.5rem; }
+        .d-flex { display: flex; }
+        .d-block { display: block; }
+        .justify-content-between { justify-content: space-between; }
+        .align-items-center { align-items: center; }
+        .required { color: var(--bs-danger); }
+        
+        /* Responsive Adjustments */
+        @@media (max-width: 992px) {
+            .user-edit-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
             
-            // Check password strength
-            const strength = calculatePasswordStrength(newPasswordField.value);
-            if (strength < 2 && newPasswordField.value) {
-                // Confirm if user wants to use a weak password
-                if (!confirm('The password you entered is weak. Are you sure you want to continue?')) {
-                    e.preventDefault();
-                    return false;
-                }
+            .user-stats {
+                align-self: flex-start;
+                margin-top: 1rem;
+            }
+            
+            .form-grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .permission-groups {
+                grid-template-columns: 1fr;
+            }
+            
+            .password-fields {
+                grid-template-columns: 1fr;
             }
         }
-    });
-    
-    // Initialize permissions based on current role on page load
-    function initializePermissionsForCurrentRole() {
-        const currentRole = document.getElementById('roleSelect').value;
-        if (currentRole) {
-            // Only auto-set permissions if the form is new/unused
-            const anyPermissionSet = Array.from(document.querySelectorAll('.permission-checkbox'))
-                .some(checkbox => checkbox.checked);
-                
-            if (!anyPermissionSet) {
-                simulateRoleChange(currentRole);
+        
+        @@media (max-width: 768px) {
+            .form-tab {
+                font-size: 0.875rem;
+                padding: 0.75rem 1rem;
+            }
+            
+            .form-tab i {
+                margin-right: 0.25rem;
+            }
+            
+            .danger-action {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .danger-info {
+                padding-right: 0;
             }
         }
-    }
-    
-    function simulateRoleChange(role) {
-        const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
         
-        // Reset all permissions first
-        permissionCheckboxes.forEach(checkbox => {
-            checkbox.checked = false;
-        });
-        
-        // Set permissions based on role
-        if (role === 'Administrator') {
-            // Admins get all permissions
-            permissionCheckboxes.forEach(checkbox => {
-                checkbox.checked = true;
-            });
-        } else if (role === 'Department Manager') {
-            // Department managers get view permissions and some management permissions
-            permissionCheckboxes.forEach(checkbox => {
-                const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
-                const viewPermissions = ['0', '1', '3', '7']; // IDs of view permissions
-                const managerPermissions = ['2', '8']; // IDs of additional manager permissions
-                
-                checkbox.checked = viewPermissions.includes(permName) || managerPermissions.includes(permName);
-            });
-        } else if (role === 'Support Agent') {
-            // Support agents get only basic view permissions
-            permissionCheckboxes.forEach(checkbox => {
-                const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
-                const agentPermissions = ['0', '3', '7']; // IDs of agent permissions
-                
-                checkbox.checked = agentPermissions.includes(permName);
-            });
+        @@media (max-width: 576px) {
+            .form-tabs-header {
+                flex-wrap: wrap;
+            }
+            
+            .form-tab {
+                flex: 1 0 100%;
+            }
+            
+            .user-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .form-buttons button {
+                width: 100%;
+            }
         }
-    }
-});
+    </style>
+}
