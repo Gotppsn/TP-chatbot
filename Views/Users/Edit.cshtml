@@ -472,35 +472,6 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteConfirmModalLabel"><i class="bi bi-exclamation-triangle text-danger"></i> Delete User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-danger">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    <strong>Warning:</strong> This action cannot be undone.
-                </div>
-                <p>Are you sure you want to delete this user? All user data will be permanently removed.</p>
-                <p>Please type <strong>DELETE</strong> to confirm.</p>
-                <input type="text" id="deleteConfirmInput" class="form-control" placeholder="Type DELETE to confirm" autocomplete="off">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <form id="deleteUserForm" method="post" asp-controller="Users" asp-action="Delete">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Permanently</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <partial name="_ValidationScriptsPartial" />
