@@ -87,15 +87,15 @@ namespace AIHelpdeskSupport.Controllers
                 SessionId = Guid.NewGuid().ToString(),
                 Messages = new List<ChatMessage>
                 {
-                    new ChatMessage 
-                    { 
-                        IsUser = false, 
+                    new ChatMessage
+                    {
+                        IsUser = false,
                         Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I assist you today?",
                         Timestamp = DateTime.Now.AddMinutes(-5)
                     },
-                    new ChatMessage 
-                    { 
-                        IsUser = false, 
+                    new ChatMessage
+                    {
+                        IsUser = false,
                         Content = $"I can help with common questions about our products, technical issues, account questions, and more. Just type your question below to get started!",
                         Timestamp = DateTime.Now.AddMinutes(-5)
                     }
@@ -367,7 +367,7 @@ namespace AIHelpdeskSupport.Controllers
 
             // Simple response generation based on message content
             string lowercaseMessage = message.ToLower();
-            
+
             if (lowercaseMessage.Contains("hello") || lowercaseMessage.Contains("hi"))
             {
                 return $"Hello! How can I assist you with {department} today?";
@@ -445,6 +445,60 @@ namespace AIHelpdeskSupport.Controllers
                 _logger.LogError(ex, "Error submitting chat feedback");
                 return StatusCode(500, new { success = false, message = "An error occurred while processing your feedback" });
             }
+        }
+
+        [HttpGet("UserChat/Chat/{sessionId}")]
+        public IActionResult ChatSession(string sessionId)
+        {
+            if (string.IsNullOrEmpty(sessionId) || !sessionId.StartsWith("session-"))
+            {
+                return NotFound();
+            }
+
+            // Get chatbot info based on session
+            Chatbot chatbot = null;
+
+            if (sessionId == "session-1234-abcd")
+            {
+                chatbot = new Chatbot
+                {
+                    Id = 1,
+                    Name = "Customer Support Bot",
+                    Department = "Customer Service",
+                    AiModel = "GPT-4"
+                };
+            }
+            else if (sessionId == "session-9012-ijkl")
+            {
+                chatbot = new Chatbot
+                {
+                    Id = 3,
+                    Name = "Sales Assistant",
+                    Department = "Sales",
+                    AiModel = "GPT-3.5 Turbo"
+                };
+            }
+            else
+            {
+                // Generic fallback
+                chatbot = new Chatbot
+                {
+                    Id = 0,
+                    Name = "AI Assistant",
+                    Department = "Support",
+                    AiModel = "Claude"
+                };
+            }
+
+            // No need to load messages here - they're loaded in the View based on sessionId
+            var viewModel = new UserChatViewModel
+            {
+                Chatbot = chatbot,
+                SessionId = sessionId,
+                Messages = new List<ChatMessage>()
+            };
+
+            return View("Chat", viewModel);
         }
     }
 }

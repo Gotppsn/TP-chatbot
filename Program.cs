@@ -92,7 +92,17 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "chatSession",
+        pattern: "UserChat/Chat/{sessionId}",
+        defaults: new { controller = "UserChat", action = "ChatSession" });
+        
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller=Home}/{action=Index}/{id?}");
+});
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
@@ -264,4 +274,5 @@ public static class IdentityDataInitializer
             }
         }
     }
+    
 }
