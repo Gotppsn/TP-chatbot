@@ -1367,7 +1367,6 @@ C:\Users\got01\Desktop\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5p
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\4juo3d6crd-c749kre10r.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\a18zdfqr0q-v3ricjwtsy.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\zygnymujis-lw8evtjwbp.gz
-C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5poun.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\lu8fhplpv1-xtxxf3hu2r.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\ookzxa6o9e-t1cqhe9u97.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\4io5f5hf03-sejl45xvog.gz
@@ -1404,3 +1403,4 @@ C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\o4qqx6
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\3c6jw7z9mu-jjsuc0puko.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\b8fhnlje4l-9vr69e8ynj.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\225vl3oiqi-mlv21k5csn.gz
+C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5poun.gz
