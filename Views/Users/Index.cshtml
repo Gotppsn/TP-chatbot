@@ -24,7 +24,7 @@
                 <a class="dropdown-item" href="#" data-filter="agent">Support Agents</a>
             </div>
         </div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
+        <button class="btn btn-primary" onclick="openCreateUserModal()">
             <i class="bi bi-plus-lg"></i>
             <span>Create User</span>
         </button>
@@ -134,13 +134,14 @@
                 </div>
             }
 
-            <!-- Create New User Card -->
+            <!-- Create New User Card - Improved Design -->
             <div class="user-card create-card animate-card" onclick="openCreateUserModal()">
                 <div class="create-card-content">
                     <div class="create-icon">
                         <i class="bi bi-plus-lg"></i>
                     </div>
                     <div class="create-text">Create New User</div>
+                    <p class="create-description">Add a new user to the AI Helpdesk platform</p>
                 </div>
             </div>
         </div>
@@ -214,8 +215,7 @@
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit"
                                                     class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                                    <i
-                                                        class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                                    <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
                                                     @(user.IsActive ? "Deactivate" : "Activate")
                                                 </button>
                                             </form>
@@ -244,13 +244,14 @@
     </div>
 </div>
 
-<!-- Create User Modal -->
-<!-- Create User Modal -->
+<!-- Create User Modal - Improved Design -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel"><i class="bi bi-person-plus"></i> Create New User</h5>
+                <h5 class="modal-title" id="createUserModalLabel">
+                    <i class="bi bi-person-plus"></i> Create New User
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -259,8 +260,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="firstName" class="form-label">First Name <span
-                                        class="required">*</span></label>
+                                <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" id="firstName" name="FirstName" class="form-control" required>
@@ -270,8 +270,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="lastName" class="form-label">Last Name <span
-                                        class="required">*</span></label>
+                                <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-person"></i></span>
                                     <input type="text" id="lastName" name="LastName" class="form-control" required>
@@ -293,8 +292,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="department" class="form-label">Department <span
-                                        class="required">*</span></label>
+                                <label for="department" class="form-label">Department <span class="required">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-building"></i></span>
                                     <select id="department" name="Department" class="form-select" required>
@@ -331,8 +329,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="password" class="form-label">Password <span
-                                        class="required">*</span></label>
+                                <label for="password" class="form-label">Password <span class="required">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-key"></i></span>
                                     <input type="password" id="password" name="Password" class="form-control" required>
@@ -341,38 +338,44 @@
                                     </button>
                                 </div>
                                 <div class="invalid-feedback">Password is required</div>
+                                <div class="password-strength mt-2" id="passwordStrength">
+                                    <div class="strength-meter">
+                                        <div class="strength-meter-fill" data-strength="0"></div>
+                                    </div>
+                                    <div class="strength-text">Password strength: <span>Weak</span></div>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm Password <span
-                                        class="required">*</span></label>
+                                <label for="confirmPassword" class="form-label">Confirm Password <span class="required">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                    <input type="password" id="confirmPassword" name="ConfirmPassword"
-                                        class="form-control" required>
+                                    <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" required>
                                     <button type="button" class="input-group-text password-toggle" tabindex="-1">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
                                 <div class="invalid-feedback">Confirm password is required</div>
-                                <div class="password-mismatch text-danger mt-1 d-none">
+                                <div class="password-mismatch text-danger mt-2 d-none">
                                     <i class="bi bi-exclamation-circle"></i> Passwords do not match
+                                </div>
+                                <div class="password-match text-success mt-2 d-none">
+                                    <i class="bi bi-check-circle"></i> Passwords match
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group mb-3">
-                        <div class="account-status p-3 border rounded bg-light">
+                        <div class="account-status p-3 border rounded">
                             <div class="d-flex align-items-center">
                                 <div class="status-icon active me-3">
                                     <i class="bi bi-check-circle"></i>
                                 </div>
                                 <div class="status-info">
                                     <div class="form-switch">
-                                        <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input"
-                                            checked>
+                                        <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input" checked>
                                         <label for="isActive" class="form-switch-label">Account Active</label>
                                     </div>
                                     <div class="form-text">User can access the system immediately after creation</div>
@@ -393,8 +396,7 @@
                 </button>
                 <button type="button" class="btn btn-primary" id="saveUserBtn">
                     <i class="bi bi-save"></i> Create User
-                    <span class="spinner-border spinner-border-sm d-none" id="saveSpinner" role="status"
-                        aria-hidden="true"></span>
+                    <span class="spinner-border spinner-border-sm d-none" id="saveSpinner" role="status" aria-hidden="true"></span>
                 </button>
             </div>
         </div>
@@ -404,6 +406,12 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize the Bootstrap modal
+            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'), {
+                backdrop: 'static',
+                keyboard: false
+            });
+
             // Password toggle visibility
             document.querySelectorAll('.password-toggle').forEach(toggle => {
                 toggle.addEventListener('click', function () {
@@ -422,32 +430,87 @@
                 });
             });
 
-            // Password match validation
+            // Password strength meter
             const password = document.getElementById('password');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const strengthMeterFill = passwordStrength.querySelector('.strength-meter-fill');
+            const strengthText = passwordStrength.querySelector('.strength-text span');
+
+            password.addEventListener('input', function() {
+                const strength = calculatePasswordStrength(this.value);
+                strengthMeterFill.setAttribute('data-strength', strength);
+                
+                const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+                strengthText.textContent = strengthLabels[strength];
+                
+                checkPasswordMatch();
+            });
+
+            function calculatePasswordStrength(password) {
+                if (!password) return 0;
+                
+                let strength = 0;
+                
+                // Length check
+                if (password.length >= 8) strength += 1;
+                if (password.length >= 12) strength += 1;
+                
+                // Character variety checks
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/\d/.test(password)) strength += 1;
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+                
+                // Return normalized strength (0-4)
+                return Math.min(4, Math.floor(strength / 2));
+            }
+
+            // Password match validation
             const confirmPassword = document.getElementById('confirmPassword');
             const passwordMismatch = document.querySelector('.password-mismatch');
+            const passwordMatch = document.querySelector('.password-match');
 
-            if (confirmPassword && passwordMismatch) {
-                confirmPassword.addEventListener('input', function () {
-                    if (this.value && this.value !== password.value) {
-                        passwordMismatch.classList.remove('d-none');
-                        this.setCustomValidity('Passwords do not match');
-                    } else {
-                        passwordMismatch.classList.add('d-none');
-                        this.setCustomValidity('');
-                    }
-                });
+            confirmPassword.addEventListener('input', checkPasswordMatch);
 
-                password.addEventListener('input', function () {
-                    if (confirmPassword.value && confirmPassword.value !== this.value) {
-                        passwordMismatch.classList.remove('d-none');
-                        confirmPassword.setCustomValidity('Passwords do not match');
-                    } else {
-                        passwordMismatch.classList.add('d-none');
-                        confirmPassword.setCustomValidity('');
-                    }
-                });
+            function checkPasswordMatch() {
+                if (!confirmPassword.value) {
+                    passwordMismatch.classList.add('d-none');
+                    passwordMatch.classList.add('d-none');
+                    confirmPassword.setCustomValidity('');
+                    return;
+                }
+
+                if (password.value === confirmPassword.value) {
+                    passwordMismatch.classList.add('d-none');
+                    passwordMatch.classList.remove('d-none');
+                    confirmPassword.setCustomValidity('');
+                } else {
+                    passwordMismatch.classList.remove('d-none');
+                    passwordMatch.classList.add('d-none');
+                    confirmPassword.setCustomValidity('Passwords do not match');
+                }
             }
+
+            // Account status toggle enhancement
+            const accountActiveToggle = document.getElementById('isActive');
+            const statusIcon = document.querySelector('.status-icon');
+            const statusText = document.querySelector('.form-text');
+
+            accountActiveToggle.addEventListener('change', function () {
+                if (this.checked) {
+                    statusIcon.classList.remove('inactive');
+                    statusIcon.classList.add('active');
+                    statusIcon.querySelector('i').classList.remove('bi-x-circle');
+                    statusIcon.querySelector('i').classList.add('bi-check-circle');
+                    statusText.textContent = "User can access the system immediately after creation";
+                } else {
+                    statusIcon.classList.remove('active');
+                    statusIcon.classList.add('inactive');
+                    statusIcon.querySelector('i').classList.remove('bi-check-circle');
+                    statusIcon.querySelector('i').classList.add('bi-x-circle');
+                    statusText.textContent = "User account will be created in inactive state";
+                }
+            });
 
             // Create user form handling
             const createUserForm = document.getElementById('createUserForm');
@@ -456,248 +519,268 @@
             const formErrorAlert = document.getElementById('formErrorAlert');
             const formErrorMessage = document.getElementById('formErrorMessage');
 
-            // Account status toggle enhancement
-            const accountActiveToggle = document.getElementById('isActive');
-            const statusIcon = document.querySelector('.status-icon');
+            saveUserBtn.addEventListener('click', function () {
+                // Reset error message
+                formErrorAlert.classList.add('d-none');
 
-            if (accountActiveToggle && statusIcon) {
-                accountActiveToggle.addEventListener('change', function () {
-                    if (this.checked) {
-                        statusIcon.classList.remove('inactive');
-                        statusIcon.classList.add('active');
-                        statusIcon.querySelector('i').classList.remove('bi-x-circle');
-                        statusIcon.querySelector('i').classList.add('bi-check-circle');
-                    } else {
-                        statusIcon.classList.remove('active');
-                        statusIcon.classList.add('inactive');
-                        statusIcon.querySelector('i').classList.remove('bi-check-circle');
-                        statusIcon.querySelector('i').classList.add('bi-x-circle');
-                    }
-                });
-            }
+                // Validate form
+                if (!createUserForm.checkValidity()) {
+                    createUserForm.classList.add('was-validated');
+                    return;
+                }
 
-            if (saveUserBtn) {
-                saveUserBtn.addEventListener('click', function () {
-                    // Reset error message
-                    formErrorAlert.classList.add('d-none');
+                // Check if passwords match
+                if (password.value !== confirmPassword.value) {
+                    passwordMismatch.classList.remove('d-none');
+                    passwordMatch.classList.add('d-none');
+                    confirmPassword.setCustomValidity('Passwords do not match');
+                    createUserForm.classList.add('was-validated');
+                    return;
+                }
 
-                    if (!createUserForm.checkValidity()) {
-                        createUserForm.classList.add('was-validated');
-                        return;
-                    }
+                // Show loading spinner
+                saveSpinner.classList.remove('d-none');
+                saveUserBtn.disabled = true;
 
-                    // Check if passwords match
-                    if (password.value !== confirmPassword.value) {
-                        passwordMismatch.classList.remove('d-none');
-                        confirmPassword.setCustomValidity('Passwords do not match');
-                        createUserForm.classList.add('was-validated');
-                        return;
-                    }
+                // Collect form data
+                const formData = new FormData(createUserForm);
+                const userData = Object.fromEntries(formData.entries());
 
-                    // Show loading spinner
-                    saveSpinner.classList.remove('d-none');
-                    saveUserBtn.disabled = true;
+                // AJAX call to the server
+                fetch('/Users/Create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json().then(data => {
+                            showToast('success', 'User created successfully!');
 
-                    // Collect form data
-                    const formData = new FormData(createUserForm);
-                    const userData = Object.fromEntries(formData.entries());
+                            // Hide modal
+                            createUserModal.hide();
 
-                    // AJAX call to the server
-                    fetch('/Users/Create', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                        },
-                        body: JSON.stringify(userData)
-                    })
-                        .then(response => {
-                            if (response.ok) {
-                                showToast('success', 'User created successfully!');
+                            // Reset form
+                            createUserForm.reset();
+                            createUserForm.classList.remove('was-validated');
+                            passwordMismatch.classList.add('d-none');
+                            passwordMatch.classList.add('d-none');
+                            strengthMeterFill.setAttribute('data-strength', '0');
+                            strengthText.textContent = 'Weak';
 
-                                // Hide modal
-                                const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
-                                modal.hide();
-
-                                // Reset form
-                                createUserForm.reset();
-                                createUserForm.classList.remove('was-validated');
-
-                                // Reload page after delay
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
-                            } else {
-                                return response.json().then(data => {
-                                    throw new Error(data.message || 'Error creating user');
-                                });
-                            }
-                        })
-                        .catch(error => {
-                            // Show error message
-                            formErrorMessage.textContent = error.message;
-                            formErrorAlert.classList.remove('d-none');
-
-                            // Show toast
-                            showToast('error', error.message);
-                        })
-                        .finally(() => {
-                            // Hide loading spinner
-                            saveSpinner.classList.add('d-none');
-                            saveUserBtn.disabled = false;
+                            // Reload page after delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
                         });
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Error creating user');
+                        });
+                    }
+                })
+                .catch(error => {
+                    // Show error message
+                    formErrorMessage.textContent = error.message;
+                    formErrorAlert.classList.remove('d-none');
+
+                    // Show toast
+                    showToast('error', error.message);
+                })
+                .finally(() => {
+                    // Hide loading spinner
+                    saveSpinner.classList.add('d-none');
+                    saveUserBtn.disabled = false;
                 });
-            }
-        });
-        // Initialize Bootstrap components
-        const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            });
 
-        // Initialize view toggle
-        const gridView = document.getElementById('gridView');
-        const listView = document.getElementById('listView');
-        const usersGridView = document.getElementById('usersGridView');
-        const usersListView = document.getElementById('usersListView');
-        const emptyState = document.getElementById('emptyState');
+            // Initialize view toggle
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const usersGridView = document.getElementById('usersGridView');
+            const usersListView = document.getElementById('usersListView');
+            const emptyState = document.getElementById('emptyState');
 
-        // View toggle functionality
-        gridView.addEventListener('click', function () {
-            setActiveView('grid');
-            localStorage.setItem('userViewPreference', 'grid');
-        });
+            // View toggle functionality
+            gridView.addEventListener('click', function () {
+                setActiveView('grid');
+                localStorage.setItem('userViewPreference', 'grid');
+            });
 
-        listView.addEventListener('click', function () {
-            setActiveView('list');
-            localStorage.setItem('userViewPreference', 'list');
-        });
+            listView.addEventListener('click', function () {
+                setActiveView('list');
+                localStorage.setItem('userViewPreference', 'list');
+            });
 
-        // Load user preference for view
-        const viewPreference = localStorage.getItem('userViewPreference');
-        if (viewPreference === 'list') {
-            setActiveView('list');
-        } else {
-            setActiveView('grid');
-        }
-
-        function setActiveView(view) {
-            if (view === 'list') {
-                listView.classList.add('active');
-                listView.setAttribute('aria-pressed', 'true');
-                gridView.classList.remove('active');
-                gridView.setAttribute('aria-pressed', 'false');
-                usersListView.style.display = 'block';
-                usersGridView.style.display = 'none';
+            // Load user preference for view
+            const viewPreference = localStorage.getItem('userViewPreference');
+            if (viewPreference === 'list') {
+                setActiveView('list');
             } else {
-                gridView.classList.add('active');
-                gridView.setAttribute('aria-pressed', 'true');
-                listView.classList.remove('active');
-                listView.setAttribute('aria-pressed', 'false');
-                usersGridView.style.display = 'grid';
-                usersListView.style.display = 'none';
+                setActiveView('grid');
             }
 
-            updateEmptyState();
-        }
+            function setActiveView(view) {
+                if (view === 'list') {
+                    listView.classList.add('active');
+                    listView.setAttribute('aria-pressed', 'true');
+                    gridView.classList.remove('active');
+                    gridView.setAttribute('aria-pressed', 'false');
+                    usersListView.style.display = 'block';
+                    usersGridView.style.display = 'none';
+                } else {
+                    gridView.classList.add('active');
+                    gridView.setAttribute('aria-pressed', 'true');
+                    listView.classList.remove('active');
+                    listView.setAttribute('aria-pressed', 'false');
+                    usersGridView.style.display = 'grid';
+                    usersListView.style.display = 'none';
+                }
 
-        // Search functionality
-        const userSearch = document.getElementById('userSearch');
-        let activeFilter = 'all';
+                updateEmptyState();
+            }
 
-        userSearch.addEventListener('input', function () {
-            filterUsers();
-        });
+            // Search functionality
+            const userSearch = document.getElementById('userSearch');
+            let activeFilter = 'all';
 
-        // Filter dropdown functionality
-        document.querySelectorAll('[data-filter]').forEach(item => {
-            item.addEventListener('click', function (e) {
-                e.preventDefault();
-
-                // Update active filter
-                activeFilter = this.dataset.filter;
-
-                // Update UI
-                document.querySelectorAll('[data-filter]').forEach(el => {
-                    el.classList.remove('active');
-                });
-                this.classList.add('active');
-
-                // Update dropdown button text
-                const dropdownButton = document.querySelector('#filterDropdown span');
-                dropdownButton.textContent = this.textContent;
-
-                // Apply filter
+            userSearch.addEventListener('input', function () {
                 filterUsers();
+            });
 
-                // Close dropdown
-                const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
-                dropdown.classList.remove('show');
+            // Filter dropdown functionality
+            document.querySelectorAll('[data-filter]').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    // Update active filter
+                    activeFilter = this.dataset.filter;
+
+                    // Update UI
+                    document.querySelectorAll('[data-filter]').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+
+                    // Update dropdown button text
+                    const dropdownButton = document.querySelector('#filterDropdown span');
+                    dropdownButton.textContent = this.textContent;
+
+                    // Apply filter
+                    filterUsers();
+
+                    // Close dropdown
+                    const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
+                    dropdown.classList.remove('show');
+                });
+            });
+
+            function filterUsers() {
+                const searchTerm = userSearch.value.toLowerCase();
+                let visibleCount = 0;
+
+                // Helper to check if user matches current filters
+                function userMatchesFilters(userElement) {
+                    // Status filter
+                    if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
+                    if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
+
+                    // Role filter
+                    if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
+                    if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
+                    if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
+
+                    // Search term
+                    if (searchTerm) {
+                        const userCard = userElement.cloneNode(true);
+                        return userCard.textContent.toLowerCase().includes(searchTerm);
+                    }
+
+                    return true;
+                }
+
+                // Filter grid view
+                document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
+                    if (userMatchesFilters(card)) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Filter list view
+                document.querySelectorAll('#usersListView tbody tr').forEach(row => {
+                    if (userMatchesFilters(row)) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Show/hide empty state
+                updateEmptyState(visibleCount === 0);
+            }
+
+            function updateEmptyState(isEmpty = false) {
+                if (isEmpty) {
+                    emptyState.style.display = 'flex';
+                    document.querySelector('.create-card').style.display = 'none';
+                    if (gridView.classList.contains('active')) {
+                        usersGridView.classList.add('empty-results');
+                    } else {
+                        usersListView.classList.add('empty-results');
+                    }
+                } else {
+                    emptyState.style.display = 'none';
+                    document.querySelector('.create-card').style.display = 'flex';
+                    usersGridView.classList.remove('empty-results');
+                    usersListView.classList.remove('empty-results');
+                }
+            }
+
+            // Handle dropdown toggling
+            document.addEventListener('click', function (e) {
+                const dropdownToggle = e.target.closest('.dropdown-toggle');
+                if (dropdownToggle) {
+                    const dropdownMenu = dropdownToggle.nextElementSibling;
+                    dropdownMenu.classList.toggle('show');
+                    e.stopPropagation();
+                } else if (!e.target.closest('.dropdown-menu')) {
+                    // Close all dropdowns when clicking outside
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+
+            // Prevent dropdown menu close when clicking inside it
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.addEventListener('click', function (e) {
+                    if (e.target.tagName !== 'A' && !e.target.closest('form')) {
+                        e.stopPropagation();
+                    }
+                });
             });
         });
 
-        function filterUsers() {
-            const searchTerm = userSearch.value.toLowerCase();
-            let visibleCount = 0;
-
-            // Helper to check if user matches current filters
-            function userMatchesFilters(userElement) {
-                // Status filter
-                if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
-                if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
-
-                // Role filter
-                if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
-                if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
-                if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
-
-                // Search term
-                if (searchTerm) {
-                    const userCard = userElement.cloneNode(true);
-                    return userCard.textContent.toLowerCase().includes(searchTerm);
-                }
-
-                return true;
-            }
-
-            // Filter grid view
-            document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
-                if (userMatchesFilters(card)) {
-                    card.style.display = 'flex';
-                    visibleCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-
-            // Filter list view
-            document.querySelectorAll('#usersListView tbody tr').forEach(row => {
-                if (userMatchesFilters(row)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
-
-            updateEmptyState(visibleCount === 0);
-        }
-
-        function updateEmptyState(isEmpty = false) {
-            if (isEmpty) {
-                emptyState.style.display = 'flex';
-                usersGridView.classList.add('d-none');
-                usersListView.classList.add('d-none');
-            } else {
-                emptyState.style.display = 'none';
-                if (gridView.classList.contains('active')) {
-                    usersGridView.classList.remove('d-none');
-                } else {
-                    usersListView.classList.remove('d-none');
-                }
-            }
+        // Open create user modal
+        function openCreateUserModal() {
+            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            createUserModal.show();
         }
 
         // Reset filters function
-        window.resetFilters = function () {
+        function resetFilters() {
+            const userSearch = document.getElementById('userSearch');
             userSearch.value = '';
-            activeFilter = 'all';
+            
+            // Update active filter
+            window.activeFilter = 'all';
 
             // Update dropdown button text
             const dropdownButton = document.querySelector('#filterDropdown span');
@@ -711,88 +794,14 @@
                 }
             });
 
-            filterUsers();
-        };
-
-        // Create user form handling
-        const createUserForm = document.getElementById('createUserForm');
-        const saveUserBtn = document.getElementById('saveUserBtn');
-
-        saveUserBtn.addEventListener('click', function () {
-            if (!createUserForm.checkValidity()) {
-                createUserForm.classList.add('was-validated');
-                return;
-            }
-
-            // Collect form data
-            const formData = new FormData(createUserForm);
-            const userData = Object.fromEntries(formData.entries());
-
-            // In a real app, this would be an AJAX call to the server
-            fetch('/Users/Create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                },
-                body: JSON.stringify(userData)
-            })
-                .then(response => {
-                    if (response.ok) {
-                        showToast('success', 'User created successfully!');
-                        createUserModal.hide();
-                        createUserForm.reset();
-                        createUserForm.classList.remove('was-validated');
-
-                        // In a real app, you'd either redirect or update the UI with the new user
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 1000);
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Error creating user');
-                        });
-                    }
-                })
-                .catch(error => {
-                    showToast('error', error.message);
-                });
-        });
-
-        // Handle dropdown toggling
-        document.addEventListener('click', function (e) {
-            const dropdownToggle = e.target.closest('.dropdown-toggle');
-            if (dropdownToggle) {
-                const dropdownMenu = dropdownToggle.nextElementSibling;
-                dropdownMenu.classList.toggle('show');
-                e.stopPropagation();
-            } else if (!e.target.closest('.dropdown-menu')) {
-                // Close all dropdowns when clicking outside
-                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                    menu.classList.remove('show');
-                });
-            }
-        });
-
-        // Prevent dropdown menu close when clicking inside it
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.addEventListener('click', function (e) {
-                if (e.target.tagName !== 'A' && !e.target.closest('form')) {
-                    e.stopPropagation();
-                }
-            });
-        });
-            });
-
-        // Open create user modal
-        function openCreateUserModal() {
-            const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
-            modal.show();
+            // Apply filters
+            const event = new Event('input');
+            userSearch.dispatchEvent(event);
         }
 
         // Reset password function
         function resetPassword(userId) {
-            // In a real app, this would call the server
+            // AJAX call to reset password
             fetch(`/Users/ResetPassword/${userId}`, {
                 method: 'POST',
                 headers: {
@@ -800,18 +809,18 @@
                     'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                 }
             })
-                .then(response => {
-                    if (response.ok) {
-                        showToast('success', 'Password reset email has been sent!');
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Error resetting password');
-                        });
-                    }
-                })
-                .catch(error => {
-                    showToast('error', error.message);
-                });
+            .then(response => {
+                if (response.ok) {
+                    showToast('success', 'Password reset email has been sent!');
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Error resetting password');
+                    });
+                }
+            })
+            .catch(error => {
+                showToast('error', error.message);
+            });
         }
 
         // Toast notification function
@@ -825,17 +834,17 @@
                 : '<i class="bi bi-exclamation-circle"></i>';
 
             toast.innerHTML = `
-                    <div class="toast-icon">
-                        ${icon}
-                    </div>
-                    <div class="toast-content">
-                        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
-                        <div class="toast-message">${message}</div>
-                    </div>
-                    <button class="toast-close" aria-label="Close notification">
-                        <i class="bi bi-x"></i>
-                    </button>
-                `;
+                <div class="toast-icon">
+                    ${icon}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" aria-label="Close notification">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
 
             // Add to document
             document.body.appendChild(toast);
@@ -871,7 +880,39 @@
 
 @section Styles {
     <style>
-        /* User Management Styles */
+        :root {
+            --primary-color: #0d6efd;
+            --primary-hover: #0b5ed7;
+            --success-color: #198754;
+            --success-hover: #157347;
+            --danger-color: #dc3545;
+            --danger-hover: #bb2d3b;
+            --warning-color: #ffc107;
+            --info-color: #0dcaf0;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --color-gray-50: #f9fafb;
+            --color-gray-100: #f8f9fa;
+            --color-gray-200: #e9ecef;
+            --color-gray-300: #dee2e6;
+            --color-gray-400: #ced4da;
+            --color-gray-500: #adb5bd;
+            --color-gray-600: #6c757d;
+            --color-gray-700: #495057;
+            --color-gray-800: #343a40;
+            --color-gray-900: #212529;
+            --color-primary: #0d6efd;
+            --color-secondary: #6c757d;
+            --color-success: #198754;
+            --color-danger: #dc3545;
+            --border-radius: 0.375rem;
+            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+        }
+
+        /* Page Layout */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -885,11 +926,36 @@
             font-size: 1.75rem;
             font-weight: 600;
             margin: 0 0 0.25rem;
+            color: var(--color-gray-800);
+        }
+
+        .text-muted {
+            color: var(--color-gray-600);
         }
 
         .page-actions {
             display: flex;
             gap: 0.5rem;
+        }
+
+        /* Card Styles */
+        .card {
+            background-color: #fff;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--color-gray-200);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem;
+            background-color: #fff;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .card-body {
+            padding: 1.5rem;
         }
 
         /* Card Header Actions */
@@ -922,7 +988,7 @@
 
         .search-input:focus {
             outline: none;
-            border-color: var(--color-primary);
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
         }
 
@@ -952,8 +1018,8 @@
 
         .view-option.active {
             background-color: var(--color-gray-100);
-            color: var(--color-primary);
-            border-color: var(--color-primary);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
         }
 
         /* Users Grid */
@@ -961,6 +1027,10 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
+        }
+
+        .users-grid.empty-results {
+            display: block;
         }
 
         .user-card {
@@ -977,513 +1047,1089 @@
         }
 
         @@keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+        .user-card:nth-child(1) { animation-delay: 0.05s; }
+        .user-card:nth-child(2) { animation-delay: 0.1s; }
+        .user-card:nth-child(3) { animation-delay: 0.15s; }
+        .user-card:nth-child(4) { animation-delay: 0.2s; }
+        .user-card:nth-child(5) { animation-delay: 0.25s; }
+        .user-card:nth-child(6) { animation-delay: 0.3s; }
+        .user-card:nth-child(7) { animation-delay: 0.35s; }
+        .user-card:nth-child(8) { animation-delay: 0.4s; }
+        .user-card:nth-child(9) { animation-delay: 0.45s; }
+        .user-card:nth-child(10) { animation-delay: 0.5s; }
+        .user-card:nth-child(11) { animation-delay: 0.55s; }
+        .user-card:nth-child(12) { animation-delay: 0.6s; }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--color-gray-300);
+        }
+
+        .user-card-header {
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .user-avatar.active {
+            background-color: var(--primary-color);
+        }
+
+        .user-avatar.inactive {
+            background-color: var(--secondary-color);
+        }
+
+        .user-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .user-status.active {
+            background-color: rgba(32, 201, 151, 0.1);
+            color: var(--success-color);
+        }
+
+        .user-status.inactive {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .user-card-body {
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+            color: var(--color-gray-800);
+        }
+
+        .user-email {
+            font-size: 0.875rem;
+            color: var(--color-gray-500);
+            margin-bottom: 1.25rem;
+            word-break: break-all;
+        }
+
+        .user-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .user-detail {
+            min-width: 0;
+        }
+
+        .detail-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+
+        .user-stat {
+            min-width: 0;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 0.875rem;
+            color: var(--color-gray-800);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-card-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+        }
+
+        /* Create Card - Improved Style */
+        .create-card {
+            border: 2px dashed var(--color-gray-300);
+            background-color: var(--color-gray-50);
+            cursor: pointer;
+            min-height: 280px;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.1);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+            }
+        }
+
+        .create-card:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .create-card-content {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .create-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .create-card:hover .create-icon {
+            transform: scale(1.1);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .create-text {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .create-description {
+            color: var(--color-gray-500);
+            font-size: 0.875rem;
+            margin-bottom: 0;
+        }
+
+        .create-card:hover .create-text {
+            color: var(--primary-color);
+        }
+
+        /* List View */
+        .users-list {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .users-list.empty-results {
+            display: none;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background-color: var(--color-gray-50);
+            border-bottom: 2px solid var(--color-gray-200);
+            font-weight: 600;
+            color: var(--color-gray-700);
+            white-space: nowrap;
+        }
+
+        .table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            vertical-align: middle;
+        }
+
+        .table tr:hover td {
+            background-color: var(--color-gray-50);
+        }
+
+        .list-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            margin-right: 1rem;
+            text-transform: uppercase;
+        }
+
+        .list-avatar.active {
+            background-color: var(--primary-color);
+        }
+
+        .list-avatar.inactive {
+            background-color: var(--secondary-color);
+        }
+
+        .list-user-info {
+            min-width: 0;
+        }
+
+        .list-user-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: var(--color-gray-800);
+        }
+
+        .list-user-email {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+
+        .list-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-gray-700);
+        }
+
+        .empty-state-message {
+            color: var(--color-gray-500);
+            margin-bottom: 1.5rem;
+            max-width: 400px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--color-gray-700);
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--color-gray-700);
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .form-select {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: var(--color-gray-700);
+            background-color: #fff;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            appearance: none;
+        }
+
+        .form-select:focus {
+            border-color: var(--primary-color);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+        .input-group {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .input-group > .form-control,
+        .input-group > .form-select {
+            position: relative;
+            flex: 1 1 auto;
+            width: 1%;
+            min-width: 0;
+        }
+
+        .input-group-text {
+            display: flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--color-gray-700);
+            text-align: center;
+            white-space: nowrap;
+            background-color: var(--color-gray-100);
+            border: 1px solid var(--color-gray-300);
+        }
+
+        .input-group > :first-child {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .input-group > :last-child {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .input-group > :not(:first-child):not(:last-child) {
+            border-radius: 0;
+        }
+
+        /* Password Strength Meter */
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-meter {
+            height: 5px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+        }
+
+        .strength-meter-fill {
+            height: 100%;
+            width: 0;
+            border-radius: 100px;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+
+        .strength-meter-fill[data-strength="0"] {
+            width: 20%;
+            background-color: var(--danger-color);
+        }
+
+        .strength-meter-fill[data-strength="1"] {
+            width: 40%;
+            background-color: var(--warning-color);
+        }
+
+        .strength-meter-fill[data-strength="2"] {
+            width: 60%;
+            background-color: #fd7e14; /* Orange */
+        }
+
+        .strength-meter-fill[data-strength="3"] {
+            width: 80%;
+            background-color: #20c997; /* Teal */
+        }
+
+        .strength-meter-fill[data-strength="4"] {
+            width: 100%;
+            background-color: var(--success-color);
+        }
+
+        .strength-text {
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .strength-text span {
+            font-weight: 500;
+        }
+
+        /* Status Indicator in Create User Form */
+        .account-status {
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius);
+            transition: all 0.3s ease;
+        }
+
+        .account-status .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .account-status .status-icon.active {
+            background-color: rgba(25, 135, 84, 0.15);
+            color: var(--success-color);
+        }
+
+        .account-status .status-icon.inactive {
+            background-color: rgba(108, 117, 125, 0.15);
+            color: var(--secondary-color);
+        }
+
+        /* Form Switch */
+        .form-switch {
+            padding-left: 2.5em;
+            position: relative;
+        }
+
+        .form-switch-input {
+            position: absolute;
+            margin-left: -2.5em;
+            z-index: -1;
+            width: 1rem;
+            height: 1.25rem;
+            opacity: 0;
+        }
+
+        .form-switch-label {
+            position: relative;
+            margin-bottom: 0;
+            vertical-align: top;
+            cursor: pointer;
+        }
+
+        .form-switch-label:before {
+            position: absolute;
+            top: 0.25rem;
+            left: -2.5em;
+            display: block;
+            width: 2em;
+            height: 1em;
+            content: "";
+            background-color: var(--color-gray-300);
+            border-radius: 0.5em;
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-switch-label:after {
+            position: absolute;
+            top: calc(0.25rem + 0.1em);
+            left: calc(-2.5em + 0.1em);
+            width: 0.8em;
+            height: 0.8em;
+            background-color: #fff;
+            border-radius: 0.5em;
+            content: "";
+            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+        }
+
+        .form-switch-input:checked ~ .form-switch-label::before {
+            background-color: var(--success-color);
+        }
+
+        .form-switch-input:checked ~ .form-switch-label::after {
+            transform: translateX(1em);
+        }
+
+        /* Form Text */
+        .form-text {
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--color-gray-600);
+        }
+
+        /* Modal Styles */
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        /* Alert Styles */
+        .alert {
+            position: relative;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+        }
+
+        .alert-danger {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: var(--border-radius);
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .btn i {
+            margin-right: 0.375rem;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            color: var(--color-gray-700);
+            background-color: transparent;
+            border-color: var(--color-gray-300);
+        }
+
+        .btn-outline:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            background-color: transparent;
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            border-radius: 50%;
+            color: var(--color-gray-600);
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .btn:disabled {
+            opacity: 0.65;
+            pointer-events: none;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: flex-start;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            width: 320px;
+            z-index: 1060;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast-notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .toast-notification.success .toast-icon {
+            color: var(--success-color);
+        }
+
+        .toast-notification.error .toast-icon {
+            color: var(--danger-color);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--color-gray-800);
+        }
+
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.75rem;
+            transition: color 0.15s ease;
+        }
+
+        .toast-close:hover {
+            color: var(--color-gray-700);
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle::after {
+            display: inline-block;
+            margin-left: 0.255em;
+            vertical-align: 0.255em;
+            content: "";
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-bottom: 0;
+            border-left: 0.3em solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+            text-align: left;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu-end {
+            right: 0;
+            left: auto;
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: var(--color-gray-700);
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover, .dropdown-item:focus {
+            color: var(--color-gray-900);
+            background-color: var(--color-gray-100);
+            text-decoration: none;
+        }
+
+        .dropdown-item.active {
+            color: #fff;
+            background-color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid var(--color-gray-200);
+        }
+
+        /* Badge Styles */
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 500;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-success {
+            background-color: var(--success-color);
+        }
+
+        .bg-secondary {
+            background-color: var(--secondary-color);
+        }
+
+        /* Form Validation Styles */
+        .was-validated .form-control:invalid {
+            border-color: var(--danger-color);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .was-validated .form-control:valid {
+            border-color: var(--success-color);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: var(--danger-color);
+        }
+
+        .was-validated .form-control:invalid ~ .invalid-feedback {
+            display: block;
+        }
+
+        /* Helper Classes */
+        .required {
+            color: var(--danger-color);
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem !important;
+        }
+
+        .me-3 {
+            margin-right: 1rem !important;
+        }
+
+        .ms-auto {
+            margin-left: auto !important;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem !important;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+
+        .d-flex {
+            display: flex !important;
+        }
+
+        .d-inline {
+            display: inline !important;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .align-items-center {
+            align-items: center !important;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-success {
+            color: var(--success-color) !important;
+        }
+
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+
+        /* Spinner */
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: text-bottom;
+            border: 0.2em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.2em;
+        }
+
+        @@keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 1200px) {
+            .users-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
 
-            .user-card:hover {
-                transform: translateY(-5px);
-                box-shadow: var(--shadow-md);
-                border-color: var(--color-gray-300);
+            .search-box {
+                width: 250px;
             }
+        }
 
-            .user-card-header {
-                padding: 1.25rem;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-bottom: 1px solid var(--color-gray-200);
-            }
-
-            .user-avatar {
-                width: 48px;
-                height: 48px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 600;
-                font-size: 1.125rem;
-                color: white;
-                text-transform: uppercase;
-            }
-
-            .user-avatar.active {
-                background-color: var(--color-primary);
-            }
-
-            .user-avatar.inactive {
-                background-color: var(--color-secondary);
-            }
-
-            .user-status {
-                display: inline-flex;
-                align-items: center;
-                padding: 0.25rem 0.5rem;
-                border-radius: 100px;
-                font-size: 0.75rem;
-                font-weight: 500;
-            }
-
-            .user-status.active {
-                background-color: rgba(32, 201, 151, 0.1);
-                color: var(--color-success);
-            }
-
-            .user-status.inactive {
-                background-color: rgba(108, 117, 125, 0.1);
-                color: var(--color-secondary);
-            }
-
-            .user-card-body {
-                padding: 1.25rem;
-                flex: 1;
-                display: flex;
+        @@media (max-width: 992px) {
+            .page-header {
                 flex-direction: column;
+                align-items: flex-start;
             }
 
-            .user-name {
-                font-size: 1.125rem;
-                font-weight: 600;
-                margin: 0 0 0.25rem;
+            .page-actions {
+                width: 100%;
+                justify-content: space-between;
             }
 
-            .user-email {
-                font-size: 0.875rem;
-                color: var(--color-gray-500);
-                margin-bottom: 1.25rem;
-                word-break: break-all;
-            }
-
-            .user-details {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
+            .card-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
                 gap: 1rem;
-                margin-bottom: 1.25rem;
             }
 
-            .user-detail {
-                min-width: 0;
+            .search-box {
+                width: 100%;
             }
 
-            .detail-label {
-                font-size: 0.75rem;
-                color: var(--color-gray-500);
-                margin-bottom: 0.25rem;
+            .view-options {
+                align-self: flex-end;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: 1fr;
             }
 
-            .detail-value {
-                font-size: 0.875rem;
-                font-weight: 500;
-                color: var(--color-gray-800);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
+            .user-details,
             .user-stats {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1rem;
-                margin-top: auto;
-                padding-top: 1rem;
-                border-top: 1px solid var(--color-gray-200);
-            }
-
-            .user-stat {
-                min-width: 0;
-            }
-
-            .stat-label {
-                font-size: 0.75rem;
-                color: var(--color-gray-500);
-                margin-bottom: 0.25rem;
-            }
-
-            .stat-value {
-                font-size: 0.875rem;
-                color: var(--color-gray-800);
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .user-card-footer {
-                padding: 1rem 1.25rem;
-                border-top: 1px solid var(--color-gray-200);
-                display: flex;
-                align-items: center;
-            }
-
-            /* Create Card */
-            .create-card {
-                border: 2px dashed var(--color-gray-300);
-                background-color: var(--color-gray-50);
-                cursor: pointer;
-                min-height: 280px;
-                justify-content: center;
-                align-items: center;
-                transition: all 0.3s ease;
-            }
-
-            .create-card:hover {
-                border-color: var(--color-primary);
-                background-color: rgba(13, 110, 253, 0.05);
-            }
-
-            .create-card-content {
-                text-align: center;
-                padding: 2rem;
-            }
-
-            .create-icon {
-                width: 64px;
-                height: 64px;
-                border-radius: 50%;
-                background-color: rgba(13, 110, 253, 0.1);
-                color: var(--color-primary);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.5rem;
-                margin: 0 auto 1rem;
-                transition: all 0.3s ease;
-            }
-
-            .create-card:hover .create-icon {
-                transform: scale(1.1);
-                background-color: var(--color-primary);
-                color: white;
-            }
-
-            .create-text {
-                font-weight: 500;
-                color: var(--color-gray-700);
-                transition: color 0.3s ease;
-            }
-
-            .create-card:hover .create-text {
-                color: var(--color-primary);
-            }
-
-            /* List View */
-            .list-avatar {
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 600;
-                font-size: 0.875rem;
-                color: white;
-                margin-right: 1rem;
-                text-transform: uppercase;
-            }
-
-            .list-avatar.active {
-                background-color: var(--color-primary);
-            }
-
-            .list-avatar.inactive {
-                background-color: var(--color-secondary);
+                grid-template-columns: 1fr;
             }
 
             .list-user-info {
-                min-width: 0;
-            }
-
-            .list-user-name {
-                font-weight: 500;
-                margin-bottom: 0.25rem;
-            }
-
-            .list-user-email {
-                font-size: 0.75rem;
-                color: var(--color-gray-500);
+                max-width: 150px;
             }
 
             .list-actions {
-                display: flex;
-                align-items: center;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .modal-footer {
+                flex-direction: column;
                 gap: 0.5rem;
             }
 
-            /* Empty State */
-            .empty-state {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                padding: 3rem 1rem;
-                text-align: center;
-            }
-
-            .empty-state-icon {
-                font-size: 3rem;
-                color: var(--color-gray-400);
-                margin-bottom: 1rem;
-            }
-
-            .empty-state-title {
-                font-size: 1.25rem;
-                font-weight: 600;
-                margin-bottom: 0.5rem;
-                color: var(--color-gray-700);
-            }
-
-            .empty-state-message {
-                color: var(--color-gray-500);
-                margin-bottom: 1.5rem;
-                max-width: 400px;
-            }
-
-            /* Toast Notification */
-            .toast-notification {
-                position: fixed;
-                bottom: 24px;
-                right: 24px;
-                display: flex;
-                align-items: flex-start;
-                background-color: white;
-                border-radius: var(--border-radius);
-                box-shadow: var(--shadow-lg);
-                padding: 1rem;
-                width: 320px;
-                z-index: 1000;
-                transform: translateY(100%);
-                opacity: 0;
-                transition: all 0.3s ease;
-            }
-
-            .toast-notification.show {
-                transform: translateY(0);
-                opacity: 1;
-            }
-
-            .toast-notification.success {
-                border-left: 4px solid var(--color-success);
-            }
-
-            .toast-notification.error {
-                border-left: 4px solid var(--color-danger);
-            }
-
-            .toast-icon {
-                margin-right: 0.75rem;
-                font-size: 1.25rem;
-            }
-
-            .toast-notification.success .toast-icon {
-                color: var(--color-success);
-            }
-
-            .toast-notification.error .toast-icon {
-                color: var(--color-danger);
-            }
-
-            .toast-content {
-                flex: 1;
-            }
-
-            .toast-title {
-                font-weight: 600;
-                margin-bottom: 0.25rem;
-            }
-
-            .toast-message {
-                font-size: 0.875rem;
-                color: var(--color-gray-600);
-            }
-
-            .toast-close {
-                background: none;
-                border: none;
-                font-size: 1.25rem;
-                color: var(--color-gray-500);
-                cursor: pointer;
-                padding: 0;
-                margin-left: 0.75rem;
-            }
-
-            .toast-close:hover {
-                color: var(--color-gray-700);
-            }
-
-            /* Form validation styles */
-            .was-validated .form-control:invalid {
-                border-color: var(--color-danger);
-                padding-right: calc(1.5em + 0.75rem);
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right calc(0.375em + 0.1875rem) center;
-                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-            }
-
-            .was-validated .form-control:valid {
-                border-color: var(--color-success);
-                padding-right: calc(1.5em + 0.75rem);
-                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-                background-repeat: no-repeat;
-                background-position: right calc(0.375em + 0.1875rem) center;
-                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-            }
-
-            .invalid-feedback {
-                display: none;
+            .modal-footer .btn {
                 width: 100%;
-                margin-top: 0.25rem;
-                font-size: 0.875em;
-                color: var(--color-danger);
             }
 
-            .was-validated .form-control:invalid~.invalid-feedback {
-                display: block;
+            .row {
+                margin-right: -0.5rem;
+                margin-left: -0.5rem;
             }
 
-            /* Helper Classes */
-            .required {
-                color: var(--color-danger);
+            .col-md-6 {
+                padding-right: 0.5rem;
+                padding-left: 0.5rem;
             }
-
-            .mb-3 {
-                margin-bottom: 1rem;
-            }
-
-            .ms-auto {
-                margin-left: auto;
-            }
-
-            .me-2 {
-                margin-right: 0.5rem;
-            }
-
-            .d-flex {
-                display: flex;
-            }
-
-            .d-none {
-                display: none !important;
-            }
-
-            .align-items-center {
-                align-items: center;
-            }
-
-            .d-inline {
-                display: inline;
-            }
-
-            /* Responsive Adjustments */
-            @@media(max - width: 1200px) {
-                    .users-grid {
-                        grid-template-columns: repeat(2, 1fr);
-                    }
-
-                    .search-box {
-                        width: 250px;
-                    }
-                }
-
-                @@media(max - width: 992px) {
-                        .page-header {
-                            flex-direction: column;
-                            align-items: flex-start;
-                        }
-
-                        .page-actions {
-                            width: 100%;
-                            justify-content: space-between;
-                        }
-
-                        .card-header-actions {
-                            flex-direction: column;
-                            align-items: flex-start;
-                            gap: 1rem;
-                        }
-
-                        .search-box {
-                            width: 100%;
-                        }
-
-                        .view-options {
-                            align-self: flex-end;
-                        }
-                    }
-
-                    @@media(max - width: 768px) {
-                            .users-grid {
-                                grid-template-columns: 1fr;
-                            }
-
-                            .user-details,
-                            .user-stats {
-                                grid-template-columns: 1fr;
-                            }
-
-                            .list-user-info {
-                                max-width: 150px;
-                            }
-
-                            .list-actions {
-                                flex-direction: column;
-                                align-items: flex-end;
-                            }
-                        }
-
-                        .modal-lg {
-                            max-width: 700px;
-                        }
-
-                        .password-toggle {
-                            cursor: pointer;
-                            background-color: var(--gray-100);
-                        }
-
-                        .password-toggle:hover {
-                            background-color: var(--gray-200);
-                        }
-
-                        .account-status {
-                            transition: all 0.3s ease;
-                        }
-
-                        .account-status .status-icon {
-                            width: 40px;
-                            height: 40px;
-                            border-radius: 50%;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            transition: all 0.3s ease;
-                        }
-
-                        .account-status .status-icon.active {
-                            background-color: rgba(25, 135, 84, 0.15);
-                            color: var(--success-color);
-                        }
-
-                        .account-status .status-icon.inactive {
-                            background-color: rgba(108, 117, 125, 0.15);
-                            color: var(--secondary-color);
-                        }
-
-                        #saveUserBtn .spinner-border {
-                            margin-left: 0.5rem;
-                        }
-
-                        .modal-title i {
-                            margin-right: 0.5rem;
-                        }
-                    </style>
-                }
+        }
+    </style>
+}
 
 @functions {
     public string GetTimeAgo(DateTime dateTime)
