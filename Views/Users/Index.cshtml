@@ -36,7 +36,8 @@
         <div class="card-header-actions">
             <div class="search-box">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" id="userSearch" class="search-input" placeholder="Search users..." aria-label="Search users">
+                <input type="text" id="userSearch" class="search-input" placeholder="Search users..."
+                    aria-label="Search users">
             </div>
             <div class="view-options">
                 <button class="btn-icon view-option active" id="gridView" title="Grid View" aria-pressed="true">
@@ -48,13 +49,15 @@
             </div>
         </div>
     </div>
-    
+
     <div class="card-body">
         <!-- Grid View (Default) -->
         <div class="users-grid" id="usersGridView">
             @foreach (var user in Model)
             {
-                <div class="user-card animate-card" data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")" data-role="@user.Role.ToLower().Replace(" ", "-")">
+                <div class="user-card animate-card" data-user-id="@user.Id"
+                    data-status="@(user.IsActive ? "active" : "inactive")"
+                    data-role="@user.Role.ToLower().Replace(" ", "-")">
                     <div class="user-card-header">
                         <div class="user-avatar @(user.IsActive ? "active" : "inactive")">
                             @user.FirstName[0]@user.LastName[0]
@@ -63,11 +66,11 @@
                             @(user.IsActive ? "Active" : "Inactive")
                         </div>
                     </div>
-                    
+
                     <div class="user-card-body">
                         <h3 class="user-name">@user.FullName</h3>
                         <div class="user-email">@user.Email</div>
-                        
+
                         <div class="user-details">
                             <div class="user-detail">
                                 <div class="detail-label">Department</div>
@@ -78,7 +81,7 @@
                                 <div class="detail-value">@user.Role</div>
                             </div>
                         </div>
-                        
+
                         <div class="user-stats">
                             <div class="user-stat">
                                 <div class="stat-label">Created</div>
@@ -99,7 +102,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="user-card-footer">
                         <a href="/Users/Edit/@user.Id" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i>
@@ -119,7 +122,8 @@
                                 <div class="dropdown-divider"></div>
                                 <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                    <button type="submit"
+                                        class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
                                         <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
                                         @(user.IsActive ? "Deactivate" : "Activate")
                                     </button>
@@ -129,7 +133,7 @@
                     </div>
                 </div>
             }
-            
+
             <!-- Create New User Card -->
             <div class="user-card create-card animate-card" onclick="openCreateUserModal()">
                 <div class="create-card-content">
@@ -140,7 +144,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- List View (Hidden by default) -->
         <div class="users-list" id="usersListView" style="display: none;">
             <table class="table">
@@ -158,7 +162,8 @@
                 <tbody>
                     @foreach (var user in Model)
                     {
-                        <tr data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")" data-role="@user.Role.ToLower().Replace(" ", "-")">
+                        <tr data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")"
+                            data-role="@user.Role.ToLower().Replace(" ", "-")">
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="list-avatar @(user.IsActive ? "active" : "inactive")">
@@ -207,8 +212,10 @@
                                             <div class="dropdown-divider"></div>
                                             <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                                    <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                                <button type="submit"
+                                                    class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                                    <i
+                                                        class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
                                                     @(user.IsActive ? "Deactivate" : "Activate")
                                                 </button>
                                             </form>
@@ -221,7 +228,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <!-- Empty State (Shows when no users match search/filter) -->
         <div id="emptyState" class="empty-state" style="display: none;">
             <div class="empty-state-icon">
@@ -238,71 +245,157 @@
 </div>
 
 <!-- Create User Modal -->
+<!-- Create User Modal -->
 <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
+                <h5 class="modal-title" id="createUserModalLabel"><i class="bi bi-person-plus"></i> Create New User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="createUserForm">
-                    <div class="form-group mb-3">
-                        <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
-                        <input type="text" id="firstName" name="FirstName" class="form-control" required>
-                        <div class="invalid-feedback">First name is required</div>
+                    @Html.AntiForgeryToken()
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="firstName" class="form-label">First Name <span
+                                        class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" id="firstName" name="FirstName" class="form-control" required>
+                                </div>
+                                <div class="invalid-feedback">First name is required</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="lastName" class="form-label">Last Name <span
+                                        class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input type="text" id="lastName" name="LastName" class="form-control" required>
+                                </div>
+                                <div class="invalid-feedback">Last name is required</div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
-                        <input type="text" id="lastName" name="LastName" class="form-control" required>
-                        <div class="invalid-feedback">Last name is required</div>
-                    </div>
-                    
+
                     <div class="form-group mb-3">
                         <label for="email" class="form-label">Email <span class="required">*</span></label>
-                        <input type="email" id="email" name="Email" class="form-control" required>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" id="email" name="Email" class="form-control" required>
+                        </div>
                         <div class="invalid-feedback">Please provide a valid email address</div>
                     </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="department" class="form-label">Department <span class="required">*</span></label>
-                        <select id="department" name="Department" class="form-select" required>
-                            <option value="">Select Department</option>
-                            <option value="Administration">Administration</option>
-                            <option value="Customer Service">Customer Service</option>
-                            <option value="IT Support">IT Support</option>
-                            <option value="Sales">Sales</option>
-                            <option value="Billing">Billing</option>
-                            <option value="Technical">Technical</option>
-                            <option value="Operations">Operations</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a department</div>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <label for="role" class="form-label">Role <span class="required">*</span></label>
-                        <select id="role" name="Role" class="form-select" required>
-                            <option value="">Select Role</option>
-                            <option value="Administrator">Administrator</option>
-                            <option value="Department Manager">Department Manager</option>
-                            <option value="Support Agent">Support Agent</option>
-                        </select>
-                        <div class="invalid-feedback">Please select a role</div>
-                    </div>
-                    
-                    <div class="form-group mb-3">
-                        <div class="form-switch">
-                            <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input" checked>
-                            <label for="isActive" class="form-switch-label">Active</label>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="department" class="form-label">Department <span
+                                        class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
+                                    <select id="department" name="Department" class="form-select" required>
+                                        <option value="">Select Department</option>
+                                        <option value="Administration">Administration</option>
+                                        <option value="Customer Service">Customer Service</option>
+                                        <option value="IT Support">IT Support</option>
+                                        <option value="Sales">Sales</option>
+                                        <option value="Billing">Billing</option>
+                                        <option value="Technical">Technical</option>
+                                        <option value="Operations">Operations</option>
+                                    </select>
+                                </div>
+                                <div class="invalid-feedback">Please select a department</div>
+                            </div>
                         </div>
-                        <div class="form-text">Activate this user immediately</div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="role" class="form-label">Role <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                                    <select id="role" name="Role" class="form-select" required>
+                                        <option value="">Select Role</option>
+                                        <option value="Administrator">Administrator</option>
+                                        <option value="Department Manager">Department Manager</option>
+                                        <option value="Support Agent">Support Agent</option>
+                                    </select>
+                                </div>
+                                <div class="invalid-feedback">Please select a role</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="password" class="form-label">Password <span
+                                        class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <input type="password" id="password" name="Password" class="form-control" required>
+                                    <button type="button" class="input-group-text password-toggle" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">Password is required</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm Password <span
+                                        class="required">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
+                                    <input type="password" id="confirmPassword" name="ConfirmPassword"
+                                        class="form-control" required>
+                                    <button type="button" class="input-group-text password-toggle" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">Confirm password is required</div>
+                                <div class="password-mismatch text-danger mt-1 d-none">
+                                    <i class="bi bi-exclamation-circle"></i> Passwords do not match
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <div class="account-status p-3 border rounded bg-light">
+                            <div class="d-flex align-items-center">
+                                <div class="status-icon active me-3">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="status-info">
+                                    <div class="form-switch">
+                                        <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input"
+                                            checked>
+                                        <label for="isActive" class="form-switch-label">Account Active</label>
+                                    </div>
+                                    <div class="form-text">User can access the system immediately after creation</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger d-none" id="formErrorAlert" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span id="formErrorMessage">Error message will appear here</span>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveUserBtn">Create User</button>
+                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="saveUserBtn">
+                    <i class="bi bi-save"></i> Create User
+                    <span class="spinner-border spinner-border-sm d-none" id="saveSpinner" role="status"
+                        aria-hidden="true"></span>
+                </button>
             </div>
         </div>
     </div>
@@ -310,202 +403,347 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Bootstrap components
-            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
-            
-            // Initialize view toggle
-            const gridView = document.getElementById('gridView');
-            const listView = document.getElementById('listView');
-            const usersGridView = document.getElementById('usersGridView');
-            const usersListView = document.getElementById('usersListView');
-            const emptyState = document.getElementById('emptyState');
-            
-            // View toggle functionality
-            gridView.addEventListener('click', function() {
-                setActiveView('grid');
-                localStorage.setItem('userViewPreference', 'grid');
-            });
-            
-            listView.addEventListener('click', function() {
-                setActiveView('list');
-                localStorage.setItem('userViewPreference', 'list');
-            });
-            
-            // Load user preference for view
-            const viewPreference = localStorage.getItem('userViewPreference');
-            if (viewPreference === 'list') {
-                setActiveView('list');
-            } else {
-                setActiveView('grid');
-            }
-            
-            function setActiveView(view) {
-                if (view === 'list') {
-                    listView.classList.add('active');
-                    listView.setAttribute('aria-pressed', 'true');
-                    gridView.classList.remove('active');
-                    gridView.setAttribute('aria-pressed', 'false');
-                    usersListView.style.display = 'block';
-                    usersGridView.style.display = 'none';
-                } else {
-                    gridView.classList.add('active');
-                    gridView.setAttribute('aria-pressed', 'true');
-                    listView.classList.remove('active');
-                    listView.setAttribute('aria-pressed', 'false');
-                    usersGridView.style.display = 'grid';
-                    usersListView.style.display = 'none';
-                }
-                
-                updateEmptyState();
-            }
-            
-            // Search functionality
-            const userSearch = document.getElementById('userSearch');
-            let activeFilter = 'all';
-            
-            userSearch.addEventListener('input', function() {
-                filterUsers();
-            });
-            
-            // Filter dropdown functionality
-            document.querySelectorAll('[data-filter]').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Update active filter
-                    activeFilter = this.dataset.filter;
-                    
-                    // Update UI
-                    document.querySelectorAll('[data-filter]').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                    
-                    // Update dropdown button text
-                    const dropdownButton = document.querySelector('#filterDropdown span');
-                    dropdownButton.textContent = this.textContent;
-                    
-                    // Apply filter
-                    filterUsers();
-                    
-                    // Close dropdown
-                    const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
-                    dropdown.classList.remove('show');
-                });
-            });
-            
-            function filterUsers() {
-                const searchTerm = userSearch.value.toLowerCase();
-                let visibleCount = 0;
-                
-                // Helper to check if user matches current filters
-                function userMatchesFilters(userElement) {
-                    // Status filter
-                    if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
-                    if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
-                    
-                    // Role filter
-                    if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
-                    if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
-                    if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
-                    
-                    // Search term
-                    if (searchTerm) {
-                        const userCard = userElement.cloneNode(true);
-                        return userCard.textContent.toLowerCase().includes(searchTerm);
-                    }
-                    
-                    return true;
-                }
-                
-                // Filter grid view
-                document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
-                    if (userMatchesFilters(card)) {
-                        card.style.display = 'flex';
-                        visibleCount++;
+        document.addEventListener('DOMContentLoaded', function () {
+            // Password toggle visibility
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function () {
+                    const input = this.closest('.input-group').querySelector('input');
+                    const icon = this.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
                     } else {
-                        card.style.display = 'none';
+                        input.type = 'password';
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
                     }
                 });
-                
-                // Filter list view
-                document.querySelectorAll('#usersListView tbody tr').forEach(row => {
-                    if (userMatchesFilters(row)) {
-                        row.style.display = '';
+            });
+
+            // Password match validation
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const passwordMismatch = document.querySelector('.password-mismatch');
+
+            if (confirmPassword && passwordMismatch) {
+                confirmPassword.addEventListener('input', function () {
+                    if (this.value && this.value !== password.value) {
+                        passwordMismatch.classList.remove('d-none');
+                        this.setCustomValidity('Passwords do not match');
                     } else {
-                        row.style.display = 'none';
+                        passwordMismatch.classList.add('d-none');
+                        this.setCustomValidity('');
                     }
                 });
-                
-                updateEmptyState(visibleCount === 0);
-            }
-            
-            function updateEmptyState(isEmpty = false) {
-                if (isEmpty) {
-                    emptyState.style.display = 'flex';
-                    usersGridView.classList.add('d-none');
-                    usersListView.classList.add('d-none');
-                } else {
-                    emptyState.style.display = 'none';
-                    if (gridView.classList.contains('active')) {
-                        usersGridView.classList.remove('d-none');
+
+                password.addEventListener('input', function () {
+                    if (confirmPassword.value && confirmPassword.value !== this.value) {
+                        passwordMismatch.classList.remove('d-none');
+                        confirmPassword.setCustomValidity('Passwords do not match');
                     } else {
-                        usersListView.classList.remove('d-none');
-                    }
-                }
-            }
-            
-            // Reset filters function
-            window.resetFilters = function() {
-                userSearch.value = '';
-                activeFilter = 'all';
-                
-                // Update dropdown button text
-                const dropdownButton = document.querySelector('#filterDropdown span');
-                dropdownButton.textContent = 'Filter';
-                
-                // Update active state in dropdown
-                document.querySelectorAll('[data-filter]').forEach(el => {
-                    el.classList.remove('active');
-                    if (el.dataset.filter === 'all') {
-                        el.classList.add('active');
+                        passwordMismatch.classList.add('d-none');
+                        confirmPassword.setCustomValidity('');
                     }
                 });
-                
-                filterUsers();
-            };
-            
+            }
+
             // Create user form handling
             const createUserForm = document.getElementById('createUserForm');
             const saveUserBtn = document.getElementById('saveUserBtn');
-            
-            saveUserBtn.addEventListener('click', function() {
-                if (!createUserForm.checkValidity()) {
-                    createUserForm.classList.add('was-validated');
-                    return;
+            const saveSpinner = document.getElementById('saveSpinner');
+            const formErrorAlert = document.getElementById('formErrorAlert');
+            const formErrorMessage = document.getElementById('formErrorMessage');
+
+            // Account status toggle enhancement
+            const accountActiveToggle = document.getElementById('isActive');
+            const statusIcon = document.querySelector('.status-icon');
+
+            if (accountActiveToggle && statusIcon) {
+                accountActiveToggle.addEventListener('change', function () {
+                    if (this.checked) {
+                        statusIcon.classList.remove('inactive');
+                        statusIcon.classList.add('active');
+                        statusIcon.querySelector('i').classList.remove('bi-x-circle');
+                        statusIcon.querySelector('i').classList.add('bi-check-circle');
+                    } else {
+                        statusIcon.classList.remove('active');
+                        statusIcon.classList.add('inactive');
+                        statusIcon.querySelector('i').classList.remove('bi-check-circle');
+                        statusIcon.querySelector('i').classList.add('bi-x-circle');
+                    }
+                });
+            }
+
+            if (saveUserBtn) {
+                saveUserBtn.addEventListener('click', function () {
+                    // Reset error message
+                    formErrorAlert.classList.add('d-none');
+
+                    if (!createUserForm.checkValidity()) {
+                        createUserForm.classList.add('was-validated');
+                        return;
+                    }
+
+                    // Check if passwords match
+                    if (password.value !== confirmPassword.value) {
+                        passwordMismatch.classList.remove('d-none');
+                        confirmPassword.setCustomValidity('Passwords do not match');
+                        createUserForm.classList.add('was-validated');
+                        return;
+                    }
+
+                    // Show loading spinner
+                    saveSpinner.classList.remove('d-none');
+                    saveUserBtn.disabled = true;
+
+                    // Collect form data
+                    const formData = new FormData(createUserForm);
+                    const userData = Object.fromEntries(formData.entries());
+
+                    // AJAX call to the server
+                    fetch('/Users/Create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify(userData)
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                showToast('success', 'User created successfully!');
+
+                                // Hide modal
+                                const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
+                                modal.hide();
+
+                                // Reset form
+                                createUserForm.reset();
+                                createUserForm.classList.remove('was-validated');
+
+                                // Reload page after delay
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                return response.json().then(data => {
+                                    throw new Error(data.message || 'Error creating user');
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            // Show error message
+                            formErrorMessage.textContent = error.message;
+                            formErrorAlert.classList.remove('d-none');
+
+                            // Show toast
+                            showToast('error', error.message);
+                        })
+                        .finally(() => {
+                            // Hide loading spinner
+                            saveSpinner.classList.add('d-none');
+                            saveUserBtn.disabled = false;
+                        });
+                });
+            }
+        });
+        // Initialize Bootstrap components
+        const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+
+        // Initialize view toggle
+        const gridView = document.getElementById('gridView');
+        const listView = document.getElementById('listView');
+        const usersGridView = document.getElementById('usersGridView');
+        const usersListView = document.getElementById('usersListView');
+        const emptyState = document.getElementById('emptyState');
+
+        // View toggle functionality
+        gridView.addEventListener('click', function () {
+            setActiveView('grid');
+            localStorage.setItem('userViewPreference', 'grid');
+        });
+
+        listView.addEventListener('click', function () {
+            setActiveView('list');
+            localStorage.setItem('userViewPreference', 'list');
+        });
+
+        // Load user preference for view
+        const viewPreference = localStorage.getItem('userViewPreference');
+        if (viewPreference === 'list') {
+            setActiveView('list');
+        } else {
+            setActiveView('grid');
+        }
+
+        function setActiveView(view) {
+            if (view === 'list') {
+                listView.classList.add('active');
+                listView.setAttribute('aria-pressed', 'true');
+                gridView.classList.remove('active');
+                gridView.setAttribute('aria-pressed', 'false');
+                usersListView.style.display = 'block';
+                usersGridView.style.display = 'none';
+            } else {
+                gridView.classList.add('active');
+                gridView.setAttribute('aria-pressed', 'true');
+                listView.classList.remove('active');
+                listView.setAttribute('aria-pressed', 'false');
+                usersGridView.style.display = 'grid';
+                usersListView.style.display = 'none';
+            }
+
+            updateEmptyState();
+        }
+
+        // Search functionality
+        const userSearch = document.getElementById('userSearch');
+        let activeFilter = 'all';
+
+        userSearch.addEventListener('input', function () {
+            filterUsers();
+        });
+
+        // Filter dropdown functionality
+        document.querySelectorAll('[data-filter]').forEach(item => {
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                // Update active filter
+                activeFilter = this.dataset.filter;
+
+                // Update UI
+                document.querySelectorAll('[data-filter]').forEach(el => {
+                    el.classList.remove('active');
+                });
+                this.classList.add('active');
+
+                // Update dropdown button text
+                const dropdownButton = document.querySelector('#filterDropdown span');
+                dropdownButton.textContent = this.textContent;
+
+                // Apply filter
+                filterUsers();
+
+                // Close dropdown
+                const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
+                dropdown.classList.remove('show');
+            });
+        });
+
+        function filterUsers() {
+            const searchTerm = userSearch.value.toLowerCase();
+            let visibleCount = 0;
+
+            // Helper to check if user matches current filters
+            function userMatchesFilters(userElement) {
+                // Status filter
+                if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
+                if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
+
+                // Role filter
+                if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
+                if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
+                if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
+
+                // Search term
+                if (searchTerm) {
+                    const userCard = userElement.cloneNode(true);
+                    return userCard.textContent.toLowerCase().includes(searchTerm);
                 }
-                
-                // Collect form data
-                const formData = new FormData(createUserForm);
-                const userData = Object.fromEntries(formData.entries());
-                
-                // In a real app, this would be an AJAX call to the server
-                fetch('/Users/Create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify(userData)
-                })
+
+                return true;
+            }
+
+            // Filter grid view
+            document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
+                if (userMatchesFilters(card)) {
+                    card.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Filter list view
+            document.querySelectorAll('#usersListView tbody tr').forEach(row => {
+                if (userMatchesFilters(row)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            updateEmptyState(visibleCount === 0);
+        }
+
+        function updateEmptyState(isEmpty = false) {
+            if (isEmpty) {
+                emptyState.style.display = 'flex';
+                usersGridView.classList.add('d-none');
+                usersListView.classList.add('d-none');
+            } else {
+                emptyState.style.display = 'none';
+                if (gridView.classList.contains('active')) {
+                    usersGridView.classList.remove('d-none');
+                } else {
+                    usersListView.classList.remove('d-none');
+                }
+            }
+        }
+
+        // Reset filters function
+        window.resetFilters = function () {
+            userSearch.value = '';
+            activeFilter = 'all';
+
+            // Update dropdown button text
+            const dropdownButton = document.querySelector('#filterDropdown span');
+            dropdownButton.textContent = 'Filter';
+
+            // Update active state in dropdown
+            document.querySelectorAll('[data-filter]').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.filter === 'all') {
+                    el.classList.add('active');
+                }
+            });
+
+            filterUsers();
+        };
+
+        // Create user form handling
+        const createUserForm = document.getElementById('createUserForm');
+        const saveUserBtn = document.getElementById('saveUserBtn');
+
+        saveUserBtn.addEventListener('click', function () {
+            if (!createUserForm.checkValidity()) {
+                createUserForm.classList.add('was-validated');
+                return;
+            }
+
+            // Collect form data
+            const formData = new FormData(createUserForm);
+            const userData = Object.fromEntries(formData.entries());
+
+            // In a real app, this would be an AJAX call to the server
+            fetch('/Users/Create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(userData)
+            })
                 .then(response => {
                     if (response.ok) {
                         showToast('success', 'User created successfully!');
                         createUserModal.hide();
                         createUserForm.reset();
                         createUserForm.classList.remove('was-validated');
-                        
+
                         // In a real app, you'd either redirect or update the UI with the new user
                         setTimeout(() => {
                             window.location.reload();
@@ -519,39 +757,39 @@
                 .catch(error => {
                     showToast('error', error.message);
                 });
-            });
-            
-            // Handle dropdown toggling
-            document.addEventListener('click', function(e) {
-                const dropdownToggle = e.target.closest('.dropdown-toggle');
-                if (dropdownToggle) {
-                    const dropdownMenu = dropdownToggle.nextElementSibling;
-                    dropdownMenu.classList.toggle('show');
+        });
+
+        // Handle dropdown toggling
+        document.addEventListener('click', function (e) {
+            const dropdownToggle = e.target.closest('.dropdown-toggle');
+            if (dropdownToggle) {
+                const dropdownMenu = dropdownToggle.nextElementSibling;
+                dropdownMenu.classList.toggle('show');
+                e.stopPropagation();
+            } else if (!e.target.closest('.dropdown-menu')) {
+                // Close all dropdowns when clicking outside
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Prevent dropdown menu close when clicking inside it
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.addEventListener('click', function (e) {
+                if (e.target.tagName !== 'A' && !e.target.closest('form')) {
                     e.stopPropagation();
-                } else if (!e.target.closest('.dropdown-menu')) {
-                    // Close all dropdowns when clicking outside
-                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                        menu.classList.remove('show');
-                    });
                 }
             });
-            
-            // Prevent dropdown menu close when clicking inside it
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.addEventListener('click', function(e) {
-                    if (e.target.tagName !== 'A' && !e.target.closest('form')) {
-                        e.stopPropagation();
-                    }
-                });
-            });
         });
-        
+            });
+
         // Open create user modal
         function openCreateUserModal() {
             const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
             modal.show();
         }
-        
+
         // Reset password function
         function resetPassword(userId) {
             // In a real app, this would call the server
@@ -562,64 +800,64 @@
                     'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                 }
             })
-            .then(response => {
-                if (response.ok) {
-                    showToast('success', 'Password reset email has been sent!');
-                } else {
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'Error resetting password');
-                    });
-                }
-            })
-            .catch(error => {
-                showToast('error', error.message);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        showToast('success', 'Password reset email has been sent!');
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Error resetting password');
+                        });
+                    }
+                })
+                .catch(error => {
+                    showToast('error', error.message);
+                });
         }
-        
+
         // Toast notification function
         function showToast(type, message) {
             // Create toast element
             const toast = document.createElement('div');
             toast.className = `toast-notification ${type}`;
-            
-            const icon = type === 'success' 
-                ? '<i class="bi bi-check-circle"></i>' 
+
+            const icon = type === 'success'
+                ? '<i class="bi bi-check-circle"></i>'
                 : '<i class="bi bi-exclamation-circle"></i>';
-            
+
             toast.innerHTML = `
-                <div class="toast-icon">
-                    ${icon}
-                </div>
-                <div class="toast-content">
-                    <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" aria-label="Close notification">
-                    <i class="bi bi-x"></i>
-                </button>
-            `;
-            
+                    <div class="toast-icon">
+                        ${icon}
+                    </div>
+                    <div class="toast-content">
+                        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" aria-label="Close notification">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+
             // Add to document
             document.body.appendChild(toast);
-            
+
             // Show toast
             setTimeout(() => {
                 toast.classList.add('show');
             }, 100);
-            
+
             // Auto-hide toast after 5 seconds
             const hideTimeout = setTimeout(() => {
                 hideToast(toast);
             }, 5000);
-            
+
             // Close button functionality
             const closeBtn = toast.querySelector('.toast-close');
-            closeBtn.addEventListener('click', function() {
+            closeBtn.addEventListener('click', function () {
                 clearTimeout(hideTimeout);
                 hideToast(toast);
             });
         }
-        
+
         function hideToast(toast) {
             toast.classList.remove('show');
             setTimeout(() => {
@@ -642,18 +880,18 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
+
         .page-title {
             font-size: 1.75rem;
             font-weight: 600;
             margin: 0 0 0.25rem;
         }
-        
+
         .page-actions {
             display: flex;
             gap: 0.5rem;
         }
-        
+
         /* Card Header Actions */
         .card-header-actions {
             display: flex;
@@ -661,12 +899,12 @@
             align-items: center;
             width: 100%;
         }
-        
+
         .search-box {
             position: relative;
             width: 300px;
         }
-        
+
         .search-icon {
             position: absolute;
             left: 0.75rem;
@@ -674,25 +912,25 @@
             transform: translateY(-50%);
             color: var(--color-gray-500);
         }
-        
+
         .search-input {
             padding: 0.5rem 0.75rem 0.5rem 2.25rem;
             border: 1px solid var(--color-gray-300);
             border-radius: var(--border-radius);
             width: 100%;
         }
-        
+
         .search-input:focus {
             outline: none;
             border-color: var(--color-primary);
             box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
         }
-        
+
         .view-options {
             display: flex;
             gap: 0.5rem;
         }
-        
+
         .view-option {
             width: 36px;
             height: 36px;
@@ -706,25 +944,25 @@
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        
+
         .view-option:hover {
             background-color: var(--color-gray-100);
             color: var(--color-gray-700);
         }
-        
+
         .view-option.active {
             background-color: var(--color-gray-100);
             color: var(--color-primary);
             border-color: var(--color-primary);
         }
-        
+
         /* Users Grid */
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 1.5rem;
         }
-        
+
         .user-card {
             background-color: white;
             border-radius: var(--border-radius);
@@ -737,475 +975,521 @@
             opacity: 0;
             height: 100%;
         }
-        
+
         @@keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-            to {
-                opacity: 1;
-                transform: translateY(0);
+
+            .user-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-md);
+                border-color: var(--color-gray-300);
             }
-        }
-        
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-gray-300);
-        }
-        
-        .user-card-header {
-            padding: 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.125rem;
-            color: white;
-            text-transform: uppercase;
-        }
-        
-        .user-avatar.active {
-            background-color: var(--color-primary);
-        }
-        
-        .user-avatar.inactive {
-            background-color: var(--color-secondary);
-        }
-        
-        .user-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-        
-        .user-status.active {
-            background-color: rgba(32, 201, 151, 0.1);
-            color: var(--color-success);
-        }
-        
-        .user-status.inactive {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--color-secondary);
-        }
-        
-        .user-card-body {
-            padding: 1.25rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .user-name {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin: 0 0 0.25rem;
-        }
-        
-        .user-email {
-            font-size: 0.875rem;
-            color: var(--color-gray-500);
-            margin-bottom: 1.25rem;
-            word-break: break-all;
-        }
-        
-        .user-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.25rem;
-        }
-        
-        .user-detail {
-            min-width: 0;
-        }
-        
-        .detail-label {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
-        }
-        
-        .detail-value {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--color-gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .user-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
-        }
-        
-        .user-stat {
-            min-width: 0;
-        }
-        
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
-        }
-        
-        .stat-value {
-            font-size: 0.875rem;
-            color: var(--color-gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .user-card-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid var(--color-gray-200);
-            display: flex;
-            align-items: center;
-        }
-        
-        /* Create Card */
-        .create-card {
-            border: 2px dashed var(--color-gray-300);
-            background-color: var(--color-gray-50);
-            cursor: pointer;
-            min-height: 280px;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        
-        .create-card:hover {
-            border-color: var(--color-primary);
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-        
-        .create-card-content {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .create-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0 auto 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .create-card:hover .create-icon {
-            transform: scale(1.1);
-            background-color: var(--color-primary);
-            color: white;
-        }
-        
-        .create-text {
-            font-weight: 500;
-            color: var(--color-gray-700);
-            transition: color 0.3s ease;
-        }
-        
-        .create-card:hover .create-text {
-            color: var(--color-primary);
-        }
-        
-        /* List View */
-        .list-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.875rem;
-            color: white;
-            margin-right: 1rem;
-            text-transform: uppercase;
-        }
-        
-        .list-avatar.active {
-            background-color: var(--color-primary);
-        }
-        
-        .list-avatar.inactive {
-            background-color: var(--color-secondary);
-        }
-        
-        .list-user-info {
-            min-width: 0;
-        }
-        
-        .list-user-name {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-        
-        .list-user-email {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-        }
-        
-        .list-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Empty State */
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1rem;
-            text-align: center;
-        }
-        
-        .empty-state-icon {
-            font-size: 3rem;
-            color: var(--color-gray-400);
-            margin-bottom: 1rem;
-        }
-        
-        .empty-state-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--color-gray-700);
-        }
-        
-        .empty-state-message {
-            color: var(--color-gray-500);
-            margin-bottom: 1.5rem;
-            max-width: 400px;
-        }
-        
-        /* Toast Notification */
-        .toast-notification {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            display: flex;
-            align-items: flex-start;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            width: 320px;
-            z-index: 1000;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .toast-notification.success {
-            border-left: 4px solid var(--color-success);
-        }
-        
-        .toast-notification.error {
-            border-left: 4px solid var(--color-danger);
-        }
-        
-        .toast-icon {
-            margin-right: 0.75rem;
-            font-size: 1.25rem;
-        }
-        
-        .toast-notification.success .toast-icon {
-            color: var(--color-success);
-        }
-        
-        .toast-notification.error .toast-icon {
-            color: var(--color-danger);
-        }
-        
-        .toast-content {
-            flex: 1;
-        }
-        
-        .toast-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .toast-message {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: var(--color-gray-500);
-            cursor: pointer;
-            padding: 0;
-            margin-left: 0.75rem;
-        }
-        
-        .toast-close:hover {
-            color: var(--color-gray-700);
-        }
-        
-        /* Form validation styles */
-        .was-validated .form-control:invalid {
-            border-color: var(--color-danger);
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-        }
-        
-        .was-validated .form-control:valid {
-            border-color: var(--color-success);
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-        }
-        
-        .invalid-feedback {
-            display: none;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 0.875em;
-            color: var(--color-danger);
-        }
-        
-        .was-validated .form-control:invalid ~ .invalid-feedback {
-            display: block;
-        }
-        
-        /* Helper Classes */
-        .required {
-            color: var(--color-danger);
-        }
-        
-        .mb-3 {
-            margin-bottom: 1rem;
-        }
-        
-        .ms-auto {
-            margin-left: auto;
-        }
-        
-        .me-2 {
-            margin-right: 0.5rem;
-        }
-        
-        .d-flex {
-            display: flex;
-        }
-        
-        .d-none {
-            display: none !important;
-        }
-        
-        .align-items-center {
-            align-items: center;
-        }
-        
-        .d-inline {
-            display: inline;
-        }
-        
-        /* Responsive Adjustments */
-        @@media (max-width: 1200px) {
-            .users-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .search-box {
-                width: 250px;
-            }
-        }
-        
-        @@media (max-width: 992px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .page-actions {
-                width: 100%;
+
+            .user-card-header {
+                padding: 1.25rem;
+                display: flex;
+                align-items: center;
                 justify-content: space-between;
+                border-bottom: 1px solid var(--color-gray-200);
             }
-            
-            .card-header-actions {
+
+            .user-avatar {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 1.125rem;
+                color: white;
+                text-transform: uppercase;
+            }
+
+            .user-avatar.active {
+                background-color: var(--color-primary);
+            }
+
+            .user-avatar.inactive {
+                background-color: var(--color-secondary);
+            }
+
+            .user-status {
+                display: inline-flex;
+                align-items: center;
+                padding: 0.25rem 0.5rem;
+                border-radius: 100px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+            .user-status.active {
+                background-color: rgba(32, 201, 151, 0.1);
+                color: var(--color-success);
+            }
+
+            .user-status.inactive {
+                background-color: rgba(108, 117, 125, 0.1);
+                color: var(--color-secondary);
+            }
+
+            .user-card-body {
+                padding: 1.25rem;
+                flex: 1;
+                display: flex;
                 flex-direction: column;
-                align-items: flex-start;
+            }
+
+            .user-name {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem;
+            }
+
+            .user-email {
+                font-size: 0.875rem;
+                color: var(--color-gray-500);
+                margin-bottom: 1.25rem;
+                word-break: break-all;
+            }
+
+            .user-details {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
                 gap: 1rem;
+                margin-bottom: 1.25rem;
             }
-            
-            .search-box {
-                width: 100%;
+
+            .user-detail {
+                min-width: 0;
             }
-            
-            .view-options {
-                align-self: flex-end;
+
+            .detail-label {
+                font-size: 0.75rem;
+                color: var(--color-gray-500);
+                margin-bottom: 0.25rem;
             }
-        }
-        
-        @@media (max-width: 768px) {
-            .users-grid {
-                grid-template-columns: 1fr;
+
+            .detail-value {
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: var(--color-gray-800);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
-            
-            .user-details,
+
             .user-stats {
-                grid-template-columns: 1fr;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                margin-top: auto;
+                padding-top: 1rem;
+                border-top: 1px solid var(--color-gray-200);
             }
-            
+
+            .user-stat {
+                min-width: 0;
+            }
+
+            .stat-label {
+                font-size: 0.75rem;
+                color: var(--color-gray-500);
+                margin-bottom: 0.25rem;
+            }
+
+            .stat-value {
+                font-size: 0.875rem;
+                color: var(--color-gray-800);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .user-card-footer {
+                padding: 1rem 1.25rem;
+                border-top: 1px solid var(--color-gray-200);
+                display: flex;
+                align-items: center;
+            }
+
+            /* Create Card */
+            .create-card {
+                border: 2px dashed var(--color-gray-300);
+                background-color: var(--color-gray-50);
+                cursor: pointer;
+                min-height: 280px;
+                justify-content: center;
+                align-items: center;
+                transition: all 0.3s ease;
+            }
+
+            .create-card:hover {
+                border-color: var(--color-primary);
+                background-color: rgba(13, 110, 253, 0.05);
+            }
+
+            .create-card-content {
+                text-align: center;
+                padding: 2rem;
+            }
+
+            .create-icon {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                background-color: rgba(13, 110, 253, 0.1);
+                color: var(--color-primary);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                margin: 0 auto 1rem;
+                transition: all 0.3s ease;
+            }
+
+            .create-card:hover .create-icon {
+                transform: scale(1.1);
+                background-color: var(--color-primary);
+                color: white;
+            }
+
+            .create-text {
+                font-weight: 500;
+                color: var(--color-gray-700);
+                transition: color 0.3s ease;
+            }
+
+            .create-card:hover .create-text {
+                color: var(--color-primary);
+            }
+
+            /* List View */
+            .list-avatar {
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 0.875rem;
+                color: white;
+                margin-right: 1rem;
+                text-transform: uppercase;
+            }
+
+            .list-avatar.active {
+                background-color: var(--color-primary);
+            }
+
+            .list-avatar.inactive {
+                background-color: var(--color-secondary);
+            }
+
             .list-user-info {
-                max-width: 150px;
+                min-width: 0;
             }
-            
+
+            .list-user-name {
+                font-weight: 500;
+                margin-bottom: 0.25rem;
+            }
+
+            .list-user-email {
+                font-size: 0.75rem;
+                color: var(--color-gray-500);
+            }
+
             .list-actions {
-                flex-direction: column;
-                align-items: flex-end;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
             }
-        }
-    </style>
-}
+
+            /* Empty State */
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 3rem 1rem;
+                text-align: center;
+            }
+
+            .empty-state-icon {
+                font-size: 3rem;
+                color: var(--color-gray-400);
+                margin-bottom: 1rem;
+            }
+
+            .empty-state-title {
+                font-size: 1.25rem;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                color: var(--color-gray-700);
+            }
+
+            .empty-state-message {
+                color: var(--color-gray-500);
+                margin-bottom: 1.5rem;
+                max-width: 400px;
+            }
+
+            /* Toast Notification */
+            .toast-notification {
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                display: flex;
+                align-items: flex-start;
+                background-color: white;
+                border-radius: var(--border-radius);
+                box-shadow: var(--shadow-lg);
+                padding: 1rem;
+                width: 320px;
+                z-index: 1000;
+                transform: translateY(100%);
+                opacity: 0;
+                transition: all 0.3s ease;
+            }
+
+            .toast-notification.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .toast-notification.success {
+                border-left: 4px solid var(--color-success);
+            }
+
+            .toast-notification.error {
+                border-left: 4px solid var(--color-danger);
+            }
+
+            .toast-icon {
+                margin-right: 0.75rem;
+                font-size: 1.25rem;
+            }
+
+            .toast-notification.success .toast-icon {
+                color: var(--color-success);
+            }
+
+            .toast-notification.error .toast-icon {
+                color: var(--color-danger);
+            }
+
+            .toast-content {
+                flex: 1;
+            }
+
+            .toast-title {
+                font-weight: 600;
+                margin-bottom: 0.25rem;
+            }
+
+            .toast-message {
+                font-size: 0.875rem;
+                color: var(--color-gray-600);
+            }
+
+            .toast-close {
+                background: none;
+                border: none;
+                font-size: 1.25rem;
+                color: var(--color-gray-500);
+                cursor: pointer;
+                padding: 0;
+                margin-left: 0.75rem;
+            }
+
+            .toast-close:hover {
+                color: var(--color-gray-700);
+            }
+
+            /* Form validation styles */
+            .was-validated .form-control:invalid {
+                border-color: var(--color-danger);
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .was-validated .form-control:valid {
+                border-color: var(--color-success);
+                padding-right: calc(1.5em + 0.75rem);
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .invalid-feedback {
+                display: none;
+                width: 100%;
+                margin-top: 0.25rem;
+                font-size: 0.875em;
+                color: var(--color-danger);
+            }
+
+            .was-validated .form-control:invalid~.invalid-feedback {
+                display: block;
+            }
+
+            /* Helper Classes */
+            .required {
+                color: var(--color-danger);
+            }
+
+            .mb-3 {
+                margin-bottom: 1rem;
+            }
+
+            .ms-auto {
+                margin-left: auto;
+            }
+
+            .me-2 {
+                margin-right: 0.5rem;
+            }
+
+            .d-flex {
+                display: flex;
+            }
+
+            .d-none {
+                display: none !important;
+            }
+
+            .align-items-center {
+                align-items: center;
+            }
+
+            .d-inline {
+                display: inline;
+            }
+
+            /* Responsive Adjustments */
+            @@media(max - width: 1200px) {
+                    .users-grid {
+                        grid-template-columns: repeat(2, 1fr);
+                    }
+
+                    .search-box {
+                        width: 250px;
+                    }
+                }
+
+                @@media(max - width: 992px) {
+                        .page-header {
+                            flex-direction: column;
+                            align-items: flex-start;
+                        }
+
+                        .page-actions {
+                            width: 100%;
+                            justify-content: space-between;
+                        }
+
+                        .card-header-actions {
+                            flex-direction: column;
+                            align-items: flex-start;
+                            gap: 1rem;
+                        }
+
+                        .search-box {
+                            width: 100%;
+                        }
+
+                        .view-options {
+                            align-self: flex-end;
+                        }
+                    }
+
+                    @@media(max - width: 768px) {
+                            .users-grid {
+                                grid-template-columns: 1fr;
+                            }
+
+                            .user-details,
+                            .user-stats {
+                                grid-template-columns: 1fr;
+                            }
+
+                            .list-user-info {
+                                max-width: 150px;
+                            }
+
+                            .list-actions {
+                                flex-direction: column;
+                                align-items: flex-end;
+                            }
+                        }
+
+                        .modal-lg {
+                            max-width: 700px;
+                        }
+
+                        .password-toggle {
+                            cursor: pointer;
+                            background-color: var(--gray-100);
+                        }
+
+                        .password-toggle:hover {
+                            background-color: var(--gray-200);
+                        }
+
+                        .account-status {
+                            transition: all 0.3s ease;
+                        }
+
+                        .account-status .status-icon {
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: all 0.3s ease;
+                        }
+
+                        .account-status .status-icon.active {
+                            background-color: rgba(25, 135, 84, 0.15);
+                            color: var(--success-color);
+                        }
+
+                        .account-status .status-icon.inactive {
+                            background-color: rgba(108, 117, 125, 0.15);
+                            color: var(--secondary-color);
+                        }
+
+                        #saveUserBtn .spinner-border {
+                            margin-left: 0.5rem;
+                        }
+
+                        .modal-title i {
+                            margin-right: 0.5rem;
+                        }
+                    </style>
+                }
 
 @functions {
     public string GetTimeAgo(DateTime dateTime)
     {
         var timeSpan = DateTime.Now - dateTime;
-        
+
         if (timeSpan.TotalMinutes < 1)
             return "Just now";
         if (timeSpan.TotalMinutes < 60)
@@ -1214,7 +1498,7 @@
             return $"{(int)timeSpan.TotalHours} hours ago";
         if (timeSpan.TotalDays < 7)
             return $"{(int)timeSpan.TotalDays} days ago";
-        
+
         return dateTime.ToString("MMM d, yyyy");
     }
 }
