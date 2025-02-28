@@ -10,18 +10,18 @@
     </div>
     <div class="page-actions">
         <div class="dropdown me-2">
-            <button class="btn btn-outline dropdown-toggle">
+            <button class="btn btn-outline dropdown-toggle" id="filterDropdown" aria-expanded="false">
                 <i class="bi bi-funnel"></i>
                 <span>Filter</span>
             </button>
-            <div class="dropdown-menu">
-                <a class="dropdown-item active" href="#">All Users</a>
-                <a class="dropdown-item" href="#">Active Only</a>
-                <a class="dropdown-item" href="#">Inactive Only</a>
+            <div class="dropdown-menu" aria-labelledby="filterDropdown">
+                <a class="dropdown-item active" href="#" data-filter="all">All Users</a>
+                <a class="dropdown-item" href="#" data-filter="active">Active Only</a>
+                <a class="dropdown-item" href="#" data-filter="inactive">Inactive Only</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Administrators</a>
-                <a class="dropdown-item" href="#">Department Managers</a>
-                <a class="dropdown-item" href="#">Support Agents</a>
+                <a class="dropdown-item" href="#" data-filter="admin">Administrators</a>
+                <a class="dropdown-item" href="#" data-filter="manager">Department Managers</a>
+                <a class="dropdown-item" href="#" data-filter="agent">Support Agents</a>
             </div>
         </div>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createUserModal">
@@ -36,13 +36,13 @@
         <div class="card-header-actions">
             <div class="search-box">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" id="userSearch" class="search-input" placeholder="Search users...">
+                <input type="text" id="userSearch" class="search-input" placeholder="Search users..." aria-label="Search users">
             </div>
             <div class="view-options">
-                <button class="btn-icon view-option active" id="gridView" title="Grid View">
+                <button class="btn-icon view-option active" id="gridView" title="Grid View" aria-pressed="true">
                     <i class="bi bi-grid"></i>
                 </button>
-                <button class="btn-icon view-option" id="listView" title="List View">
+                <button class="btn-icon view-option" id="listView" title="List View" aria-pressed="false">
                     <i class="bi bi-list-ul"></i>
                 </button>
             </div>
@@ -54,7 +54,7 @@
         <div class="users-grid" id="usersGridView">
             @foreach (var user in Model)
             {
-                <div class="user-card animate-card">
+                <div class="user-card animate-card" data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")" data-role="@user.Role.ToLower().Replace(" ", "-")">
                     <div class="user-card-header">
                         <div class="user-avatar @(user.IsActive ? "active" : "inactive")">
                             @user.FirstName[0]@user.LastName[0]
@@ -101,21 +101,21 @@
                     </div>
                     
                     <div class="user-card-footer">
-                        <button class="btn btn-sm btn-outline-primary" onclick="location.href='/Users/Edit/@user.Id'">
+                        <a href="/Users/Edit/@user.Id" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i>
                             <span>Edit</span>
-                        </button>
+                        </a>
                         <div class="dropdown ms-auto">
-                            <button class="btn btn-sm btn-icon dropdown-toggle">
+                            <button class="btn btn-sm btn-icon dropdown-toggle" aria-label="More options">
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
                                 <a class="dropdown-item" href="/Users/Details/@user.Id">
                                     <i class="bi bi-info-circle me-2"></i> View Details
                                 </a>
-                                <a class="dropdown-item" href="#" onclick="resetPassword('@user.Id')">
+                                <button class="dropdown-item" onclick="resetPassword('@user.Id')">
                                     <i class="bi bi-key me-2"></i> Reset Password
-                                </a>
+                                </button>
                                 <div class="dropdown-divider"></div>
                                 <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
@@ -131,7 +131,7 @@
             }
             
             <!-- Create New User Card -->
-            <div class="user-card create-card animate-card" onclick="$('#createUserModal').modal('show')">
+            <div class="user-card create-card animate-card" onclick="openCreateUserModal()">
                 <div class="create-card-content">
                     <div class="create-icon">
                         <i class="bi bi-plus-lg"></i>
@@ -158,7 +158,7 @@
                 <tbody>
                     @foreach (var user in Model)
                     {
-                        <tr>
+                        <tr data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")" data-role="@user.Role.ToLower().Replace(" ", "-")">
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="list-avatar @(user.IsActive ? "active" : "inactive")">
@@ -190,20 +190,20 @@
                             </td>
                             <td>
                                 <div class="list-actions">
-                                    <button class="btn-icon" onclick="location.href='/Users/Edit/@user.Id'" title="Edit">
+                                    <a href="/Users/Edit/@user.Id" class="btn-icon" title="Edit">
                                         <i class="bi bi-pencil"></i>
-                                    </button>
+                                    </a>
                                     <div class="dropdown">
-                                        <button class="btn-icon dropdown-toggle">
+                                        <button class="btn-icon dropdown-toggle" aria-label="More options">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
                                             <a class="dropdown-item" href="/Users/Details/@user.Id">
                                                 <i class="bi bi-info-circle me-2"></i> View Details
                                             </a>
-                                            <a class="dropdown-item" href="#" onclick="resetPassword('@user.Id')">
+                                            <button class="dropdown-item" onclick="resetPassword('@user.Id')">
                                                 <i class="bi bi-key me-2"></i> Reset Password
-                                            </a>
+                                            </button>
                                             <div class="dropdown-divider"></div>
                                             <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
@@ -221,15 +221,28 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Empty State (Shows when no users match search/filter) -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <h3 class="empty-state-title">No users found</h3>
+            <p class="empty-state-message">No users match your current search or filter criteria.</p>
+            <button class="btn btn-outline-primary" onclick="resetFilters()">
+                <i class="bi bi-arrow-counterclockwise"></i>
+                <span>Reset Filters</span>
+            </button>
+        </div>
     </div>
 </div>
 
 <!-- Create User Modal -->
-<div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Create New User</h5>
+                <h5 class="modal-title" id="createUserModalLabel">Create New User</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -237,16 +250,19 @@
                     <div class="form-group mb-3">
                         <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
                         <input type="text" id="firstName" name="FirstName" class="form-control" required>
+                        <div class="invalid-feedback">First name is required</div>
                     </div>
                     
                     <div class="form-group mb-3">
                         <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
                         <input type="text" id="lastName" name="LastName" class="form-control" required>
+                        <div class="invalid-feedback">Last name is required</div>
                     </div>
                     
                     <div class="form-group mb-3">
                         <label for="email" class="form-label">Email <span class="required">*</span></label>
                         <input type="email" id="email" name="Email" class="form-control" required>
+                        <div class="invalid-feedback">Please provide a valid email address</div>
                     </div>
                     
                     <div class="form-group mb-3">
@@ -261,6 +277,7 @@
                             <option value="Technical">Technical</option>
                             <option value="Operations">Operations</option>
                         </select>
+                        <div class="invalid-feedback">Please select a department</div>
                     </div>
                     
                     <div class="form-group mb-3">
@@ -271,6 +288,7 @@
                             <option value="Department Manager">Department Manager</option>
                             <option value="Support Agent">Support Agent</option>
                         </select>
+                        <div class="invalid-feedback">Please select a role</div>
                     </div>
                     
                     <div class="form-group mb-3">
@@ -293,135 +311,269 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap components
+            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            
             // Initialize view toggle
             const gridView = document.getElementById('gridView');
             const listView = document.getElementById('listView');
             const usersGridView = document.getElementById('usersGridView');
             const usersListView = document.getElementById('usersListView');
+            const emptyState = document.getElementById('emptyState');
             
+            // View toggle functionality
             gridView.addEventListener('click', function() {
-                gridView.classList.add('active');
-                listView.classList.remove('active');
-                usersGridView.style.display = 'grid';
-                usersListView.style.display = 'none';
+                setActiveView('grid');
+                localStorage.setItem('userViewPreference', 'grid');
             });
             
             listView.addEventListener('click', function() {
-                listView.classList.add('active');
-                gridView.classList.remove('active');
-                usersListView.style.display = 'block';
-                usersGridView.style.display = 'none';
+                setActiveView('list');
+                localStorage.setItem('userViewPreference', 'list');
             });
+            
+            // Load user preference for view
+            const viewPreference = localStorage.getItem('userViewPreference');
+            if (viewPreference === 'list') {
+                setActiveView('list');
+            } else {
+                setActiveView('grid');
+            }
+            
+            function setActiveView(view) {
+                if (view === 'list') {
+                    listView.classList.add('active');
+                    listView.setAttribute('aria-pressed', 'true');
+                    gridView.classList.remove('active');
+                    gridView.setAttribute('aria-pressed', 'false');
+                    usersListView.style.display = 'block';
+                    usersGridView.style.display = 'none';
+                } else {
+                    gridView.classList.add('active');
+                    gridView.setAttribute('aria-pressed', 'true');
+                    listView.classList.remove('active');
+                    listView.setAttribute('aria-pressed', 'false');
+                    usersGridView.style.display = 'grid';
+                    usersListView.style.display = 'none';
+                }
+                
+                updateEmptyState();
+            }
             
             // Search functionality
             const userSearch = document.getElementById('userSearch');
+            let activeFilter = 'all';
             
             userSearch.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                
-                // Search in grid view
-                const userCards = document.querySelectorAll('.user-card:not(.create-card)');
-                userCards.forEach(card => {
-                    const userName = card.querySelector('.user-name').textContent.toLowerCase();
-                    const userEmail = card.querySelector('.user-email').textContent.toLowerCase();
-                    const userDept = card.querySelector('.detail-value').textContent.toLowerCase();
+                filterUsers();
+            });
+            
+            // Filter dropdown functionality
+            document.querySelectorAll('[data-filter]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
                     
-                    if (userName.includes(searchTerm) || userEmail.includes(searchTerm) || userDept.includes(searchTerm)) {
+                    // Update active filter
+                    activeFilter = this.dataset.filter;
+                    
+                    // Update UI
+                    document.querySelectorAll('[data-filter]').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update dropdown button text
+                    const dropdownButton = document.querySelector('#filterDropdown span');
+                    dropdownButton.textContent = this.textContent;
+                    
+                    // Apply filter
+                    filterUsers();
+                    
+                    // Close dropdown
+                    const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
+                    dropdown.classList.remove('show');
+                });
+            });
+            
+            function filterUsers() {
+                const searchTerm = userSearch.value.toLowerCase();
+                let visibleCount = 0;
+                
+                // Helper to check if user matches current filters
+                function userMatchesFilters(userElement) {
+                    // Status filter
+                    if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
+                    if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
+                    
+                    // Role filter
+                    if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
+                    if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
+                    if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
+                    
+                    // Search term
+                    if (searchTerm) {
+                        const userCard = userElement.cloneNode(true);
+                        return userCard.textContent.toLowerCase().includes(searchTerm);
+                    }
+                    
+                    return true;
+                }
+                
+                // Filter grid view
+                document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
+                    if (userMatchesFilters(card)) {
                         card.style.display = 'flex';
+                        visibleCount++;
                     } else {
                         card.style.display = 'none';
                     }
                 });
                 
-                // Search in list view
-                const userRows = document.querySelectorAll('#usersListView tbody tr');
-                userRows.forEach(row => {
-                    const userName = row.querySelector('.list-user-name').textContent.toLowerCase();
-                    const userEmail = row.querySelector('.list-user-email').textContent.toLowerCase();
-                    const userDept = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                    
-                    if (userName.includes(searchTerm) || userEmail.includes(searchTerm) || userDept.includes(searchTerm)) {
+                // Filter list view
+                document.querySelectorAll('#usersListView tbody tr').forEach(row => {
+                    if (userMatchesFilters(row)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
                     }
                 });
-            });
+                
+                updateEmptyState(visibleCount === 0);
+            }
             
-            // Handle create user form submission
-            const saveUserBtn = document.getElementById('saveUserBtn');
+            function updateEmptyState(isEmpty = false) {
+                if (isEmpty) {
+                    emptyState.style.display = 'flex';
+                    usersGridView.classList.add('d-none');
+                    usersListView.classList.add('d-none');
+                } else {
+                    emptyState.style.display = 'none';
+                    if (gridView.classList.contains('active')) {
+                        usersGridView.classList.remove('d-none');
+                    } else {
+                        usersListView.classList.remove('d-none');
+                    }
+                }
+            }
+            
+            // Reset filters function
+            window.resetFilters = function() {
+                userSearch.value = '';
+                activeFilter = 'all';
+                
+                // Update dropdown button text
+                const dropdownButton = document.querySelector('#filterDropdown span');
+                dropdownButton.textContent = 'Filter';
+                
+                // Update active state in dropdown
+                document.querySelectorAll('[data-filter]').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.filter === 'all') {
+                        el.classList.add('active');
+                    }
+                });
+                
+                filterUsers();
+            };
+            
+            // Create user form handling
             const createUserForm = document.getElementById('createUserForm');
+            const saveUserBtn = document.getElementById('saveUserBtn');
             
             saveUserBtn.addEventListener('click', function() {
-                if (createUserForm.checkValidity()) {
-                    // In a real app, this would submit to the server
-                    // For now, we'll just show a success message and close the modal
-                    
-                    // Show success toast
-                    showToast('success', 'User created successfully!');
-                    
-                    // Close modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
-                    modal.hide();
-                    
-                    // Reset form
-                    createUserForm.reset();
-                } else {
-                    // Trigger form validation
-                    createUserForm.reportValidity();
+                if (!createUserForm.checkValidity()) {
+                    createUserForm.classList.add('was-validated');
+                    return;
+                }
+                
+                // Collect form data
+                const formData = new FormData(createUserForm);
+                const userData = Object.fromEntries(formData.entries());
+                
+                // In a real app, this would be an AJAX call to the server
+                fetch('/Users/Create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    if (response.ok) {
+                        showToast('success', 'User created successfully!');
+                        createUserModal.hide();
+                        createUserForm.reset();
+                        createUserForm.classList.remove('was-validated');
+                        
+                        // In a real app, you'd either redirect or update the UI with the new user
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Error creating user');
+                        });
+                    }
+                })
+                .catch(error => {
+                    showToast('error', error.message);
+                });
+            });
+            
+            // Handle dropdown toggling
+            document.addEventListener('click', function(e) {
+                const dropdownToggle = e.target.closest('.dropdown-toggle');
+                if (dropdownToggle) {
+                    const dropdownMenu = dropdownToggle.nextElementSibling;
+                    dropdownMenu.classList.toggle('show');
+                    e.stopPropagation();
+                } else if (!e.target.closest('.dropdown-menu')) {
+                    // Close all dropdowns when clicking outside
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
                 }
             });
             
-            // Initialize dropdowns
-            document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const dropdown = this.nextElementSibling;
-                    dropdown.classList.toggle('show');
-                });
-            });
-            
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-                dropdowns.forEach(dropdown => {
-                    if (!dropdown.previousElementSibling.contains(event.target)) {
-                        dropdown.classList.remove('show');
+            // Prevent dropdown menu close when clicking inside it
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'A' && !e.target.closest('form')) {
+                        e.stopPropagation();
                     }
-                });
-            });
-            
-            // Handle dropdown item selection
-            document.querySelectorAll('.dropdown-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    // Don't prevent default for submit buttons in forms
-                    if (!this.closest('form')) {
-                        e.preventDefault();
-                    }
-                    
-                    // If it's a filter dropdown, update active state
-                    const filterDropdown = this.closest('.page-actions .dropdown-menu');
-                    if (filterDropdown) {
-                        filterDropdown.querySelectorAll('.dropdown-item').forEach(el => {
-                            el.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                        
-                        // Update dropdown button text
-                        const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle span');
-                        dropdownButton.textContent = this.textContent;
-                    }
-                    
-                    // Hide dropdown
-                    this.closest('.dropdown-menu').classList.remove('show');
                 });
             });
         });
         
+        // Open create user modal
+        function openCreateUserModal() {
+            const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            modal.show();
+        }
+        
         // Reset password function
         function resetPassword(userId) {
-            // In a real app, this would call a server endpoint
-            // For now, we'll just show a success message
-            showToast('success', 'Password reset email has been sent!');
+            // In a real app, this would call the server
+            fetch(`/Users/ResetPassword/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    showToast('success', 'Password reset email has been sent!');
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.message || 'Error resetting password');
+                    });
+                }
+            })
+            .catch(error => {
+                showToast('error', error.message);
+            });
         }
         
         // Toast notification function
@@ -442,7 +594,7 @@
                     <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
                     <div class="toast-message">${message}</div>
                 </div>
-                <button class="toast-close">
+                <button class="toast-close" aria-label="Close notification">
                     <i class="bi bi-x"></i>
                 </button>
             `;
@@ -456,21 +608,25 @@
             }, 100);
             
             // Auto-hide toast after 5 seconds
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
+            const hideTimeout = setTimeout(() => {
+                hideToast(toast);
             }, 5000);
             
             // Close button functionality
             const closeBtn = toast.querySelector('.toast-close');
             closeBtn.addEventListener('click', function() {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
+                clearTimeout(hideTimeout);
+                hideToast(toast);
             });
+        }
+        
+        function hideToast(toast) {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
         }
     </script>
 }
@@ -478,6 +634,25 @@
 @section Styles {
     <style>
         /* User Management Styles */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem;
+        }
+        
+        .page-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
         
         /* Card Header Actions */
         .card-header-actions {
@@ -485,6 +660,32 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+        }
+        
+        .search-box {
+            position: relative;
+            width: 300px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-gray-500);
+        }
+        
+        .search-input {
+            padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius);
+            width: 100%;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
         }
         
         .view-options {
@@ -495,11 +696,26 @@
         .view-option {
             width: 36px;
             height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid transparent;
+            background-color: transparent;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .view-option:hover {
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-700);
         }
         
         .view-option.active {
             background-color: var(--color-gray-100);
             color: var(--color-primary);
+            border-color: var(--color-primary);
         }
         
         /* Users Grid */
@@ -557,6 +773,7 @@
             font-weight: 600;
             font-size: 1.125rem;
             color: white;
+            text-transform: uppercase;
         }
         
         .user-avatar.active {
@@ -674,6 +891,7 @@
             min-height: 280px;
             justify-content: center;
             align-items: center;
+            transition: all 0.3s ease;
         }
         
         .create-card:hover {
@@ -709,6 +927,7 @@
         .create-text {
             font-weight: 500;
             color: var(--color-gray-700);
+            transition: color 0.3s ease;
         }
         
         .create-card:hover .create-text {
@@ -727,6 +946,7 @@
             font-size: 0.875rem;
             color: white;
             margin-right: 1rem;
+            text-transform: uppercase;
         }
         
         .list-avatar.active {
@@ -755,6 +975,35 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--color-gray-700);
+        }
+        
+        .empty-state-message {
+            color: var(--color-gray-500);
+            margin-bottom: 1.5rem;
+            max-width: 400px;
         }
         
         /* Toast Notification */
@@ -829,6 +1078,37 @@
             color: var(--color-gray-700);
         }
         
+        /* Form validation styles */
+        .was-validated .form-control:invalid {
+            border-color: var(--color-danger);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .was-validated .form-control:valid {
+            border-color: var(--color-success);
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: var(--color-danger);
+        }
+        
+        .was-validated .form-control:invalid ~ .invalid-feedback {
+            display: block;
+        }
+        
         /* Helper Classes */
         .required {
             color: var(--color-danger);
@@ -850,6 +1130,10 @@
             display: flex;
         }
         
+        .d-none {
+            display: none !important;
+        }
+        
         .align-items-center {
             align-items: center;
         }
@@ -863,6 +1147,36 @@
             .users-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+            
+            .search-box {
+                width: 250px;
+            }
+        }
+        
+        @@media (max-width: 992px) {
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .card-header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .view-options {
+                align-self: flex-end;
+            }
         }
         
         @@media (max-width: 768px) {
@@ -873,6 +1187,15 @@
             .user-details,
             .user-stats {
                 grid-template-columns: 1fr;
+            }
+            
+            .list-user-info {
+                max-width: 150px;
+            }
+            
+            .list-actions {
+                flex-direction: column;
+                align-items: flex-end;
             }
         }
     </style>

@@ -43,7 +43,7 @@
                     <div class="stat-value">
                         @if (Model.LastLogin.HasValue)
                         {
-                            @GetTimeAgo(Model.LastLogin.Value)
+                            @(Model.LastLogin?.ToString("MMM d, yyyy HH:mm") ?? "Never")
                         }
                         else
                         {
@@ -56,7 +56,7 @@
         </div>
     </div>
     <div class="card-body">
-        <form asp-action="Edit" method="post">
+        <form id="userEditForm" asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreatedAt" />
@@ -64,15 +64,15 @@
             
             <div class="form-tabs">
                 <div class="form-tabs-header">
-                    <button type="button" class="form-tab active" data-tab="basic-info">
+                    <button type="button" class="form-tab active" data-tab="basic-info" aria-selected="true">
                         <i class="bi bi-person"></i>
                         <span>Basic Info</span>
                     </button>
-                    <button type="button" class="form-tab" data-tab="permissions">
+                    <button type="button" class="form-tab" data-tab="permissions" aria-selected="false">
                         <i class="bi bi-shield-lock"></i>
                         <span>Permissions</span>
                     </button>
-                    <button type="button" class="form-tab" data-tab="account">
+                    <button type="button" class="form-tab" data-tab="account" aria-selected="false">
                         <i class="bi bi-gear"></i>
                         <span>Account</span>
                     </button>
@@ -85,7 +85,7 @@
             
             <div class="form-sections">
                 <!-- Basic Info Section -->
-                <div class="form-section active" id="basic-info">
+                <div class="form-section active" id="basic-info" role="tabpanel">
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label asp-for="FirstName" class="form-label">First Name <span class="required">*</span></label>
@@ -116,7 +116,7 @@
                 </div>
                 
                 <!-- Permissions Section -->
-                <div class="form-section" id="permissions">
+                <div class="form-section" id="permissions" role="tabpanel">
                     <div class="form-grid-2">
                         <div class="form-group">
                             <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
@@ -135,7 +135,7 @@
                         
                         <div class="form-group">
                             <label asp-for="Role" class="form-label">Role <span class="required">*</span></label>
-                            <select asp-for="Role" class="form-select" required>
+                            <select asp-for="Role" class="form-select" required id="roleSelect">
                                 <option value="">Select Role</option>
                                 <option value="Administrator">Administrator</option>
                                 <option value="Department Manager">Department Manager</option>
@@ -146,7 +146,17 @@
                     </div>
                     
                     <div class="permissions-section">
-                        <h3>Access Permissions</h3>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3>Access Permissions</h3>
+                            <div class="permission-actions">
+                                <button type="button" class="btn btn-sm btn-outline" id="selectAllPermissions">
+                                    Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline" id="clearAllPermissions">
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
                         
                         <div class="permission-groups">
                             <div class="permission-group">
@@ -155,28 +165,40 @@
                                 </div>
                                 <div class="permission-list">
                                     <div class="permission-item">
-                                        <div class="permission-label">View Dashboard</div>
+                                        <div class="permission-label">
+                                            <span>View Dashboard</span>
+                                            <small class="text-muted d-block">Access to main dashboard and statistics</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-dashboard" checked class="form-switch-input" />
+                                                <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" checked class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
                                                 <label for="perm-dashboard" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="permission-item">
-                                        <div class="permission-label">View Analytics</div>
+                                        <div class="permission-label">
+                                            <span>View Analytics</span>
+                                            <small class="text-muted d-block">Access to advanced analytics and reports</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-analytics" checked class="form-switch-input" />
+                                                <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" checked class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
                                                 <label for="perm-analytics" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="permission-item">
-                                        <div class="permission-label">Export Reports</div>
+                                        <div class="permission-label">
+                                            <span>Export Reports</span>
+                                            <small class="text-muted d-block">Export data to CSV, PDF, and Excel formats</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-reports" class="form-switch-input" />
+                                                <input type="checkbox" id="perm-reports" name="Permissions[2].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[2].Name" value="ExportReports" />
                                                 <label for="perm-reports" class="form-switch-label"></label>
                                             </div>
                                         </div>
@@ -190,38 +212,101 @@
                                 </div>
                                 <div class="permission-list">
                                     <div class="permission-item">
-                                        <div class="permission-label">View Chatbots</div>
+                                        <div class="permission-label">
+                                            <span>View Chatbots</span>
+                                            <small class="text-muted d-block">View configuration of all chatbots</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-view-chatbots" checked class="form-switch-input" />
+                                                <input type="checkbox" id="perm-view-chatbots" name="Permissions[3].IsGranted" value="true" checked class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[3].Name" value="ViewChatbots" />
                                                 <label for="perm-view-chatbots" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="permission-item">
-                                        <div class="permission-label">Create Chatbots</div>
+                                        <div class="permission-label">
+                                            <span>Create Chatbots</span>
+                                            <small class="text-muted d-block">Create new chatbot configurations</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-create-chatbots" class="form-switch-input" />
+                                                <input type="checkbox" id="perm-create-chatbots" name="Permissions[4].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[4].Name" value="CreateChatbots" />
                                                 <label for="perm-create-chatbots" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="permission-item">
-                                        <div class="permission-label">Edit Chatbots</div>
+                                        <div class="permission-label">
+                                            <span>Edit Chatbots</span>
+                                            <small class="text-muted d-block">Modify existing chatbot configurations</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-edit-chatbots" class="form-switch-input" />
+                                                <input type="checkbox" id="perm-edit-chatbots" name="Permissions[5].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[5].Name" value="EditChatbots" />
                                                 <label for="perm-edit-chatbots" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="permission-item">
-                                        <div class="permission-label">Delete Chatbots</div>
+                                        <div class="permission-label">
+                                            <span>Delete Chatbots</span>
+                                            <small class="text-muted d-block">Remove chatbots from the system</small>
+                                        </div>
                                         <div class="permission-control">
                                             <div class="form-switch">
-                                                <input type="checkbox" id="perm-delete-chatbots" class="form-switch-input" />
+                                                <input type="checkbox" id="perm-delete-chatbots" name="Permissions[6].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[6].Name" value="DeleteChatbots" />
                                                 <label for="perm-delete-chatbots" class="form-switch-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="permission-group">
+                                <div class="permission-group-header">
+                                    <h4>Knowledge Base</h4>
+                                </div>
+                                <div class="permission-list">
+                                    <div class="permission-item">
+                                        <div class="permission-label">
+                                            <span>View Knowledge Bases</span>
+                                            <small class="text-muted d-block">Access knowledge base content</small>
+                                        </div>
+                                        <div class="permission-control">
+                                            <div class="form-switch">
+                                                <input type="checkbox" id="perm-view-kb" name="Permissions[7].IsGranted" value="true" checked class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[7].Name" value="ViewKnowledgeBases" />
+                                                <label for="perm-view-kb" class="form-switch-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="permission-item">
+                                        <div class="permission-label">
+                                            <span>Manage Knowledge Bases</span>
+                                            <small class="text-muted d-block">Create, edit, and delete knowledge bases</small>
+                                        </div>
+                                        <div class="permission-control">
+                                            <div class="form-switch">
+                                                <input type="checkbox" id="perm-manage-kb" name="Permissions[8].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[8].Name" value="ManageKnowledgeBases" />
+                                                <label for="perm-manage-kb" class="form-switch-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="permission-item">
+                                        <div class="permission-label">
+                                            <span>Assign Knowledge Bases</span>
+                                            <small class="text-muted d-block">Link knowledge bases to chatbots</small>
+                                        </div>
+                                        <div class="permission-control">
+                                            <div class="form-switch">
+                                                <input type="checkbox" id="perm-assign-kb" name="Permissions[9].IsGranted" value="true" class="form-switch-input permission-checkbox" />
+                                                <input type="hidden" name="Permissions[9].Name" value="AssignKnowledgeBases" />
+                                                <label for="perm-assign-kb" class="form-switch-label"></label>
                                             </div>
                                         </div>
                                     </div>
@@ -243,7 +328,7 @@
                 </div>
                 
                 <!-- Account Section -->
-                <div class="form-section" id="account">
+                <div class="form-section" id="account" role="tabpanel">
                     <div class="form-group">
                         <div class="form-switch">
                             <input asp-for="IsActive" class="form-switch-input" />
@@ -266,6 +351,7 @@
                                 <label class="form-check-label" for="resetPassword-email">
                                     Send password reset email
                                 </label>
+                                <div class="form-text ms-4">User will receive an email with instructions to reset their password</div>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="resetPasswordOption" id="resetPassword-manual" value="manual">
@@ -280,11 +366,33 @@
                         <div class="password-fields">
                             <div class="form-group">
                                 <label for="newPassword" class="form-label">New Password</label>
-                                <input type="password" id="newPassword" name="NewPassword" class="form-control" />
+                                <div class="password-input-container">
+                                    <input type="password" id="newPassword" name="NewPassword" class="form-control" />
+                                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength" id="passwordStrength">
+                                    <div class="strength-meter">
+                                        <div class="strength-meter-fill" data-strength="0"></div>
+                                    </div>
+                                    <div class="strength-text">Password strength: <span>Weak</span></div>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
+                                <div class="password-input-container">
+                                    <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
+                                    <button type="button" class="password-toggle" aria-label="Toggle password visibility">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-match text-success" style="display: none;">
+                                    <i class="bi bi-check-circle"></i> Passwords match
+                                </div>
+                                <div class="password-mismatch text-danger" style="display: none;">
+                                    <i class="bi bi-exclamation-circle"></i> Passwords do not match
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -295,7 +403,7 @@
                             <div class="danger-action">
                                 <div class="danger-info">
                                     <div class="danger-title">Delete this user</div>
-                                    <div class="danger-description">Once deleted, all user data will be permanently removed.</div>
+                                    <div class="danger-description">Once deleted, all user data will be permanently removed. This action cannot be undone.</div>
                                 </div>
                                 <button type="button" class="btn btn-outline-danger" onclick="confirmDelete('@Model.Id')">
                                     Delete User
@@ -321,12 +429,12 @@
 </div>
 
 <!-- Delete Confirmation Modal -->
-<div class="modal" id="deleteConfirmModal" tabindex="-1">
-    <div class="modal-dialog">
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Delete User</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title" id="deleteConfirmModalLabel">Delete User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger">
@@ -334,22 +442,49 @@
                     <strong>Warning:</strong> This action cannot be undone.
                 </div>
                 <p>Are you sure you want to delete this user? All user data will be permanently removed.</p>
+                <p>Please type <strong>DELETE</strong> to confirm.</p>
+                <input type="text" id="deleteConfirmInput" class="form-control" placeholder="Type DELETE to confirm" autocomplete="off">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" action="/Users/Delete/@Model.Id">
+                <form id="deleteUserForm" method="post" action="/Users/Delete/@Model.Id">
                     @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">Delete Permanently</button>
+                    <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete Permanently</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Save Changes Success Toast -->
+<div class="toast-notification success" id="saveSuccessToast" style="transform: translateY(150%); opacity: 0;">
+    <div class="toast-icon">
+        <i class="bi bi-check-circle"></i>
+    </div>
+    <div class="toast-content">
+        <div class="toast-title">Success</div>
+        <div class="toast-message">User information has been updated successfully.</div>
+    </div>
+    <button class="toast-close" onclick="hideToast('saveSuccessToast')" aria-label="Close notification">
+        <i class="bi bi-x"></i>
+    </button>
+</div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for success message in TempData
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showToast('success', '@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            // Initialize Bootstrap components
+            const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            
             // Tab navigation
             const tabs = document.querySelectorAll('.form-tab');
             const sections = document.querySelectorAll('.form-section');
@@ -359,17 +494,21 @@
                 // Hide all sections
                 sections.forEach(section => {
                     section.classList.remove('active');
+                    section.setAttribute('aria-hidden', 'true');
                 });
                 
                 // Show the target section
                 const targetSection = document.getElementById(tabId);
                 targetSection.classList.add('active');
+                targetSection.setAttribute('aria-hidden', 'false');
                 
                 // Update active tab
                 tabs.forEach(tab => {
                     tab.classList.remove('active');
+                    tab.setAttribute('aria-selected', 'false');
                     if (tab.getAttribute('data-tab') === tabId) {
                         tab.classList.add('active');
+                        tab.setAttribute('aria-selected', 'true');
                     }
                 });
                 
@@ -377,6 +516,9 @@
                 const tabIndex = Array.from(tabs).findIndex(tab => tab.getAttribute('data-tab') === tabId);
                 const progressPercentage = (tabIndex + 1) / tabs.length * 100;
                 progressBar.style.width = `${progressPercentage}%`;
+                
+                // Save current tab to session storage
+                sessionStorage.setItem('currentUserEditTab', tabId);
             }
             
             // Add click event to tabs
@@ -402,6 +544,12 @@
                 });
             });
             
+            // Restore last active tab from session storage
+            const lastActiveTab = sessionStorage.getItem('currentUserEditTab');
+            if (lastActiveTab && document.getElementById(lastActiveTab)) {
+                showTab(lastActiveTab);
+            }
+            
             // Password reset options
             const resetOptions = document.querySelectorAll('input[name="resetPasswordOption"]');
             const manualPasswordFields = document.getElementById('manualPasswordFields');
@@ -416,39 +564,262 @@
                 });
             });
             
-            // Modal handlers
-            function showModal(modal) {
-                modal.classList.add('show');
-                document.body.classList.add('modal-open');
-            }
-            
-            function hideModal(modal) {
-                modal.classList.remove('show');
-                document.body.classList.remove('modal-open');
-            }
-            
-            // Close modal buttons
-            document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const modal = this.closest('.modal');
-                    hideModal(modal);
+            // Password toggle visibility
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('input');
+                    const icon = this.querySelector('i');
+                    
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('bi-eye');
+                        icon.classList.add('bi-eye-slash');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('bi-eye-slash');
+                        icon.classList.add('bi-eye');
+                    }
                 });
             });
             
-            // Close modal on outside click
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(event) {
-                    if (event.target === this) {
-                        hideModal(this);
+            // Password strength meter
+            const newPassword = document.getElementById('newPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const passwordMatch = document.querySelector('.password-match');
+            const passwordMismatch = document.querySelector('.password-mismatch');
+            
+            newPassword.addEventListener('input', function() {
+                const strength = calculatePasswordStrength(this.value);
+                updatePasswordStrengthUI(strength);
+                checkPasswordMatch();
+            });
+            
+            confirmPassword.addEventListener('input', checkPasswordMatch);
+            
+            function calculatePasswordStrength(password) {
+                if (!password) return 0;
+                
+                let strength = 0;
+                
+                // Length check
+                if (password.length >= 8) strength += 1;
+                if (password.length >= 12) strength += 1;
+                
+                // Character variety checks
+                if (/[a-z]/.test(password)) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/\d/.test(password)) strength += 1;
+                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
+                
+                // Return normalized strength (0-4)
+                return Math.min(4, Math.floor(strength / 2));
+            }
+            
+            function updatePasswordStrengthUI(strength) {
+                const strengthMeter = passwordStrength.querySelector('.strength-meter-fill');
+                const strengthText = passwordStrength.querySelector('.strength-text span');
+                
+                // Update strength meter fill
+                strengthMeter.setAttribute('data-strength', strength);
+                
+                // Update strength text
+                const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+                strengthText.textContent = strengthLabels[strength];
+                
+                // Update color classes
+                strengthMeter.className = 'strength-meter-fill';
+                strengthMeter.classList.add(`strength-${strength}`);
+            }
+            
+            function checkPasswordMatch() {
+                const pwd = newPassword.value;
+                const confirm = confirmPassword.value;
+                
+                if (!confirm) {
+                    passwordMatch.style.display = 'none';
+                    passwordMismatch.style.display = 'none';
+                    return;
+                }
+                
+                if (pwd === confirm) {
+                    passwordMatch.style.display = 'block';
+                    passwordMismatch.style.display = 'none';
+                } else {
+                    passwordMatch.style.display = 'none';
+                    passwordMismatch.style.display = 'block';
+                }
+            }
+            
+            // Delete confirmation handling
+            const deleteConfirmInput = document.getElementById('deleteConfirmInput');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            
+            deleteConfirmInput.addEventListener('input', function() {
+                confirmDeleteBtn.disabled = this.value !== 'DELETE';
+            });
+            
+            // Role-based permissions
+            const roleSelect = document.getElementById('roleSelect');
+            const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+            
+            roleSelect.addEventListener('change', function() {
+                const selectedRole = this.value;
+                
+                // Reset all permissions first
+                permissionCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Set permissions based on role
+                if (selectedRole === 'Administrator') {
+                    // Admins get all permissions
+                    permissionCheckboxes.forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                } else if (selectedRole === 'Department Manager') {
+                    // Department managers get view permissions and some management permissions
+                    permissionCheckboxes.forEach(checkbox => {
+                        const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                        const viewPermissions = ['0', '1', '3', '7']; // IDs of view permissions
+                        const managerPermissions = ['2', '8']; // IDs of additional manager permissions
+                        
+                        checkbox.checked = viewPermissions.includes(permName) || managerPermissions.includes(permName);
+                    });
+                } else if (selectedRole === 'Support Agent') {
+                    // Support agents get only basic view permissions
+                    permissionCheckboxes.forEach(checkbox => {
+                        const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                        const agentPermissions = ['0', '3', '7']; // IDs of agent permissions
+                        
+                        checkbox.checked = agentPermissions.includes(permName);
+                    });
+                }
+            });
+            
+            // Select/clear all permissions
+            document.getElementById('selectAllPermissions').addEventListener('click', function() {
+                permissionCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            });
+            
+            document.getElementById('clearAllPermissions').addEventListener('click', function() {
+                permissionCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            });
+            
+            // Form submission with AJAX
+            const userEditForm = document.getElementById('userEditForm');
+            
+            userEditForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!this.checkValidity()) {
+                    this.classList.add('was-validated');
+                    return;
+                }
+                
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     }
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        // Show success toast before redirecting
+                        showToast('success', 'User updated successfully!');
+                        
+                        // Wait a moment for the toast to be visible, then redirect
+                        setTimeout(() => {
+                            window.location.href = response.url;
+                        }, 1500);
+                    } else if (response.ok) {
+                        showToast('success', 'User updated successfully!');
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Error updating user');
+                        });
+                    }
+                })
+                .catch(error => {
+                    showToast('error', error.message || 'An error occurred. Please try again.');
                 });
             });
         });
         
+        // Delete confirmation modal
         function confirmDelete(id) {
             const modal = document.getElementById('deleteConfirmModal');
-            modal.classList.add('show');
-            document.body.classList.add('modal-open');
+            const bootstrapModal = new bootstrap.Modal(modal);
+            
+            // Reset confirmation input
+            document.getElementById('deleteConfirmInput').value = '';
+            document.getElementById('confirmDeleteBtn').disabled = true;
+            
+            // Update form action if needed
+            document.getElementById('deleteUserForm').action = `/Users/Delete/${id}`;
+            
+            bootstrapModal.show();
+        }
+        
+        // Toast notification function
+        function showToast(type, message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            
+            const icon = type === 'success' 
+                ? '<i class="bi bi-check-circle"></i>' 
+                : '<i class="bi bi-exclamation-circle"></i>';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    ${icon}
+                </div>
+                <div class="toast-content">
+                    <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="hideToast(this.parentElement)" aria-label="Close notification">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            
+            // Add to document
+            document.body.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 100);
+            
+            // Auto-hide toast after 5 seconds
+            const hideTimeout = setTimeout(() => {
+                hideToast(toast);
+            }, 5000);
+            
+            // Store timeout ID on the element for later cleanup
+            toast.dataset.timeoutId = hideTimeout;
+        }
+        
+        function hideToast(toast) {
+            // Clear any pending timeout
+            if (toast.dataset.timeoutId) {
+                clearTimeout(parseInt(toast.dataset.timeoutId));
+            }
+            
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    document.body.removeChild(toast);
+                }
+            }, 300);
         }
     </script>
 }
@@ -460,6 +831,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
         }
         
         .user-avatar {
@@ -473,6 +846,7 @@
             font-size: 1.125rem;
             color: white;
             margin-right: 1rem;
+            text-transform: uppercase;
         }
         
         .user-avatar.active {
@@ -496,6 +870,7 @@
         .user-meta {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
         
         .user-stats {
@@ -527,6 +902,12 @@
             display: flex;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .form-tabs-header::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
         }
         
         .form-tab {
@@ -618,9 +999,14 @@
             margin-bottom: 1rem;
         }
         
+        .permission-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
         .permission-groups {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
         }
         
@@ -628,6 +1014,11 @@
             border: 1px solid var(--color-gray-200);
             border-radius: var(--border-radius);
             overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .permission-group:hover {
+            box-shadow: var(--shadow-sm);
         }
         
         .permission-group-header {
@@ -651,12 +1042,28 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .permission-item:last-child {
+            border-bottom: none;
         }
         
         .permission-label {
+            flex: 1;
+            padding-right: 1rem;
+        }
+        
+        .permission-label span {
+            display: block;
             font-size: 0.875rem;
             color: var(--color-gray-700);
+            margin-bottom: 0.25rem;
+        }
+        
+        .permission-label small {
+            font-size: 0.75rem;
         }
         
         /* Password Reset Options */
@@ -678,164 +1085,1438 @@
             gap: 1rem;
         }
         
-        /* Danger Zone */
-        .danger-zone {
-            background-color: #fff5f5;
-            border: 1px solid #ffe3e3;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-        }
-        
-        .danger-zone-title {
-            background-color: #ffe3e3;
-            color: var(--color-danger);
-            font-size: 0.875rem;
-            font-weight: 600;
-            padding: 0.75rem 1.25rem;
-            margin: 0;
-        }
-        
-        .danger-zone-content {
-            padding: 1.25rem;
-        }
-        
-        .danger-action {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .danger-info {
-            flex: 1;
-            padding-right: 1.5rem;
-        }
-        
-        .danger-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .danger-description {
-            font-size: 0.75rem;
-            color: var(--color-gray-600);
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1050;
-            overflow: auto;
-        }
-        
-        .modal.show {
-            display: block;
-        }
-        
-        .modal-dialog {
-            margin: 1.75rem auto;
-            max-width: 600px;
-        }
-        
-        .modal-content {
+        .password-input-container {
             position: relative;
-            background-color: white;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-            outline: 0;
         }
         
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .modal-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .btn-close {
-            padding: 0;
-            background: transparent;
-            border: 0;
-            font-size: 1.5rem;
-            line-height: 1;
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
             color: var(--color-gray-500);
             cursor: pointer;
         }
         
-        .modal-body {
-            position: relative;
-            flex: 1 1 auto;
-            padding: 1.5rem;
+        .password-toggle:hover {
+            color: var(--color-gray-700);
         }
         
-        .modal-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 1.25rem 1.5rem;
-            border-top: 1px solid var(--color-gray-200);
-            gap: 0.75rem;
+        .password-strength {
+            margin-top: 0.5rem;
         }
         
-        /* Alerts */
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: var(--border-radius);
+        .strength-meter {
+            height: 4px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
         }
-        
-        .alert-danger {
-            background-color: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.2);
-            color: var(--color-danger);
-            display: flex;
-            align-items: flex-start;
-            gap: 0.75rem;
-        }
-        
-        .alert i {
-            font-size: 1.25rem;
-            margin-top: 0.125rem;
-        }
-        
-        /* Utility Classes */
-        .mt-3 { margin-top: 1rem; }
-        .mt-4 { margin-top: 1.5rem; }
-        .mt-5 { margin-top: 3rem; }
-        .d-flex { display: flex; }
-        .align-items-center { align-items: center; }
-        .required { color: var(--color-danger); }
-    </style>
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 100px;
+    transition: width 0.3s ease, background-color 0.3s ease;
 }
 
-@functions {
-    public string GetTimeAgo(DateTime dateTime)
-    {
-        var timeSpan = DateTime.Now - dateTime;
-        
-        if (timeSpan.TotalMinutes < 1)
-            return "Just now";
-        if (timeSpan.TotalMinutes < 60)
-            return $"{(int)timeSpan.TotalMinutes} minutes ago";
-        if (timeSpan.TotalHours < 24)
-            return $"{(int)timeSpan.TotalHours} hours ago";
-        if (timeSpan.TotalDays < 7)
-            return $"{(int)timeSpan.TotalDays} days ago";
-        
-        return dateTime.ToString("MMM d, yyyy");
+.strength-meter-fill[data-strength="0"] {
+    width: 20%;
+    background-color: #dc3545;
+}
+
+.strength-meter-fill[data-strength="1"] {
+    width: 40%;
+    background-color: #ffc107;
+}
+
+.strength-meter-fill[data-strength="2"] {
+    width: 60%;
+    background-color: #fd7e14;
+}
+
+.strength-meter-fill[data-strength="3"] {
+    width: 80%;
+    background-color: #28a745;
+}
+
+.strength-meter-fill[data-strength="4"] {
+    width: 100%;
+    background-color: #20c997;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+.password-match, .password-mismatch {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Danger Zone */
+.danger-zone {
+    background-color: #fff5f5;
+    border: 1px solid #ffe3e3;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.danger-zone-title {
+    background-color: #ffe3e3;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    margin: 0;
+}
+
+.danger-zone-content {
+    padding: 1.25rem;
+}
+
+.danger-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.danger-info {
+    flex: 1;
+    padding-right: 1.5rem;
+}
+
+.danger-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.danger-description {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    overflow: auto;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    position: relative;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    outline: 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-close {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-gray-500);
+    cursor: pointer;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--color-gray-200);
+    gap: 0.75rem;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: flex-start;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 1rem;
+    width: 320px;
+    z-index: 1000;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-notification.success {
+    border-left: 4px solid var(--color-success);
+}
+
+.toast-notification.error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.toast-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.toast-notification.success .toast-icon {
+    color: var(--color-success);
+}
+
+.toast-notification.error .toast-icon {
+    color: var(--color-danger);
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.toast-message {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.75rem;
+}
+
+.toast-close:hover {
+    color: var(--color-gray-700);
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: var(--color-danger);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert i {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+}
+
+/* Form Validation */
+.text-danger {
+    color: var(--color-danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+/* Utility Classes */
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+.mb-3 { margin-bottom: 1rem; }
+.ms-4 { margin-left: 1.5rem; }
+.d-flex { display: flex; }
+.d-block { display: block; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+.required { color: var(--color-danger); }
+
+/* Responsive Adjustments */
+@@media (max-width: 992px) {
+    .user-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .user-stats {
+        align-self: flex-start;
+        margin-top: 1rem;
+    }
+    
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .permission-groups {
+        grid-template-columns: 1fr;
+    }
+    
+    .password-fields {
+        grid-template-columns: 1fr;
     }
 }
+
+@@media (max-width: 768px) {
+    .form-tab {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-tab i {
+        margin-right: 0.25rem;
+    }
+    
+    .danger-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .danger-info {
+        padding-right: 0;
+    }
+}
+
+@@media (max-width: 576px) {
+    .form-tabs-header {
+        flex-wrap: wrap;
+    }
+    
+    .form-tab {
+        flex: 1 0 100%;
+    }
+    
+    .user-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .form-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-buttons button {
+        width: 100%;
+    }
+}
+    </style>
+}
+    <style>
+        /* User Edit Header */
+        .user-edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: white;
+            margin-right: 1rem;
+            text-transform: uppercase;
+        }
+        
+        .user-avatar.active {
+            background-color: var(--color-primary);
+        }
+        
+        .user-avatar.inactive {
+            background-color: var(--color-secondary);
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .user-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.375rem;
+        }
+        
+        .user-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-gray-800);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--color-gray-500);
+        }
+        
+        /* Form Tabs */
+        .form-tabs {
+            margin-bottom: 2rem;
+        }
+        
+        .form-tabs-header {
+            display: flex;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        
+        .form-tabs-header::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        
+        .form-tab {
+            padding: 1rem 1.5rem;
+            flex: 1;
+            text-align: center;
+            background: none;
+            border: none;
+            color: var(--color-gray-600);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .form-tab i {
+            margin-right: 0.5rem;
+            font-size: 1.125rem;
+        }
+        
+        .form-tab:hover {
+            color: var(--color-gray-900);
+        }
+        
+        .form-tab.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+        
+        .form-tabs-progress {
+            height: 4px;
+            background-color: var(--color-gray-200);
+            margin-top: 1px;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        
+        .form-tabs-progress .progress-bar {
+            height: 100%;
+            background-color: var(--color-primary);
+            border-radius: 100px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Form Sections */
+        .form-sections {
+            position: relative;
+        }
+        
+        .form-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .form-section.active {
+            display: block;
+        }
+        
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        /* Permissions Section */
+        .permissions-section {
+            margin-top: 1.5rem;
+        }
+        
+        .permissions-section h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .permission-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .permission-groups {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .permission-group {
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .permission-group:hover {
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .permission-group-header {
+            background-color: var(--color-gray-50);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .permission-group-header h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--color-gray-700);
+        }
+        
+        .permission-list {
+            padding: 0.5rem 0;
+        }
+        
+        .permission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-100);
+        }
+        
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+        
+        .permission-label {
+            flex: 1;
+            padding-right: 1rem;
+        }
+        
+        .permission-label span {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+            margin-bottom: 0.25rem;
+        }
+        
+        .permission-label small {
+            font-size: 0.75rem;
+        }
+        
+        /* Password Reset Options */
+        .reset-password-options {
+            margin-top: 0.5rem;
+        }
+        
+        .form-check {
+            margin-bottom: 0.5rem;
+        }
+        
+        .password-fields {
+            background-color: var(--color-gray-50);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .password-input-container {
+            position: relative;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            cursor: pointer;
+        }
+        
+        .password-toggle:hover {
+            color: var(--color-gray-700);
+        }
+        
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+        
+        .strength-meter {
+            height: 4px;
+            background-color: var(--color-gray-200);
+            border-radius: 100px;
+            margin-bottom: 0.25rem;
+            overflow: hidden;
+        }
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 100px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-meter-fill[data-strength="0"] {
+    width: 20%;
+    background-color: #dc3545;
+}
+
+.strength-meter-fill[data-strength="1"] {
+    width: 40%;
+    background-color: #ffc107;
+}
+
+.strength-meter-fill[data-strength="2"] {
+    width: 60%;
+    background-color: #fd7e14;
+}
+
+.strength-meter-fill[data-strength="3"] {
+    width: 80%;
+    background-color: #28a745;
+}
+
+.strength-meter-fill[data-strength="4"] {
+    width: 100%;
+    background-color: #20c997;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+.password-match, .password-mismatch {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Danger Zone */
+.danger-zone {
+    background-color: #fff5f5;
+    border: 1px solid #ffe3e3;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.danger-zone-title {
+    background-color: #ffe3e3;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    margin: 0;
+}
+
+.danger-zone-content {
+    padding: 1.25rem;
+}
+
+.danger-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.danger-info {
+    flex: 1;
+    padding-right: 1.5rem;
+}
+
+.danger-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.danger-description {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    overflow: auto;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    position: relative;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    outline: 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-close {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-gray-500);
+    cursor: pointer;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--color-gray-200);
+    gap: 0.75rem;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: flex-start;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 1rem;
+    width: 320px;
+    z-index: 1000;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-notification.success {
+    border-left: 4px solid var(--color-success);
+}
+
+.toast-notification.error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.toast-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.toast-notification.success .toast-icon {
+    color: var(--color-success);
+}
+
+.toast-notification.error .toast-icon {
+    color: var(--color-danger);
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.toast-message {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.75rem;
+}
+
+.toast-close:hover {
+    color: var(--color-gray-700);
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: var(--color-danger);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert i {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+}
+
+/* Form Validation */
+.text-danger {
+    color: var(--color-danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+/* Utility Classes */
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+.mb-3 { margin-bottom: 1rem; }
+.ms-4 { margin-left: 1.5rem; }
+.d-flex { display: flex; }
+.d-block { display: block; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+.required { color: var(--color-danger); }
+
+/* Responsive Adjustments */
+@@media (max-width: 992px) {
+    .user-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .user-stats {
+        align-self: flex-start;
+        margin-top: 1rem;
+    }
+    
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .permission-groups {
+        grid-template-columns: 1fr;
+    }
+    
+    .password-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@media (max-width: 768px) {
+    .form-tab {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-tab i {
+        margin-right: 0.25rem;
+    }
+    
+    .danger-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .danger-info {
+        padding-right: 0;
+    }
+}
+
+@@media (max-width: 576px) {
+    .form-tabs-header {
+        flex-wrap: wrap;
+    }
+    
+    .form-tab {
+        flex: 1 0 100%;
+    }
+    
+    .user-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .form-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-buttons button {
+        width: 100%;
+    }
+}
+.strength-meter-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 100px;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-meter-fill[data-strength="0"] {
+    width: 20%;
+    background-color: #dc3545;
+}
+
+.strength-meter-fill[data-strength="1"] {
+    width: 40%;
+    background-color: #ffc107;
+}
+
+.strength-meter-fill[data-strength="2"] {
+    width: 60%;
+    background-color: #fd7e14;
+}
+
+.strength-meter-fill[data-strength="3"] {
+    width: 80%;
+    background-color: #28a745;
+}
+
+.strength-meter-fill[data-strength="4"] {
+    width: 100%;
+    background-color: #20c997;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+.password-match, .password-mismatch {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+/* Danger Zone */
+.danger-zone {
+    background-color: #fff5f5;
+    border: 1px solid #ffe3e3;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.danger-zone-title {
+    background-color: #ffe3e3;
+    color: var(--color-danger);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    margin: 0;
+}
+
+.danger-zone-content {
+    padding: 1.25rem;
+}
+
+.danger-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.danger-info {
+    flex: 1;
+    padding-right: 1.5rem;
+}
+
+.danger-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.danger-description {
+    font-size: 0.75rem;
+    color: var(--color-gray-600);
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+    overflow: auto;
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 600px;
+    position: relative;
+}
+
+.modal-content {
+    position: relative;
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    outline: 0;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--color-gray-200);
+}
+
+.modal-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-close {
+    padding: 0;
+    background: transparent;
+    border: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--color-gray-500);
+    cursor: pointer;
+}
+
+.modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--color-gray-200);
+    gap: 0.75rem;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: flex-start;
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    padding: 1rem;
+    width: 320px;
+    z-index: 1000;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.toast-notification.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.toast-notification.success {
+    border-left: 4px solid var(--color-success);
+}
+
+.toast-notification.error {
+    border-left: 4px solid var(--color-danger);
+}
+
+.toast-icon {
+    margin-right: 0.75rem;
+    font-size: 1.25rem;
+}
+
+.toast-notification.success .toast-icon {
+    color: var(--color-success);
+}
+
+.toast-notification.error .toast-icon {
+    color: var(--color-danger);
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.toast-message {
+    font-size: 0.875rem;
+    color: var(--color-gray-600);
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    font-size: 1.25rem;
+    color: var(--color-gray-500);
+    cursor: pointer;
+    padding: 0;
+    margin-left: 0.75rem;
+}
+
+.toast-close:hover {
+    color: var(--color-gray-700);
+}
+
+/* Alerts */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: var(--border-radius);
+}
+
+.alert-danger {
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+    color: var(--color-danger);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+}
+
+.alert i {
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+}
+
+/* Form Validation */
+.text-danger {
+    color: var(--color-danger);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.text-success {
+    color: var(--color-success);
+}
+
+/* Utility Classes */
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+.mt-5 { margin-top: 3rem; }
+.mb-3 { margin-bottom: 1rem; }
+.ms-4 { margin-left: 1.5rem; }
+.d-flex { display: flex; }
+.d-block { display: block; }
+.justify-content-between { justify-content: space-between; }
+.align-items-center { align-items: center; }
+.required { color: var(--color-danger); }
+
+/* Responsive Adjustments */
+@@media (max-width: 992px) {
+    .user-edit-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .user-stats {
+        align-self: flex-start;
+        margin-top: 1rem;
+    }
+    
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .permission-groups {
+        grid-template-columns: 1fr;
+    }
+    
+    .password-fields {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@media (max-width: 768px) {
+    .form-tab {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
+    }
+    
+    .form-tab i {
+        margin-right: 0.25rem;
+    }
+    
+    .danger-action {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .danger-info {
+        padding-right: 0;
+    }
+}
+
+@@media (max-width: 576px) {
+    .form-tabs-header {
+        flex-wrap: wrap;
+    }
+    
+    .form-tab {
+        flex: 1 0 100%;
+    }
+    
+    .user-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .form-buttons {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .form-buttons button {
+        width: 100%;
+    }
+}
+// Additional JavaScript for Edit.cshtml to enhance functionality
+
+// Dynamic permission handling based on user actions
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize current permissions based on role
+    initializePermissionsForCurrentRole();
+    
+    // Form validation for password fields
+    const newPasswordField = document.getElementById('newPassword');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+    const saveButton = document.querySelector('button[type="submit"]');
+    
+    // Validate passwords match before submission
+    document.getElementById('userEditForm').addEventListener('submit', function(e) {
+        // Check if we're setting a manual password
+        const passwordOption = document.querySelector('input[name="resetPasswordOption"]:checked').value;
+        if (passwordOption === 'manual') {
+            if (newPasswordField.value !== confirmPasswordField.value) {
+                e.preventDefault();
+                showToast('error', 'Passwords do not match');
+                showTab('account'); // Move back to account tab
+                return false;
+            }
+            
+            // Check password strength
+            const strength = calculatePasswordStrength(newPasswordField.value);
+            if (strength < 2 && newPasswordField.value) {
+                // Confirm if user wants to use a weak password
+                if (!confirm('The password you entered is weak. Are you sure you want to continue?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        }
+    });
+    
+    // Initialize permissions based on current role on page load
+    function initializePermissionsForCurrentRole() {
+        const currentRole = document.getElementById('roleSelect').value;
+        if (currentRole) {
+            // Only auto-set permissions if the form is new/unused
+            const anyPermissionSet = Array.from(document.querySelectorAll('.permission-checkbox'))
+                .some(checkbox => checkbox.checked);
+                
+            if (!anyPermissionSet) {
+                simulateRoleChange(currentRole);
+            }
+        }
+    }
+    
+    function simulateRoleChange(role) {
+        const permissionCheckboxes = document.querySelectorAll('.permission-checkbox');
+        
+        // Reset all permissions first
+        permissionCheckboxes.forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        // Set permissions based on role
+        if (role === 'Administrator') {
+            // Admins get all permissions
+            permissionCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        } else if (role === 'Department Manager') {
+            // Department managers get view permissions and some management permissions
+            permissionCheckboxes.forEach(checkbox => {
+                const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                const viewPermissions = ['0', '1', '3', '7']; // IDs of view permissions
+                const managerPermissions = ['2', '8']; // IDs of additional manager permissions
+                
+                checkbox.checked = viewPermissions.includes(permName) || managerPermissions.includes(permName);
+            });
+        } else if (role === 'Support Agent') {
+            // Support agents get only basic view permissions
+            permissionCheckboxes.forEach(checkbox => {
+                const permName = checkbox.name.split('.')[0].split('[')[1].split(']')[0];
+                const agentPermissions = ['0', '3', '7']; // IDs of agent permissions
+                
+                checkbox.checked = agentPermissions.includes(permName);
+            });
+        }
+    }
+});
