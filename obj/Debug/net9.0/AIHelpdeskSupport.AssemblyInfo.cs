@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AIHelpdeskSupport")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+48b550ad22c4a7ddf566966bf2d71c0cb089439d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc985e39e0c99e43963ea1b64d059bb2c7376fc0")]
 [assembly: System.Reflection.AssemblyProductAttribute("AIHelpdeskSupport")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AIHelpdeskSupport")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
