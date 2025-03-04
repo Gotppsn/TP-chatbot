@@ -19,6 +19,7 @@ namespace AIHelpdeskSupport.Data
         public DbSet<SystemSettings> SystemSettings { get; set; } = null!;
 
         public DbSet<ChatbotKnowledgeBase> ChatbotKnowledgeBases { get; set; } = null!;
+        
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

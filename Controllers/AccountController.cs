@@ -45,32 +45,26 @@ namespace AIHelpdeskSupport.Controllers
 
             if (ModelState.IsValid)
             {
-                // First check if LDAP is enabled in configuration
                 bool ldapEnabled = _configuration.GetValue<bool>("LDAP:Enabled", false);
 
                 if (ldapEnabled)
                 {
-                    // Try LDAP authentication first
                     var ldapUser = await _ldapService.AuthenticateAsync(model.Email, model.Password);
 
                     if (ldapUser != null)
                     {
-                        // User authenticated via LDAP
                         _logger.LogInformation("User authenticated via LDAP: {Email}", model.Email);
-
-                        // Check if the user exists in our database
                         var existingUser = await _userManager.FindByNameAsync(ldapUser.UserName);
 
                         if (existingUser == null)
                         {
-                            // Create new user with LDAP info
                             ldapUser.EmailConfirmed = true;
                             ldapUser.IsActive = true;
+                            ldapUser.LastLoginAt = DateTime.Now;
 
                             var createResult = await _userManager.CreateAsync(ldapUser);
                             if (createResult.Succeeded)
                             {
-                                // Assign default User role
                                 await _userManager.AddToRoleAsync(ldapUser, "User");
                                 await _userManager.AddClaimAsync(ldapUser, new Claim("Department", ldapUser.Department));
                                 existingUser = ldapUser;
@@ -86,15 +80,14 @@ namespace AIHelpdeskSupport.Controllers
                         }
                         else
                         {
-                            // Update existing user info from LDAP
                             existingUser.Email = ldapUser.Email;
                             existingUser.FirstName = ldapUser.FirstName;
                             existingUser.LastName = ldapUser.LastName;
                             existingUser.Department = ldapUser.Department;
+                            existingUser.LastLoginAt = DateTime.Now;
 
                             await _userManager.UpdateAsync(existingUser);
 
-                            // Update department claim
                             var claims = await _userManager.GetClaimsAsync(existingUser);
                             var deptClaim = claims.FirstOrDefault(c => c.Type == "Department");
                             if (deptClaim != null)
@@ -104,10 +97,8 @@ namespace AIHelpdeskSupport.Controllers
                             await _userManager.AddClaimAsync(existingUser, new Claim("Department", existingUser.Department));
                         }
 
-                        // Sign in the user
                         await _signInManager.SignInAsync(existingUser, model.RememberMe);
 
-                        // Determine redirect based on user role
                         var roles = await _userManager.GetRolesAsync(existingUser);
                         if (roles.Contains("Admin"))
                         {
@@ -120,7 +111,6 @@ namespace AIHelpdeskSupport.Controllers
                     }
                 }
 
-                // Fall back to regular Identity login
                 var userName = model.Email;
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null)
@@ -140,16 +130,11 @@ namespace AIHelpdeskSupport.Controllers
                     {
                         _logger.LogInformation("User logged in: {Email}", model.Email);
 
-                        user.LastLoginAt = DateTime.UtcNow;
+                        user.LastLoginAt = DateTime.Now;
                         await _userManager.UpdateAsync(user);
 
-                        var dbContext = HttpContext.RequestServices.GetRequiredService<ApplicationDbContext>();
-                        await dbContext.SaveChangesAsync();
-
-                        // Sign in user
                         await _signInManager.SignInAsync(user, model.RememberMe);
 
-                        // Determine redirect based on user role
                         var roles = await _userManager.GetRolesAsync(user);
                         if (roles.Contains("Admin"))
                         {
