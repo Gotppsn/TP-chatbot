@@ -27,7 +27,7 @@ namespace AIHelpdeskSupport.Models
         public bool RememberSessions { get; set; } = true;
         public string Theme { get; set; } = "light";
         public string AccentColor { get; set; } = "#0d6efd";
-        public string FlowiseApiUrl { get; set; }
+        public string FlowiseApiUrl { get; set; } = string.Empty;
         public string FlowiseApiKey { get; set; } = string.Empty;
         public string DefaultAiModel { get; set; } = "gpt-3.5-turbo";
         public double DefaultTemperature { get; set; } = 0.7;
@@ -36,6 +36,6 @@ namespace AIHelpdeskSupport.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public string CreatedBy { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
-        public string LastUpdatedBy { get; set; }
+        public string LastUpdatedBy { get; set; } = string.Empty;
     }
 }
