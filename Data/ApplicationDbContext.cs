@@ -2,6 +2,7 @@ using AIHelpdeskSupport.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace AIHelpdeskSupport.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
