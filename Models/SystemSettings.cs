@@ -28,7 +28,7 @@ namespace AIHelpdeskSupport.Models
         public string Theme { get; set; } = "light";
         public string AccentColor { get; set; } = "#0d6efd";
         public string FlowiseApiUrl { get; set; }
-        public string FlowiseApiKey { get; set; }
+        public string FlowiseApiKey { get; set; } = string.Empty;
         public string DefaultAiModel { get; set; } = "gpt-3.5-turbo";
         public double DefaultTemperature { get; set; } = 0.7;
         public int DefaultMaxTokens { get; set; } = 1024;

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AIHelpdeskSupport.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250228070250_Ldapuser")]
-    partial class Ldapuser
+    [Migration("20250304073505_AllowNullFlowiseApiKey")]
+    partial class AllowNullFlowiseApiKey
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,9 @@ namespace AIHelpdeskSupport.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Department")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -54,6 +57,9 @@ namespace AIHelpdeskSupport.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -109,6 +115,71 @@ namespace AIHelpdeskSupport.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsUser")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("ChatMessages");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatSession", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ChatbotId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Feedback")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatbotId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ChatSessions");
+                });
+
             modelBuilder.Entity("AIHelpdeskSupport.Models.Chatbot", b =>
                 {
                     b.Property<int>("Id")
@@ -152,6 +223,28 @@ namespace AIHelpdeskSupport.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Chatbots");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatbotKnowledgeBase", b =>
+                {
+                    b.Property<int>("ChatbotId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("KnowledgeBaseId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("AssignedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ChatbotId", "KnowledgeBaseId");
+
+                    b.HasIndex("KnowledgeBaseId");
+
+                    b.ToTable("ChatbotKnowledgeBases");
                 });
 
             modelBuilder.Entity("AIHelpdeskSupport.Models.KnowledgeBase", b =>
@@ -250,6 +343,101 @@ namespace AIHelpdeskSupport.Migrations
                     b.HasIndex("KnowledgeBaseId");
 
                     b.ToTable("KnowledgeDocuments");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.SystemSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AccentColor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DateFormat")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultAiModel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DefaultLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DefaultMaxTokens")
+                        .HasColumnType("int");
+
+                    b.Property<double>("DefaultTemperature")
+                        .HasColumnType("float");
+
+                    b.Property<string>("FlowiseApiKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FlowiseApiUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastUpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastUpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OrganizationName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("RememberSessions")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SessionTimeout")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SupportEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemSettings");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.UserPermission", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PermissionName")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsGranted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("UserId", "PermissionName");
+
+                    b.ToTable("UserPermissions");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -385,6 +573,53 @@ namespace AIHelpdeskSupport.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatMessage", b =>
+                {
+                    b.HasOne("AIHelpdeskSupport.Models.ChatSession", "Session")
+                        .WithMany("Messages")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatSession", b =>
+                {
+                    b.HasOne("AIHelpdeskSupport.Models.Chatbot", "Chatbot")
+                        .WithMany()
+                        .HasForeignKey("ChatbotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AIHelpdeskSupport.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Chatbot");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatbotKnowledgeBase", b =>
+                {
+                    b.HasOne("AIHelpdeskSupport.Models.Chatbot", "Chatbot")
+                        .WithMany("KnowledgeBases")
+                        .HasForeignKey("ChatbotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AIHelpdeskSupport.Models.KnowledgeBase", "KnowledgeBase")
+                        .WithMany("Chatbots")
+                        .HasForeignKey("KnowledgeBaseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chatbot");
+
+                    b.Navigation("KnowledgeBase");
+                });
+
             modelBuilder.Entity("AIHelpdeskSupport.Models.KnowledgeDocument", b =>
                 {
                     b.HasOne("AIHelpdeskSupport.Models.KnowledgeBase", "KnowledgeBase")
@@ -394,6 +629,17 @@ namespace AIHelpdeskSupport.Migrations
                         .IsRequired();
 
                     b.Navigation("KnowledgeBase");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.UserPermission", b =>
+                {
+                    b.HasOne("AIHelpdeskSupport.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -447,8 +693,20 @@ namespace AIHelpdeskSupport.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("AIHelpdeskSupport.Models.ChatSession", b =>
+                {
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("AIHelpdeskSupport.Models.Chatbot", b =>
+                {
+                    b.Navigation("KnowledgeBases");
+                });
+
             modelBuilder.Entity("AIHelpdeskSupport.Models.KnowledgeBase", b =>
                 {
+                    b.Navigation("Chatbots");
+
                     b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618

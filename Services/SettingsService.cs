@@ -36,11 +36,14 @@ namespace AIHelpdeskSupport.Services
 
             if (existingSettings == null)
             {
+                // Ensure FlowiseApiKey is not null when creating new settings
+                settings.FlowiseApiKey = settings.FlowiseApiKey ?? string.Empty;
                 settings.CreatedBy = userId;
                 _context.SystemSettings.Add(settings);
             }
             else
             {
+                // When updating existing settings, don't set FlowiseApiKey to null
                 existingSettings.OrganizationName = settings.OrganizationName;
                 existingSettings.SupportEmail = settings.SupportEmail;
                 existingSettings.DefaultLanguage = settings.DefaultLanguage;
@@ -51,7 +54,10 @@ namespace AIHelpdeskSupport.Services
                 existingSettings.Theme = settings.Theme;
                 existingSettings.AccentColor = settings.AccentColor;
                 existingSettings.FlowiseApiUrl = settings.FlowiseApiUrl;
-                existingSettings.FlowiseApiKey = settings.FlowiseApiKey;
+
+                // Set to empty string instead of null
+                existingSettings.FlowiseApiKey = settings.FlowiseApiKey ?? existingSettings.FlowiseApiKey ?? string.Empty;
+
                 existingSettings.DefaultAiModel = settings.DefaultAiModel;
                 existingSettings.DefaultTemperature = settings.DefaultTemperature;
                 existingSettings.DefaultMaxTokens = settings.DefaultMaxTokens;
