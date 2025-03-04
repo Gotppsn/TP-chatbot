@@ -5,7 +5,8 @@ namespace AIHelpdeskSupport.Services
 {
     public interface ISettingsService
     {
-        Task<SystemSettings> GetSettingsAsync();
+        Task<SystemSettings> GetSettingsAsync(string userId = null);
         Task UpdateSettingsAsync(SystemSettings settings, string userId);
+        
     }
 }

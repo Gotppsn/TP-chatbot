@@ -23,7 +23,8 @@ namespace AIHelpdeskSupport.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var settings = await _settingsService.GetSettingsAsync();
+            var userId = _userManager.GetUserId(User);
+            var settings = await _settingsService.GetSettingsAsync(userId);
             return View(settings);
         }
 
