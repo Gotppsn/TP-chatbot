@@ -10,19 +10,19 @@
     </div>
     <div class="page-actions">
         <div class="dropdown me-2">
-            <button class="btn btn-outline dropdown-toggle" id="filterDropdown" aria-expanded="false">
+            <button class="btn btn-outline dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="bi bi-funnel"></i>
                 <span>Filter</span>
             </button>
-            <div class="dropdown-menu" aria-labelledby="filterDropdown">
-                <a class="dropdown-item active" href="#" data-filter="all">All Users</a>
-                <a class="dropdown-item" href="#" data-filter="active">Active Only</a>
-                <a class="dropdown-item" href="#" data-filter="inactive">Inactive Only</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#" data-filter="admin">Administrators</a>
-                <a class="dropdown-item" href="#" data-filter="manager">Department Managers</a>
-                <a class="dropdown-item" href="#" data-filter="agent">Support Agents</a>
-            </div>
+            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item active" href="#" data-filter="all">All Users</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="active">Active Only</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="inactive">Inactive Only</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-filter="admin">Administrators</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="manager">Department Managers</a></li>
+                <li><a class="dropdown-item" href="#" data-filter="agent">Support Agents</a></li>
+            </ul>
         </div>
     </div>
 </div>
@@ -50,12 +50,12 @@
         <div class="users-grid" id="usersGridView">
             @foreach (var user in Model)
             {
-                <div class="user-card animate-card" data-user-id="@user.Id"
+                <div class="user-card" data-user-id="@user.Id"
                     data-status="@(user.IsActive ? "active" : "inactive")"
                     data-role="@user.Role.ToLower().Replace(" ", "-")">
                     <div class="user-card-header">
                         <div class="user-avatar @(user.IsActive ? "active" : "inactive")">
-                            @user.FirstName[0]@user.LastName[0]
+                            @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
                         </div>
                         <div class="user-status @(user.IsActive ? "active" : "inactive")">
                             @(user.IsActive ? "Active" : "Inactive")
@@ -69,7 +69,7 @@
                         <div class="user-details">
                             <div class="user-detail">
                                 <div class="detail-label">Department</div>
-                                <div class="detail-value">@user.Department</div>
+                                <div class="detail-value">@(string.IsNullOrEmpty(user.Department) ? "Not Assigned" : user.Department)</div>
                             </div>
                             <div class="user-detail">
                                 <div class="detail-label">Role</div>
@@ -104,26 +104,32 @@
                             <span>Edit</span>
                         </a>
                         <div class="dropdown ms-auto">
-                            <button class="btn btn-sm btn-icon dropdown-toggle" aria-label="More options">
+                            <button class="btn btn-sm btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="/Users/Details/@user.Id">
-                                    <i class="bi bi-info-circle me-2"></i> View Details
-                                </a>
-                                <button class="dropdown-item" onclick="resetPassword('@user.Id')">
-                                    <i class="bi bi-key me-2"></i> Reset Password
-                                </button>
-                                <div class="dropdown-divider"></div>
-                                <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit"
-                                        class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                        <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                        @(user.IsActive ? "Deactivate" : "Activate")
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="/Users/Details/@user.Id">
+                                        <i class="bi bi-info-circle me-2"></i> View Details
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
+                                        <i class="bi bi-key me-2"></i> Reset Password
                                     </button>
-                                </form>
-                            </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline toggle-status-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit"
+                                            class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                            <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                            @(user.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -152,7 +158,7 @@
                             <td>
                                 <div class="d-flex align-items-center">
                                     <div class="list-avatar @(user.IsActive ? "active" : "inactive")">
-                                        @user.FirstName[0]@user.LastName[0]
+                                        @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
                                     </div>
                                     <div class="list-user-info">
                                         <div class="list-user-name">@user.FullName</div>
@@ -160,7 +166,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>@user.Department</td>
+                            <td>@(string.IsNullOrEmpty(user.Department) ? "Not Assigned" : user.Department)</td>
                             <td>@user.Role</td>
                             <td>@user.CreatedAt.ToString("MMM d, yyyy")</td>
                             <td>
@@ -184,26 +190,32 @@
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                     <div class="dropdown">
-                                        <button class="btn-icon dropdown-toggle" aria-label="More options">
+                                        <button class="btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" href="/Users/Details/@user.Id">
-                                                <i class="bi bi-info-circle me-2"></i> View Details
-                                            </a>
-                                            <button class="dropdown-item" onclick="resetPassword('@user.Id')">
-                                                <i class="bi bi-key me-2"></i> Reset Password
-                                            </button>
-                                            <div class="dropdown-divider"></div>
-                                            <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit"
-                                                    class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                                    <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                                    @(user.IsActive ? "Deactivate" : "Activate")
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li>
+                                                <a class="dropdown-item" href="/Users/Details/@user.Id">
+                                                    <i class="bi bi-info-circle me-2"></i> View Details
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
+                                                    <i class="bi bi-key me-2"></i> Reset Password
                                                 </button>
-                                            </form>
-                                        </div>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form action="/Users/ToggleStatus/@user.Id" method="post" class="toggle-status-form">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit"
+                                                        class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                                        <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                                        @(user.IsActive ? "Deactivate" : "Activate")
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
                                 </div>
                             </td>
@@ -220,7 +232,7 @@
             </div>
             <h3 class="empty-state-title">No users found</h3>
             <p class="empty-state-message">No users match your current search or filter criteria.</p>
-            <button class="btn btn-outline-primary" onclick="resetFilters()">
+            <button class="btn btn-outline-primary" id="resetFiltersBtn">
                 <i class="bi bi-arrow-counterclockwise"></i>
                 <span>Reset Filters</span>
             </button>
@@ -228,35 +240,28 @@
     </div>
 </div>
 
+<!-- Toast container for notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize view toggle
+            // Elements
             const gridView = document.getElementById('gridView');
             const listView = document.getElementById('listView');
             const usersGridView = document.getElementById('usersGridView');
             const usersListView = document.getElementById('usersListView');
             const emptyState = document.getElementById('emptyState');
+            const userSearch = document.getElementById('userSearch');
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            const filterItems = document.querySelectorAll('[data-filter]');
+            const filterDropdownButton = document.querySelector('#filterDropdown span');
+            const resetPasswordBtns = document.querySelectorAll('.reset-password-btn');
+            
+            // Store the active filter
+            let activeFilter = 'all';
 
             // View toggle functionality
-            gridView.addEventListener('click', function () {
-                setActiveView('grid');
-                localStorage.setItem('userViewPreference', 'grid');
-            });
-
-            listView.addEventListener('click', function () {
-                setActiveView('list');
-                localStorage.setItem('userViewPreference', 'list');
-            });
-
-            // Load user preference for view
-            const viewPreference = localStorage.getItem('userViewPreference');
-            if (viewPreference === 'list') {
-                setActiveView('list');
-            } else {
-                setActiveView('grid');
-            }
-
             function setActiveView(view) {
                 if (view === 'list') {
                     listView.classList.add('active');
@@ -273,72 +278,35 @@
                     usersGridView.style.display = 'grid';
                     usersListView.style.display = 'none';
                 }
-
                 updateEmptyState();
             }
 
-            // Search functionality
-            const userSearch = document.getElementById('userSearch');
-            let activeFilter = 'all';
-
-            userSearch.addEventListener('input', function () {
-                filterUsers();
+            gridView.addEventListener('click', function() {
+                setActiveView('grid');
+                localStorage.setItem('userViewPreference', 'grid');
             });
 
-            // Filter dropdown functionality
-            document.querySelectorAll('[data-filter]').forEach(item => {
-                item.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    // Update active filter
-                    activeFilter = this.dataset.filter;
-
-                    // Update UI
-                    document.querySelectorAll('[data-filter]').forEach(el => {
-                        el.classList.remove('active');
-                    });
-                    this.classList.add('active');
-
-                    // Update dropdown button text
-                    const dropdownButton = document.querySelector('#filterDropdown span');
-                    dropdownButton.textContent = this.textContent;
-
-                    // Apply filter
-                    filterUsers();
-
-                    // Close dropdown
-                    const dropdown = document.querySelector('#filterDropdown + .dropdown-menu');
-                    dropdown.classList.remove('show');
-                });
+            listView.addEventListener('click', function() {
+                setActiveView('list');
+                localStorage.setItem('userViewPreference', 'list');
             });
 
+            // Load user preference for view
+            const viewPreference = localStorage.getItem('userViewPreference');
+            if (viewPreference === 'list') {
+                setActiveView('list');
+            } else {
+                setActiveView('grid');
+            }
+
+            // Filter and search functionality
             function filterUsers() {
                 const searchTerm = userSearch.value.toLowerCase();
                 let visibleCount = 0;
 
-                // Helper to check if user matches current filters
-                function userMatchesFilters(userElement) {
-                    // Status filter
-                    if (activeFilter === 'active' && userElement.dataset.status !== 'active') return false;
-                    if (activeFilter === 'inactive' && userElement.dataset.status !== 'inactive') return false;
-
-                    // Role filter
-                    if (activeFilter === 'admin' && !userElement.dataset.role.includes('administrator')) return false;
-                    if (activeFilter === 'manager' && !userElement.dataset.role.includes('manager')) return false;
-                    if (activeFilter === 'agent' && !userElement.dataset.role.includes('agent')) return false;
-
-                    // Search term
-                    if (searchTerm) {
-                        const userCard = userElement.cloneNode(true);
-                        return userCard.textContent.toLowerCase().includes(searchTerm);
-                    }
-
-                    return true;
-                }
-
-                // Filter grid view
+                // Process grid items
                 document.querySelectorAll('#usersGridView .user-card').forEach(card => {
-                    if (userMatchesFilters(card)) {
+                    if (userMatchesFilters(card, searchTerm, activeFilter)) {
                         card.style.display = 'flex';
                         visibleCount++;
                     } else {
@@ -346,9 +314,9 @@
                     }
                 });
 
-                // Filter list view
+                // Process list items
                 document.querySelectorAll('#usersListView tbody tr').forEach(row => {
-                    if (userMatchesFilters(row)) {
+                    if (userMatchesFilters(row, searchTerm, activeFilter)) {
                         row.style.display = '';
                         visibleCount++;
                     } else {
@@ -356,18 +324,33 @@
                     }
                 });
 
-                // Show/hide empty state
+                // Update empty state visibility
                 updateEmptyState(visibleCount === 0);
+            }
+
+            function userMatchesFilters(element, searchTerm, filter) {
+                // Status filter
+                if (filter === 'active' && element.dataset.status !== 'active') return false;
+                if (filter === 'inactive' && element.dataset.status !== 'inactive') return false;
+
+                // Role filter
+                if (filter === 'admin' && !element.dataset.role.includes('administrator')) return false;
+                if (filter === 'manager' && !element.dataset.role.includes('manager')) return false;
+                if (filter === 'agent' && !element.dataset.role.includes('agent')) return false;
+
+                // Search term
+                if (searchTerm) {
+                    return element.textContent.toLowerCase().includes(searchTerm);
+                }
+
+                return true;
             }
 
             function updateEmptyState(isEmpty = false) {
                 if (isEmpty) {
                     emptyState.style.display = 'flex';
-                    if (gridView.classList.contains('active')) {
-                        usersGridView.classList.add('empty-results');
-                    } else {
-                        usersListView.classList.add('empty-results');
-                    }
+                    usersGridView.classList.add('empty-results');
+                    usersListView.classList.add('empty-results');
                 } else {
                     emptyState.style.display = 'none';
                     usersGridView.classList.remove('empty-results');
@@ -375,118 +358,135 @@
                 }
             }
 
-            // Handle dropdown toggling
-            document.addEventListener('click', function (e) {
-                const dropdownToggle = e.target.closest('.dropdown-toggle');
-                if (dropdownToggle) {
-                    const dropdownMenu = dropdownToggle.nextElementSibling;
-                    dropdownMenu.classList.toggle('show');
-                    e.stopPropagation();
-                } else if (!e.target.closest('.dropdown-menu')) {
-                    // Close all dropdowns when clicking outside
-                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
-                        menu.classList.remove('show');
-                    });
-                }
-            });
+            // Search input event
+            userSearch.addEventListener('input', filterUsers);
 
-            // Prevent dropdown menu close when clicking inside it
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                menu.addEventListener('click', function (e) {
-                    if (e.target.tagName !== 'A' && !e.target.closest('form')) {
-                        e.stopPropagation();
-                    }
+            // Filter dropdown functionality
+            filterItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active filter
+                    activeFilter = this.dataset.filter;
+                    
+                    // Update UI
+                    filterItems.forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Update dropdown button text
+                    filterDropdownButton.textContent = this.textContent;
+                    
+                    // Apply filter
+                    filterUsers();
                 });
             });
-        });
 
-        // Reset filters function
-        function resetFilters() {
-            const userSearch = document.getElementById('userSearch');
-            userSearch.value = '';
-            
-            // Update active filter
-            window.activeFilter = 'all';
-
-            // Update dropdown button text
-            const dropdownButton = document.querySelector('#filterDropdown span');
-            dropdownButton.textContent = 'Filter';
-
-            // Update active state in dropdown
-            document.querySelectorAll('[data-filter]').forEach(el => {
-                el.classList.remove('active');
-                if (el.dataset.filter === 'all') {
-                    el.classList.add('active');
-                }
+            // Reset filters button
+            resetFiltersBtn.addEventListener('click', function() {
+                resetFilters();
             });
 
-            // Apply filters
-            const event = new Event('input');
-            userSearch.dispatchEvent(event);
-        }
+            function resetFilters() {
+                // Reset search input
+                userSearch.value = '';
+                
+                // Reset active filter
+                activeFilter = 'all';
+                
+                // Update dropdown button text
+                filterDropdownButton.textContent = 'Filter';
+                
+                // Update active state in dropdown
+                filterItems.forEach(el => {
+                    el.classList.remove('active');
+                    if (el.dataset.filter === 'all') {
+                        el.classList.add('active');
+                    }
+                });
+                
+                // Apply filters
+                filterUsers();
+            }
 
-        // Reset password function
-        function resetPassword(userId) {
-            fetch(`/Users/ResetPassword/${userId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                }
-            })
-            .then(response => {
-                if (response.ok) {
+            // Reset password functionality
+            resetPasswordBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    resetPassword(userId);
+                });
+            });
+
+            function resetPassword(userId) {
+                // Get the token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                
+                // Send request
+                fetch(`/Users/ResetPassword/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Error resetting password');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
                     showToast('success', 'Password reset email has been sent!');
-                } else {
-                    return response.json().then(data => {
-                        throw new Error(data.message || 'Error resetting password');
-                    });
-                }
-            })
-            .catch(error => {
-                showToast('error', error.message);
-            });
-        }
+                })
+                .catch(error => {
+                    showToast('error', error.message || 'Failed to reset password');
+                });
+            }
 
-        // Toast notification function
-        function showToast(type, message) {
-            const toast = document.createElement('div');
-            toast.className = `toast-notification ${type}`;
-
-            const icon = type === 'success'
-                ? '<i class="bi bi-check-circle"></i>'
-                : '<i class="bi bi-exclamation-circle"></i>';
-
-            toast.innerHTML = `
-                <div class="toast-icon">${icon}</div>
-                <div class="toast-content">
-                    <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" aria-label="Close notification">
-                    <i class="bi bi-x"></i>
-                </button>
-            `;
-
-            document.body.appendChild(toast);
-            setTimeout(() => { toast.classList.add('show'); }, 100);
-
-            const hideTimeout = setTimeout(() => {
-                hideToast(toast);
-            }, 5000);
-
-            toast.querySelector('.toast-close').addEventListener('click', function() {
-                clearTimeout(hideTimeout);
-                hideToast(toast);
-            });
-        }
-
-        function hideToast(toast) {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode) document.body.removeChild(toast);
-            }, 300);
-        }
+            // Toast notification function
+            function showToast(type, message) {
+                const toastContainer = document.querySelector('.toast-container');
+                
+                const toastEl = document.createElement('div');
+                toastEl.className = `toast ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`;
+                toastEl.setAttribute('role', 'alert');
+                toastEl.setAttribute('aria-live', 'assertive');
+                toastEl.setAttribute('aria-atomic', 'true');
+                
+                const icon = type === 'success' 
+                    ? '<i class="bi bi-check-circle me-2"></i>' 
+                    : '<i class="bi bi-exclamation-circle me-2"></i>';
+                
+                toastEl.innerHTML = `
+                    <div class="toast-header">
+                        ${icon}
+                        <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                `;
+                
+                toastContainer.appendChild(toastEl);
+                
+                // Use Bootstrap 5 Toast API
+                const toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000
+                });
+                
+                toast.show();
+                
+                // Remove from DOM after hidden
+                toastEl.addEventListener('hidden.bs.toast', function() {
+                    toastContainer.removeChild(toastEl);
+                });
+            }
+        });
     </script>
 }
 
@@ -514,10 +514,6 @@
             --color-gray-700: #495057;
             --color-gray-800: #343a40;
             --color-gray-900: #212529;
-            --color-primary: #0d6efd;
-            --color-secondary: #6c757d;
-            --color-success: #198754;
-            --color-danger: #dc3545;
             --border-radius: 0.375rem;
             --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
@@ -642,7 +638,7 @@
         }
 
         .users-grid.empty-results {
-            display: block;
+            display: none;
         }
 
         .user-card {
@@ -924,180 +920,6 @@
             max-width: 400px;
         }
 
-        /* Toast Notification */
-        .toast-notification {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            display: flex;
-            align-items: flex-start;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            width: 320px;
-            z-index: 1060;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast-notification.success {
-            border-left: 4px solid var(--success-color);
-        }
-
-        .toast-notification.error {
-            border-left: 4px solid var(--danger-color);
-        }
-
-        .toast-icon {
-            margin-right: 0.75rem;
-            font-size: 1.25rem;
-        }
-
-        .toast-notification.success .toast-icon {
-            color: var(--success-color);
-        }
-
-        .toast-notification.error .toast-icon {
-            color: var(--danger-color);
-        }
-
-        .toast-content {
-            flex: 1;
-        }
-
-        .toast-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            color: var(--color-gray-800);
-        }
-
-        .toast-message {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-        }
-
-        .toast-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: var(--color-gray-500);
-            cursor: pointer;
-            padding: 0;
-            margin-left: 0.75rem;
-            transition: color 0.15s ease;
-        }
-
-        .toast-close:hover {
-            color: var(--color-gray-700);
-        }
-
-        /* Dropdown Styles */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .dropdown-toggle::after {
-            display: inline-block;
-            margin-left: 0.255em;
-            vertical-align: 0.255em;
-            content: "";
-            border-top: 0.3em solid;
-            border-right: 0.3em solid transparent;
-            border-bottom: 0;
-            border-left: 0.3em solid transparent;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            right: 0;
-            z-index: 1000;
-            display: none;
-            min-width: 10rem;
-            padding: 0.5rem 0;
-            margin: 0.125rem 0 0;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
-            text-align: left;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid var(--color-gray-200);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-        }
-
-        .dropdown-menu.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .dropdown-menu-end {
-            right: 0;
-            left: auto;
-        }
-
-        .dropdown-item {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 1rem;
-            clear: both;
-            font-weight: 400;
-            color: var(--color-gray-700);
-            text-align: inherit;
-            white-space: nowrap;
-            background-color: transparent;
-            border: 0;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover, .dropdown-item:focus {
-            color: var(--color-gray-900);
-            background-color: var(--color-gray-100);
-            text-decoration: none;
-        }
-
-        .dropdown-item.active {
-            color: #fff;
-            background-color: var(--primary-color);
-        }
-
-        .dropdown-divider {
-            height: 0;
-            margin: 0.5rem 0;
-            overflow: hidden;
-            border-top: 1px solid var(--color-gray-200);
-        }
-
-        /* Badge Styles */
-        .badge {
-            display: inline-block;
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
-            font-weight: 500;
-            line-height: 1;
-            color: #fff;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 0.25rem;
-        }
-
-        .bg-success {
-            background-color: var(--success-color);
-        }
-
-        .bg-secondary {
-            background-color: var(--secondary-color);
-        }
-
         /* Button Styles */
         .btn {
             display: inline-flex;
@@ -1180,63 +1002,6 @@
             background-color: rgba(13, 110, 253, 0.1);
         }
 
-        /* Helper Classes */
-        .required {
-            color: var(--danger-color);
-        }
-
-        .mb-3 {
-            margin-bottom: 1rem !important;
-        }
-
-        .me-2 {
-            margin-right: 0.5rem !important;
-        }
-
-        .me-3 {
-            margin-right: 1rem !important;
-        }
-
-        .ms-auto {
-            margin-left: auto !important;
-        }
-
-        .mt-1 {
-            margin-top: 0.25rem !important;
-        }
-
-        .mt-2 {
-            margin-top: 0.5rem !important;
-        }
-
-        .d-flex {
-            display: flex !important;
-        }
-
-        .d-inline {
-            display: inline !important;
-        }
-
-        .d-none {
-            display: none !important;
-        }
-
-        .align-items-center {
-            align-items: center !important;
-        }
-
-        .text-danger {
-            color: var(--danger-color) !important;
-        }
-
-        .text-success {
-            color: var(--success-color) !important;
-        }
-
-        .text-warning {
-            color: var(--warning-color) !important;
-        }
-
         /* Responsive Adjustments */
         @@media (max-width: 1200px) {
             .users-grid {
@@ -1292,17 +1057,30 @@
                 flex-direction: column;
                 align-items: flex-end;
             }
+
+            .table th:nth-child(2),
+            .table th:nth-child(3),
+            .table th:nth-child(4),
+            .table td:nth-child(2),
+            .table td:nth-child(3),
+            .table td:nth-child(4) {
+                display: none;
+            }
         }
 
         @@media (max-width: 576px) {
-            .row {
-                margin-right: -0.5rem;
-                margin-left: -0.5rem;
+            .card-header-actions {
+                flex-direction: column;
+                width: 100%;
             }
 
-            .col-md-6 {
-                padding-right: 0.5rem;
-                padding-left: 0.5rem;
+            .search-box {
+                width: 100%;
+            }
+
+            .view-options {
+                align-self: flex-end;
+                margin-top: -2.5rem;
             }
         }
     </style>
