@@ -4,43 +4,78 @@
 }
 
 <div class="user-edit-container">
-    <!-- Header section -->
-    <div class="content-header d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-1">Edit User</h1>
-            <p class="text-muted">Manage user information, permissions, and settings</p>
+    <!-- Page header with breadcrumb -->
+    <div class="page-header">
+        <div class="breadcrumb-wrapper">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/Users">Users</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit User</li>
+                </ol>
+            </nav>
         </div>
-        <div>
-            <a href="/Users" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i> Back to Users
-            </a>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div>
+                <h1 class="page-title">Edit User Profile</h1>
+                <p class="text-secondary">Update user information, manage permissions and settings</p>
+            </div>
+            <div class="page-actions">
+                <a href="/Users" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back to Users</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    <!-- User profile card -->
-    <div class="card profile-card mb-4">
-        <div class="card-body p-4">
+    <!-- Form validation summary -->
+    @if (!ViewContext.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <div class="d-flex align-items-center">
-                <div class="user-avatar-container me-4">
-                    <div class="user-avatar @(Model.Role.Contains("Admin") ? "bg-danger" : "bg-primary")">
-                        @(string.IsNullOrEmpty(Model.FirstName) || string.IsNullOrEmpty(Model.LastName) ? "U" : $"{Model.FirstName[0]}{Model.LastName[0]}")
-                    </div>
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>
+                    <strong>Please correct the following errors:</strong>
+                    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
                 </div>
-                <div class="user-info flex-grow-1">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h2 class="h4 mb-1">@Model.FullName</h2>
-                            <div class="d-flex gap-2 mt-1">
-                                <span class="badge bg-soft-primary">@Model.Role</span>
-                                <span class="badge bg-soft-secondary">@Model.Department</span>
-                                <span class="badge @(Model.IsActive ? "bg-soft-success" : "bg-soft-danger")">
-                                    @(Model.IsActive ? "Active" : "Inactive")
-                                </span>
-                            </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- User profile card -->
+    <div class="profile-card">
+        <div class="profile-card-content">
+            <div class="profile-avatar">
+                <div class="user-avatar @(Model.Role.Contains("Admin") ? "admin" : Model.Role.Contains("Manager") ? "manager" : "user")">
+                    @(string.IsNullOrEmpty(Model.FirstName) || string.IsNullOrEmpty(Model.LastName) ? "U" : $"{Model.FirstName[0]}{Model.LastName[0]}")
+                </div>
+            </div>
+            <div class="profile-info">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                    <div>
+                        <h2 class="profile-name">@Model.FullName</h2>
+                        <div class="profile-badges">
+                            <span class="badge role-badge">@Model.Role</span>
+                            <span class="badge dept-badge">@Model.Department</span>
+                            <span class="badge @(Model.IsActive ? "status-active" : "status-inactive")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </span>
                         </div>
-                        <div class="user-stats text-end small">
-                            <div class="text-muted mb-1">Created: @Model.CreatedAt.ToString("MMM d, yyyy")</div>
-                            <div class="text-muted">Last Login: @(Model.LastLogin?.ToString("MMM d, yyyy HH:mm") ?? "Never")</div>
+                    </div>
+                    <div class="profile-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-calendar3"></i>
+                            <span>Created: @Model.CreatedAt.ToString("MMM d, yyyy")</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-clock-history"></i>
+                            <span>Last Login: @(Model.LastLogin?.ToString("MMM d, yyyy HH:mm") ?? "Never")</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-envelope"></i>
+                            <span>@Model.Email</span>
                         </div>
                     </div>
                 </div>
@@ -48,79 +83,80 @@
         </div>
     </div>
 
-    <!-- Edit form -->
+    <!-- Edit user form with tabs -->
     <form id="userEditForm" asp-controller="Users" asp-action="Edit" method="post">
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="LastLogin" />
-        
-        <!-- Tabs -->
-        <div class="card mb-4">
-            <div class="card-header p-0">
-                <ul class="nav nav-tabs nav-tabs-modern" id="userEditTabs" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="basic-info-tab" data-bs-toggle="tab" data-bs-target="#basic-info" 
-                                type="button" role="tab" aria-controls="basic-info" aria-selected="true">
-                            <i class="bi bi-person me-2"></i>Basic Info
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions" 
-                                type="button" role="tab" aria-controls="permissions" aria-selected="false">
-                            <i class="bi bi-shield-lock me-2"></i>Permissions
-                        </button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" 
-                                type="button" role="tab" aria-controls="account" aria-selected="false">
-                            <i class="bi bi-gear me-2"></i>Account
-                        </button>
-                    </li>
-                </ul>
+
+        <div class="tab-container">
+            <!-- Tab navigation -->
+            <div class="tab-navigation">
+                <button type="button" class="tab-btn active" data-tab="basic-info">
+                    <i class="bi bi-person"></i>
+                    <span>Basic Info</span>
+                </button>
+                <button type="button" class="tab-btn" data-tab="permissions">
+                    <i class="bi bi-shield-lock"></i>
+                    <span>Permissions</span>
+                </button>
+                <button type="button" class="tab-btn" data-tab="account">
+                    <i class="bi bi-gear"></i>
+                    <span>Account</span>
+                </button>
             </div>
-            <div class="card-body p-4">
-                <div class="tab-content" id="userEditTabsContent">
-                    <!-- Basic Info Tab -->
-                    <div class="tab-pane fade show active" id="basic-info" role="tabpanel" aria-labelledby="basic-info-tab">
-                        <h4 class="mb-4">Personal Information</h4>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input asp-for="FirstName" class="form-control" required placeholder="Enter first name" />
-                                </div>
-                                <span asp-validation-for="FirstName" class="text-danger small"></span>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input asp-for="LastName" class="form-control" required placeholder="Enter last name" />
-                                </div>
-                                <span asp-validation-for="LastName" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email Address <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input asp-for="Email" class="form-control" type="email" required placeholder="name@example.com" />
-                            </div>
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
+
+            <!-- Tab content -->
+            <div class="tab-content">
+                <!-- Basic Info Tab -->
+                <div class="tab-pane active" id="basic-info">
+                    <div class="section-header">
+                        <h3>Personal Information</h3>
+                        <p class="text-secondary">Update user's name and contact details</p>
                     </div>
 
-                    <!-- Permissions Tab -->
-                    <div class="tab-pane fade" id="permissions" role="tabpanel" aria-labelledby="permissions-tab">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h4 class="mb-0">Role & Department</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="form-label">First Name <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-person input-icon"></i>
+                                <input asp-for="FirstName" class="form-control" placeholder="Enter first name" required />
+                            </div>
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
                         </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Department" class="form-label">Department <span class="text-danger">*</span></label>
+
+                        <div class="form-group">
+                            <label asp-for="LastName" class="form-label">Last Name <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-person input-icon"></i>
+                                <input asp-for="LastName" class="form-control" placeholder="Enter last name" required />
+                            </div>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group form-group-full">
+                            <label asp-for="Email" class="form-label">Email Address <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-envelope input-icon"></i>
+                                <input asp-for="Email" class="form-control" type="email" placeholder="email@example.com" required />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Permissions Tab -->
+                <div class="tab-pane" id="permissions">
+                    <div class="section-header">
+                        <h3>Role & Department</h3>
+                        <p class="text-secondary">Assign user role and department</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-building input-icon"></i>
                                 <select asp-for="Department" class="form-select" required>
                                     <option value="">Select Department</option>
                                     <option value="Administration">Administration</option>
@@ -131,215 +167,129 @@
                                     <option value="Technical">Technical</option>
                                     <option value="Operations">Operations</option>
                                 </select>
-                                <span asp-validation-for="Department" class="text-danger small"></span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label asp-for="Role" class="form-label">Role <span class="text-danger">*</span></label>
-                                <select asp-for="Role" class="form-select" required id="roleSelect">
-                                    <option value="">Select Role</option>
-                                    <option value="Administrator">Administrator</option>
-                                    <option value="Department Manager">Department Manager</option>
-                                    <option value="Support Agent">Support Agent</option>
-                                </select>
-                                <span asp-validation-for="Role" class="text-danger small"></span>
-                                <div class="form-text">Role determines the default permission set</div>
-                            </div>
+                            <span asp-validation-for="Department" class="text-danger"></span>
                         </div>
 
-                        <div class="permissions-section mt-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0">Access Permissions</h5>
-                                <div>
-                                    <button type="button" class="btn btn-sm btn-link" id="selectAllPermissions">
-                                        Select All
-                                    </button>
-                                    <span class="text-muted">|</span>
-                                    <button type="button" class="btn btn-sm btn-link" id="clearAllPermissions">
-                                        Clear All
-                                    </button>
-                                </div>
+                        <div class="form-group">
+                            <label asp-for="Role" class="form-label">Role <span class="required">*</span></label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-person-badge input-icon"></i>
+                                <select asp-for="Role" class="form-select" id="roleSelect" required>
+                                    <option value="">Select Role</option>
+                                    <option value="Admin">Administrator</option>
+                                    <option value="Department Manager">Department Manager</option>
+                                    <option value="Support Agent">Support Agent</option>
+                                    <option value="User">Regular User</option>
+                                </select>
                             </div>
-
-                            <div class="row permission-groups">
-                                <!-- Dashboard & Analytics -->
-                                <div class="col-md-4 mb-3">
-                                    <div class="card h-100 permission-card">
-                                        <div class="card-header py-2 px-3">
-                                            <h6 class="mb-0"><i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard & Analytics</h6>
-                                        </div>
-                                        <div class="card-body p-3">
-                                            <div class="permission-list">
-                                                <div class="permission-item mb-2">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" checked class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
-                                                        <label for="perm-dashboard" class="form-check-label">
-                                                            <div>View Dashboard</div>
-                                                            <small class="text-muted">Access to main dashboard and statistics</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="permission-item">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" checked class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
-                                                        <label for="perm-analytics" class="form-check-label">
-                                                            <div>View Analytics</div>
-                                                            <small class="text-muted">Access to advanced analytics and reports</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Chatbots -->
-                                <div class="col-md-4 mb-3">
-                                    <div class="card h-100 permission-card">
-                                        <div class="card-header py-2 px-3">
-                                            <h6 class="mb-0"><i class="bi bi-robot me-2 text-primary"></i>Chatbot Management</h6>
-                                        </div>
-                                        <div class="card-body p-3">
-                                            <div class="permission-list">
-                                                <div class="permission-item mb-2">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-view-chatbots" name="Permissions[2].IsGranted" value="true" checked class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[2].Name" value="ViewChatbots" />
-                                                        <label for="perm-view-chatbots" class="form-check-label">
-                                                            <div>View Chatbots</div>
-                                                            <small class="text-muted">View configuration of all chatbots</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="permission-item">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-manage-chatbots" name="Permissions[3].IsGranted" value="true" class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[3].Name" value="ManageChatbots" />
-                                                        <label for="perm-manage-chatbots" class="form-check-label">
-                                                            <div>Manage Chatbots</div>
-                                                            <small class="text-muted">Create, edit and delete chatbots</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Knowledge Base -->
-                                <div class="col-md-4 mb-3">
-                                    <div class="card h-100 permission-card">
-                                        <div class="card-header py-2 px-3">
-                                            <h6 class="mb-0"><i class="bi bi-journal-text me-2 text-primary"></i>Knowledge Base</h6>
-                                        </div>
-                                        <div class="card-body p-3">
-                                            <div class="permission-list">
-                                                <div class="permission-item mb-2">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-view-kb" name="Permissions[4].IsGranted" value="true" checked class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[4].Name" value="ViewKnowledgeBases" />
-                                                        <label for="perm-view-kb" class="form-check-label">
-                                                            <div>View Knowledge Bases</div>
-                                                            <small class="text-muted">Access knowledge base content</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="permission-item">
-                                                    <div class="form-check">
-                                                        <input type="checkbox" id="perm-manage-kb" name="Permissions[5].IsGranted" value="true" class="form-check-input permission-input" />
-                                                        <input type="hidden" name="Permissions[5].Name" value="ManageKnowledgeBases" />
-                                                        <label for="perm-manage-kb" class="form-check-label">
-                                                            <div>Manage Knowledge Bases</div>
-                                                            <small class="text-muted">Create, edit, and delete knowledge bases</small>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <span asp-validation-for="Role" class="text-danger"></span>
+                            <small class="form-text">Role determines the default permission set</small>
                         </div>
                     </div>
 
-                    <!-- Account Tab -->
-                    <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
-                        <h4 class="mb-4">Account Settings</h4>
-                        
-                        <div class="account-status card mb-4">
-                            <div class="card-body p-3">
-                                <div class="form-check form-switch">
-                                    <input asp-for="IsActive" class="form-check-input" id="accountActiveToggle" />
-                                    <label for="accountActiveToggle" class="form-check-label fw-medium">Account Active</label>
+                    <div class="permissions-section">
+                        <div class="section-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h3>Access Permissions</h3>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-link" id="selectAllPermissions">Select All</button>
+                                    <span class="text-muted px-2">|</span>
+                                    <button type="button" class="btn btn-sm btn-link" id="clearAllPermissions">Clear All</button>
                                 </div>
-                                <p class="text-muted mb-0 small mt-1">@(Model.IsActive ? "User can access the system" : "User account is disabled")</p>
                             </div>
+                            <p class="text-secondary">Configure specific permissions for this user</p>
                         </div>
-                        
-                        <div class="password-section card">
-                            <div class="card-header">
-                                <h5 class="mb-0">Password Management</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="password-options">
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input type="radio" id="resetPassword-no" name="resetPasswordOption" value="no" checked class="form-check-input" />
-                                            <label for="resetPassword-no" class="form-check-label fw-medium">No password reset</label>
-                                            <p class="form-text mb-0">Keep the current password unchanged</p>
+
+                        <div class="permissions-grid">
+                            <!-- Dashboard & Analytics -->
+                            <div class="permission-card">
+                                <div class="permission-card-header">
+                                    <h4><i class="bi bi-speedometer2"></i> Dashboard & Analytics</h4>
+                                </div>
+                                <div class="permission-card-body">
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" checked />
+                                            <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
+                                            <label for="perm-dashboard" class="permission-label">
+                                                <div class="permission-name">View Dashboard</div>
+                                                <small class="permission-desc">Access to main dashboard and statistics</small>
+                                            </label>
                                         </div>
                                     </div>
-                                    
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input type="radio" id="resetPassword-email" name="resetPasswordOption" value="email" class="form-check-input" />
-                                            <label for="resetPassword-email" class="form-check-label fw-medium">Send password reset email</label>
-                                            <p class="form-text mb-0">User will receive email instructions to reset their password</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input type="radio" id="resetPassword-manual" name="resetPasswordOption" value="manual" class="form-check-input" />
-                                            <label for="resetPassword-manual" class="form-check-label fw-medium">Set password manually</label>
-                                            <p class="form-text mb-0">Directly enter a new password for this user</p>
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" checked />
+                                            <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
+                                            <label for="perm-analytics" class="permission-label">
+                                                <div class="permission-name">View Analytics</div>
+                                                <small class="permission-desc">Access to advanced analytics and reports</small>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div id="manualPasswordFields" style="display: none;" class="mt-4">
-                                    <div class="mb-3">
-                                        <label for="newPassword" class="form-label">New Password</label>
-                                        <div class="input-group">
-                                            <input type="password" id="newPassword" name="NewPassword" class="form-control" />
-                                            <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Toggle password visibility">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
-                                        </div>
-                                        <div class="mt-2">
-                                            <div class="progress" style="height: 5px;">
-                                                <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
-                                            </div>
-                                            <div class="d-flex justify-content-end mt-1">
-                                                <small class="text-muted">Password strength: <span id="strengthLabel">Weak</span></small>
-                                            </div>
+                            </div>
+
+                            <!-- Chatbots -->
+                            <div class="permission-card">
+                                <div class="permission-card-header">
+                                    <h4><i class="bi bi-robot"></i> Chatbot Management</h4>
+                                </div>
+                                <div class="permission-card-body">
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-view-chatbots" name="Permissions[2].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" checked />
+                                            <input type="hidden" name="Permissions[2].Name" value="ViewChatbots" />
+                                            <label for="perm-view-chatbots" class="permission-label">
+                                                <div class="permission-name">View Chatbots</div>
+                                                <small class="permission-desc">View configuration of all chatbots</small>
+                                            </label>
                                         </div>
                                     </div>
-                                    
-                                    <div class="mb-3">
-                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                        <div class="input-group">
-                                            <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
-                                            <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Toggle password visibility">
-                                                <i class="bi bi-eye"></i>
-                                            </button>
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-manage-chatbots" name="Permissions[3].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" />
+                                            <input type="hidden" name="Permissions[3].Name" value="ManageChatbots" />
+                                            <label for="perm-manage-chatbots" class="permission-label">
+                                                <div class="permission-name">Manage Chatbots</div>
+                                                <small class="permission-desc">Create, edit and delete chatbots</small>
+                                            </label>
                                         </div>
-                                        <div id="passwordMatch" class="small text-success mt-1" style="display: none;">
-                                            <i class="bi bi-check-circle me-1"></i>Passwords match
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Knowledge Base -->
+                            <div class="permission-card">
+                                <div class="permission-card-header">
+                                    <h4><i class="bi bi-journal-text"></i> Knowledge Base</h4>
+                                </div>
+                                <div class="permission-card-body">
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-view-kb" name="Permissions[4].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" checked />
+                                            <input type="hidden" name="Permissions[4].Name" value="ViewKnowledgeBases" />
+                                            <label for="perm-view-kb" class="permission-label">
+                                                <div class="permission-name">View Knowledge Bases</div>
+                                                <small class="permission-desc">Access knowledge base content</small>
+                                            </label>
                                         </div>
-                                        <div id="passwordMismatch" class="small text-danger mt-1" style="display: none;">
-                                            <i class="bi bi-exclamation-circle me-1"></i>Passwords do not match
+                                    </div>
+                                    <div class="permission-item">
+                                        <div class="form-check permission-check">
+                                            <input type="checkbox" id="perm-manage-kb" name="Permissions[5].IsGranted" value="true" 
+                                                   class="form-check-input permission-input" />
+                                            <input type="hidden" name="Permissions[5].Name" value="ManageKnowledgeBases" />
+                                            <label for="perm-manage-kb" class="permission-label">
+                                                <div class="permission-name">Manage Knowledge Bases</div>
+                                                <small class="permission-desc">Create, edit, and delete knowledge bases</small>
+                                            </label>
                                         </div>
                                     </div>
                                 </div>
@@ -347,53 +297,984 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Account Tab -->
+                <div class="tab-pane" id="account">
+                    <div class="section-header">
+                        <h3>Account Settings</h3>
+                        <p class="text-secondary">Manage account status and password</p>
+                    </div>
+
+                    <div class="account-status-card">
+                        <div class="status-toggle">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" id="accountActiveToggle" />
+                                <label for="accountActiveToggle" class="form-check-label">Account Active</label>
+                            </div>
+                            <p class="status-description">
+                                @(Model.IsActive ? "User can currently access the system" : "User account is currently disabled")
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="password-section">
+                        <div class="section-header">
+                            <h3>Password Management</h3>
+                            <p class="text-secondary">Reset or change user password</p>
+                        </div>
+
+                        <div class="password-options">
+                            <div class="password-option-item">
+                                <div class="form-check">
+                                    <input type="radio" id="resetPassword-no" name="ResetPasswordOption" value="no" 
+                                           checked class="form-check-input" />
+                                    <label for="resetPassword-no" class="form-check-label">
+                                        <div class="option-title">No password reset</div>
+                                        <p class="option-desc">Keep the current password unchanged</p>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="password-option-item">
+                                <div class="form-check">
+                                    <input type="radio" id="resetPassword-email" name="ResetPasswordOption" value="email" 
+                                           class="form-check-input" />
+                                    <label for="resetPassword-email" class="form-check-label">
+                                        <div class="option-title">Send password reset email</div>
+                                        <p class="option-desc">User will receive email instructions to reset their password</p>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="password-option-item">
+                                <div class="form-check">
+                                    <input type="radio" id="resetPassword-manual" name="ResetPasswordOption" value="manual" 
+                                           class="form-check-input" />
+                                    <label for="resetPassword-manual" class="form-check-label">
+                                        <div class="option-title">Set password manually</div>
+                                        <p class="option-desc">Directly enter a new password for this user</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="manualPasswordFields" class="password-fields">
+                            <div class="form-group">
+                                <label for="newPassword" class="form-label">New Password</label>
+                                <div class="input-wrapper password-input">
+                                    <i class="bi bi-key input-icon"></i>
+                                    <input type="password" id="newPassword" name="NewPassword" class="form-control" />
+                                    <button type="button" class="btn password-toggle" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="progress">
+                                        <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <div class="strength-label">
+                                        <span id="strengthLabel">Weak</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <div class="input-wrapper password-input">
+                                    <i class="bi bi-key input-icon"></i>
+                                    <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
+                                    <button type="button" class="btn password-toggle" tabindex="-1">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordMatch" class="password-match">
+                                    <i class="bi bi-check-circle"></i> Passwords match
+                                </div>
+                                <div id="passwordMismatch" class="password-mismatch">
+                                    <i class="bi bi-exclamation-circle"></i> Passwords do not match
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-footer d-flex justify-content-end p-3">
-                <a href="/Users" class="btn btn-outline-secondary me-2">Cancel</a>
+
+            <div class="form-actions">
+                <a href="/Users" class="btn btn-outline-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
     </form>
 
-    <!-- Delete User Section -->
-    <div class="card border-danger mt-4">
-        <div class="card-header bg-danger bg-opacity-10 text-danger">
-            <h4 class="mb-0 fs-5"><i class="bi bi-exclamation-triangle me-2"></i>Delete User</h4>
+    <!-- Delete section -->
+    <div class="delete-section">
+        <div class="delete-section-header">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h3>Delete User</h3>
         </div>
-        <div class="card-body p-4">
-            <p class="text-muted mb-3">Are you sure you want to delete this user? This action <strong>cannot be undone</strong>.</p>
-            <div class="alert alert-warning d-flex align-items-center" role="alert">
-                <i class="bi bi-info-circle-fill me-2 fs-5"></i>
-                <div>To confirm, type <strong>DELETE</strong> in the field below:</div>
-            </div>
+        <div class="delete-section-body">
+            <p>This action <strong>cannot be undone</strong>. This will permanently delete the user account and all associated data.</p>
             
-            <div class="row">
-                <div class="col-md-6">
+            <div class="delete-confirmation">
+                <div class="delete-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <span>To confirm, type <strong>DELETE</strong> in the field below</span>
+                </div>
+                
+                <div class="delete-input-wrapper">
                     <input type="text" id="deleteConfirmInput" class="form-control" placeholder="Type DELETE to confirm">
+                </div>
+                
+                <div class="delete-actions">
+                    <button type="button" id="cancelDeleteBtn" class="btn btn-outline-secondary">Cancel</button>
+                    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return validateDeleteForm()">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" id="confirmDeleteBtn" class="btn btn-danger" disabled>
+                            <i class="bi bi-trash"></i> Delete User
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="card-footer bg-danger bg-opacity-10 d-flex justify-content-end p-3">
-            <button type="button" class="btn btn-outline-secondary me-2" id="cancelDeleteBtn">Cancel</button>
-            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return validateDeleteForm()">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete User</button>
-            </form>
-        </div>
     </div>
 </div>
+
+@section Styles {
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-rgb: 13, 110, 253;
+            --primary-dark: #0a58ca;
+            --primary-light: #e6efff;
+            --secondary: #6c757d;
+            --secondary-rgb: 108, 117, 125;
+            --success: #198754;
+            --success-rgb: 25, 135, 84;
+            --danger: #dc3545;
+            --danger-rgb: 220, 53, 69;
+            --warning: #ffc107;
+            --warning-rgb: 255, 193, 7;
+            --info: #0dcaf0;
+            --info-rgb: 13, 202, 240;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
+            --border-radius: 0.5rem;
+            --border-radius-sm: 0.375rem;
+            --border-radius-lg: 0.75rem;
+            --transition: all 0.2s ease-in-out;
+            --shadow-sm: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
+            --shadow: 0 .5rem 1rem rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 1rem 2rem rgba(0, 0, 0, 0.15);
+            --admin-color: #dc3545;
+            --manager-color: #0dcaf0;
+            --user-color: #6c757d;
+        }
+
+        /* General styles */
+        body {
+            background-color: #f5f8fa;
+            color: var(--gray-700);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .user-edit-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Breadcrumb styling */
+        .breadcrumb-wrapper {
+            padding: 0.5rem 0 1rem;
+        }
+
+        .breadcrumb {
+            padding: 0;
+            margin: 0;
+            background-color: transparent;
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "→";
+            font-size: 0.8rem;
+            color: var(--gray-500);
+        }
+
+        .breadcrumb-item a {
+            color: var(--gray-600);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb-item.active {
+            color: var(--gray-800);
+            font-weight: 500;
+        }
+
+        /* Page header */
+        .page-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin: 0 0 0.25rem;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .text-secondary {
+            color: var(--gray-600) !important;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn i {
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-secondary {
+            background-color: transparent;
+            color: var(--gray-700);
+            border-color: var(--gray-300);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+        }
+
+        .btn-link {
+            background: transparent;
+            border: none;
+            color: var(--primary);
+            padding: 0.25rem 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .btn-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Profile card */
+        .profile-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .profile-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .profile-card-content {
+            display: flex;
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .profile-avatar {
+            flex-shrink: 0;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.75rem;
+            color: white;
+            background-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .user-avatar.admin {
+            background-color: var(--admin-color);
+            box-shadow: 0 0 0 4px rgba(var(--danger-rgb), 0.1);
+        }
+
+        .user-avatar.manager {
+            background-color: var(--manager-color);
+            box-shadow: 0 0 0 4px rgba(var(--info-rgb), 0.1);
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0 0 0.75rem;
+            line-height: 1.2;
+        }
+
+        .profile-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35em 0.65em;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            border-radius: 50rem;
+        }
+
+        .role-badge {
+            background-color: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary);
+        }
+
+        .dept-badge {
+            background-color: rgba(var(--secondary-rgb), 0.1);
+            color: var(--secondary);
+        }
+
+        .status-active {
+            background-color: rgba(var(--success-rgb), 0.1);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: rgba(var(--danger-rgb), 0.1);
+            color: var(--danger);
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .meta-item i {
+            font-size: 0.95rem;
+            color: var(--gray-500);
+        }
+
+        /* Tabs */
+        .tab-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-navigation {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .tab-navigation::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Edge */
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            border: none;
+            background: transparent;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background-color: rgba(var(--primary-rgb), 0.02);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-btn i {
+            font-size: 1.1rem;
+        }
+
+        .tab-content {
+            padding: 2rem;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Section styling */
+        .section-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0 0 0.25rem;
+        }
+
+        /* Form styling */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 0;
+        }
+
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--gray-700);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-500);
+            font-size: 1rem;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            padding: 0.625rem 1rem 0.625rem 2.5rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.95rem;
+            color: var(--gray-700);
+            background-color: white;
+            transition: var(--transition);
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: var(--gray-500);
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-top: 0.375rem;
+        }
+
+        /* Permissions grid */
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .permission-card {
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        .permission-card:hover {
+            border-color: rgba(var(--primary-rgb), 0.3);
+            box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .permission-card-header {
+            padding: 1rem;
+            background-color: rgba(var(--primary-rgb), 0.05);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .permission-card-header h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .permission-card-header h4 i {
+            color: var(--primary);
+        }
+
+        .permission-card-body {
+            padding: 1rem;
+        }
+
+        .permission-item {
+            margin-bottom: 1rem;
+        }
+
+        .permission-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .permission-check {
+            margin: 0;
+        }
+
+        .permission-label {
+            font-weight: normal;
+            cursor: pointer;
+            padding-left: 0.5rem;
+        }
+
+        .permission-name {
+            font-weight: 500;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .permission-desc {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+
+        /* Form check styling */
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .form-check-input {
+            margin-top: 0.25rem;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            margin-left: 0.5rem;
+            cursor: pointer;
+        }
+
+        /* Account status card */
+        .account-status-card {
+            background-color: rgba(var(--primary-rgb), 0.03);
+            border-radius: var(--border-radius-sm);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-switch {
+            padding-left: 2.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-switch .form-check-input {
+            height: 1.5rem;
+            width: 3rem;
+            border-radius: 2rem;
+            margin-left: -2.5rem;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23fff'/%3e%3c/svg%3e");
+            background-color: var(--gray-400);
+            border: none;
+            transition: background-position 0.15s ease-in-out;
+        }
+
+        .form-switch .form-check-input:checked {
+            background-color: var(--success);
+            background-position: right center;
+        }
+
+        .form-switch .form-check-label {
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+
+        .status-description {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        /* Password section */
+        .password-options {
+            margin-bottom: 2rem;
+        }
+
+        .password-option-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-sm);
+            transition: var(--transition);
+        }
+
+        .password-option-item:hover {
+            border-color: rgba(var(--primary-rgb), 0.3);
+            background-color: rgba(var(--primary-rgb), 0.02);
+        }
+
+        .option-title {
+            font-weight: 500;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .option-desc {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin: 0;
+        }
+
+        .password-fields {
+            display: none;
+            animation: fadeIn 0.3s;
+            padding: 1.5rem;
+            background-color: var(--gray-100);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .password-input {
+            display: flex;
+        }
+
+        .password-input .form-control {
+            border-right: none;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .password-toggle {
+            background-color: white;
+            border: 1px solid var(--gray-300);
+            border-left: none;
+            border-top-right-radius: var(--border-radius-sm);
+            border-bottom-right-radius: var(--border-radius-sm);
+            color: var(--gray-600);
+            padding: 0 0.75rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .password-toggle:hover {
+            color: var(--gray-800);
+        }
+
+        .password-strength {
+            margin-top: 0.75rem;
+        }
+
+        .progress {
+            height: 5px;
+            background-color: var(--gray-200);
+            border-radius: 50rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--danger);
+            transition: var(--transition);
+        }
+
+        .strength-label {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-top: 0.25rem;
+        }
+
+        .password-match, .password-mismatch {
+            display: none;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .password-match {
+            color: var(--success);
+        }
+
+        .password-mismatch {
+            color: var(--danger);
+        }
+
+        /* Form actions */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem;
+            background-color: var(--gray-100);
+            border-top: 1px solid var(--gray-200);
+        }
+
+        /* Delete section */
+        .delete-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(var(--danger-rgb), 0.2);
+        }
+
+        .delete-section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.25rem;
+            background-color: rgba(var(--danger-rgb), 0.05);
+            border-bottom: 1px solid rgba(var(--danger-rgb), 0.1);
+        }
+
+        .delete-section-header i {
+            font-size: 1.25rem;
+            color: var(--danger);
+        }
+
+        .delete-section-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--danger);
+            margin: 0;
+        }
+
+        .delete-section-body {
+            padding: 1.5rem;
+        }
+
+        .delete-confirmation {
+            margin-top: 1.5rem;
+        }
+
+        .delete-warning {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background-color: rgba(var(--warning-rgb), 0.1);
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 1.5rem;
+        }
+
+        .delete-warning i {
+            color: var(--warning);
+            font-size: 1.25rem;
+        }
+
+        .delete-input-wrapper {
+            max-width: 300px;
+            margin-bottom: 1.5rem;
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 992px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .permissions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            .profile-card-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .profile-badges {
+                justify-content: center;
+            }
+            
+            .profile-meta {
+                margin-top: 1rem;
+                align-items: center;
+            }
+            
+            .tab-navigation {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+            
+            .tab-btn {
+                padding: 0.75rem 1rem;
+            }
+            
+            .tab-content {
+                padding: 1.5rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .form-actions .btn {
+                width: 100%;
+            }
+            
+            .delete-actions {
+                flex-direction: column;
+            }
+            
+            .delete-actions .btn, .delete-actions form {
+                width: 100%;
+            }
+        }
+    </style>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab navigation handling with bootstrap tabs
-            const triggerTabList = document.querySelectorAll('#userEditTabs button');
-            triggerTabList.forEach(tabEl => {
-                const tabTrigger = new bootstrap.Tab(tabEl);
-                tabEl.addEventListener('click', event => {
-                    event.preventDefault();
-                    tabTrigger.show();
+            // Tab navigation
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    btn.classList.add('active');
+                    
+                    // Show corresponding tab content
+                    const tabId = btn.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
                 });
             });
             
@@ -401,44 +1282,51 @@
             const accountActiveToggle = document.getElementById('accountActiveToggle');
             if (accountActiveToggle) {
                 accountActiveToggle.addEventListener('change', function() {
-                    const statusDesc = this.closest('.card-body').querySelector('p');
+                    const statusDesc = document.querySelector('.status-description');
                     if (statusDesc) {
                         statusDesc.textContent = this.checked ? 
-                            "User can access the system" : 
-                            "User account is disabled";
+                            "User can currently access the system" : 
+                            "User account is currently disabled";
                     }
                 });
             }
             
             // Password reset options
-            const resetOptions = document.querySelectorAll('input[name="resetPasswordOption"]');
+            const resetOptions = document.querySelectorAll('input[name="ResetPasswordOption"]');
             const manualPasswordFields = document.getElementById('manualPasswordFields');
             
             resetOptions.forEach(option => {
                 option.addEventListener('change', function() {
-                    manualPasswordFields.style.display = this.value === 'manual' ? 'block' : 'none';
+                    if (this.value === 'manual') {
+                        manualPasswordFields.style.display = 'block';
+                    } else {
+                        manualPasswordFields.style.display = 'none';
+                    }
                 });
             });
             
             // Password toggle visibility
-            document.querySelectorAll('.password-toggle').forEach(toggle => {
+            const passwordToggles = document.querySelectorAll('.password-toggle');
+            passwordToggles.forEach(toggle => {
                 toggle.addEventListener('click', function() {
-                    const input = this.closest('.input-group').querySelector('input');
+                    const input = this.closest('.password-input').querySelector('input');
                     const icon = this.querySelector('i');
                     
-                    input.type = input.type === 'password' ? 'text' : 'password';
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    
                     icon.classList.toggle('bi-eye');
                     icon.classList.toggle('bi-eye-slash');
                 });
             });
             
-            // Password strength indicator
+            // Password strength and match validation
             const newPassword = document.getElementById('newPassword');
             const confirmPassword = document.getElementById('confirmPassword');
-            const passwordMatch = document.getElementById('passwordMatch');
-            const passwordMismatch = document.getElementById('passwordMismatch');
             const passwordStrength = document.getElementById('passwordStrength');
             const strengthLabel = document.getElementById('strengthLabel');
+            const passwordMatch = document.getElementById('passwordMatch');
+            const passwordMismatch = document.getElementById('passwordMismatch');
             
             if (newPassword) {
                 newPassword.addEventListener('input', function() {
@@ -452,95 +1340,61 @@
             }
             
             function updatePasswordStrength(password) {
-                if (!password || !passwordStrength || !strengthLabel) return;
+                if (!password) {
+                    passwordStrength.style.width = '0%';
+                    passwordStrength.style.backgroundColor = 'var(--danger)';
+                    strengthLabel.textContent = 'Weak';
+                    return;
+                }
                 
                 // Calculate strength (simplified)
                 let strength = 0;
-                if (password.length > 7) strength++;
-                if (password.length > 10) strength++;
-                if (/[A-Z]/.test(password)) strength++;
-                if (/[0-9]/.test(password)) strength++;
-                if (/[^A-Za-z0-9]/.test(password)) strength++;
+                if (password.length > 6) strength += 1;
+                if (password.length > 10) strength += 1;
+                if (/[A-Z]/.test(password)) strength += 1;
+                if (/[0-9]/.test(password)) strength += 1;
+                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
                 
-                // Normalize to 0-4 range
-                strength = Math.min(4, strength);
-                
-                // Update UI
+                // Map to 0-4 scale
+                const percentage = (strength / 4) * 100;
                 const labels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-                const colors = ['#dc3545', '#ffc107', '#6c757d', '#0d6efd', '#198754'];
-                const width = ['20%', '40%', '60%', '80%', '100%'];
+                const colors = [
+                    'var(--danger)', 
+                    'var(--warning)', 
+                    'var(--info)', 
+                    'var(--primary)', 
+                    'var(--success)'
+                ];
                 
-                passwordStrength.style.width = width[strength];
+                passwordStrength.style.width = `${percentage}%`;
                 passwordStrength.style.backgroundColor = colors[strength];
                 strengthLabel.textContent = labels[strength];
             }
             
             function checkPasswordMatch() {
-                if (!newPassword || !confirmPassword || !passwordMatch || !passwordMismatch) return;
-                
                 const pwd = newPassword.value;
                 const confirm = confirmPassword.value;
                 
-                if (!confirm) {
+                if (!pwd || !confirm) {
                     passwordMatch.style.display = 'none';
                     passwordMismatch.style.display = 'none';
                     return;
                 }
                 
-                passwordMatch.style.display = pwd === confirm ? 'block' : 'none';
-                passwordMismatch.style.display = pwd === confirm ? 'none' : 'block';
-            }
-            
-            // Delete confirmation
-            const deleteConfirmInput = document.getElementById('deleteConfirmInput');
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            
-            if (deleteConfirmInput && confirmDeleteBtn) {
-                deleteConfirmInput.addEventListener('input', function() {
-                    confirmDeleteBtn.disabled = this.value !== 'DELETE';
-                });
-            }
-            
-            // Permission checkboxes
-            const roleSelect = document.getElementById('roleSelect');
-            const permissionInputs = document.querySelectorAll('.permission-input');
-            const selectAllBtn = document.getElementById('selectAllPermissions');
-            const clearAllBtn = document.getElementById('clearAllPermissions');
-            
-            if (roleSelect) {
-                roleSelect.addEventListener('change', function() {
-                    const role = this.value;
-                    
-                    // Reset all permissions
-                    permissionInputs.forEach(input => {
-                        input.checked = false;
-                    });
-                    
-                    // Apply role-based permissions
-                    if (role === 'Administrator') {
-                        permissionInputs.forEach(input => {
-                            input.checked = true;
-                        });
-                    } else if (role === 'Department Manager') {
-                        const viewPermissions = ['ViewDashboard', 'ViewAnalytics', 'ViewChatbots', 'ViewKnowledgeBases'];
-                        const managerPerms = ['ExportReports', 'ManageKnowledgeBases'];
-                        
-                        permissionInputs.forEach(input => {
-                            const permName = input.nextElementSibling.value;
-                            input.checked = viewPermissions.includes(permName) || managerPerms.includes(permName);
-                        });
-                    } else if (role === 'Support Agent') {
-                        const agentPermissions = ['ViewDashboard', 'ViewChatbots', 'ViewKnowledgeBases'];
-                        
-                        permissionInputs.forEach(input => {
-                            const permName = input.nextElementSibling.value;
-                            input.checked = agentPermissions.includes(permName);
-                        });
-                    }
-                });
+                if (pwd === confirm) {
+                    passwordMatch.style.display = 'flex';
+                    passwordMismatch.style.display = 'none';
+                } else {
+                    passwordMatch.style.display = 'none';
+                    passwordMismatch.style.display = 'flex';
+                }
             }
             
             // Select/clear all permissions
+            const selectAllBtn = document.getElementById('selectAllPermissions');
+            const clearAllBtn = document.getElementById('clearAllPermissions');
+            const permissionInputs = document.querySelectorAll('.permission-input');
+            
             if (selectAllBtn) {
                 selectAllBtn.addEventListener('click', function() {
                     permissionInputs.forEach(input => {
@@ -557,228 +1411,72 @@
                 });
             }
             
-            // Form validation
+            // Role-based permission presets
+            const roleSelect = document.getElementById('roleSelect');
+            if (roleSelect) {
+                roleSelect.addEventListener('change', function() {
+                    const role = this.value;
+                    
+                    // Reset all permissions
+                    permissionInputs.forEach(input => {
+                        input.checked = false;
+                    });
+                    
+                    // Apply role-based permissions
+                    if (role === 'Admin') {
+                        // Admins get all permissions
+                        permissionInputs.forEach(input => {
+                            input.checked = true;
+                        });
+                    } else if (role === 'Department Manager') {
+                        // Managers get view permissions + some management
+                        const viewPermissions = ['ViewDashboard', 'ViewAnalytics', 'ViewChatbots', 'ViewKnowledgeBases'];
+                        const managerPerms = ['ManageKnowledgeBases'];
+                        
+                        permissionInputs.forEach(input => {
+                            const permName = input.nextElementSibling.value;
+                            input.checked = viewPermissions.includes(permName) || managerPerms.includes(permName);
+                        });
+                    } else if (role === 'Support Agent' || role === 'User') {
+                        // Basic users get minimal permissions
+                        const basicPermissions = ['ViewDashboard', 'ViewChatbots', 'ViewKnowledgeBases'];
+                        
+                        permissionInputs.forEach(input => {
+                            const permName = input.nextElementSibling.value;
+                            input.checked = basicPermissions.includes(permName);
+                        });
+                    }
+                });
+            }
+            
+            // Delete confirmation
+            const deleteConfirmInput = document.getElementById('deleteConfirmInput');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            
+            if (deleteConfirmInput && confirmDeleteBtn) {
+                deleteConfirmInput.addEventListener('input', function() {
+                    confirmDeleteBtn.disabled = this.value !== 'DELETE';
+                    
+                    if (this.value === 'DELETE') {
+                        confirmDeleteBtn.classList.add('btn-danger-pulse');
+                    } else {
+                        confirmDeleteBtn.classList.remove('btn-danger-pulse');
+                    }
+                });
+            }
+            
+            if (cancelDeleteBtn) {
+                cancelDeleteBtn.addEventListener('click', function() {
+                    deleteConfirmInput.value = '';
+                    confirmDeleteBtn.disabled = true;
+                });
+            }
+            
+            // Form validation function
             window.validateDeleteForm = function() {
-                const confirmInput = document.getElementById('deleteConfirmInput');
-                return confirmInput.value === 'DELETE';
+                return deleteConfirmInput.value === 'DELETE';
             };
         });
     </script>
-}
-
-@section Styles {
-    <style>
-        /* Custom styling for the edit user page */
-        :root {
-            --primary: #0d6efd;
-            --primary-soft: rgba(13, 110, 253, 0.1);
-            --danger: #dc3545;
-            --danger-soft: rgba(220, 53, 69, 0.1);
-            --success: #198754;
-            --warning: #ffc107;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --secondary: #6c757d;
-            --border-color: #e9ecef;
-        }
-
-        .user-edit-container {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        /* Breadcrumb styling */
-        .breadcrumb {
-            background-color: transparent;
-            padding: 0;
-            margin-bottom: 1.5rem;
-        }
-
-        .breadcrumb-item + .breadcrumb-item::before {
-            content: "›";
-        }
-
-        /* Card styling */
-        .card {
-            border-radius: 0.5rem;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: all 0.2s ease;
-            overflow: hidden;
-        }
-
-        .card:hover {
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-        }
-
-        .profile-card {
-            background-color: #fff;
-        }
-
-        /* User avatar */
-        .user-avatar-container {
-            display: flex;
-            justify-content: center;
-        }
-
-        .user-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 1.5rem;
-            color: white;
-            background-color: var(--primary);
-        }
-
-        .user-avatar.bg-danger {
-            background-color: var(--danger);
-        }
-
-        /* Badge styling */
-        .badge {
-            font-weight: 500;
-            padding: 0.4em 0.8em;
-            border-radius: 4px;
-        }
-
-        .bg-soft-primary {
-            background-color: var(--primary-soft);
-            color: var(--primary);
-        }
-
-        .bg-soft-secondary {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--secondary);
-        }
-
-        .bg-soft-success {
-            background-color: rgba(25, 135, 84, 0.1);
-            color: var(--success);
-        }
-
-        .bg-soft-danger {
-            background-color: var(--danger-soft);
-            color: var(--danger);
-        }
-
-        /* Tab styling */
-        .nav-tabs-modern {
-            border-bottom: 0;
-        }
-
-        .nav-tabs-modern .nav-link {
-            border: none;
-            color: var(--secondary);
-            padding: 1rem 1.5rem;
-            font-weight: 500;
-            border-bottom: 2px solid transparent;
-            border-radius: 0;
-            transition: all 0.2s;
-        }
-
-        .nav-tabs-modern .nav-link:hover {
-            color: var(--primary);
-            border-bottom-color: rgba(13, 110, 253, 0.3);
-        }
-
-        .nav-tabs-modern .nav-link.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-            background-color: transparent;
-        }
-
-        /* Form styling */
-        .form-label {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        .form-control, .form-select {
-            border: 1px solid #dee2e6;
-            padding: 0.5rem 0.75rem;
-            border-radius: 0.375rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control:focus, .form-select:focus {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .input-group-text {
-            background-color: #f8f9fa;
-            border-color: #dee2e6;
-        }
-
-        /* Permission cards */
-        .permission-card {
-            transition: all 0.2s;
-            border: 1px solid var(--border-color);
-        }
-
-        .permission-card:hover {
-            border-color: rgba(13, 110, 253, 0.4);
-        }
-
-        .permission-card .card-header {
-            background-color: rgba(0, 0, 0, 0.02);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        /* Form check styling */
-        .form-check-label {
-            cursor: pointer;
-        }
-
-        .form-check-input {
-            cursor: pointer;
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        /* Password strength meter */
-        .progress {
-            overflow: hidden;
-            background-color: #f2f2f2;
-            border-radius: 0.25rem;
-        }
-
-        /* Animation for tab transitions */
-        .tab-pane.fade {
-            transition: opacity 0.15s linear;
-        }
-
-        /* Delete section */
-        .border-danger {
-            border-color: var(--danger-soft) !important;
-        }
-
-        /* Responsive adjustments */
-        @@media (max-width: 768px) {
-            .user-info {
-                flex-direction: column;
-            }
-            
-            .user-stats {
-                margin-top: 1rem;
-                text-align: left;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            
-            .form-actions .btn {
-                width: 100%;
-            }
-        }
-    </style>
 }
