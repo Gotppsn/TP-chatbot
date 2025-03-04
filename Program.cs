@@ -55,6 +55,8 @@ builder.Services.AddScoped<ILdapUserDataParser, LdapUserDataParser>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFlowiseService, FlowiseService>();
 builder.Services.AddScoped<IKnowledgeService, KnowledgeService>();
+builder.Services.AddScoped<IPermissionService, PermissionService>();
+builder.Services.AddScoped<ISettingsService, SettingsService>();
 
 builder.Services.AddControllersWithViews();
 

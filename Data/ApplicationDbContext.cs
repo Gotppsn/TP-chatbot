@@ -14,18 +14,15 @@ namespace AIHelpdeskSupport.Data
         public DbSet<KnowledgeDocument> KnowledgeDocuments { get; set; } = null!;
         public DbSet<ChatSession> ChatSessions { get; set; } = null!;
         public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+        public DbSet<UserPermission> UserPermissions { get; set; } = null!;
+        public DbSet<SystemSettings> SystemSettings { get; set; } = null!;
 
-        public DbSet<UserPermission> UserPermissions { get; set; }
-
-
-        // Add additional DbSet for relationship
         public DbSet<ChatbotKnowledgeBase> ChatbotKnowledgeBases { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Configure many-to-many relationship
             builder.Entity<ChatbotKnowledgeBase>()
                 .HasKey(ck => new { ck.ChatbotId, ck.KnowledgeBaseId });
 
