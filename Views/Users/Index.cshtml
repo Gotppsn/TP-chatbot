@@ -246,6 +246,12 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Explicitly initialize Bootstrap dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+            var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl);
+            });
+
             // Elements
             const gridView = document.getElementById('gridView');
             const listView = document.getElementById('listView');
@@ -281,15 +287,17 @@
                 updateEmptyState();
             }
 
-            gridView.addEventListener('click', function() {
-                setActiveView('grid');
-                localStorage.setItem('userViewPreference', 'grid');
-            });
+            if (gridView && listView) {
+                gridView.addEventListener('click', function() {
+                    setActiveView('grid');
+                    localStorage.setItem('userViewPreference', 'grid');
+                });
 
-            listView.addEventListener('click', function() {
-                setActiveView('list');
-                localStorage.setItem('userViewPreference', 'list');
-            });
+                listView.addEventListener('click', function() {
+                    setActiveView('list');
+                    localStorage.setItem('userViewPreference', 'list');
+                });
+            }
 
             // Load user preference for view
             const viewPreference = localStorage.getItem('userViewPreference');
@@ -301,6 +309,8 @@
 
             // Filter and search functionality
             function filterUsers() {
+                if (!userSearch) return;
+                
                 const searchTerm = userSearch.value.toLowerCase();
                 let visibleCount = 0;
 
@@ -329,6 +339,8 @@
             }
 
             function userMatchesFilters(element, searchTerm, filter) {
+                if (!element || !element.dataset) return false;
+                
                 // Status filter
                 if (filter === 'active' && element.dataset.status !== 'active') return false;
                 if (filter === 'inactive' && element.dataset.status !== 'inactive') return false;
@@ -347,80 +359,104 @@
             }
 
             function updateEmptyState(isEmpty = false) {
+                if (!emptyState) return;
+                
                 if (isEmpty) {
                     emptyState.style.display = 'flex';
-                    usersGridView.classList.add('empty-results');
-                    usersListView.classList.add('empty-results');
+                    if (usersGridView) usersGridView.classList.add('empty-results');
+                    if (usersListView) usersListView.classList.add('empty-results');
                 } else {
                     emptyState.style.display = 'none';
-                    usersGridView.classList.remove('empty-results');
-                    usersListView.classList.remove('empty-results');
+                    if (usersGridView) usersGridView.classList.remove('empty-results');
+                    if (usersListView) usersListView.classList.remove('empty-results');
                 }
             }
 
             // Search input event
-            userSearch.addEventListener('input', filterUsers);
+            if (userSearch) {
+                userSearch.addEventListener('input', filterUsers);
+            }
 
             // Filter dropdown functionality
-            filterItems.forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Update active filter
-                    activeFilter = this.dataset.filter;
-                    
-                    // Update UI
-                    filterItems.forEach(el => {
-                        el.classList.remove('active');
+            if (filterItems && filterItems.length > 0) {
+                filterItems.forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        
+                        // Update active filter
+                        activeFilter = this.dataset.filter;
+                        
+                        // Update UI
+                        filterItems.forEach(el => {
+                            el.classList.remove('active');
+                        });
+                        this.classList.add('active');
+                        
+                        // Update dropdown button text
+                        if (filterDropdownButton) {
+                            filterDropdownButton.textContent = this.textContent;
+                        }
+                        
+                        // Apply filter
+                        filterUsers();
                     });
-                    this.classList.add('active');
-                    
-                    // Update dropdown button text
-                    filterDropdownButton.textContent = this.textContent;
-                    
-                    // Apply filter
-                    filterUsers();
                 });
-            });
+            }
 
             // Reset filters button
-            resetFiltersBtn.addEventListener('click', function() {
-                resetFilters();
-            });
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', function() {
+                    resetFilters();
+                });
+            }
 
             function resetFilters() {
                 // Reset search input
-                userSearch.value = '';
+                if (userSearch) {
+                    userSearch.value = '';
+                }
                 
                 // Reset active filter
                 activeFilter = 'all';
                 
                 // Update dropdown button text
-                filterDropdownButton.textContent = 'Filter';
+                if (filterDropdownButton) {
+                    filterDropdownButton.textContent = 'Filter';
+                }
                 
                 // Update active state in dropdown
-                filterItems.forEach(el => {
-                    el.classList.remove('active');
-                    if (el.dataset.filter === 'all') {
-                        el.classList.add('active');
-                    }
-                });
+                if (filterItems && filterItems.length > 0) {
+                    filterItems.forEach(el => {
+                        el.classList.remove('active');
+                        if (el.dataset.filter === 'all') {
+                            el.classList.add('active');
+                        }
+                    });
+                }
                 
                 // Apply filters
                 filterUsers();
             }
 
             // Reset password functionality
-            resetPasswordBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const userId = this.dataset.userId;
-                    resetPassword(userId);
+            if (resetPasswordBtns && resetPasswordBtns.length > 0) {
+                resetPasswordBtns.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const userId = this.dataset.userId;
+                        resetPassword(userId);
+                    });
                 });
-            });
+            }
 
             function resetPassword(userId) {
                 // Get the token
-                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (!tokenElement) {
+                    showToast('error', 'Anti-forgery token not found');
+                    return;
+                }
+                
+                const token = tokenElement.value;
                 
                 // Send request
                 fetch(`/Users/ResetPassword/${userId}`, {
@@ -449,6 +485,7 @@
             // Toast notification function
             function showToast(type, message) {
                 const toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) return;
                 
                 const toastEl = document.createElement('div');
                 toastEl.className = `toast ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`;
@@ -486,6 +523,9 @@
                     toastContainer.removeChild(toastEl);
                 });
             }
+
+            // Run initial filter to set up the view correctly
+            filterUsers();
         });
     </script>
 }
@@ -514,6 +554,10 @@
             --color-gray-700: #495057;
             --color-gray-800: #343a40;
             --color-gray-900: #212529;
+            --color-primary: #0d6efd;
+            --color-secondary: #6c757d;
+            --color-success: #198754;
+            --color-danger: #dc3545;
             --border-radius: 0.375rem;
             --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
             --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
@@ -638,7 +682,7 @@
         }
 
         .users-grid.empty-results {
-            display: none;
+            display: block;
         }
 
         .user-card {
@@ -920,6 +964,180 @@
             max-width: 400px;
         }
 
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            align-items: flex-start;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem;
+            width: 320px;
+            z-index: 1060;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast-notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .toast-notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .toast-notification.success .toast-icon {
+            color: var(--success-color);
+        }
+
+        .toast-notification.error .toast-icon {
+            color: var(--danger-color);
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--color-gray-800);
+        }
+
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            padding: 0;
+            margin-left: 0.75rem;
+            transition: color 0.15s ease;
+        }
+
+        .toast-close:hover {
+            color: var(--color-gray-700);
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle::after {
+            display: inline-block;
+            margin-left: 0.255em;
+            vertical-align: 0.255em;
+            content: "";
+            border-top: 0.3em solid;
+            border-right: 0.3em solid transparent;
+            border-bottom: 0;
+            border-left: 0.3em solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            min-width: 10rem;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            font-size: 0.875rem;
+            color: var(--color-gray-700);
+            text-align: left;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .dropdown-menu-end {
+            right: 0;
+            left: auto;
+        }
+
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: var(--color-gray-700);
+            text-align: inherit;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover, .dropdown-item:focus {
+            color: var(--color-gray-900);
+            background-color: var(--color-gray-100);
+            text-decoration: none;
+        }
+
+        .dropdown-item.active {
+            color: #fff;
+            background-color: var(--primary-color);
+        }
+
+        .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid var(--color-gray-200);
+        }
+
+        /* Badge Styles */
+        .badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 500;
+            line-height: 1;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+
+        .bg-success {
+            background-color: var(--success-color);
+        }
+
+        .bg-secondary {
+            background-color: var(--secondary-color);
+        }
+
         /* Button Styles */
         .btn {
             display: inline-flex;
@@ -1002,6 +1220,63 @@
             background-color: rgba(13, 110, 253, 0.1);
         }
 
+        /* Helper Classes */
+        .required {
+            color: var(--danger-color);
+        }
+
+        .mb-3 {
+            margin-bottom: 1rem !important;
+        }
+
+        .me-2 {
+            margin-right: 0.5rem !important;
+        }
+
+        .me-3 {
+            margin-right: 1rem !important;
+        }
+
+        .ms-auto {
+            margin-left: auto !important;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem !important;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem !important;
+        }
+
+        .d-flex {
+            display: flex !important;
+        }
+
+        .d-inline {
+            display: inline !important;
+        }
+
+        .d-none {
+            display: none !important;
+        }
+
+        .align-items-center {
+            align-items: center !important;
+        }
+
+        .text-danger {
+            color: var(--danger-color) !important;
+        }
+
+        .text-success {
+            color: var(--success-color) !important;
+        }
+
+        .text-warning {
+            color: var(--warning-color) !important;
+        }
+
         /* Responsive Adjustments */
         @@media (max-width: 1200px) {
             .users-grid {
@@ -1057,30 +1332,17 @@
                 flex-direction: column;
                 align-items: flex-end;
             }
-
-            .table th:nth-child(2),
-            .table th:nth-child(3),
-            .table th:nth-child(4),
-            .table td:nth-child(2),
-            .table td:nth-child(3),
-            .table td:nth-child(4) {
-                display: none;
-            }
         }
 
         @@media (max-width: 576px) {
-            .card-header-actions {
-                flex-direction: column;
-                width: 100%;
+            .row {
+                margin-right: -0.5rem;
+                margin-left: -0.5rem;
             }
 
-            .search-box {
-                width: 100%;
-            }
-
-            .view-options {
-                align-self: flex-end;
-                margin-top: -2.5rem;
+            .col-md-6 {
+                padding-right: 0.5rem;
+                padding-left: 0.5rem;
             }
         }
     </style>
