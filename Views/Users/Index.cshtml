@@ -6,7 +6,7 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">User Management</h1>
-        <p class="text-muted">Manage users, roles, and permissions for the AI Helpdesk platform</p>
+        <p class="text-muted">Manage users from LDAP directory</p>
     </div>
     <div class="page-actions">
         <div class="dropdown me-2">
@@ -24,10 +24,6 @@
                 <a class="dropdown-item" href="#" data-filter="agent">Support Agents</a>
             </div>
         </div>
-        <button class="btn btn-primary" onclick="openCreateUserModal()">
-            <i class="bi bi-plus-lg"></i>
-            <span>Create User</span>
-        </button>
     </div>
 </div>
 
@@ -36,8 +32,7 @@
         <div class="card-header-actions">
             <div class="search-box">
                 <i class="bi bi-search search-icon"></i>
-                <input type="text" id="userSearch" class="search-input" placeholder="Search users..."
-                    aria-label="Search users">
+                <input type="text" id="userSearch" class="search-input" placeholder="Search users..." aria-label="Search users">
             </div>
             <div class="view-options">
                 <button class="btn-icon view-option active" id="gridView" title="Grid View" aria-pressed="true">
@@ -133,17 +128,6 @@
                     </div>
                 </div>
             }
-
-            <!-- Create New User Card - Improved Design -->
-            <div class="user-card create-card animate-card" onclick="openCreateUserModal()">
-                <div class="create-card-content">
-                    <div class="create-icon">
-                        <i class="bi bi-plus-lg"></i>
-                    </div>
-                    <div class="create-text">Create New User</div>
-                    <p class="create-description">Add a new user to the AI Helpdesk platform</p>
-                </div>
-            </div>
         </div>
 
         <!-- List View (Hidden by default) -->
@@ -244,359 +228,9 @@
     </div>
 </div>
 
-<!-- Create User Modal - Improved Design -->
-<div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="createUserModalLabel">
-                    <i class="bi bi-person-plus"></i> Create New User
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="createUserForm">
-                    @Html.AntiForgeryToken()
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input type="text" id="firstName" name="FirstName" class="form-control" required>
-                                </div>
-                                <div class="invalid-feedback">First name is required</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                    <input type="text" id="lastName" name="LastName" class="form-control" required>
-                                </div>
-                                <div class="invalid-feedback">Last name is required</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="email" class="form-label">Email <span class="required">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                            <input type="email" id="email" name="Email" class="form-control" required>
-                        </div>
-                        <div class="invalid-feedback">Please provide a valid email address</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="department" class="form-label">Department <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-building"></i></span>
-                                    <select id="department" name="Department" class="form-select" required>
-                                        <option value="">Select Department</option>
-                                        <option value="Administration">Administration</option>
-                                        <option value="Customer Service">Customer Service</option>
-                                        <option value="IT Support">IT Support</option>
-                                        <option value="Sales">Sales</option>
-                                        <option value="Billing">Billing</option>
-                                        <option value="Technical">Technical</option>
-                                        <option value="Operations">Operations</option>
-                                    </select>
-                                </div>
-                                <div class="invalid-feedback">Please select a department</div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="role" class="form-label">Role <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
-                                    <select id="role" name="Role" class="form-select" required>
-                                        <option value="">Select Role</option>
-                                        <option value="Administrator">Administrator</option>
-                                        <option value="Department Manager">Department Manager</option>
-                                        <option value="Support Agent">Support Agent</option>
-                                    </select>
-                                </div>
-                                <div class="invalid-feedback">Please select a role</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="password" class="form-label">Password <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                    <input type="password" id="password" name="Password" class="form-control" required>
-                                    <button type="button" class="input-group-text password-toggle" tabindex="-1">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="invalid-feedback">Password is required</div>
-                                <div class="password-strength mt-2" id="passwordStrength">
-                                    <div class="strength-meter">
-                                        <div class="strength-meter-fill" data-strength="0"></div>
-                                    </div>
-                                    <div class="strength-text">Password strength: <span>Weak</span></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm Password <span class="required">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="bi bi-key"></i></span>
-                                    <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" required>
-                                    <button type="button" class="input-group-text password-toggle" tabindex="-1">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="invalid-feedback">Confirm password is required</div>
-                                <div class="password-mismatch text-danger mt-2 d-none">
-                                    <i class="bi bi-exclamation-circle"></i> Passwords do not match
-                                </div>
-                                <div class="password-match text-success mt-2 d-none">
-                                    <i class="bi bi-check-circle"></i> Passwords match
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <div class="account-status p-3 border rounded">
-                            <div class="d-flex align-items-center">
-                                <div class="status-icon active me-3">
-                                    <i class="bi bi-check-circle"></i>
-                                </div>
-                                <div class="status-info">
-                                    <div class="form-switch">
-                                        <input type="checkbox" id="isActive" name="IsActive" class="form-switch-input" checked>
-                                        <label for="isActive" class="form-switch-label">Account Active</label>
-                                    </div>
-                                    <div class="form-text">User can access the system immediately after creation</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="alert alert-danger d-none" id="formErrorAlert" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <span id="formErrorMessage">Error message will appear here</span>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">
-                    <i class="bi bi-x-lg"></i> Cancel
-                </button>
-                <button type="button" class="btn btn-primary" id="saveUserBtn">
-                    <i class="bi bi-save"></i> Create User
-                    <span class="spinner-border spinner-border-sm d-none" id="saveSpinner" role="status" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize the Bootstrap modal
-            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'), {
-                backdrop: 'static',
-                keyboard: false
-            });
-
-            // Password toggle visibility
-            document.querySelectorAll('.password-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function () {
-                    const input = this.closest('.input-group').querySelector('input');
-                    const icon = this.querySelector('i');
-
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('bi-eye');
-                        icon.classList.add('bi-eye-slash');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('bi-eye-slash');
-                        icon.classList.add('bi-eye');
-                    }
-                });
-            });
-
-            // Password strength meter
-            const password = document.getElementById('password');
-            const passwordStrength = document.getElementById('passwordStrength');
-            const strengthMeterFill = passwordStrength.querySelector('.strength-meter-fill');
-            const strengthText = passwordStrength.querySelector('.strength-text span');
-
-            password.addEventListener('input', function() {
-                const strength = calculatePasswordStrength(this.value);
-                strengthMeterFill.setAttribute('data-strength', strength);
-                
-                const strengthLabels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-                strengthText.textContent = strengthLabels[strength];
-                
-                checkPasswordMatch();
-            });
-
-            function calculatePasswordStrength(password) {
-                if (!password) return 0;
-                
-                let strength = 0;
-                
-                // Length check
-                if (password.length >= 8) strength += 1;
-                if (password.length >= 12) strength += 1;
-                
-                // Character variety checks
-                if (/[a-z]/.test(password)) strength += 1;
-                if (/[A-Z]/.test(password)) strength += 1;
-                if (/\d/.test(password)) strength += 1;
-                if (/[^a-zA-Z0-9]/.test(password)) strength += 1;
-                
-                // Return normalized strength (0-4)
-                return Math.min(4, Math.floor(strength / 2));
-            }
-
-            // Password match validation
-            const confirmPassword = document.getElementById('confirmPassword');
-            const passwordMismatch = document.querySelector('.password-mismatch');
-            const passwordMatch = document.querySelector('.password-match');
-
-            confirmPassword.addEventListener('input', checkPasswordMatch);
-
-            function checkPasswordMatch() {
-                if (!confirmPassword.value) {
-                    passwordMismatch.classList.add('d-none');
-                    passwordMatch.classList.add('d-none');
-                    confirmPassword.setCustomValidity('');
-                    return;
-                }
-
-                if (password.value === confirmPassword.value) {
-                    passwordMismatch.classList.add('d-none');
-                    passwordMatch.classList.remove('d-none');
-                    confirmPassword.setCustomValidity('');
-                } else {
-                    passwordMismatch.classList.remove('d-none');
-                    passwordMatch.classList.add('d-none');
-                    confirmPassword.setCustomValidity('Passwords do not match');
-                }
-            }
-
-            // Account status toggle enhancement
-            const accountActiveToggle = document.getElementById('isActive');
-            const statusIcon = document.querySelector('.status-icon');
-            const statusText = document.querySelector('.form-text');
-
-            accountActiveToggle.addEventListener('change', function () {
-                if (this.checked) {
-                    statusIcon.classList.remove('inactive');
-                    statusIcon.classList.add('active');
-                    statusIcon.querySelector('i').classList.remove('bi-x-circle');
-                    statusIcon.querySelector('i').classList.add('bi-check-circle');
-                    statusText.textContent = "User can access the system immediately after creation";
-                } else {
-                    statusIcon.classList.remove('active');
-                    statusIcon.classList.add('inactive');
-                    statusIcon.querySelector('i').classList.remove('bi-check-circle');
-                    statusIcon.querySelector('i').classList.add('bi-x-circle');
-                    statusText.textContent = "User account will be created in inactive state";
-                }
-            });
-
-            // Create user form handling
-            const createUserForm = document.getElementById('createUserForm');
-            const saveUserBtn = document.getElementById('saveUserBtn');
-            const saveSpinner = document.getElementById('saveSpinner');
-            const formErrorAlert = document.getElementById('formErrorAlert');
-            const formErrorMessage = document.getElementById('formErrorMessage');
-
-            saveUserBtn.addEventListener('click', function () {
-                // Reset error message
-                formErrorAlert.classList.add('d-none');
-
-                // Validate form
-                if (!createUserForm.checkValidity()) {
-                    createUserForm.classList.add('was-validated');
-                    return;
-                }
-
-                // Check if passwords match
-                if (password.value !== confirmPassword.value) {
-                    passwordMismatch.classList.remove('d-none');
-                    passwordMatch.classList.add('d-none');
-                    confirmPassword.setCustomValidity('Passwords do not match');
-                    createUserForm.classList.add('was-validated');
-                    return;
-                }
-
-                // Show loading spinner
-                saveSpinner.classList.remove('d-none');
-                saveUserBtn.disabled = true;
-
-                // Collect form data
-                const formData = new FormData(createUserForm);
-                const userData = Object.fromEntries(formData.entries());
-
-                // AJAX call to the server
-                fetch('/Users/Create', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify(userData)
-                })
-                .then(response => {
-                    if (response.ok) {
-                        return response.json().then(data => {
-                            showToast('success', 'User created successfully!');
-
-                            // Hide modal
-                            createUserModal.hide();
-
-                            // Reset form
-                            createUserForm.reset();
-                            createUserForm.classList.remove('was-validated');
-                            passwordMismatch.classList.add('d-none');
-                            passwordMatch.classList.add('d-none');
-                            strengthMeterFill.setAttribute('data-strength', '0');
-                            strengthText.textContent = 'Weak';
-
-                            // Reload page after delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
-                        });
-                    } else {
-                        return response.json().then(data => {
-                            throw new Error(data.message || 'Error creating user');
-                        });
-                    }
-                })
-                .catch(error => {
-                    // Show error message
-                    formErrorMessage.textContent = error.message;
-                    formErrorAlert.classList.remove('d-none');
-
-                    // Show toast
-                    showToast('error', error.message);
-                })
-                .finally(() => {
-                    // Hide loading spinner
-                    saveSpinner.classList.add('d-none');
-                    saveUserBtn.disabled = false;
-                });
-            });
-
             // Initialize view toggle
             const gridView = document.getElementById('gridView');
             const listView = document.getElementById('listView');
@@ -703,7 +337,7 @@
                 }
 
                 // Filter grid view
-                document.querySelectorAll('#usersGridView .user-card:not(.create-card)').forEach(card => {
+                document.querySelectorAll('#usersGridView .user-card').forEach(card => {
                     if (userMatchesFilters(card)) {
                         card.style.display = 'flex';
                         visibleCount++;
@@ -729,7 +363,6 @@
             function updateEmptyState(isEmpty = false) {
                 if (isEmpty) {
                     emptyState.style.display = 'flex';
-                    document.querySelector('.create-card').style.display = 'none';
                     if (gridView.classList.contains('active')) {
                         usersGridView.classList.add('empty-results');
                     } else {
@@ -737,7 +370,6 @@
                     }
                 } else {
                     emptyState.style.display = 'none';
-                    document.querySelector('.create-card').style.display = 'flex';
                     usersGridView.classList.remove('empty-results');
                     usersListView.classList.remove('empty-results');
                 }
@@ -768,12 +400,6 @@
             });
         });
 
-        // Open create user modal
-        function openCreateUserModal() {
-            const createUserModal = new bootstrap.Modal(document.getElementById('createUserModal'));
-            createUserModal.show();
-        }
-
         // Reset filters function
         function resetFilters() {
             const userSearch = document.getElementById('userSearch');
@@ -801,7 +427,6 @@
 
         // Reset password function
         function resetPassword(userId) {
-            // AJAX call to reset password
             fetch(`/Users/ResetPassword/${userId}`, {
                 method: 'POST',
                 headers: {
@@ -825,7 +450,6 @@
 
         // Toast notification function
         function showToast(type, message) {
-            // Create toast element
             const toast = document.createElement('div');
             toast.className = `toast-notification ${type}`;
 
@@ -834,9 +458,7 @@
                 : '<i class="bi bi-exclamation-circle"></i>';
 
             toast.innerHTML = `
-                <div class="toast-icon">
-                    ${icon}
-                </div>
+                <div class="toast-icon">${icon}</div>
                 <div class="toast-content">
                     <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
                     <div class="toast-message">${message}</div>
@@ -846,22 +468,14 @@
                 </button>
             `;
 
-            // Add to document
             document.body.appendChild(toast);
+            setTimeout(() => { toast.classList.add('show'); }, 100);
 
-            // Show toast
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 100);
-
-            // Auto-hide toast after 5 seconds
             const hideTimeout = setTimeout(() => {
                 hideToast(toast);
             }, 5000);
 
-            // Close button functionality
-            const closeBtn = toast.querySelector('.toast-close');
-            closeBtn.addEventListener('click', function () {
+            toast.querySelector('.toast-close').addEventListener('click', function() {
                 clearTimeout(hideTimeout);
                 hideToast(toast);
             });
@@ -870,9 +484,7 @@
         function hideToast(toast) {
             toast.classList.remove('show');
             setTimeout(() => {
-                if (toast.parentNode) {
-                    document.body.removeChild(toast);
-                }
+                if (toast.parentNode) document.body.removeChild(toast);
             }, 300);
         }
     </script>
@@ -1205,79 +817,6 @@
             align-items: center;
         }
 
-        /* Create Card - Improved Style */
-        .create-card {
-            border: 2px dashed var(--color-gray-300);
-            background-color: var(--color-gray-50);
-            cursor: pointer;
-            min-height: 280px;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-            animation: pulse 2s infinite;
-        }
-
-        @@keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.1);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
-            }
-        }
-
-        .create-card:hover {
-            border-color: var(--primary-color);
-            background-color: rgba(13, 110, 253, 0.05);
-            transform: translateY(-5px);
-        }
-
-        .create-card-content {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .create-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0 auto 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .create-card:hover .create-icon {
-            transform: scale(1.1);
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .create-text {
-            font-weight: 600;
-            font-size: 1.125rem;
-            color: var(--color-gray-700);
-            margin-bottom: 0.5rem;
-            transition: color 0.3s ease;
-        }
-
-        .create-description {
-            color: var(--color-gray-500);
-            font-size: 0.875rem;
-            margin-bottom: 0;
-        }
-
-        .create-card:hover .create-text {
-            color: var(--primary-color);
-        }
-
         /* List View */
         .users-list {
             width: 100%;
@@ -1383,388 +922,6 @@
             color: var(--color-gray-500);
             margin-bottom: 1.5rem;
             max-width: 400px;
-        }
-
-        /* Form Elements */
-        .form-group {
-            margin-bottom: 1rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--color-gray-700);
-        }
-
-        .form-control {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            color: var(--color-gray-700);
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius);
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        .form-select {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 2.25rem 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            color: var(--color-gray-700);
-            background-color: #fff;
-            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 16px 12px;
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius);
-            appearance: none;
-        }
-
-        .form-select:focus {
-            border-color: var(--primary-color);
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-
-        .input-group {
-            position: relative;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: stretch;
-            width: 100%;
-        }
-
-        .input-group > .form-control,
-        .input-group > .form-select {
-            position: relative;
-            flex: 1 1 auto;
-            width: 1%;
-            min-width: 0;
-        }
-
-        .input-group-text {
-            display: flex;
-            align-items: center;
-            padding: 0.375rem 0.75rem;
-            font-size: 0.875rem;
-            font-weight: 400;
-            line-height: 1.5;
-            color: var(--color-gray-700);
-            text-align: center;
-            white-space: nowrap;
-            background-color: var(--color-gray-100);
-            border: 1px solid var(--color-gray-300);
-        }
-
-        .input-group > :first-child {
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        .input-group > :last-child {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-
-        .input-group > :not(:first-child):not(:last-child) {
-            border-radius: 0;
-        }
-
-        /* Password Strength Meter */
-        .password-strength {
-            margin-top: 0.5rem;
-        }
-
-        .strength-meter {
-            height: 5px;
-            background-color: var(--color-gray-200);
-            border-radius: 100px;
-            margin-bottom: 0.5rem;
-            overflow: hidden;
-        }
-
-        .strength-meter-fill {
-            height: 100%;
-            width: 0;
-            border-radius: 100px;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .strength-meter-fill[data-strength="0"] {
-            width: 20%;
-            background-color: var(--danger-color);
-        }
-
-        .strength-meter-fill[data-strength="1"] {
-            width: 40%;
-            background-color: var(--warning-color);
-        }
-
-        .strength-meter-fill[data-strength="2"] {
-            width: 60%;
-            background-color: #fd7e14; /* Orange */
-        }
-
-        .strength-meter-fill[data-strength="3"] {
-            width: 80%;
-            background-color: #20c997; /* Teal */
-        }
-
-        .strength-meter-fill[data-strength="4"] {
-            width: 100%;
-            background-color: var(--success-color);
-        }
-
-        .strength-text {
-            font-size: 0.75rem;
-            color: var(--color-gray-600);
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .strength-text span {
-            font-weight: 500;
-        }
-
-        /* Status Indicator in Create User Form */
-        .account-status {
-            background-color: var(--color-gray-50);
-            border-radius: var(--border-radius);
-            transition: all 0.3s ease;
-        }
-
-        .account-status .status-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .account-status .status-icon.active {
-            background-color: rgba(25, 135, 84, 0.15);
-            color: var(--success-color);
-        }
-
-        .account-status .status-icon.inactive {
-            background-color: rgba(108, 117, 125, 0.15);
-            color: var(--secondary-color);
-        }
-
-        /* Form Switch */
-        .form-switch {
-            padding-left: 2.5em;
-            position: relative;
-        }
-
-        .form-switch-input {
-            position: absolute;
-            margin-left: -2.5em;
-            z-index: -1;
-            width: 1rem;
-            height: 1.25rem;
-            opacity: 0;
-        }
-
-        .form-switch-label {
-            position: relative;
-            margin-bottom: 0;
-            vertical-align: top;
-            cursor: pointer;
-        }
-
-        .form-switch-label:before {
-            position: absolute;
-            top: 0.25rem;
-            left: -2.5em;
-            display: block;
-            width: 2em;
-            height: 1em;
-            content: "";
-            background-color: var(--color-gray-300);
-            border-radius: 0.5em;
-            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .form-switch-label:after {
-            position: absolute;
-            top: calc(0.25rem + 0.1em);
-            left: calc(-2.5em + 0.1em);
-            width: 0.8em;
-            height: 0.8em;
-            background-color: #fff;
-            border-radius: 0.5em;
-            content: "";
-            transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
-        }
-
-        .form-switch-input:checked ~ .form-switch-label::before {
-            background-color: var(--success-color);
-        }
-
-        .form-switch-input:checked ~ .form-switch-label::after {
-            transform: translateX(1em);
-        }
-
-        /* Form Text */
-        .form-text {
-            margin-top: 0.25rem;
-            font-size: 0.75rem;
-            color: var(--color-gray-600);
-        }
-
-        /* Modal Styles */
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-
-        .modal-title {
-            margin: 0;
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--color-gray-800);
-            display: flex;
-            align-items: center;
-        }
-
-        .modal-title i {
-            margin-right: 0.5rem;
-            color: var(--primary-color);
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .modal-footer {
-            padding: 1rem 1.5rem;
-            border-top: 1px solid var(--color-gray-200);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-        /* Alert Styles */
-        .alert {
-            position: relative;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid transparent;
-            border-radius: var(--border-radius);
-        }
-
-        .alert-danger {
-            color: #842029;
-            background-color: #f8d7da;
-            border-color: #f5c2c7;
-        }
-
-        /* Button Styles */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            text-align: center;
-            vertical-align: middle;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            border-radius: var(--border-radius);
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .btn i {
-            margin-right: 0.375rem;
-        }
-
-        .btn-primary {
-            color: #fff;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .btn-outline {
-            color: var(--color-gray-700);
-            background-color: transparent;
-            border-color: var(--color-gray-300);
-        }
-
-        .btn-outline:hover {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            background-color: transparent;
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary:hover {
-            color: #fff;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 0.25rem;
-        }
-
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
-            padding: 0;
-            border-radius: 50%;
-            color: var(--color-gray-600);
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-icon:hover {
-            color: var(--primary-color);
-            background-color: rgba(13, 110, 253, 0.1);
-        }
-
-        .btn:disabled {
-            opacity: 0.65;
-            pointer-events: none;
         }
 
         /* Toast Notification */
@@ -1941,35 +1098,86 @@
             background-color: var(--secondary-color);
         }
 
-        /* Form Validation Styles */
-        .was-validated .form-control:invalid {
-            border-color: var(--danger-color);
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border-radius: var(--border-radius);
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
 
-        .was-validated .form-control:valid {
-            border-color: var(--success-color);
-            padding-right: calc(1.5em + 0.75rem);
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right calc(0.375em + 0.1875rem) center;
-            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        .btn i {
+            margin-right: 0.375rem;
         }
 
-        .invalid-feedback {
-            display: none;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 0.875em;
-            color: var(--danger-color);
+        .btn-primary {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
         }
 
-        .was-validated .form-control:invalid ~ .invalid-feedback {
-            display: block;
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            color: var(--color-gray-700);
+            background-color: transparent;
+            border-color: var(--color-gray-300);
+        }
+
+        .btn-outline:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            background-color: transparent;
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            color: #fff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            border-radius: 50%;
+            color: var(--color-gray-600);
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-icon:hover {
+            color: var(--primary-color);
+            background-color: rgba(13, 110, 253, 0.1);
         }
 
         /* Helper Classes */
@@ -2027,28 +1235,6 @@
 
         .text-warning {
             color: var(--warning-color) !important;
-        }
-
-        /* Spinner */
-        .spinner-border {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            vertical-align: text-bottom;
-            border: 0.2em solid currentColor;
-            border-right-color: transparent;
-            border-radius: 50%;
-            animation: spinner-border .75s linear infinite;
-        }
-
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
-            border-width: 0.2em;
-        }
-
-        @@keyframes spinner-border {
-            to { transform: rotate(360deg); }
         }
 
         /* Responsive Adjustments */
@@ -2109,15 +1295,6 @@
         }
 
         @@media (max-width: 576px) {
-            .modal-footer {
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-
-            .modal-footer .btn {
-                width: 100%;
-            }
-
             .row {
                 margin-right: -0.5rem;
                 margin-left: -0.5rem;
