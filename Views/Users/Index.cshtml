@@ -6,252 +6,261 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">User Management</h1>
-        <p class="text-muted">Manage users from LDAP directory</p>
+        <p class="text-secondary">Manage system users and their permissions</p>
     </div>
-    <div class="page-actions">
-        <div class="dropdown me-2">
-            <button class="btn btn-outline dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-funnel"></i>
-                <span>Filter</span>
+</div>
+
+<div class="search-filter-container">
+    <div class="search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="userSearch" class="search-input" placeholder="Search users..." aria-label="Search users">
+    </div>
+    <div class="filter-wrapper">
+        <button class="btn btn-filter" id="filterBtn">
+            Filter
+        </button>
+        <div class="view-switcher">
+            <button class="btn-icon view-option active" id="gridView" title="Grid View" aria-pressed="true">
+                <i class="bi bi-grid-3x3-gap-fill"></i>
             </button>
-            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                <li><a class="dropdown-item active" href="#" data-filter="all">All Users</a></li>
-                <li><a class="dropdown-item" href="#" data-filter="active">Active Only</a></li>
-                <li><a class="dropdown-item" href="#" data-filter="inactive">Inactive Only</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#" data-filter="admin">Administrators</a></li>
-                <li><a class="dropdown-item" href="#" data-filter="manager">Department Managers</a></li>
-                <li><a class="dropdown-item" href="#" data-filter="agent">Support Agents</a></li>
-            </ul>
+            <button class="btn-icon view-option" id="listView" title="List View" aria-pressed="false">
+                <i class="bi bi-list-ul"></i>
+            </button>
         </div>
     </div>
 </div>
 
-<div class="card">
-    <div class="card-header">
-        <div class="card-header-actions">
-            <div class="search-box">
-                <i class="bi bi-search search-icon"></i>
-                <input type="text" id="userSearch" class="search-input" placeholder="Search users..." aria-label="Search users">
-            </div>
-            <div class="view-options">
-                <button class="btn-icon view-option active" id="gridView" title="Grid View" aria-pressed="true">
-                    <i class="bi bi-grid"></i>
-                </button>
-                <button class="btn-icon view-option" id="listView" title="List View" aria-pressed="false">
-                    <i class="bi bi-list-ul"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-body">
-        <!-- Grid View (Default) -->
-        <div class="users-grid" id="usersGridView">
-            @foreach (var user in Model)
-            {
-                <div class="user-card" data-user-id="@user.Id"
-                    data-status="@(user.IsActive ? "active" : "inactive")"
-                    data-role="@user.Role.ToLower().Replace(" ", "-")">
-                    <div class="user-card-header">
-                        <div class="user-avatar @(user.IsActive ? "active" : "inactive")">
-                            @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
-                        </div>
-                        <div class="user-status @(user.IsActive ? "active" : "inactive")">
-                            @(user.IsActive ? "Active" : "Inactive")
-                        </div>
-                    </div>
-
-                    <div class="user-card-body">
-                        <h3 class="user-name">@user.FullName</h3>
-                        <div class="user-email">@user.Email</div>
-
-                        <div class="user-details">
-                            <div class="user-detail">
-                                <div class="detail-label">Department</div>
-                                <div class="detail-value">@(string.IsNullOrEmpty(user.Department) ? "Not Assigned" : user.Department)</div>
-                            </div>
-                            <div class="user-detail">
-                                <div class="detail-label">Role</div>
-                                <div class="detail-value">@user.Role</div>
-                            </div>
-                        </div>
-
-                        <div class="user-stats">
-                            <div class="user-stat">
-                                <div class="stat-label">Created</div>
-                                <div class="stat-value">@user.CreatedAt.ToString("MMM d, yyyy")</div>
-                            </div>
-                            <div class="user-stat">
-                                <div class="stat-label">Last Login</div>
-                                <div class="stat-value">
-                                    @if (user.LastLogin.HasValue)
-                                    {
-                                        <span>@GetTimeAgo(user.LastLogin.Value)</span>
-                                    }
-                                    else
-                                    {
-                                        <span>Never</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="user-card-footer">
-                        <a href="/Users/Edit/@user.Id" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i>
-                            <span>Edit</span>
+<div class="users-grid" id="usersGridView">
+    @foreach (var user in Model)
+    {
+        <div class="user-card" data-user-id="@user.Id" 
+             data-status="@(user.IsActive ? "active" : "inactive")" 
+             data-role="@user.Role.ToLower().Replace(" ", "-")">
+            <div class="user-card-inner">
+                <div class="status-indicator @(user.IsActive ? "active" : "inactive")"></div>
+                <div class="menu-dropdown">
+                    <button class="btn-menu" id="menuBtn-@user.Id" onclick="toggleDropdown('@user.Id')">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-@user.Id">
+                        <a href="/Users/Edit/@user.Id" class="dropdown-item">
+                            <i class="bi bi-pencil-fill"></i> Edit
                         </a>
-                        <div class="dropdown ms-auto">
-                            <button class="btn btn-sm btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
-                                <i class="bi bi-three-dots-vertical"></i>
+                        <a href="/Users/Details/@user.Id" class="dropdown-item">
+                            <i class="bi bi-info-circle-fill"></i> View Details
+                        </a>
+                        <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
+                            <i class="bi bi-key-fill"></i> Reset Password
+                        </button>
+                        <div class="dropdown-divider"></div>
+                        <form action="/Users/ToggleStatus/@user.Id" method="post" class="toggle-status-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                <i class="bi @(user.IsActive ? "bi-pause-circle-fill" : "bi-play-circle-fill")"></i>
+                                @(user.IsActive ? "Deactivate" : "Activate")
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="/Users/Details/@user.Id">
-                                        <i class="bi bi-info-circle me-2"></i> View Details
-                                    </a>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
-                                        <i class="bi bi-key me-2"></i> Reset Password
-                                    </button>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="/Users/ToggleStatus/@user.Id" method="post" class="d-inline toggle-status-form">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit"
-                                            class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                            <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                            @(user.IsActive ? "Deactivate" : "Activate")
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+                        </form>
                     </div>
                 </div>
-            }
-        </div>
-
-        <!-- List View (Hidden by default) -->
-        <div class="users-list" id="usersListView" style="display: none;">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>User</th>
-                        <th>Department</th>
-                        <th>Role</th>
-                        <th>Created</th>
-                        <th>Last Login</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model)
-                    {
-                        <tr data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")"
-                            data-role="@user.Role.ToLower().Replace(" ", "-")">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="list-avatar @(user.IsActive ? "active" : "inactive")">
-                                        @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
-                                    </div>
-                                    <div class="list-user-info">
-                                        <div class="list-user-name">@user.FullName</div>
-                                        <div class="list-user-email">@user.Email</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>@(string.IsNullOrEmpty(user.Department) ? "Not Assigned" : user.Department)</td>
-                            <td>@user.Role</td>
-                            <td>@user.CreatedAt.ToString("MMM d, yyyy")</td>
-                            <td>
+                
+                <div class="user-avatar-container">
+                    <div class="user-avatar @GetRoleBadgeClass(user.Role)">
+                        @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
+                    </div>
+                </div>
+                
+                <div class="user-info">
+                    <h3 class="user-name">@user.FullName</h3>
+                    <p class="user-email">@user.Email</p>
+                    
+                    <div class="user-badges">
+                        <span class="badge role-badge">@user.Role</span>
+                        <span class="badge dept-badge">@(string.IsNullOrEmpty(user.Department) ? "No Department" : user.Department)</span>
+                    </div>
+                    
+                    <div class="user-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-calendar3"></i>
+                            <span>@user.CreatedAt.ToString("MMM d, yyyy")</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-clock-history"></i>
+                            <span>
                                 @if (user.LastLogin.HasValue)
                                 {
-                                    <span>@GetTimeAgo(user.LastLogin.Value)</span>
+                                    <span title="@user.LastLogin.Value.ToString("MMM d, yyyy HH:mm")">@GetTimeAgo(user.LastLogin.Value)</span>
                                 }
                                 else
                                 {
                                     <span>Never</span>
                                 }
-                            </td>
-                            <td>
-                                <span class="badge @(user.IsActive ? "bg-success" : "bg-secondary")">
-                                    @(user.IsActive ? "Active" : "Inactive")
-                                </span>
-                            </td>
-                            <td>
-                                <div class="list-actions">
-                                    <a href="/Users/Edit/@user.Id" class="btn-icon" title="Edit">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                    <div class="dropdown">
-                                        <button class="btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="/Users/Details/@user.Id">
-                                                    <i class="bi bi-info-circle me-2"></i> View Details
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
-                                                    <i class="bi bi-key me-2"></i> Reset Password
-                                                </button>
-                                            </li>
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li>
-                                                <form action="/Users/ToggleStatus/@user.Id" method="post" class="toggle-status-form">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit"
-                                                        class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
-                                                        <i class="bi @(user.IsActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                                        @(user.IsActive ? "Deactivate" : "Activate")
-                                                    </button>
-                                                </form>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Empty State (Shows when no users match search/filter) -->
-        <div id="emptyState" class="empty-state" style="display: none;">
-            <div class="empty-state-icon">
-                <i class="bi bi-people"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="user-card-footer">
+                    <a href="/Users/Edit/@user.Id" class="btn btn-primary btn-edit">
+                        <i class="bi bi-pencil-fill"></i>
+                        <span>Edit</span>
+                    </a>
+                </div>
             </div>
-            <h3 class="empty-state-title">No users found</h3>
-            <p class="empty-state-message">No users match your current search or filter criteria.</p>
-            <button class="btn btn-outline-primary" id="resetFiltersBtn">
-                <i class="bi bi-arrow-counterclockwise"></i>
-                <span>Reset Filters</span>
-            </button>
         </div>
+    }
+</div>
+
+<!-- List View (Hidden by default) -->
+<div class="users-list" id="usersListView" style="display: none;">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Department</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Last Login</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr data-user-id="@user.Id" data-status="@(user.IsActive ? "active" : "inactive")" 
+                    data-role="@user.Role.ToLower().Replace(" ", "-")">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="status-dot @(user.IsActive ? "active" : "inactive")"></div>
+                            <div class="list-avatar @GetRoleBadgeClass(user.Role)">
+                                @(string.IsNullOrEmpty(user.FirstName) || string.IsNullOrEmpty(user.LastName) ? "U" : $"{user.FirstName[0]}{user.LastName[0]}")
+                            </div>
+                            <div class="list-user-info">
+                                <div class="list-user-name">@user.FullName</div>
+                                <div class="list-user-email">@user.Email</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>@(string.IsNullOrEmpty(user.Department) ? "Not Assigned" : user.Department)</td>
+                    <td><span class="badge role-badge">@user.Role</span></td>
+                    <td>@user.CreatedAt.ToString("MMM d, yyyy")</td>
+                    <td>
+                        @if (user.LastLogin.HasValue)
+                        {
+                            <span title="@user.LastLogin.Value.ToString("MMM d, yyyy HH:mm")">@GetTimeAgo(user.LastLogin.Value)</span>
+                        }
+                        else
+                        {
+                            <span>Never</span>
+                        }
+                    </td>
+                    <td>
+                        <span class="status-pill @(user.IsActive ? "active" : "inactive")">
+                            @(user.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <div class="list-actions">
+                            <a href="/Users/Edit/@user.Id" class="btn-icon" title="Edit">
+                                <i class="bi bi-pencil-fill"></i>
+                            </a>
+                            <div class="dropdown d-inline-block">
+                                <button class="btn-icon dropdown-btn" onclick="toggleDropdown('list-@user.Id')">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu" id="dropdown-list-@user.Id">
+                                    <a href="/Users/Details/@user.Id" class="dropdown-item">
+                                        <i class="bi bi-info-circle-fill"></i> View Details
+                                    </a>
+                                    <button class="dropdown-item reset-password-btn" data-user-id="@user.Id">
+                                        <i class="bi bi-key-fill"></i> Reset Password
+                                    </button>
+                                    <div class="dropdown-divider"></div>
+                                    <form action="/Users/ToggleStatus/@user.Id" method="post" class="toggle-status-form">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item @(user.IsActive ? "text-warning" : "text-success")">
+                                            <i class="bi @(user.IsActive ? "bi-pause-circle-fill" : "bi-play-circle-fill")"></i>
+                                            @(user.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Empty State (Shows when no users match search/filter) -->
+<div id="emptyState" class="empty-state" style="display: none;">
+    <div class="empty-state-content">
+        <div class="empty-state-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h3 class="empty-state-title">No users found</h3>
+        <p class="empty-state-message">No users match your current search or filter criteria.</p>
+        <button class="btn btn-primary" id="resetFiltersBtn">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span>Reset Filters</span>
+        </button>
     </div>
 </div>
 
-<!-- Toast container for notifications -->
-<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+<!-- Filter dropdown menu -->
+<div class="filter-dropdown" id="filterDropdown">
+    <div class="filter-header">
+        <h3>Filter Users</h3>
+        <button class="btn-close" id="closeFilterBtn">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    <div class="filter-options">
+        <div class="filter-group">
+            <h4>Status</h4>
+            <div class="filter-option">
+                <input type="radio" id="statusAll" name="status" value="all" checked>
+                <label for="statusAll">All</label>
+            </div>
+            <div class="filter-option">
+                <input type="radio" id="statusActive" name="status" value="active">
+                <label for="statusActive">Active</label>
+            </div>
+            <div class="filter-option">
+                <input type="radio" id="statusInactive" name="status" value="inactive">
+                <label for="statusInactive">Inactive</label>
+            </div>
+        </div>
+        <div class="filter-group">
+            <h4>Role</h4>
+            <div class="filter-option">
+                <input type="radio" id="roleAll" name="role" value="all" checked>
+                <label for="roleAll">All Roles</label>
+            </div>
+            <div class="filter-option">
+                <input type="radio" id="roleAdmin" name="role" value="admin">
+                <label for="roleAdmin">Admin</label>
+            </div>
+            <div class="filter-option">
+                <input type="radio" id="roleManager" name="role" value="manager">
+                <label for="roleManager">Manager</label>
+            </div>
+            <div class="filter-option">
+                <input type="radio" id="roleUser" name="role" value="user">
+                <label for="roleUser">User</label>
+            </div>
+        </div>
+    </div>
+    <div class="filter-actions">
+        <button class="btn btn-light" id="resetFilterBtn">Reset</button>
+        <button class="btn btn-primary" id="applyFilterBtn">Apply Filter</button>
+    </div>
+</div>
 
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Explicitly initialize Bootstrap dropdowns
-            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
-            var dropdownList = dropdownElementList.map(function(dropdownToggleEl) {
-                return new bootstrap.Dropdown(dropdownToggleEl);
-            });
-
             // Elements
             const gridView = document.getElementById('gridView');
             const listView = document.getElementById('listView');
@@ -260,12 +269,53 @@
             const emptyState = document.getElementById('emptyState');
             const userSearch = document.getElementById('userSearch');
             const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-            const filterItems = document.querySelectorAll('[data-filter]');
-            const filterDropdownButton = document.querySelector('#filterDropdown span');
+            const filterBtn = document.getElementById('filterBtn');
+            const filterDropdown = document.getElementById('filterDropdown');
+            const closeFilterBtn = document.getElementById('closeFilterBtn');
+            const applyFilterBtn = document.getElementById('applyFilterBtn');
+            const resetFilterBtn = document.getElementById('resetFilterBtn');
             const resetPasswordBtns = document.querySelectorAll('.reset-password-btn');
             
-            // Store the active filter
-            let activeFilter = 'all';
+            // Store active filters
+            let activeStatusFilter = 'all';
+            let activeRoleFilter = 'all';
+
+            // Click outside to close dropdown menus
+            document.addEventListener('click', function(e) {
+                // Close all menu dropdowns when clicking outside
+                const dropdowns = document.querySelectorAll('.dropdown-menu');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(e.target) && 
+                        !e.target.classList.contains('btn-menu') && 
+                        !e.target.classList.contains('dropdown-btn')) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+                
+                // Close filter dropdown when clicking outside
+                if (filterDropdown && !filterDropdown.contains(e.target) && e.target !== filterBtn) {
+                    filterDropdown.classList.remove('show');
+                }
+            });
+
+            // Toggle dropdown menu
+            window.toggleDropdown = function(userId) {
+                const dropdown = document.getElementById(`dropdown-${userId}`);
+                if (!dropdown) return;
+                
+                // Close all other dropdowns first
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    if (menu !== dropdown) {
+                        menu.classList.remove('show');
+                    }
+                });
+                
+                // Toggle current dropdown
+                dropdown.classList.toggle('show');
+                
+                // Prevent event from bubbling up
+                event.stopPropagation();
+            };
 
             // View toggle functionality
             function setActiveView(view) {
@@ -316,8 +366,8 @@
 
                 // Process grid items
                 document.querySelectorAll('#usersGridView .user-card').forEach(card => {
-                    if (userMatchesFilters(card, searchTerm, activeFilter)) {
-                        card.style.display = 'flex';
+                    if (userMatchesFilters(card, searchTerm)) {
+                        card.style.display = 'block';
                         visibleCount++;
                     } else {
                         card.style.display = 'none';
@@ -326,7 +376,7 @@
 
                 // Process list items
                 document.querySelectorAll('#usersListView tbody tr').forEach(row => {
-                    if (userMatchesFilters(row, searchTerm, activeFilter)) {
+                    if (userMatchesFilters(row, searchTerm)) {
                         row.style.display = '';
                         visibleCount++;
                     } else {
@@ -338,17 +388,17 @@
                 updateEmptyState(visibleCount === 0);
             }
 
-            function userMatchesFilters(element, searchTerm, filter) {
+            function userMatchesFilters(element, searchTerm) {
                 if (!element || !element.dataset) return false;
                 
                 // Status filter
-                if (filter === 'active' && element.dataset.status !== 'active') return false;
-                if (filter === 'inactive' && element.dataset.status !== 'inactive') return false;
+                if (activeStatusFilter === 'active' && element.dataset.status !== 'active') return false;
+                if (activeStatusFilter === 'inactive' && element.dataset.status !== 'inactive') return false;
 
                 // Role filter
-                if (filter === 'admin' && !element.dataset.role.includes('administrator')) return false;
-                if (filter === 'manager' && !element.dataset.role.includes('manager')) return false;
-                if (filter === 'agent' && !element.dataset.role.includes('agent')) return false;
+                if (activeRoleFilter === 'admin' && !element.dataset.role.includes('admin')) return false;
+                if (activeRoleFilter === 'manager' && !element.dataset.role.includes('manager')) return false;
+                if (activeRoleFilter === 'user' && !element.dataset.role.includes('user')) return false;
 
                 // Search term
                 if (searchTerm) {
@@ -377,65 +427,96 @@
                 userSearch.addEventListener('input', filterUsers);
             }
 
-            // Filter dropdown functionality
-            if (filterItems && filterItems.length > 0) {
-                filterItems.forEach(item => {
-                    item.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        
-                        // Update active filter
-                        activeFilter = this.dataset.filter;
-                        
-                        // Update UI
-                        filterItems.forEach(el => {
-                            el.classList.remove('active');
-                        });
-                        this.classList.add('active');
-                        
-                        // Update dropdown button text
-                        if (filterDropdownButton) {
-                            filterDropdownButton.textContent = this.textContent;
-                        }
-                        
-                        // Apply filter
-                        filterUsers();
-                    });
+            // Filter button
+            if (filterBtn) {
+                filterBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    filterDropdown.classList.toggle('show');
                 });
             }
 
-            // Reset filters button
+            // Close filter button
+            if (closeFilterBtn) {
+                closeFilterBtn.addEventListener('click', function() {
+                    filterDropdown.classList.remove('show');
+                });
+            }
+
+            // Apply filter button
+            if (applyFilterBtn) {
+                applyFilterBtn.addEventListener('click', function() {
+                    // Get selected status
+                    const statusRadios = document.querySelectorAll('input[name="status"]');
+                    for (const radio of statusRadios) {
+                        if (radio.checked) {
+                            activeStatusFilter = radio.value;
+                            break;
+                        }
+                    }
+                    
+                    // Get selected role
+                    const roleRadios = document.querySelectorAll('input[name="role"]');
+                    for (const radio of roleRadios) {
+                        if (radio.checked) {
+                            activeRoleFilter = radio.value;
+                            break;
+                        }
+                    }
+                    
+                    // Update filter button text
+                    if (activeStatusFilter !== 'all' || activeRoleFilter !== 'all') {
+                        filterBtn.classList.add('active');
+                        filterBtn.innerText = 'Filtered';
+                    } else {
+                        filterBtn.classList.remove('active');
+                        filterBtn.innerText = 'Filter';
+                    }
+                    
+                    // Apply filters
+                    filterUsers();
+                    
+                    // Close dropdown
+                    filterDropdown.classList.remove('show');
+                });
+            }
+
+            // Reset filter button (in filter dropdown)
+            if (resetFilterBtn) {
+                resetFilterBtn.addEventListener('click', function() {
+                    resetAllFilters();
+                });
+            }
+
+            // Reset filters button (in empty state)
             if (resetFiltersBtn) {
                 resetFiltersBtn.addEventListener('click', function() {
-                    resetFilters();
+                    resetAllFilters();
                 });
             }
 
-            function resetFilters() {
-                // Reset search input
+            function resetAllFilters() {
+                // Reset status radios
+                document.getElementById('statusAll').checked = true;
+                activeStatusFilter = 'all';
+                
+                // Reset role radios
+                document.getElementById('roleAll').checked = true;
+                activeRoleFilter = 'all';
+                
+                // Reset search
                 if (userSearch) {
                     userSearch.value = '';
                 }
                 
-                // Reset active filter
-                activeFilter = 'all';
-                
-                // Update dropdown button text
-                if (filterDropdownButton) {
-                    filterDropdownButton.textContent = 'Filter';
-                }
-                
-                // Update active state in dropdown
-                if (filterItems && filterItems.length > 0) {
-                    filterItems.forEach(el => {
-                        el.classList.remove('active');
-                        if (el.dataset.filter === 'all') {
-                            el.classList.add('active');
-                        }
-                    });
-                }
+                // Reset filter button
+                filterBtn.classList.remove('active');
+                filterBtn.innerText = 'Filter';
                 
                 // Apply filters
                 filterUsers();
+                
+                // Close dropdown
+                filterDropdown.classList.remove('show');
             }
 
             // Reset password functionality
@@ -458,6 +539,14 @@
                 
                 const token = tokenElement.value;
                 
+                // Show loading state
+                const btn = document.querySelector(`.reset-password-btn[data-user-id="${userId}"]`);
+                if (btn) {
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Resetting...';
+                    btn.disabled = true;
+                }
+                
                 // Send request
                 fetch(`/Users/ResetPassword/${userId}`, {
                     method: 'POST',
@@ -476,55 +565,75 @@
                 })
                 .then(data => {
                     showToast('success', 'Password reset email has been sent!');
+                    
+                    // Reset button
+                    if (btn) {
+                        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Reset Password';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="bi bi-key-fill"></i> Reset Password';
+                            btn.disabled = false;
+                        }, 2000);
+                    }
                 })
                 .catch(error => {
                     showToast('error', error.message || 'Failed to reset password');
+                    
+                    // Reset button
+                    if (btn) {
+                        btn.innerHTML = '<i class="bi bi-x-circle-fill"></i> Failed';
+                        setTimeout(() => {
+                            btn.innerHTML = '<i class="bi bi-key-fill"></i> Reset Password';
+                            btn.disabled = false;
+                        }, 2000);
+                    }
                 });
             }
 
-            // Toast notification function
+            // Toast notification
             function showToast(type, message) {
-                const toastContainer = document.querySelector('.toast-container');
-                if (!toastContainer) return;
+                // Create toast container if it doesn't exist
+                let toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.className = 'toast-container';
+                    document.body.appendChild(toastContainer);
+                }
                 
-                const toastEl = document.createElement('div');
-                toastEl.className = `toast ${type === 'success' ? 'bg-success text-white' : 'bg-danger text-white'}`;
-                toastEl.setAttribute('role', 'alert');
-                toastEl.setAttribute('aria-live', 'assertive');
-                toastEl.setAttribute('aria-atomic', 'true');
+                // Create toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
                 
-                const icon = type === 'success' 
-                    ? '<i class="bi bi-check-circle me-2"></i>' 
-                    : '<i class="bi bi-exclamation-circle me-2"></i>';
-                
-                toastEl.innerHTML = `
-                    <div class="toast-header">
-                        ${icon}
-                        <strong class="me-auto">${type === 'success' ? 'Success' : 'Error'}</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                // Toast content
+                toast.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'}"></i>
                     </div>
-                    <div class="toast-body">
-                        ${message}
+                    <div class="toast-content">
+                        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                        <div class="toast-message">${message}</div>
                     </div>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="bi bi-x"></i>
+                    </button>
                 `;
                 
-                toastContainer.appendChild(toastEl);
+                // Add to container
+                toastContainer.appendChild(toast);
                 
-                // Use Bootstrap 5 Toast API
-                const toast = new bootstrap.Toast(toastEl, {
-                    autohide: true,
-                    delay: 5000
-                });
-                
-                toast.show();
-                
-                // Remove from DOM after hidden
-                toastEl.addEventListener('hidden.bs.toast', function() {
-                    toastContainer.removeChild(toastEl);
-                });
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.classList.add('hiding');
+                        setTimeout(() => {
+                            if (toast.parentNode) {
+                                toast.parentNode.removeChild(toast);
+                            }
+                        }, 300);
+                    }
+                }, 5000);
             }
 
-            // Run initial filter to set up the view correctly
+            // Run initial filter
             filterUsers();
         });
     </script>
@@ -533,94 +642,81 @@
 @section Styles {
     <style>
         :root {
-            --primary-color: #0d6efd;
-            --primary-hover: #0b5ed7;
-            --success-color: #198754;
-            --success-hover: #157347;
-            --danger-color: #dc3545;
-            --danger-hover: #bb2d3b;
-            --warning-color: #ffc107;
-            --info-color: #0dcaf0;
-            --secondary-color: #6c757d;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-            --color-gray-50: #f9fafb;
-            --color-gray-100: #f8f9fa;
-            --color-gray-200: #e9ecef;
-            --color-gray-300: #dee2e6;
-            --color-gray-400: #ced4da;
-            --color-gray-500: #adb5bd;
-            --color-gray-600: #6c757d;
-            --color-gray-700: #495057;
-            --color-gray-800: #343a40;
-            --color-gray-900: #212529;
-            --color-primary: #0d6efd;
-            --color-secondary: #6c757d;
-            --color-success: #198754;
-            --color-danger: #dc3545;
-            --border-radius: 0.375rem;
-            --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+            --primary: #0d6efd;
+            --primary-dark: #0a58ca;
+            --primary-light: #e7f0ff;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-400: #ced4da;
+            --gray-500: #adb5bd;
+            --gray-600: #6c757d;
+            --gray-700: #495057;
+            --gray-800: #343a40;
+            --gray-900: #212529;
         }
 
-        /* Page Layout */
+        /* Global styles */
+        body {
+            background-color: #f5f7fa;
+            color: var(--gray-700);
+        }
+
+        /* Page header */
         .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
 
         .page-title {
             font-size: 1.75rem;
             font-weight: 600;
+            color: var(--gray-800);
             margin: 0 0 0.25rem;
-            color: var(--color-gray-800);
         }
 
-        .text-muted {
-            color: var(--color-gray-600);
+        .text-secondary {
+            color: var(--gray-600) !important;
+            font-size: 0.95rem;
         }
 
-        .page-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        /* Card Styles */
-        .card {
-            background-color: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--color-gray-200);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 1.25rem;
-            background-color: #fff;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        /* Card Header Actions */
-        .card-header-actions {
+        /* Search and Filter Container */
+        .search-filter-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
 
-        .search-box {
+        .search-wrapper {
             position: relative;
-            width: 300px;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 0.5rem 0.5rem 2rem;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--gray-100);
+            font-size: 0.875rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 0 2px var(--primary-light);
         }
 
         .search-icon {
@@ -628,268 +724,368 @@
             left: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--color-gray-500);
+            color: var(--gray-500);
+            font-size: 0.875rem;
         }
 
-        .search-input {
-            padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-            border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius);
-            width: 100%;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
-        }
-
-        .view-options {
+        .filter-wrapper {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .view-option {
-            width: 36px;
-            height: 36px;
+        .btn-filter {
+            background-color: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-filter:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-filter.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .view-switcher {
+            display: flex;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .btn-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: var(--border-radius);
-            border: 1px solid transparent;
-            background-color: transparent;
-            color: var(--color-gray-600);
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            border: none;
+            color: var(--gray-600);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s;
         }
 
-        .view-option:hover {
-            background-color: var(--color-gray-100);
-            color: var(--color-gray-700);
+        .btn-icon:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
         }
 
-        .view-option.active {
-            background-color: var(--color-gray-100);
-            color: var(--primary-color);
-            border-color: var(--primary-color);
+        .btn-icon.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
         }
 
-        /* Users Grid */
+        /* User Grid */
         .users-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .users-grid.empty-results {
-            display: block;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
         }
 
         .user-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--color-gray-200);
+            background-color: transparent;
+        }
+
+        .user-card-inner {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            position: relative;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeInUp 0.5s ease forwards;
-            opacity: 0;
-            height: 100%;
         }
 
-        @@keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .user-card-inner:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
         }
 
-        .user-card:nth-child(1) { animation-delay: 0.05s; }
-        .user-card:nth-child(2) { animation-delay: 0.1s; }
-        .user-card:nth-child(3) { animation-delay: 0.15s; }
-        .user-card:nth-child(4) { animation-delay: 0.2s; }
-        .user-card:nth-child(5) { animation-delay: 0.25s; }
-        .user-card:nth-child(6) { animation-delay: 0.3s; }
-        .user-card:nth-child(7) { animation-delay: 0.35s; }
-        .user-card:nth-child(8) { animation-delay: 0.4s; }
-        .user-card:nth-child(9) { animation-delay: 0.45s; }
-        .user-card:nth-child(10) { animation-delay: 0.5s; }
-        .user-card:nth-child(11) { animation-delay: 0.55s; }
-        .user-card:nth-child(12) { animation-delay: 0.6s; }
-
-        .user-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--color-gray-300);
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
         }
 
-        .user-card-header {
-            padding: 1.25rem;
+        .status-indicator.active {
+            background-color: var(--success);
+            box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
+        }
+
+        .status-indicator.inactive {
+            background-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.2);
+        }
+
+        .menu-dropdown {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        .btn-menu {
+            background: transparent;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--color-gray-200);
+            justify-content: center;
+            color: var(--gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-menu:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 1000;
+            display: none;
+            min-width: 180px;
+            padding: 0.5rem 0;
+            margin: 0.125rem 0 0;
+            background-color: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.2s;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.625rem 1rem;
+            color: var(--gray-700);
+            text-decoration: none;
+            background-color: transparent;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item i {
+            margin-right: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--gray-100);
+            color: var(--gray-900);
+        }
+
+        .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid var(--gray-200);
+        }
+
+        .user-avatar-container {
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem 1rem;
         }
 
         .user-avatar {
-            width: 48px;
-            height: 48px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            font-size: 1.125rem;
+            font-size: 1.5rem;
             color: white;
-            text-transform: uppercase;
+            background-color: var(--primary);
         }
 
-        .user-avatar.active {
-            background-color: var(--primary-color);
+        .user-avatar.admin {
+            background-color: var(--danger);
         }
 
-        .user-avatar.inactive {
-            background-color: var(--secondary-color);
+        .user-avatar.manager {
+            background-color: var(--info);
         }
 
-        .user-status {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.75rem;
-            border-radius: 100px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        .user-status.active {
-            background-color: rgba(32, 201, 151, 0.1);
-            color: var(--success-color);
-        }
-
-        .user-status.inactive {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--secondary-color);
-        }
-
-        .user-card-body {
-            padding: 1.25rem;
-            flex: 1;
+        .user-info {
+            padding: 0 1.5rem;
             display: flex;
             flex-direction: column;
+            align-items: center;
+            text-align: center;
+            flex-grow: 1;
         }
 
         .user-name {
             font-size: 1.125rem;
             font-weight: 600;
+            color: var(--gray-800);
             margin: 0 0 0.25rem;
-            color: var(--color-gray-800);
         }
 
         .user-email {
             font-size: 0.875rem;
-            color: var(--color-gray-500);
-            margin-bottom: 1.25rem;
-            word-break: break-all;
+            color: var(--gray-600);
+            margin-bottom: 1rem;
         }
 
-        .user-details {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-            margin-bottom: 1.25rem;
+        .user-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1rem;
         }
 
-        .user-detail {
-            min-width: 0;
-        }
-
-        .detail-label {
+        .badge {
+            padding: 0.35em 0.65em;
             font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
+            font-weight: 600;
+            border-radius: 4px;
+            display: inline-block;
         }
 
-        .detail-value {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--color-gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .role-badge {
+            background-color: var(--primary-light);
+            color: var(--primary);
         }
 
-        .user-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
+        .dept-badge {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .user-meta {
             margin-top: auto;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
+            padding: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
         }
 
-        .user-stat {
-            min-width: 0;
-        }
-
-        .stat-label {
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
             font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-value {
-            font-size: 0.875rem;
-            color: var(--color-gray-800);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            color: var(--gray-600);
         }
 
         .user-card-footer {
-            padding: 1rem 1.25rem;
-            border-top: 1px solid var(--color-gray-200);
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--gray-200);
             display: flex;
+            justify-content: center;
+        }
+
+        .btn-edit {
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        /* List View */
+        .btn-edit:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-edit i {
+            margin-right: 0.5rem;
+        }
+
+        /* User List */
         .users-list {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .users-list.empty-results {
-            display: none;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
 
         .table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 0;
         }
 
         .table th {
-            text-align: left;
-            padding: 0.75rem 1rem;
-            background-color: var(--color-gray-50);
-            border-bottom: 2px solid var(--color-gray-200);
+            background-color: var(--gray-100);
+            color: var(--gray-700);
             font-weight: 600;
-            color: var(--color-gray-700);
-            white-space: nowrap;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+            border-bottom: 1px solid var(--gray-200);
         }
 
         .table td {
             padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--color-gray-200);
+            border-bottom: 1px solid var(--gray-200);
             vertical-align: middle;
         }
 
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
         .table tr:hover td {
-            background-color: var(--color-gray-50);
+            background-color: var(--gray-50);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.75rem;
+        }
+
+        .status-dot.active {
+            background-color: var(--success);
+            box-shadow: 0 0 0 2px rgba(25, 135, 84, 0.2);
+        }
+
+        .status-dot.inactive {
+            background-color: var(--secondary);
+            box-shadow: 0 0 0 2px rgba(108, 117, 125, 0.2);
         }
 
         .list-avatar {
@@ -902,97 +1098,235 @@
             font-weight: 600;
             font-size: 0.875rem;
             color: white;
-            margin-right: 1rem;
-            text-transform: uppercase;
-        }
-
-        .list-avatar.active {
-            background-color: var(--primary-color);
-        }
-
-        .list-avatar.inactive {
-            background-color: var(--secondary-color);
+            margin-right: 0.75rem;
+            background-color: var(--primary);
         }
 
         .list-user-info {
-            min-width: 0;
+            display: flex;
+            flex-direction: column;
         }
 
         .list-user-name {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-            color: var(--color-gray-800);
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.125rem;
         }
 
         .list-user-email {
             font-size: 0.75rem;
-            color: var(--color-gray-500);
+            color: var(--gray-600);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-pill.active {
+            background-color: rgba(25, 135, 84, 0.15);
+            color: var(--success);
+        }
+
+        .status-pill.inactive {
+            background-color: rgba(108, 117, 125, 0.15);
+            color: var(--secondary);
         }
 
         .list-actions {
             display: flex;
-            align-items: center;
+            justify-content: flex-end;
             gap: 0.5rem;
         }
 
         /* Empty State */
         .empty-state {
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 3rem 1rem;
+            padding: 3rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             text-align: center;
         }
 
         .empty-state-icon {
             font-size: 3rem;
-            color: var(--color-gray-400);
+            color: var(--gray-400);
             margin-bottom: 1rem;
         }
 
         .empty-state-title {
             font-size: 1.25rem;
             font-weight: 600;
+            color: var(--gray-800);
             margin-bottom: 0.5rem;
-            color: var(--color-gray-700);
         }
 
         .empty-state-message {
-            color: var(--color-gray-500);
+            color: var(--gray-600);
             margin-bottom: 1.5rem;
-            max-width: 400px;
+            max-width: 300px;
         }
 
-        /* Toast Notification */
-        .toast-notification {
+        /* Filter Dropdown */
+        .filter-dropdown {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;
+            width: 100%;
+            max-width: 400px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            padding: 1.5rem;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .filter-dropdown.show {
+            display: block;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            margin: 0;
+        }
+
+        .btn-close {
+            background: transparent;
+            border: none;
+            color: var(--gray-600);
+            font-size: 1.125rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .btn-close:hover {
+            color: var(--gray-800);
+            background-color: var(--gray-100);
+        }
+
+        .filter-options {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .filter-group h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+            margin: 0 0 0.75rem;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-option label {
+            margin-left: 0.625rem;
+            font-size: 0.875rem;
+            color: var(--gray-700);
+            cursor: pointer;
+        }
+
+        .filter-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-light {
+            background-color: var(--gray-200);
+            color: var(--gray-700);
+        }
+
+        .btn-light:hover {
+            background-color: var(--gray-300);
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1060;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .toast {
             display: flex;
             align-items: flex-start;
             background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             padding: 1rem;
-            width: 320px;
-            z-index: 1060;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
+            width: 300px;
+            animation: slideIn 0.3s;
         }
 
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
+        .toast.hiding {
+            animation: slideOut 0.3s;
         }
 
-        .toast-notification.success {
-            border-left: 4px solid var(--success-color);
+        .toast.success {
+            border-left: 4px solid var(--success);
         }
 
-        .toast-notification.error {
-            border-left: 4px solid var(--danger-color);
+        .toast.error {
+            border-left: 4px solid var(--danger);
         }
 
         .toast-icon {
@@ -1000,12 +1334,12 @@
             font-size: 1.25rem;
         }
 
-        .toast-notification.success .toast-icon {
-            color: var(--success-color);
+        .toast.success .toast-icon {
+            color: var(--success);
         }
 
-        .toast-notification.error .toast-icon {
-            color: var(--danger-color);
+        .toast.error .toast-icon {
+            color: var(--danger);
         }
 
         .toast-content {
@@ -1015,336 +1349,83 @@
         .toast-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
-            color: var(--color-gray-800);
+            color: var(--gray-800);
         }
 
         .toast-message {
             font-size: 0.875rem;
-            color: var(--color-gray-600);
+            color: var(--gray-700);
         }
 
         .toast-close {
-            background: none;
+            background: transparent;
             border: none;
-            font-size: 1.25rem;
-            color: var(--color-gray-500);
+            color: var(--gray-500);
+            font-size: 1rem;
             cursor: pointer;
             padding: 0;
             margin-left: 0.75rem;
-            transition: color 0.15s ease;
+            transition: all 0.2s;
         }
 
         .toast-close:hover {
-            color: var(--color-gray-700);
+            color: var(--gray-700);
         }
 
-        /* Dropdown Styles */
-        .dropdown {
-            position: relative;
-            display: inline-block;
+        /* Animations */
+        @@keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        .dropdown-toggle::after {
-            display: inline-block;
-            margin-left: 0.255em;
-            vertical-align: 0.255em;
-            content: "";
-            border-top: 0.3em solid;
-            border-right: 0.3em solid transparent;
-            border-bottom: 0;
-            border-left: 0.3em solid transparent;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            right: 0;
-            z-index: 1000;
-            display: none;
-            min-width: 10rem;
-            padding: 0.5rem 0;
-            margin: 0.125rem 0 0;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
-            text-align: left;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid var(--color-gray-200);
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-        }
-
-        .dropdown-menu.show {
-            display: block;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .dropdown-menu-end {
-            right: 0;
-            left: auto;
-        }
-
-        .dropdown-item {
-            display: block;
-            width: 100%;
-            padding: 0.5rem 1rem;
-            clear: both;
-            font-weight: 400;
-            color: var(--color-gray-700);
-            text-align: inherit;
-            white-space: nowrap;
-            background-color: transparent;
-            border: 0;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .dropdown-item:hover, .dropdown-item:focus {
-            color: var(--color-gray-900);
-            background-color: var(--color-gray-100);
-            text-decoration: none;
-        }
-
-        .dropdown-item.active {
-            color: #fff;
-            background-color: var(--primary-color);
-        }
-
-        .dropdown-divider {
-            height: 0;
-            margin: 0.5rem 0;
-            overflow: hidden;
-            border-top: 1px solid var(--color-gray-200);
-        }
-
-        /* Badge Styles */
-        .badge {
-            display: inline-block;
-            padding: 0.35em 0.65em;
-            font-size: 0.75em;
-            font-weight: 500;
-            line-height: 1;
-            color: #fff;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: baseline;
-            border-radius: 0.25rem;
-        }
-
-        .bg-success {
-            background-color: var(--success-color);
-        }
-
-        .bg-secondary {
-            background-color: var(--secondary-color);
-        }
-
-        /* Button Styles */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 500;
-            text-align: center;
-            vertical-align: middle;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            border-radius: var(--border-radius);
-            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
-
-        .btn i {
-            margin-right: 0.375rem;
-        }
-
-        .btn-primary {
-            color: #fff;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .btn-outline {
-            color: var(--color-gray-700);
-            background-color: transparent;
-            border-color: var(--color-gray-300);
-        }
-
-        .btn-outline:hover {
-            color: var(--primary-color);
-            border-color: var(--primary-color);
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        .btn-outline-primary {
-            color: var(--primary-color);
-            background-color: transparent;
-            border-color: var(--primary-color);
-        }
-
-        .btn-outline-primary:hover {
-            color: #fff;
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-            border-radius: 0.25rem;
-        }
-
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2rem;
-            height: 2rem;
-            padding: 0;
-            border-radius: 50%;
-            color: var(--color-gray-600);
-            background-color: transparent;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-icon:hover {
-            color: var(--primary-color);
-            background-color: rgba(13, 110, 253, 0.1);
-        }
-
-        /* Helper Classes */
-        .required {
-            color: var(--danger-color);
-        }
-
-        .mb-3 {
-            margin-bottom: 1rem !important;
-        }
-
-        .me-2 {
-            margin-right: 0.5rem !important;
-        }
-
-        .me-3 {
-            margin-right: 1rem !important;
-        }
-
-        .ms-auto {
-            margin-left: auto !important;
-        }
-
-        .mt-1 {
-            margin-top: 0.25rem !important;
-        }
-
-        .mt-2 {
-            margin-top: 0.5rem !important;
-        }
-
-        .d-flex {
-            display: flex !important;
-        }
-
-        .d-inline {
-            display: inline !important;
-        }
-
-        .d-none {
-            display: none !important;
-        }
-
-        .align-items-center {
-            align-items: center !important;
-        }
-
-        .text-danger {
-            color: var(--danger-color) !important;
-        }
-
-        .text-success {
-            color: var(--success-color) !important;
-        }
-
-        .text-warning {
-            color: var(--warning-color) !important;
-        }
-
-        /* Responsive Adjustments */
-        @@media (max-width: 1200px) {
-            .users-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        @@keyframes slideIn {
+            from { 
+                transform: translateX(100%);
+                opacity: 0;
             }
-
-            .search-box {
-                width: 250px;
+            to { 
+                transform: translateX(0);
+                opacity: 1;
             }
         }
 
-        @@media (max-width: 992px) {
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
+        @@keyframes slideOut {
+            from { 
+                transform: translateX(0);
+                opacity: 1;
             }
-
-            .page-actions {
-                width: 100%;
-                justify-content: space-between;
-            }
-
-            .card-header-actions {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .search-box {
-                width: 100%;
-            }
-
-            .view-options {
-                align-self: flex-end;
+            to { 
+                transform: translateX(100%);
+                opacity: 0;
             }
         }
 
+        /* Responsive */
         @@media (max-width: 768px) {
+            .search-filter-container {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+
+            .search-wrapper {
+                max-width: none;
+            }
+
             .users-grid {
                 grid-template-columns: 1fr;
             }
 
-            .user-details,
-            .user-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .list-user-info {
-                max-width: 150px;
-            }
-
-            .list-actions {
-                flex-direction: column;
-                align-items: flex-end;
+            .filter-dropdown {
+                max-width: 90%;
             }
         }
 
-        @@media (max-width: 576px) {
-            .row {
-                margin-right: -0.5rem;
-                margin-left: -0.5rem;
-            }
-
-            .col-md-6 {
-                padding-right: 0.5rem;
-                padding-left: 0.5rem;
-            }
-        }
+        /* Utility classes */
+        .d-flex { display: flex; }
+        .align-items-center { align-items: center; }
+        .text-end { text-align: right; }
+        .d-inline-block { display: inline-block; }
     </style>
 }
 
@@ -1356,12 +1437,22 @@
         if (timeSpan.TotalMinutes < 1)
             return "Just now";
         if (timeSpan.TotalMinutes < 60)
-            return $"{(int)timeSpan.TotalMinutes} minutes ago";
+            return $"{(int)timeSpan.TotalMinutes} min ago";
         if (timeSpan.TotalHours < 24)
             return $"{(int)timeSpan.TotalHours} hours ago";
         if (timeSpan.TotalDays < 7)
             return $"{(int)timeSpan.TotalDays} days ago";
 
         return dateTime.ToString("MMM d, yyyy");
+    }
+
+    public string GetRoleBadgeClass(string role)
+    {
+        if (role.Contains("Admin"))
+            return "admin";
+        if (role.Contains("Manager"))
+            return "manager";
+        
+        return "";
     }
 }
