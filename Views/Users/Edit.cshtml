@@ -3,328 +3,383 @@
     ViewData["Title"] = "Edit User";
 }
 
-<div class="edit-header">
-    <h1 class="edit-title">Edit User</h1>
-    <p class="text-secondary">Update user information and permissions</p>
-    <a href="/Users" class="back-link">← Back to Users</a>
-</div>
-
-<div class="user-profile">
-    <div class="user-avatar">@Model.FirstName[0]@Model.LastName[0]</div>
-    <div class="user-info">
-        <h2 class="user-name">@Model.FullName</h2>
-        <div class="user-meta">
-            <span class="user-role">@Model.Role</span>
-            <span class="user-department">@Model.Department</span>
-            <span class="user-status @(Model.IsActive ? "active" : "inactive")">
-                @(Model.IsActive ? "Active" : "Inactive")
-            </span>
+<div class="user-edit-container">
+    <!-- Header section -->
+    <div class="content-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Edit User</h1>
+            <p class="text-muted">Manage user information, permissions, and settings</p>
         </div>
-        <div class="user-stats">
-            <div class="stat-item">
-                <span class="stat-label">Created</span>
-                <span class="stat-value">@Model.CreatedAt.ToString("MMM d, yyyy")</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Last Login</span>
-                <span class="stat-value">
-                    @(Model.LastLogin?.ToString("MMM d, yyyy HH:mm") ?? "Never")
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<form id="userEditForm" asp-controller="Users" asp-action="Edit" method="post">
-    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-    <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="CreatedAt" />
-    <input type="hidden" asp-for="LastLogin" />
-
-    <div class="tabs">
-        <nav class="tabs-nav">
-            <a href="#" class="tab-link active" data-tab="basic-info">
-                <i class="bi bi-person"></i> Basic Info
+        <div>
+            <a href="/Users" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Users
             </a>
-            <a href="#" class="tab-link" data-tab="permissions">
-                <i class="bi bi-shield-lock"></i> Permissions
-            </a>
-            <a href="#" class="tab-link" data-tab="account">
-                <i class="bi bi-gear"></i> Account
-            </a>
-        </nav>
+        </div>
     </div>
 
-    <!-- Basic Info Tab -->
-    <div class="tab-content active" id="basic-info">
-        <div class="section">
-            <h3 class="section-title">Personal Information</h3>
-            
-            <div class="form-group">
-                <label asp-for="FirstName" class="form-label">First Name *</label>
-                <i class="bi bi-person input-icon"></i>
-                <input asp-for="FirstName" class="form-control" required />
-                <span asp-validation-for="FirstName" class="validation-message"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="LastName" class="form-label">Last Name *</label>
-                <i class="bi bi-person input-icon"></i>
-                <input asp-for="LastName" class="form-control" required />
-                <span asp-validation-for="LastName" class="validation-message"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="Email" class="form-label">Email Address *</label>
-                <i class="bi bi-envelope input-icon"></i>
-                <input asp-for="Email" class="form-control" type="email" required />
-                <span asp-validation-for="Email" class="validation-message"></span>
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-primary" onclick="navigateTab('permissions')">
-                    Continue →
-                </button>
+    <!-- User profile card -->
+    <div class="card profile-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center">
+                <div class="user-avatar-container me-4">
+                    <div class="user-avatar @(Model.Role.Contains("Admin") ? "bg-danger" : "bg-primary")">
+                        @(string.IsNullOrEmpty(Model.FirstName) || string.IsNullOrEmpty(Model.LastName) ? "U" : $"{Model.FirstName[0]}{Model.LastName[0]}")
+                    </div>
+                </div>
+                <div class="user-info flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h2 class="h4 mb-1">@Model.FullName</h2>
+                            <div class="d-flex gap-2 mt-1">
+                                <span class="badge bg-soft-primary">@Model.Role</span>
+                                <span class="badge bg-soft-secondary">@Model.Department</span>
+                                <span class="badge @(Model.IsActive ? "bg-soft-success" : "bg-soft-danger")">
+                                    @(Model.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="user-stats text-end small">
+                            <div class="text-muted mb-1">Created: @Model.CreatedAt.ToString("MMM d, yyyy")</div>
+                            <div class="text-muted">Last Login: @(Model.LastLogin?.ToString("MMM d, yyyy HH:mm") ?? "Never")</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Permissions Tab -->
-    <div class="tab-content" id="permissions">
-        <div class="section">
-            <h3 class="section-title">Role & Permissions</h3>
-            
-            <div class="form-group">
-                <label asp-for="Department" class="form-label">Department *</label>
-                <select asp-for="Department" class="form-select" required>
-                    <option value="">Select Department</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Customer Service">Customer Service</option>
-                    <option value="IT Support">IT Support</option>
-                    <option value="Sales">Sales</option>
-                    <option value="Billing">Billing</option>
-                    <option value="Technical">Technical</option>
-                    <option value="Operations">Operations</option>
-                </select>
-                <span asp-validation-for="Department" class="validation-message"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="Role" class="form-label">Role *</label>
-                <select asp-for="Role" class="form-select" required id="roleSelect">
-                    <option value="">Select Role</option>
-                    <option value="Administrator">Administrator</option>
-                    <option value="Department Manager">Department Manager</option>
-                    <option value="Support Agent">Support Agent</option>
-                </select>
-                <span asp-validation-for="Role" class="validation-message"></span>
-                <span class="helper-text">Role determines default permission set</span>
-            </div>
-            
-            <div class="permissions-section">
-                <div class="permissions-header">
-                    <h4>Access Permissions</h4>
-                    <div class="permissions-actions">
-                        <button type="button" class="btn-link" id="selectAllPermissions">
-                            Select All
+    <!-- Edit form -->
+    <form id="userEditForm" asp-controller="Users" asp-action="Edit" method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4" role="alert"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="CreatedAt" />
+        <input type="hidden" asp-for="LastLogin" />
+        
+        <!-- Tabs -->
+        <div class="card mb-4">
+            <div class="card-header p-0">
+                <ul class="nav nav-tabs nav-tabs-modern" id="userEditTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="basic-info-tab" data-bs-toggle="tab" data-bs-target="#basic-info" 
+                                type="button" role="tab" aria-controls="basic-info" aria-selected="true">
+                            <i class="bi bi-person me-2"></i>Basic Info
                         </button>
-                        <button type="button" class="btn-link" id="clearAllPermissions">
-                            Clear All
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="permissions-tab" data-bs-toggle="tab" data-bs-target="#permissions" 
+                                type="button" role="tab" aria-controls="permissions" aria-selected="false">
+                            <i class="bi bi-shield-lock me-2"></i>Permissions
                         </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="account-tab" data-bs-toggle="tab" data-bs-target="#account" 
+                                type="button" role="tab" aria-controls="account" aria-selected="false">
+                            <i class="bi bi-gear me-2"></i>Account
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-4">
+                <div class="tab-content" id="userEditTabsContent">
+                    <!-- Basic Info Tab -->
+                    <div class="tab-pane fade show active" id="basic-info" role="tabpanel" aria-labelledby="basic-info-tab">
+                        <h4 class="mb-4">Personal Information</h4>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input asp-for="FirstName" class="form-control" required placeholder="Enter first name" />
+                                </div>
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                    <input asp-for="LastName" class="form-control" required placeholder="Enter last name" />
+                                </div>
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input asp-for="Email" class="form-control" type="email" required placeholder="name@example.com" />
+                            </div>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Tab -->
+                    <div class="tab-pane fade" id="permissions" role="tabpanel" aria-labelledby="permissions-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h4 class="mb-0">Role & Department</h4>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Department" class="form-label">Department <span class="text-danger">*</span></label>
+                                <select asp-for="Department" class="form-select" required>
+                                    <option value="">Select Department</option>
+                                    <option value="Administration">Administration</option>
+                                    <option value="Customer Service">Customer Service</option>
+                                    <option value="IT Support">IT Support</option>
+                                    <option value="Sales">Sales</option>
+                                    <option value="Billing">Billing</option>
+                                    <option value="Technical">Technical</option>
+                                    <option value="Operations">Operations</option>
+                                </select>
+                                <span asp-validation-for="Department" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Role" class="form-label">Role <span class="text-danger">*</span></label>
+                                <select asp-for="Role" class="form-select" required id="roleSelect">
+                                    <option value="">Select Role</option>
+                                    <option value="Administrator">Administrator</option>
+                                    <option value="Department Manager">Department Manager</option>
+                                    <option value="Support Agent">Support Agent</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger small"></span>
+                                <div class="form-text">Role determines the default permission set</div>
+                            </div>
+                        </div>
+
+                        <div class="permissions-section mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0">Access Permissions</h5>
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-link" id="selectAllPermissions">
+                                        Select All
+                                    </button>
+                                    <span class="text-muted">|</span>
+                                    <button type="button" class="btn btn-sm btn-link" id="clearAllPermissions">
+                                        Clear All
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="row permission-groups">
+                                <!-- Dashboard & Analytics -->
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 permission-card">
+                                        <div class="card-header py-2 px-3">
+                                            <h6 class="mb-0"><i class="bi bi-speedometer2 me-2 text-primary"></i>Dashboard & Analytics</h6>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="permission-list">
+                                                <div class="permission-item mb-2">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" checked class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
+                                                        <label for="perm-dashboard" class="form-check-label">
+                                                            <div>View Dashboard</div>
+                                                            <small class="text-muted">Access to main dashboard and statistics</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="permission-item">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" checked class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
+                                                        <label for="perm-analytics" class="form-check-label">
+                                                            <div>View Analytics</div>
+                                                            <small class="text-muted">Access to advanced analytics and reports</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Chatbots -->
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 permission-card">
+                                        <div class="card-header py-2 px-3">
+                                            <h6 class="mb-0"><i class="bi bi-robot me-2 text-primary"></i>Chatbot Management</h6>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="permission-list">
+                                                <div class="permission-item mb-2">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-view-chatbots" name="Permissions[2].IsGranted" value="true" checked class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[2].Name" value="ViewChatbots" />
+                                                        <label for="perm-view-chatbots" class="form-check-label">
+                                                            <div>View Chatbots</div>
+                                                            <small class="text-muted">View configuration of all chatbots</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="permission-item">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-manage-chatbots" name="Permissions[3].IsGranted" value="true" class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[3].Name" value="ManageChatbots" />
+                                                        <label for="perm-manage-chatbots" class="form-check-label">
+                                                            <div>Manage Chatbots</div>
+                                                            <small class="text-muted">Create, edit and delete chatbots</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Knowledge Base -->
+                                <div class="col-md-4 mb-3">
+                                    <div class="card h-100 permission-card">
+                                        <div class="card-header py-2 px-3">
+                                            <h6 class="mb-0"><i class="bi bi-journal-text me-2 text-primary"></i>Knowledge Base</h6>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <div class="permission-list">
+                                                <div class="permission-item mb-2">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-view-kb" name="Permissions[4].IsGranted" value="true" checked class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[4].Name" value="ViewKnowledgeBases" />
+                                                        <label for="perm-view-kb" class="form-check-label">
+                                                            <div>View Knowledge Bases</div>
+                                                            <small class="text-muted">Access knowledge base content</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="permission-item">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" id="perm-manage-kb" name="Permissions[5].IsGranted" value="true" class="form-check-input permission-input" />
+                                                        <input type="hidden" name="Permissions[5].Name" value="ManageKnowledgeBases" />
+                                                        <label for="perm-manage-kb" class="form-check-label">
+                                                            <div>Manage Knowledge Bases</div>
+                                                            <small class="text-muted">Create, edit, and delete knowledge bases</small>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Tab -->
+                    <div class="tab-pane fade" id="account" role="tabpanel" aria-labelledby="account-tab">
+                        <h4 class="mb-4">Account Settings</h4>
+                        
+                        <div class="account-status card mb-4">
+                            <div class="card-body p-3">
+                                <div class="form-check form-switch">
+                                    <input asp-for="IsActive" class="form-check-input" id="accountActiveToggle" />
+                                    <label for="accountActiveToggle" class="form-check-label fw-medium">Account Active</label>
+                                </div>
+                                <p class="text-muted mb-0 small mt-1">@(Model.IsActive ? "User can access the system" : "User account is disabled")</p>
+                            </div>
+                        </div>
+                        
+                        <div class="password-section card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Password Management</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="password-options">
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="radio" id="resetPassword-no" name="resetPasswordOption" value="no" checked class="form-check-input" />
+                                            <label for="resetPassword-no" class="form-check-label fw-medium">No password reset</label>
+                                            <p class="form-text mb-0">Keep the current password unchanged</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="radio" id="resetPassword-email" name="resetPasswordOption" value="email" class="form-check-input" />
+                                            <label for="resetPassword-email" class="form-check-label fw-medium">Send password reset email</label>
+                                            <p class="form-text mb-0">User will receive email instructions to reset their password</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input type="radio" id="resetPassword-manual" name="resetPasswordOption" value="manual" class="form-check-input" />
+                                            <label for="resetPassword-manual" class="form-check-label fw-medium">Set password manually</label>
+                                            <p class="form-text mb-0">Directly enter a new password for this user</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="manualPasswordFields" style="display: none;" class="mt-4">
+                                    <div class="mb-3">
+                                        <label for="newPassword" class="form-label">New Password</label>
+                                        <div class="input-group">
+                                            <input type="password" id="newPassword" name="NewPassword" class="form-control" />
+                                            <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Toggle password visibility">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div class="mt-2">
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <div class="d-flex justify-content-end mt-1">
+                                                <small class="text-muted">Password strength: <span id="strengthLabel">Weak</span></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                        <div class="input-group">
+                                            <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
+                                            <button type="button" class="btn btn-outline-secondary password-toggle" aria-label="Toggle password visibility">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </div>
+                                        <div id="passwordMatch" class="small text-success mt-1" style="display: none;">
+                                            <i class="bi bi-check-circle me-1"></i>Passwords match
+                                        </div>
+                                        <div id="passwordMismatch" class="small text-danger mt-1" style="display: none;">
+                                            <i class="bi bi-exclamation-circle me-1"></i>Passwords do not match
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="permission-groups">
-                    <!-- Dashboard & Analytics -->
-                    <div class="permission-group">
-                        <h5><i class="bi bi-speedometer2"></i> Dashboard & Analytics</h5>
-                        <div class="permission-list">
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" checked class="permission-input" />
-                                    <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-dashboard">View Dashboard</label>
-                                    <span class="permission-desc">Access to main dashboard and statistics</span>
-                                </div>
-                            </div>
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" checked class="permission-input" />
-                                    <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-analytics">View Analytics</label>
-                                    <span class="permission-desc">Access to advanced analytics and reports</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Chatbots -->
-                    <div class="permission-group">
-                        <h5><i class="bi bi-robot"></i> Chatbot Management</h5>
-                        <div class="permission-list">
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-view-chatbots" name="Permissions[2].IsGranted" value="true" checked class="permission-input" />
-                                    <input type="hidden" name="Permissions[2].Name" value="ViewChatbots" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-view-chatbots">View Chatbots</label>
-                                    <span class="permission-desc">View configuration of all chatbots</span>
-                                </div>
-                            </div>
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-manage-chatbots" name="Permissions[3].IsGranted" value="true" class="permission-input" />
-                                    <input type="hidden" name="Permissions[3].Name" value="ManageChatbots" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-manage-chatbots">Manage Chatbots</label>
-                                    <span class="permission-desc">Create, edit and delete chatbots</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Knowledge Base -->
-                    <div class="permission-group">
-                        <h5><i class="bi bi-journal-text"></i> Knowledge Base</h5>
-                        <div class="permission-list">
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-view-kb" name="Permissions[4].IsGranted" value="true" checked class="permission-input" />
-                                    <input type="hidden" name="Permissions[4].Name" value="ViewKnowledgeBases" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-view-kb">View Knowledge Bases</label>
-                                    <span class="permission-desc">Access knowledge base content</span>
-                                </div>
-                            </div>
-                            <div class="permission-item">
-                                <div class="permission-checkbox">
-                                    <input type="checkbox" id="perm-manage-kb" name="Permissions[5].IsGranted" value="true" class="permission-input" />
-                                    <input type="hidden" name="Permissions[5].Name" value="ManageKnowledgeBases" />
-                                </div>
-                                <div class="permission-label">
-                                    <label for="perm-manage-kb">Manage Knowledge Bases</label>
-                                    <span class="permission-desc">Create, edit, and delete knowledge bases</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="navigateTab('basic-info')">
-                    ← Back
-                </button>
-                <button type="button" class="btn btn-primary" onclick="navigateTab('account')">
-                    Continue →
-                </button>
+            <div class="card-footer d-flex justify-content-end p-3">
+                <a href="/Users" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </div>
-    </div>
+    </form>
 
-    <!-- Account Tab -->
-    <div class="tab-content" id="account">
-        <div class="section">
-            <h3 class="section-title">Account Settings</h3>
-            
-            <div class="account-status">
-                <div class="status-toggle">
-                    <input asp-for="IsActive" class="toggle-input" id="accountActiveToggle" />
-                    <label for="accountActiveToggle" class="toggle-label"></label>
-                    <span class="toggle-text">Account Active</span>
-                </div>
-                <p class="status-description">@(Model.IsActive ? "User can access the system" : "User account is disabled")</p>
+    <!-- Delete User Section -->
+    <div class="card border-danger mt-4">
+        <div class="card-header bg-danger bg-opacity-10 text-danger">
+            <h4 class="mb-0 fs-5"><i class="bi bi-exclamation-triangle me-2"></i>Delete User</h4>
+        </div>
+        <div class="card-body p-4">
+            <p class="text-muted mb-3">Are you sure you want to delete this user? This action <strong>cannot be undone</strong>.</p>
+            <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                <div>To confirm, type <strong>DELETE</strong> in the field below:</div>
             </div>
             
-            <div class="password-section">
-                <h4>Password Management</h4>
-                
-                <div class="password-options">
-                    <div class="option">
-                        <input type="radio" id="resetPassword-no" name="resetPasswordOption" value="no" checked class="radio-input" />
-                        <label for="resetPassword-no" class="radio-label">No password reset</label>
-                        <p class="option-desc">Keep the current password unchanged</p>
-                    </div>
-                    
-                    <div class="option">
-                        <input type="radio" id="resetPassword-email" name="resetPasswordOption" value="email" class="radio-input" />
-                        <label for="resetPassword-email" class="radio-label">Send password reset email</label>
-                        <p class="option-desc">User will receive email instructions to reset their password</p>
-                    </div>
-                    
-                    <div class="option">
-                        <input type="radio" id="resetPassword-manual" name="resetPasswordOption" value="manual" class="radio-input" />
-                        <label for="resetPassword-manual" class="radio-label">Set password manually</label>
-                        <p class="option-desc">Directly enter a new password for this user</p>
-                    </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" id="deleteConfirmInput" class="form-control" placeholder="Type DELETE to confirm">
                 </div>
-                
-                <div id="manualPasswordFields" style="display: none;">
-                    <div class="form-group">
-                        <label for="newPassword" class="form-label">New Password</label>
-                        <input type="password" id="newPassword" name="NewPassword" class="form-control" />
-                        <button type="button" class="password-toggle" aria-label="Toggle password visibility">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <div class="password-strength">
-                            <div class="strength-meter">
-                                <div class="meter-fill" data-strength="0"></div>
-                            </div>
-                            <p class="strength-text">Password strength: <span>Weak</span></p>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="confirmPassword" class="form-label">Confirm Password</label>
-                        <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
-                        <button type="button" class="password-toggle" aria-label="Toggle password visibility">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <div id="passwordMatch" class="match-indicator success" style="display: none;">
-                            Passwords match
-                        </div>
-                        <div id="passwordMismatch" class="match-indicator error" style="display: none;">
-                            Passwords do not match
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="navigateTab('permissions')">
-                    ← Back
-                </button>
-                <button type="submit" class="btn btn-success">
-                    Save Changes
-                </button>
             </div>
         </div>
-    </div>
-</form>
-
-<!-- Delete User Section -->
-<div class="delete-section">
-    <h3 class="delete-title">Delete User</h3>
-    <p class="delete-warning">Are you sure you want to delete this user? This action <strong>cannot be undone</strong>.</p>
-    <p class="delete-instruction">To confirm, type <strong>DELETE</strong> in the field below:</p>
-    
-    <div class="delete-confirm">
-        <input type="text" id="deleteConfirmInput" class="form-control" placeholder="Type DELETE to confirm">
-    </div>
-    
-    <div class="delete-actions">
-        <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Cancel</button>
-        <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete User</button>
-        </form>
+        <div class="card-footer bg-danger bg-opacity-10 d-flex justify-content-end p-3">
+            <button type="button" class="btn btn-outline-secondary me-2" id="cancelDeleteBtn">Cancel</button>
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return validateDeleteForm()">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger" id="confirmDeleteBtn" disabled>Delete User</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -332,32 +387,13 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab navigation
-            const tabLinks = document.querySelectorAll('.tab-link');
-            const tabContents = document.querySelectorAll('.tab-content');
-            
-            window.navigateTab = function(tabId) {
-                // Update active tab
-                tabLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('data-tab') === tabId) {
-                        link.classList.add('active');
-                    }
-                });
-                
-                // Show selected content
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                    if (content.id === tabId) {
-                        content.classList.add('active');
-                    }
-                });
-            };
-            
-            tabLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    navigateTab(this.getAttribute('data-tab'));
+            // Tab navigation handling with bootstrap tabs
+            const triggerTabList = document.querySelectorAll('#userEditTabs button');
+            triggerTabList.forEach(tabEl => {
+                const tabTrigger = new bootstrap.Tab(tabEl);
+                tabEl.addEventListener('click', event => {
+                    event.preventDefault();
+                    tabTrigger.show();
                 });
             });
             
@@ -365,7 +401,7 @@
             const accountActiveToggle = document.getElementById('accountActiveToggle');
             if (accountActiveToggle) {
                 accountActiveToggle.addEventListener('change', function() {
-                    const statusDesc = document.querySelector('.status-description');
+                    const statusDesc = this.closest('.card-body').querySelector('p');
                     if (statusDesc) {
                         statusDesc.textContent = this.checked ? 
                             "User can access the system" : 
@@ -387,7 +423,7 @@
             // Password toggle visibility
             document.querySelectorAll('.password-toggle').forEach(toggle => {
                 toggle.addEventListener('click', function() {
-                    const input = this.previousElementSibling;
+                    const input = this.closest('.input-group').querySelector('input');
                     const icon = this.querySelector('i');
                     
                     input.type = input.type === 'password' ? 'text' : 'password';
@@ -401,6 +437,8 @@
             const confirmPassword = document.getElementById('confirmPassword');
             const passwordMatch = document.getElementById('passwordMatch');
             const passwordMismatch = document.getElementById('passwordMismatch');
+            const passwordStrength = document.getElementById('passwordStrength');
+            const strengthLabel = document.getElementById('strengthLabel');
             
             if (newPassword) {
                 newPassword.addEventListener('input', function() {
@@ -414,12 +452,7 @@
             }
             
             function updatePasswordStrength(password) {
-                if (!password) return;
-                
-                const meterFill = document.querySelector('.meter-fill');
-                const strengthText = document.querySelector('.strength-text span');
-                
-                if (!meterFill || !strengthText) return;
+                if (!password || !passwordStrength || !strengthLabel) return;
                 
                 // Calculate strength (simplified)
                 let strength = 0;
@@ -434,8 +467,12 @@
                 
                 // Update UI
                 const labels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-                meterFill.setAttribute('data-strength', strength);
-                strengthText.textContent = labels[strength];
+                const colors = ['#dc3545', '#ffc107', '#6c757d', '#0d6efd', '#198754'];
+                const width = ['20%', '40%', '60%', '80%', '100%'];
+                
+                passwordStrength.style.width = width[strength];
+                passwordStrength.style.backgroundColor = colors[strength];
+                strengthLabel.textContent = labels[strength];
             }
             
             function checkPasswordMatch() {
@@ -521,559 +558,222 @@
             }
             
             // Form validation
-            const userEditForm = document.getElementById('userEditForm');
-            
-            if (userEditForm) {
-                userEditForm.addEventListener('submit', function(e) {
-                    if (!this.checkValidity()) {
-                        e.preventDefault();
-                        this.classList.add('was-validated');
-                        return;
-                    }
-                    
-                    // Check password match for manual reset
-                    const resetOption = document.querySelector('input[name="resetPasswordOption"]:checked');
-                    if (resetOption && resetOption.value === 'manual') {
-                        if (newPassword.value !== confirmPassword.value) {
-                            e.preventDefault();
-                            passwordMismatch.style.display = 'block';
-                            passwordMatch.style.display = 'none';
-                            navigateTab('account');
-                            return;
-                        }
-                    }
-                });
-            }
+            window.validateDeleteForm = function() {
+                const confirmInput = document.getElementById('deleteConfirmInput');
+                return confirmInput.value === 'DELETE';
+            };
         });
     </script>
 }
 
 @section Styles {
     <style>
-        /* Layout */
-        .edit-header {
-            margin-bottom: 24px;
+        /* Custom styling for the edit user page */
+        :root {
+            --primary: #0d6efd;
+            --primary-soft: rgba(13, 110, 253, 0.1);
+            --danger: #dc3545;
+            --danger-soft: rgba(220, 53, 69, 0.1);
+            --success: #198754;
+            --warning: #ffc107;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --secondary: #6c757d;
+            --border-color: #e9ecef;
         }
-        
-        .edit-title {
-            font-size: 24px;
-            font-weight: 600;
-            margin: 0 0 8px;
+
+        .user-edit-container {
+            max-width: 1100px;
+            margin: 0 auto;
         }
-        
-        .back-link {
-            display: inline-block;
-            margin-top: 12px;
-            color: #0d6efd;
-            text-decoration: none;
+
+        /* Breadcrumb styling */
+        .breadcrumb {
+            background-color: transparent;
+            padding: 0;
+            margin-bottom: 1.5rem;
         }
-        
-        .back-link:hover {
-            text-decoration: underline;
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: "›";
         }
-        
-        /* User Profile */
-        .user-profile {
+
+        /* Card styling */
+        .card {
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-card {
+            background-color: #fff;
+        }
+
+        /* User avatar */
+        .user-avatar-container {
             display: flex;
-            align-items: center;
-            margin-bottom: 24px;
+            justify-content: center;
         }
-        
+
         .user-avatar {
-            width: 48px;
-            height: 48px;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
-            background-color: #0d6efd;
-            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 600;
-            margin-right: 16px;
+            font-size: 1.5rem;
+            color: white;
+            background-color: var(--primary);
         }
-        
-        .user-name {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0 0 8px;
+
+        .user-avatar.bg-danger {
+            background-color: var(--danger);
         }
-        
-        .user-meta {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .user-role,
-        .user-department,
-        .user-status {
-            font-size: 12px;
-            padding: 4px 8px;
+
+        /* Badge styling */
+        .badge {
+            font-weight: 500;
+            padding: 0.4em 0.8em;
             border-radius: 4px;
-            background-color: #e9ecef;
         }
-        
-        .user-status.active {
-            background-color: #d1e7dd;
-            color: #0f5132;
+
+        .bg-soft-primary {
+            background-color: var(--primary-soft);
+            color: var(--primary);
         }
-        
-        .user-status.inactive {
-            background-color: #f8d7da;
-            color: #842029;
+
+        .bg-soft-secondary {
+            background-color: rgba(108, 117, 125, 0.1);
+            color: var(--secondary);
         }
-        
-        .user-stats {
-            display: flex;
-            gap: 16px;
-            font-size: 12px;
+
+        .bg-soft-success {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: var(--success);
         }
-        
-        .stat-label {
-            color: #6c757d;
-            margin-right: 4px;
+
+        .bg-soft-danger {
+            background-color: var(--danger-soft);
+            color: var(--danger);
         }
-        
-        /* Tabs */
-        .tabs {
-            margin-bottom: 24px;
+
+        /* Tab styling */
+        .nav-tabs-modern {
+            border-bottom: 0;
         }
-        
-        .tabs-nav {
-            display: flex;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .tab-link {
-            padding: 12px 16px;
-            color: #495057;
-            text-decoration: none;
+
+        .nav-tabs-modern .nav-link {
+            border: none;
+            color: var(--secondary);
+            padding: 1rem 1.5rem;
+            font-weight: 500;
             border-bottom: 2px solid transparent;
-            font-weight: 500;
+            border-radius: 0;
+            transition: all 0.2s;
         }
-        
-        .tab-link:hover {
-            color: #0d6efd;
+
+        .nav-tabs-modern .nav-link:hover {
+            color: var(--primary);
+            border-bottom-color: rgba(13, 110, 253, 0.3);
         }
-        
-        .tab-link.active {
-            color: #0d6efd;
-            border-bottom-color: #0d6efd;
+
+        .nav-tabs-modern .nav-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: transparent;
         }
-        
-        .tab-link i {
-            margin-right: 8px;
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 24px 0;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        /* Form Elements */
-        .section {
-            margin-bottom: 32px;
-        }
-        
-        .section-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin: 0 0 24px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #dee2e6;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
+
+        /* Form styling */
         .form-label {
-            display: block;
-            margin-bottom: 8px;
             font-weight: 500;
+            margin-bottom: 0.5rem;
         }
-        
-        .form-control,
-        .form-select {
-            display: block;
-            width: 100%;
-            padding: 10px 12px;
-            font-size: 14px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            transition: border-color 0.15s ease-in-out;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 38px;
-            color: #6c757d;
-        }
-        
-        .input-icon + .form-control {
-            padding-left: 36px;
-        }
-        
-        .helper-text {
-            display: block;
-            margin-top: 6px;
-            font-size: 12px;
-            color: #6c757d;
-        }
-        
-        .validation-message {
-            display: block;
-            color: #dc3545;
-            font-size: 12px;
-            margin-top: 6px;
-        }
-        
-        /* Permissions */
-        .permissions-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        
-        .permissions-header h4 {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .permissions-actions {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .btn-link {
-            background: none;
-            border: none;
-            color: #0d6efd;
-            padding: 0;
-            font-size: 14px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        
-        .permission-groups {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 24px;
-        }
-        
-        .permission-group h5 {
-            font-size: 15px;
-            font-weight: 600;
-            margin: 0 0 16px;
-        }
-        
-        .permission-group h5 i {
-            margin-right: 8px;
-            color: #0d6efd;
-        }
-        
-        .permission-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .permission-item {
-            display: flex;
-            align-items: flex-start;
-        }
-        
-        .permission-checkbox {
-            margin-right: 12px;
-            padding-top: 2px;
-        }
-        
-        .permission-label label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        
-        .permission-desc {
-            font-size: 12px;
-            color: #6c757d;
-        }
-        
-        /* Account Settings */
-        .account-status {
-            margin-bottom: 24px;
-        }
-        
-        .status-toggle {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-        
-        .toggle-input {
-            position: absolute;
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-        
-        .toggle-label {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
-            background-color: #ced4da;
-            border-radius: 24px;
-            margin-right: 12px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .toggle-label:after {
-            content: "";
-            position: absolute;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background-color: white;
-            top: 3px;
-            left: 3px;
-            transition: left 0.2s;
-        }
-        
-        .toggle-input:checked + .toggle-label {
-            background-color: #0d6efd;
-        }
-        
-        .toggle-input:checked + .toggle-label:after {
-            left: 23px;
-        }
-        
-        .toggle-text {
-            font-weight: 500;
-        }
-        
-        .status-description {
-            font-size: 14px;
-            color: #6c757d;
-            margin: 0;
-        }
-        
-        /* Password Section */
-        .password-section {
-            margin-bottom: 24px;
-        }
-        
-        .password-section h4 {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0 0 16px;
-        }
-        
-        .password-options {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        
-        .option {
-            padding: 12px;
+
+        .form-control, .form-select {
             border: 1px solid #dee2e6;
-            border-radius: 4px;
-            transition: border-color 0.2s;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
-        
-        .option:has(.radio-input:checked) {
-            border-color: #0d6efd;
-            background-color: rgba(13, 110, 253, 0.05);
+
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
-        
-        .radio-label {
-            font-weight: 500;
-            display: inline-block;
-            margin-left: 8px;
-        }
-        
-        .option-desc {
-            margin: 8px 0 0 24px;
-            font-size: 14px;
-            color: #6c757d;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 12px;
-            top: 38px;
-            background: none;
-            border: none;
-            color: #6c757d;
-            cursor: pointer;
-        }
-        
-        .password-strength {
-            margin-top: 12px;
-        }
-        
-        .strength-meter {
-            height: 4px;
-            background-color: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 6px;
-        }
-        
-        .meter-fill {
-            height: 100%;
-            width: 0;
-            transition: all 0.3s;
-        }
-        
-        .meter-fill[data-strength="0"] { width: 20%; background-color: #dc3545; }
-        .meter-fill[data-strength="1"] { width: 40%; background-color: #ffc107; }
-        .meter-fill[data-strength="2"] { width: 60%; background-color: #fd7e14; }
-        .meter-fill[data-strength="3"] { width: 80%; background-color: #20c997; }
-        .meter-fill[data-strength="4"] { width: 100%; background-color: #198754; }
-        
-        .strength-text {
-            font-size: 12px;
-            color: #6c757d;
-            text-align: right;
-            margin: 0;
-        }
-        
-        .match-indicator {
-            font-size: 12px;
-            margin-top: 6px;
-        }
-        
-        .match-indicator.success {
-            color: #198754;
-        }
-        
-        .match-indicator.error {
-            color: #dc3545;
-        }
-        
-        /* Form Actions */
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 32px;
-            padding-top: 16px;
-            border-top: 1px solid #dee2e6;
-        }
-        
-        /* Delete Section */
-        .delete-section {
-            margin-top: 48px;
-            padding-top: 24px;
-            border-top: 1px solid #dc3545;
-        }
-        
-        .delete-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #dc3545;
-            margin: 0 0 16px;
-        }
-        
-        .delete-warning,
-        .delete-instruction {
-            margin-bottom: 16px;
-        }
-        
-        .delete-confirm {
-            margin-bottom: 16px;
-        }
-        
-        .delete-actions {
-            display: flex;
-            gap: 12px;
-        }
-        
-        /* Buttons */
-        .btn {
-            display: inline-block;
-            font-weight: 500;
-            text-align: center;
-            white-space: nowrap;
-            vertical-align: middle;
-            user-select: none;
-            border: 1px solid transparent;
-            padding: 10px 16px;
-            font-size: 14px;
-            line-height: 1.5;
-            border-radius: 4px;
-            transition: all 0.15s ease-in-out;
-            cursor: pointer;
-        }
-        
-        .btn-primary {
-            color: #fff;
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0b5ed7;
-            border-color: #0a58ca;
-        }
-        
-        .btn-secondary {
-            color: #6c757d;
+
+        .input-group-text {
             background-color: #f8f9fa;
             border-color: #dee2e6;
         }
-        
-        .btn-secondary:hover {
-            background-color: #e9ecef;
-            border-color: #ced4da;
+
+        /* Permission cards */
+        .permission-card {
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
         }
-        
-        .btn-success {
-            color: #fff;
-            background-color: #198754;
-            border-color: #198754;
+
+        .permission-card:hover {
+            border-color: rgba(13, 110, 253, 0.4);
         }
-        
-        .btn-success:hover {
-            background-color: #157347;
-            border-color: #146c43;
+
+        .permission-card .card-header {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-bottom: 1px solid var(--border-color);
         }
-        
-        .btn-danger {
-            color: #fff;
-            background-color: #dc3545;
-            border-color: #dc3545;
+
+        /* Form check styling */
+        .form-check-label {
+            cursor: pointer;
         }
-        
-        .btn-danger:hover {
-            background-color: #bb2d3b;
-            border-color: #b02a37;
+
+        .form-check-input {
+            cursor: pointer;
         }
-        
-        .btn:disabled {
-            opacity: 0.65;
-            pointer-events: none;
+
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
         }
-        
-        /* Responsive */
+
+        /* Password strength meter */
+        .progress {
+            overflow: hidden;
+            background-color: #f2f2f2;
+            border-radius: 0.25rem;
+        }
+
+        /* Animation for tab transitions */
+        .tab-pane.fade {
+            transition: opacity 0.15s linear;
+        }
+
+        /* Delete section */
+        .border-danger {
+            border-color: var(--danger-soft) !important;
+        }
+
+        /* Responsive adjustments */
         @@media (max-width: 768px) {
-            .permission-groups {
-                grid-template-columns: 1fr;
+            .user-info {
+                flex-direction: column;
+            }
+            
+            .user-stats {
+                margin-top: 1rem;
+                text-align: left;
             }
             
             .form-actions {
                 flex-direction: column;
-                gap: 12px;
+                gap: 0.5rem;
             }
             
             .form-actions .btn {
