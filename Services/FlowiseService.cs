@@ -57,25 +57,67 @@ public class FlowiseService : IFlowiseService
         return chatbot;
     }
 
-    public async Task<string> GenerateChatResponseAsync(int chatbotId, string message, string sessionId)
+public async Task<string> GenerateChatResponseAsync(int chatbotId, string message, string sessionId)
+{
+    try
     {
-        try
-        {
-            var chatbot = await _context.Chatbots.FindAsync(chatbotId);
-            if (chatbot == null)
-            {
-                return "Chatbot not found";
-            }
+        var chatbot = await _context.Chatbots.FindAsync(chatbotId);
+        if (chatbot == null) return "Chatbot not found";
 
-            // Placeholder for actual integration with Flowise
-            return $"Response from chatbot {chatbot.Name}: This is a placeholder response to '{message}'";
-        }
-        catch (Exception ex)
+        // Get Flowise chatflow ID
+        string flowiseId = chatbot.FlowiseId ?? _configuration["Flowise:DefaultChatflow"];
+        if (string.IsNullOrEmpty(flowiseId)) return "No Flowise chatflow ID configured";
+
+        // Prepare request
+        var requestData = new
         {
-            _logger.LogError(ex, "Error generating chat response");
-            return "An error occurred while processing your request.";
+            question = message,
+            sessionId = sessionId,
+            chatId = chatbot.Id.ToString(),
+            overrideConfig = new { chatHistory = true }
+        };
+
+        var content = new StringContent(
+            System.Text.Json.JsonSerializer.Serialize(requestData),
+            Encoding.UTF8,
+            "application/json");
+
+        // Call Flowise API
+        var response = await _httpClient.PostAsync($"prediction/{flowiseId}", content);
+        
+        if (response.IsSuccessStatusCode)
+        {
+            var responseJson = await response.Content.ReadAsStringAsync();
+            
+            using (JsonDocument doc = JsonDocument.Parse(responseJson))
+            {
+                // Extract text - adjust path based on Flowise response structure
+                if (doc.RootElement.TryGetProperty("text", out JsonElement textElement))
+                {
+                    return textElement.GetString() ?? "No response text found";
+                }
+                else if (doc.RootElement.TryGetProperty("result", out JsonElement resultElement))
+                {
+                    if (resultElement.ValueKind == JsonValueKind.String)
+                    {
+                        return resultElement.GetString() ?? "No response text found";
+                    }
+                }
+                
+                return responseJson;
+            }
         }
+        
+        var errorContent = await response.Content.ReadAsStringAsync();
+        _logger.LogError("Flowise API error: {ErrorContent}", errorContent);
+        return $"Error from Flowise API: {response.StatusCode}";
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error generating chat response");
+        return "An error occurred while processing your request.";
+    }
+}
 
     public async Task GetChatbotByIdAsync(object chatbotId)
     {
