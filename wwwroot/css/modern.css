@@ -1964,3 +1964,135 @@ img {
     content: " (" attr(href) ")";
   }
 }
+
+/* ====================
+   Tab System Styles
+   ==================== */
+
+/* Tab Content Container */
+.tab-content {
+  position: relative;
+  width: 100%;
+}
+
+/* Tab Pane Visibility */
+.tab-content > .tab-pane {
+  display: none;
+  width: 100%;
+}
+
+.tab-content > .active {
+  display: block;
+}
+
+/* Fade Animation Support */
+.fade {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.fade.show {
+  opacity: 1;
+}
+
+/* Tab Navigation Styling */
+.nav-tabs {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: none;
+}
+
+.nav-tabs .nav-item {
+  margin-bottom: 0.25rem;
+}
+
+.nav-tabs .nav-link {
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  color: var(--color-gray-700);
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-tabs .nav-link i {
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+  color: var(--color-gray-500);
+  transition: color 0.3s ease;
+  vertical-align: middle;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+}
+
+.nav-tabs .nav-link:hover i {
+  color: var(--color-gray-800);
+}
+
+/* Active Tab Styling */
+.nav-tabs .nav-link.active {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.nav-tabs .nav-link.active i {
+  color: var(--color-primary);
+}
+
+/* Active Tab Indicator */
+.nav-tabs .nav-link.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--color-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+/* Responsive Tab Navigation */
+@media (max-width: 991px) {
+  .nav-tabs {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-gray-200);
+    padding: 0;
+  }
+  
+  .nav-tabs .nav-item {
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .nav-tabs .nav-link {
+    padding: 0.5rem 1rem;
+  }
+  
+  .nav-tabs .nav-link.active::after {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: -1px;
+    width: auto;
+    height: 2px;
+  }
+}
+
+/* Settings Panel Animation */
+.settings-panel {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
