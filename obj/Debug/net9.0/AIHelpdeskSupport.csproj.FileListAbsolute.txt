@@ -1357,7 +1357,6 @@ C:\Users\got01\Desktop\TP-chatbot\obj\Debug\net9.0\ref\AIHelpdeskSupport.dll
 C:\Users\got01\Desktop\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5poun.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\4juo3d6crd-c749kre10r.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\a18zdfqr0q-v3ricjwtsy.gz
-C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\zygnymujis-lw8evtjwbp.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\lu8fhplpv1-xtxxf3hu2r.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\ookzxa6o9e-t1cqhe9u97.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\4io5f5hf03-sejl45xvog.gz
@@ -1405,3 +1404,4 @@ C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\win\lib\
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\linux\lib\net9.0\System.DirectoryServices.Protocols.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\osx\lib\net9.0\System.DirectoryServices.Protocols.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.DirectoryServices.Protocols.dll
+C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\zygnymujis-lw8evtjwbp.gz
