@@ -5,6 +5,10 @@ using AIHelpdeskSupport.ViewModels;
 using AIHelpdeskSupport.Services;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
+using System;
+using AIHelpdeskSupport.Data;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AIHelpdeskSupport.Controllers
 {
@@ -15,19 +19,22 @@ namespace AIHelpdeskSupport.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly IConfiguration _configuration;
         private readonly ILdapAuthenticationService _ldapService;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public AccountController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             ILogger<AccountController> logger,
             IConfiguration configuration,
-            ILdapAuthenticationService ldapService)
+            ILdapAuthenticationService ldapService,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _configuration = configuration;
             _ldapService = ldapService;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         [HttpGet]
@@ -58,6 +65,39 @@ namespace AIHelpdeskSupport.Controllers
 
                         if (existingUser == null)
                         {
+                            // Auto-create department if it doesn't exist
+                            if (!string.IsNullOrEmpty(ldapUser.Department))
+                            {
+                                using (var scope = _serviceScopeFactory.CreateScope())
+                                {
+                                    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                    
+                                    // Check if department exists by looking for any user or chatbot with this department
+                                    bool departmentExists = await dbContext.Users.AnyAsync(u => u.Department == ldapUser.Department) ||
+                                                         await dbContext.Chatbots.AnyAsync(c => c.Department == ldapUser.Department);
+                                    
+                                    if (!departmentExists)
+                                    {
+                                        // Create a default chatbot for this department
+                                        var chatbot = new Chatbot
+                                        {
+                                            Name = $"{ldapUser.Department} Bot",
+                                            Department = ldapUser.Department,
+                                            AiModel = "gpt-3.5-turbo",
+                                            Description = $"Default chatbot for {ldapUser.Department} department",
+                                            CreatedBy = "System",
+                                            IsActive = true
+                                        };
+                                        
+                                        dbContext.Chatbots.Add(chatbot);
+                                        await dbContext.SaveChangesAsync();
+                                        
+                                        _logger.LogInformation("Created new department {Department} for user {Username}", 
+                                            ldapUser.Department, ldapUser.UserName);
+                                    }
+                                }
+                            }
+
                             ldapUser.EmailConfirmed = true;
                             ldapUser.IsActive = true;
                             ldapUser.LastLoginAt = DateTime.Now;
@@ -80,14 +120,50 @@ namespace AIHelpdeskSupport.Controllers
                         }
                         else
                         {
+                            // Update existing user with LDAP data
                             existingUser.Email = ldapUser.Email;
                             existingUser.FirstName = ldapUser.FirstName;
                             existingUser.LastName = ldapUser.LastName;
-                            existingUser.Department = ldapUser.Department;
+                            
+                            // Update department and create if necessary
+                            if (!string.IsNullOrEmpty(ldapUser.Department) && existingUser.Department != ldapUser.Department)
+                            {
+                                using (var scope = _serviceScopeFactory.CreateScope())
+                                {
+                                    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                    
+                                    // Check if new department exists
+                                    bool departmentExists = await dbContext.Users.AnyAsync(u => u.Department == ldapUser.Department) ||
+                                                         await dbContext.Chatbots.AnyAsync(c => c.Department == ldapUser.Department);
+                                    
+                                    if (!departmentExists)
+                                    {
+                                        // Create a default chatbot for this department
+                                        var chatbot = new Chatbot
+                                        {
+                                            Name = $"{ldapUser.Department} Bot",
+                                            Department = ldapUser.Department,
+                                            AiModel = "gpt-3.5-turbo",
+                                            Description = $"Default chatbot for {ldapUser.Department} department",
+                                            CreatedBy = "System",
+                                            IsActive = true
+                                        };
+                                        
+                                        dbContext.Chatbots.Add(chatbot);
+                                        await dbContext.SaveChangesAsync();
+                                        
+                                        _logger.LogInformation("Created new department {Department} for user {Username}", 
+                                            ldapUser.Department, ldapUser.UserName);
+                                    }
+                                }
+                                
+                                existingUser.Department = ldapUser.Department;
+                            }
+                            
                             existingUser.LastLoginAt = DateTime.Now;
-
                             await _userManager.UpdateAsync(existingUser);
-
+                            
+                            // Update department claim
                             var claims = await _userManager.GetClaimsAsync(existingUser);
                             var deptClaim = claims.FirstOrDefault(c => c.Type == "Department");
                             if (deptClaim != null)
@@ -132,6 +208,38 @@ namespace AIHelpdeskSupport.Controllers
 
                         user.LastLoginAt = DateTime.Now;
                         await _userManager.UpdateAsync(user);
+
+                        // Ensure department exists
+                        if (!string.IsNullOrEmpty(user.Department))
+                        {
+                            using (var scope = _serviceScopeFactory.CreateScope())
+                            {
+                                var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                                
+                                // Check if department exists
+                                bool departmentExists = await dbContext.Chatbots.AnyAsync(c => c.Department == user.Department);
+                                
+                                if (!departmentExists)
+                                {
+                                    // Create a default chatbot for this department
+                                    var chatbot = new Chatbot
+                                    {
+                                        Name = $"{user.Department} Bot",
+                                        Department = user.Department,
+                                        AiModel = "gpt-3.5-turbo",
+                                        Description = $"Default chatbot for {user.Department} department",
+                                        CreatedBy = "System",
+                                        IsActive = true
+                                    };
+                                    
+                                    dbContext.Chatbots.Add(chatbot);
+                                    await dbContext.SaveChangesAsync();
+                                    
+                                    _logger.LogInformation("Created new department {Department} for local user {Username}", 
+                                        user.Department, user.UserName);
+                                }
+                            }
+                        }
 
                         await _signInManager.SignInAsync(user, model.RememberMe);
 
