@@ -13,6 +13,10 @@
             <i class="bi bi-arrow-left"></i>
             Back to List
         </a>
+        <a href="/Chatbot/Edit/@Model.Id" class="btn btn-primary">
+            <i class="bi bi-pencil"></i>
+            Edit Chatbot
+        </a>
     </div>
 </div>
 
@@ -26,8 +30,6 @@
                 <div class="details">
                     <h2>@Model.Name</h2>
                     <div class="badges">
-                        <span class="badge badge-info">@Model.AiModel</span>
-                        <span class="badge badge-secondary">@Model.Department</span>
                         <span class="badge @(Model.IsActive ? "badge-success" : "badge-danger")">
                             @(Model.IsActive ? "Active" : "Inactive")
                         </span>
@@ -49,16 +51,16 @@
             
             <div class="info-data">
                 <div class="data-item">
+                    <div class="data-label">Flowise ID</div>
+                    <div class="data-value text-truncate" title="@Model.FlowiseId">@Model.FlowiseId</div>
+                </div>
+                <div class="data-item">
                     <div class="data-label">Response Time</div>
                     <div class="data-value">2.4s</div>
                 </div>
                 <div class="data-item">
                     <div class="data-label">Accuracy</div>
                     <div class="data-value">92%</div>
-                </div>
-                <div class="data-item">
-                    <div class="data-label">Conversations</div>
-                    <div class="data-value">187</div>
                 </div>
             </div>
         </div>
@@ -90,17 +92,6 @@
                         <option value="new">New session</option>
                         <option value="continue">Continue previous</option>
                     </select>
-                </div>
-            </div>
-            
-            <div class="setting-group">
-                <label class="setting-label">AI Parameters</label>
-                <div class="range-slider">
-                    <div class="range-label">
-                        <span>Temperature</span>
-                        <span id="temperature-value">0.7</span>
-                    </div>
-                    <input type="range" min="0" max="1" step="0.1" value="0.7" id="temperature-slider">
                 </div>
             </div>
             
@@ -138,7 +129,7 @@
                 </div>
                 <div class="message-content">
                     <div class="message-bubble">
-                        <p>👋 Hello! I'm <strong>@Model.Name</strong>, your @Model.Department assistant. How can I help you today?</p>
+                        <p>👋 Hello! I'm <strong>@Model.Name</strong>, your assistant. How can I help you today?</p>
                     </div>
                     <div class="message-info">
                         <span class="message-time">Now</span>
@@ -247,16 +238,6 @@
             white-space: nowrap;
         }
         
-        .badge-info {
-            background-color: rgba(13, 202, 240, 0.1);
-            color: var(--color-info);
-        }
-        
-        .badge-secondary {
-            background-color: rgba(108, 117, 125, 0.1);
-            color: var(--color-secondary);
-        }
-        
         .badge-success {
             background-color: rgba(32, 201, 151, 0.1);
             color: var(--color-success);
@@ -297,9 +278,16 @@
         }
         
         .data-value {
-            font-size: 1.125rem;
+            font-size: 0.875rem;
             font-weight: 600;
             color: var(--color-gray-800);
+        }
+        
+        .text-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
         }
         
         /* Test Settings */
@@ -370,38 +358,6 @@
             border-color: var(--color-primary);
             color: var(--color-primary);
             font-weight: 500;
-        }
-        
-        .range-slider {
-            margin-top: 0.5rem;
-        }
-        
-        .range-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.75rem;
-            color: var(--color-gray-700);
-            margin-bottom: 0.5rem;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            background-color: var(--color-gray-200);
-            border-radius: 100px;
-            appearance: none;
-            outline: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            appearance: none;
-            width: 16px;
-            height: 16px;
-            background-color: var(--color-primary);
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .setting-actions {
@@ -609,6 +565,40 @@
             transform: translateY(-2px);
         }
         
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-300);
+            background-color: transparent;
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-icon:hover {
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-800);
+        }
+        
+        /* Form Styling */
+        .form-select {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-gray-300);
+            background-color: white;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+            appearance: none;
+            font-size: 0.875rem;
+        }
+        
         /* Responsive Styles */
         @@media (max-width: 991px) {
             .test-container {
@@ -638,8 +628,6 @@
             const sendButton = document.getElementById('send-message');
             const chatMessages = document.getElementById('chat-messages');
             const clearChatButton = document.getElementById('clearChat');
-            const temperatureSlider = document.getElementById('temperature-slider');
-            const temperatureValue = document.getElementById('temperature-value');
             
             // Auto-resize input
             chatInput.addEventListener('input', function() {
@@ -660,11 +648,6 @@
                         sendMessage();
                     }
                 }
-            });
-            
-            // Handle temperature slider
-            temperatureSlider.addEventListener('input', function() {
-                temperatureValue.textContent = this.value;
             });
             
             // Clear chat
@@ -766,6 +749,51 @@
                 // Return a random response + detail
                 return `${responses[Math.floor(Math.random() * responses.length)]} ${details[Math.floor(Math.random() * details.length)]}`;
             }
+            
+            // Expand chat
+            document.getElementById('expandChat').addEventListener('click', function() {
+                const testContainer = document.querySelector('.test-container');
+                const testPanel = document.querySelector('.test-panel');
+                
+                if (testContainer.classList.contains('chat-expanded')) {
+                    testContainer.classList.remove('chat-expanded');
+                    testPanel.style.display = '';
+                    this.innerHTML = '<i class="bi bi-arrows-angle-expand"></i>';
+                    this.title = 'Expand Chat';
+                } else {
+                    testContainer.classList.add('chat-expanded');
+                    testPanel.style.display = 'none';
+                    this.innerHTML = '<i class="bi bi-arrows-angle-contract"></i>';
+                    this.title = 'Collapse Chat';
+                }
+            });
+            
+            // Export chat
+            document.getElementById('exportChat').addEventListener('click', function() {
+                let chatContent = '';
+                
+                document.querySelectorAll('.message').forEach(message => {
+                    const isBot = message.classList.contains('bot');
+                    const text = message.querySelector('.message-bubble p').textContent;
+                    const time = message.querySelector('.message-time').textContent;
+                    
+                    chatContent += `[${time}] ${isBot ? 'Bot' : 'User'}: ${text}\n\n`;
+                });
+                
+                const blob = new Blob([chatContent], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                a.href = url;
+                a.download = `chat-export-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            });
         });
     </script>
 }

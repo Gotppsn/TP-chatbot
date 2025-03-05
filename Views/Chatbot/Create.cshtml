@@ -21,838 +21,86 @@
         <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             
-            <div class="form-tabs">
-                <div class="form-tabs-header">
-                    <button type="button" class="form-tab active" data-tab="basic-info">
-                        <i class="bi bi-info-circle"></i>
-                        <span>Basic Info</span>
-                    </button>
-                    <button type="button" class="form-tab" data-tab="ai-config">
-                        <i class="bi bi-cpu"></i>
-                        <span>AI Configuration</span>
-                    </button>
-                    <button type="button" class="form-tab" data-tab="knowledge">
-                        <i class="bi bi-journals"></i>
-                        <span>Knowledge Base</span>
-                    </button>
-                    <button type="button" class="form-tab" data-tab="advanced">
-                        <i class="bi bi-sliders"></i>
-                        <span>Advanced</span>
-                    </button>
+            <div class="form-group mb-4">
+                <label asp-for="FlowiseId" class="form-label">Flowise Chatflow ID <span class="required">*</span></label>
+                <input type="text" asp-for="FlowiseId" class="form-control" placeholder="e.g. 275a8c78-fa28-494c-98a5" required />
+                <div class="form-text">
+                    Enter your Flowise Chatflow ID to connect this chatbot to your AI workflow
                 </div>
-                
-                <div class="form-tabs-progress">
-                    <div class="progress-bar" style="width: 25%"></div>
-                </div>
+                <span asp-validation-for="FlowiseId" class="text-danger"></span>
             </div>
             
-            <div class="form-sections">
-                <!-- 1. Basic Info Section -->
-                <div class="form-section active" id="basic-info">
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label asp-for="Name" class="form-label">Chatbot Name <span class="required">*</span></label>
-                            <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" />
-                            <span asp-validation-for="Name" class="text-danger"></span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
-                            <select asp-for="Department" class="form-select">
-                                <option value="">Select Department</option>
-                                <option value="Customer Service">Customer Service</option>
-                                <option value="IT Support">IT Support</option>
-                                <option value="Sales">Sales</option>
-                                <option value="Billing">Billing</option>
-                                <option value="Technical">Technical</option>
-                                <option value="Operations">Operations</option>
-                            </select>
-                            <span asp-validation-for="Department" class="text-danger"></span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label asp-for="Description" class="form-label">Description</label>
-                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe what this chatbot will help with..."></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="form-switch">
-                            <input asp-for="IsActive" class="form-switch-input" checked />
-                            <label asp-for="IsActive" class="form-switch-label">Active</label>
-                        </div>
-                        <div class="form-text">Enable this chatbot immediately after creation</div>
-                    </div>
-                    
-                    <div class="form-buttons mt-4">
-                        <div></div> <!-- Spacer for flex justify-between -->
-                        <button type="button" class="btn btn-primary next-tab" data-next="ai-config">
-                            Continue
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
-                    </div>
+            <div class="form-group mb-4">
+                <label asp-for="Name" class="form-label">Chatbot Name <span class="required">*</span></label>
+                <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" required />
+                <div class="form-text">
+                    Give your chatbot a descriptive name that identifies its purpose
                 </div>
-                
-                <!-- 2. AI Configuration Section -->
-                <div class="form-section" id="ai-config">
-                    <div class="form-group mb-4">
-                        <label asp-for="AiModel" class="form-label mb-3">AI Model <span class="required">*</span></label>
-                        
-                        <div class="model-selection">
-                            <div class="model-option">
-                                <input type="radio" name="AiModel" id="model-gpt4" value="GPT-4" class="model-radio" />
-                                <label for="model-gpt4" class="model-label">
-                                    <div class="model-icon openai">
-                                        <i class="bi bi-robot"></i>
-                                    </div>
-                                    <div class="model-info">
-                                        <div class="model-name">GPT-4</div>
-                                        <div class="model-description">OpenAI's most advanced model for complex tasks</div>
-                                        <div class="model-badge">Most Powerful</div>
-                                    </div>
-                                </label>
-                            </div>
-                            
-                            <div class="model-option">
-                                <input type="radio" name="AiModel" id="model-gpt35" value="GPT-3.5 Turbo" class="model-radio" checked />
-                                <label for="model-gpt35" class="model-label">
-                                    <div class="model-icon openai">
-                                        <i class="bi bi-lightning"></i>
-                                    </div>
-                                    <div class="model-info">
-                                        <div class="model-name">GPT-3.5 Turbo</div>
-                                        <div class="model-description">Great balance of performance and speed</div>
-                                        <div class="model-badge">Recommended</div>
-                                    </div>
-                                </label>
-                            </div>
-                            
-                            <div class="model-option">
-                                <input type="radio" name="AiModel" id="model-claude-opus" value="Claude 3 Opus" class="model-radio" />
-                                <label for="model-claude-opus" class="model-label">
-                                    <div class="model-icon anthropic">
-                                        <i class="bi bi-stars"></i>
-                                    </div>
-                                    <div class="model-info">
-                                        <div class="model-name">Claude 3 Opus</div>
-                                        <div class="model-description">Anthropic's high-performance model</div>
-                                    </div>
-                                </label>
-                            </div>
-                            
-                            <div class="model-option">
-                                <input type="radio" name="AiModel" id="model-claude-sonnet" value="Claude 3 Sonnet" class="model-radio" />
-                                <label for="model-claude-sonnet" class="model-label">
-                                    <div class="model-icon anthropic">
-                                        <i class="bi bi-chat-square-text"></i>
-                                    </div>
-                                    <div class="model-info">
-                                        <div class="model-name">Claude 3 Sonnet</div>
-                                        <div class="model-description">Balanced performance for most tasks</div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <span asp-validation-for="AiModel" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="form-group mb-4">
-                        <label for="temperature" class="form-label">Temperature</label>
-                        <div class="temperature-slider">
-                            <div class="temperature-range">
-                                <div class="temperature-label">Precise</div>
-                                <div class="temperature-value" id="temperature-value">0.7</div>
-                                <div class="temperature-label">Creative</div>
-                            </div>
-                            <input type="range" id="temperature" name="Temperature" min="0" max="1" step="0.1" value="0.7" class="form-range" />
-                        </div>
-                        <div class="form-text">Controls randomness: lower values are more deterministic, higher values more creative</div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label asp-for="SystemPrompt" class="form-label">System Prompt</label>
-                        <div class="code-editor-wrapper">
-                            <textarea asp-for="SystemPrompt" class="form-control code-editor" rows="8" placeholder="You are a helpful customer support assistant for a software company..."></textarea>
-                            <div class="editor-actions">
-                                <button type="button" class="btn-icon prompt-template" title="Load Template">
-                                    <i class="bi bi-file-text"></i>
-                                </button>
-                                <button type="button" class="btn-icon prompt-expand" title="Expand Editor">
-                                    <i class="bi bi-arrows-fullscreen"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="form-text">
-                            Define how the AI should behave by setting a system prompt
-                        </div>
-                        <span asp-validation-for="SystemPrompt" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="form-buttons mt-4">
-                        <button type="button" class="btn btn-outline prev-tab" data-prev="basic-info">
-                            <i class="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-                        <button type="button" class="btn btn-primary next-tab" data-next="knowledge">
-                            Continue
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
-                    </div>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-4">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe what this chatbot will help with..."></textarea>
+                <div class="form-text">
+                    Add details about what this chatbot does and which departments it serves
                 </div>
-                
-                <!-- 3. Knowledge Base Section -->
-                <div class="form-section" id="knowledge">
-                    <div class="knowledge-base-container">
-                        <div class="section-header">
-                            <h3>Knowledge Bases</h3>
-                            <p class="section-description">Connect knowledge bases to improve your chatbot's responses</p>
-                        </div>
-                        
-                        <div class="knowledge-bases">
-                            <div class="knowledge-base-list">
-                                <!-- This would be populated from the database -->
-                                <div class="empty-state">
-                                    <div class="empty-icon">
-                                        <i class="bi bi-journals"></i>
-                                    </div>
-                                    <h3>No Knowledge Bases</h3>
-                                    <p>Add knowledge bases to improve your chatbot's ability to answer specific questions.</p>
-                                    <a href="/KnowledgeBase/Create" class="btn btn-outline-primary mt-3">
-                                        <i class="bi bi-plus"></i>
-                                        Create Knowledge Base
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-buttons mt-4">
-                        <button type="button" class="btn btn-outline prev-tab" data-prev="ai-config">
-                            <i class="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-                        <button type="button" class="btn btn-primary next-tab" data-next="advanced">
-                            Continue
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
-                    </div>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-4">
+                <div class="form-switch">
+                    <input asp-for="IsActive" class="form-switch-input" checked />
+                    <label asp-for="IsActive" class="form-switch-label">Active</label>
                 </div>
-                
-                <!-- 4. Advanced Section -->
-                <div class="form-section" id="advanced">
-                    <div class="section-header">
-                        <h3>Advanced Settings</h3>
-                        <p class="section-description">Configure additional options for your chatbot</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="flowise-id" class="form-label">Flowise Chatflow ID</label>
-                        <input type="text" id="flowise-id" name="FlowiseId" class="form-control" placeholder="e.g. 275a8c78-fa28-494c-98a5" />
-                        <div class="form-text">If using a custom Flowise flow, enter the ID here</div>
-                    </div>
-                    
-                    <div class="form-grid-2">
-                        <div class="form-group">
-                            <label for="max-tokens" class="form-label">Max Tokens</label>
-                            <select id="max-tokens" name="MaxTokens" class="form-select">
-                                <option value="256">256 tokens</option>
-                                <option value="512">512 tokens</option>
-                                <option value="1024" selected>1024 tokens</option>
-                                <option value="2048">2048 tokens</option>
-                                <option value="4096">4096 tokens</option>
-                            </select>
-                            <div class="form-text">Maximum length of the AI response</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="max-context" class="form-label">Context Window</label>
-                            <select id="max-context" name="MaxContext" class="form-select">
-                                <option value="3">3 messages</option>
-                                <option value="5" selected>5 messages</option>
-                                <option value="10">10 messages</option>
-                                <option value="15">15 messages</option>
-                                <option value="20">20 messages</option>
-                            </select>
-                            <div class="form-text">Number of previous messages to include as context</div>
-                        </div>
-                    </div>
-                    
-                    <div class="settings-toggles">
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <div class="setting-title">Allow File Uploads</div>
-                                <div class="setting-description">Let users upload files during chat conversations</div>
-                            </div>
-                            <div class="setting-control">
-                                <div class="form-switch">
-                                    <input type="checkbox" id="allow-uploads" name="AllowUploads" class="form-switch-input" />
-                                    <label for="allow-uploads" class="form-switch-label"></label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <div class="setting-title">Auto Escalation</div>
-                                <div class="setting-description">Automatically escalate to human agent after failed attempts</div>
-                            </div>
-                            <div class="setting-control">
-                                <div class="form-switch">
-                                    <input type="checkbox" id="auto-escalation" name="AutoEscalation" class="form-switch-input" checked />
-                                    <label for="auto-escalation" class="form-switch-label"></label>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="setting-item">
-                            <div class="setting-info">
-                                <div class="setting-title">Collect Feedback</div>
-                                <div class="setting-description">Ask users to rate the chatbot's responses</div>
-                            </div>
-                            <div class="setting-control">
-                                <div class="form-switch">
-                                    <input type="checkbox" id="collect-feedback" name="CollectFeedback" class="form-switch-input" checked />
-                                    <label for="collect-feedback" class="form-switch-label"></label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-buttons mt-4">
-                        <button type="button" class="btn btn-outline prev-tab" data-prev="knowledge">
-                            <i class="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-                        <button type="submit" class="btn btn-success">
-                            <i class="bi bi-check-lg"></i>
-                            Create Chatbot
-                        </button>
-                    </div>
-                </div>
+                <div class="form-text">Enable this chatbot immediately after creation</div>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Create Chatbot
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Templates Modal -->
-<div class="modal" id="promptTemplatesModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">System Prompt Templates</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="template-list">
-                    <div class="template-item" data-template="You are a helpful customer support assistant for a software company. Your goal is to assist users with their software-related questions. You should be professional, friendly, and knowledgeable about common software issues.">
-                        <div class="template-icon">
-                            <i class="bi bi-headset"></i>
-                        </div>
-                        <div class="template-content">
-                            <h4>Customer Support</h4>
-                            <p>General prompt for software customer support</p>
-                        </div>
-                    </div>
-                    <div class="template-item" data-template="You are an IT support specialist. Your role is to help internal employees with technical issues related to hardware, software, networks, and company systems. You should provide clear step-by-step troubleshooting guidance.">
-                        <div class="template-icon">
-                            <i class="bi bi-pc-display"></i>
-                        </div>
-                        <div class="template-content">
-                            <h4>IT Helper</h4>
-                            <p>Technical assistance for internal staff</p>
-                        </div>
-                    </div>
-                    <div class="template-item" data-template="You are a sales assistant for our product line. Your goal is to provide potential customers with information about our products, answer their questions, and help qualify leads. Be friendly, informative, and gently guide the conversation toward understanding their needs.">
-                        <div class="template-icon">
-                            <i class="bi bi-cart"></i>
-                        </div>
-                        <div class="template-content">
-                            <h4>Sales Assistant</h4>
-                            <p>Help potential customers and qualify leads</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="applyTemplate">Apply Template</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab navigation
-            const tabs = document.querySelectorAll('.form-tab');
-            const sections = document.querySelectorAll('.form-section');
-            const progressBar = document.querySelector('.progress-bar');
-            
-            function showTab(tabId) {
-                // Hide all sections
-                sections.forEach(section => {
-                    section.classList.remove('active');
-                });
-                
-                // Show the target section
-                const targetSection = document.getElementById(tabId);
-                targetSection.classList.add('active');
-                
-                // Update active tab
-                tabs.forEach(tab => {
-                    tab.classList.remove('active');
-                    if (tab.getAttribute('data-tab') === tabId) {
-                        tab.classList.add('active');
-                    }
-                });
-                
-                // Update progress bar
-                const tabIndex = Array.from(tabs).findIndex(tab => tab.getAttribute('data-tab') === tabId);
-                const progressPercentage = (tabIndex + 1) / tabs.length * 100;
-                progressBar.style.width = `${progressPercentage}%`;
-            }
-            
-            // Add click event to tabs
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    showTab(tabId);
-                });
-            });
-            
-            // Next/Prev button handlers
-            document.querySelectorAll('.next-tab').forEach(button => {
-                button.addEventListener('click', function() {
-                    const nextTabId = this.getAttribute('data-next');
-                    showTab(nextTabId);
-                });
-            });
-            
-            document.querySelectorAll('.prev-tab').forEach(button => {
-                button.addEventListener('click', function() {
-                    const prevTabId = this.getAttribute('data-prev');
-                    showTab(prevTabId);
-                });
-            });
-            
-            // Temperature slider
-            const temperatureSlider = document.getElementById('temperature');
-            const temperatureValue = document.getElementById('temperature-value');
-            
-            temperatureSlider.addEventListener('input', function() {
-                temperatureValue.textContent = this.value;
-            });
-            
-            // Prompt templates
-            const promptTemplateButton = document.querySelector('.prompt-template');
-            const promptTemplatesModal = document.getElementById('promptTemplatesModal');
-            const templateItems = document.querySelectorAll('.template-item');
-            const applyTemplateButton = document.getElementById('applyTemplate');
-            const systemPromptTextarea = document.getElementById('SystemPrompt');
-            
-            promptTemplateButton.addEventListener('click', function() {
-                showModal(promptTemplatesModal);
-            });
-            
-            // Template selection
-            templateItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    templateItems.forEach(i => i.classList.remove('selected'));
-                    this.classList.add('selected');
-                });
-            });
-            
-            // Apply template
-            applyTemplateButton.addEventListener('click', function() {
-                const selectedTemplate = document.querySelector('.template-item.selected');
-                if (selectedTemplate) {
-                    systemPromptTextarea.value = selectedTemplate.getAttribute('data-template');
-                }
-                hideModal(promptTemplatesModal);
-            });
-            
-            // Expand editor
-            const expandButton = document.querySelector('.prompt-expand');
-            expandButton.addEventListener('click', function() {
-                const editorWrapper = this.closest('.code-editor-wrapper');
-                const textarea = editorWrapper.querySelector('textarea');
-                
-                if (editorWrapper.classList.contains('expanded')) {
-                    editorWrapper.classList.remove('expanded');
-                    textarea.style.height = '';
-                    this.innerHTML = '<i class="bi bi-arrows-fullscreen"></i>';
-                } else {
-                    editorWrapper.classList.add('expanded');
-                    textarea.style.height = '300px';
-                    this.innerHTML = '<i class="bi bi-fullscreen-exit"></i>';
-                }
-            });
-            
-            // Modal handlers
-            function showModal(modal) {
-                modal.classList.add('show');
-                document.body.classList.add('modal-open');
-            }
-            
-            function hideModal(modal) {
-                modal.classList.remove('show');
-                document.body.classList.remove('modal-open');
-            }
-            
-            // Close modal buttons
-            document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(button => {
-                button.addEventListener('click', function() {
-                    const modal = this.closest('.modal');
-                    hideModal(modal);
-                });
-            });
-            
-            // Close modal on outside click
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.addEventListener('click', function(event) {
-                    if (event.target === this) {
-                        hideModal(this);
-                    }
-                });
-            });
-        });
-    </script>
 }
 
 @section Styles {
     <style>
-        /* Form Tabs */
-        .form-tabs {
-            margin-bottom: 2rem;
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
         
-        .form-tabs-header {
-            display: flex;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        .form-tab {
-            padding: 1rem 1.5rem;
-            flex: 1;
-            text-align: center;
-            background: none;
-            border: none;
-            color: var(--color-gray-600);
+        .form-label {
             font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-        }
-        
-        .form-tab i {
-            margin-right: 0.5rem;
-            font-size: 1.125rem;
-        }
-        
-        .form-tab:hover {
-            color: var(--color-gray-900);
-        }
-        
-        .form-tab.active {
-            color: var(--color-primary);
-            border-bottom-color: var(--color-primary);
-        }
-        
-        .form-tabs-progress {
-            height: 4px;
-            background-color: var(--color-gray-200);
-            margin-top: 1px;
-            border-radius: 100px;
-            overflow: hidden;
-        }
-        
-        .form-tabs-progress .progress-bar {
-            height: 100%;
-            background-color: var(--color-primary);
-            border-radius: 100px;
-            transition: width 0.3s ease;
-        }
-        
-        /* Form Sections */
-        .form-sections {
-            position: relative;
-        }
-        
-        .form-section {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .form-section.active {
+            margin-bottom: 0.5rem;
             display: block;
         }
         
-        @@keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .form-grid-2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-        }
-        
-        .form-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--color-gray-200);
-        }
-        
-        /* Section Headers */
-        .section-header {
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-header h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .section-description {
-            color: var(--color-gray-500);
-            font-size: 0.875rem;
-            margin: 0;
-        }
-        
-        /* AI Model Selection */
-        .model-selection {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-        
-        .model-option {
-            position: relative;
-        }
-        
-        .model-radio {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-        }
-        
-        .model-label {
-            display: flex;
-            align-items: flex-start;
-            padding: 1.25rem;
+        .form-control {
+            padding: 0.625rem 0.875rem;
+            border-radius: var(--border-radius);
             border: 1px solid var(--color-gray-300);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .model-radio:checked + .model-label {
-            border-color: var(--color-primary);
-            background-color: rgba(13, 110, 253, 0.04);
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
-        }
-        
-        .model-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--border-radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 1rem;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-        
-        .model-icon.openai {
-            background-color: #e7f5ff;
-            color: #228be6;
-        }
-        
-        .model-icon.anthropic {
-            background-color: #f3f0ff;
-            color: #7950f2;
-        }
-        
-        .model-info {
-            flex: 1;
-        }
-        
-        .model-name {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .model-description {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-            margin-bottom: 0.5rem;
-        }
-        
-        .model-badge {
-            display: inline-block;
-            font-size: 0.6875rem;
-            font-weight: 600;
-            padding: 0.125rem 0.375rem;
-            border-radius: 100px;
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
-        }
-        
-        /* Temperature Slider */
-        .temperature-slider {
-            margin-top: 0.5rem;
-        }
-        
-        .temperature-range {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-        }
-        
-        .temperature-label {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-        }
-        
-        .temperature-value {
-            font-weight: 600;
-            color: var(--color-primary);
-            background-color: rgba(13, 110, 253, 0.1);
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
-            font-size: 0.75rem;
-        }
-        
-        .form-range {
             width: 100%;
-            height: 0.5rem;
-            padding: 0;
-            appearance: none;
-            background-color: var(--color-gray-200);
-            border-radius: 100px;
+            transition: all 0.2s ease;
         }
         
-        .form-range::-webkit-slider-thumb {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: var(--color-primary);
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        .form-control:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+            outline: none;
         }
         
-        /* Code Editor */
-        .code-editor-wrapper {
-            position: relative;
-            margin-bottom: 0.5rem;
-        }
-        
-        .code-editor {
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            line-height: 1.5;
-            font-size: 0.875rem;
-            padding: 0.75rem 1rem;
-            transition: height 0.3s ease;
-        }
-        
-        .editor-actions {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .code-editor-wrapper.expanded {
-            margin-bottom: 1.5rem;
-        }
-        
-        /* Knowledge Base Section */
-        .knowledge-base-container {
-            margin-bottom: 1.5rem;
-        }
-        
-        .knowledge-bases {
-            background-color: var(--color-gray-50);
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            color: var(--color-gray-300);
-            margin-bottom: 1rem;
-        }
-        
-        .empty-state h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        
-        .empty-state p {
-            color: var(--color-gray-500);
-            margin-bottom: 1.5rem;
-            max-width: 400px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        /* Settings Toggles */
-        .settings-toggles {
-            margin-top: 1.5rem;
-        }
-        
-        .setting-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .setting-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        
-        .setting-info {
-            flex: 1;
-            padding-right: 1.5rem;
-        }
-        
-        .setting-title {
-            font-weight: 500;
-            margin-bottom: 0.25rem;
-        }
-        
-        .setting-description {
+        .form-text {
             font-size: 0.75rem;
             color: var(--color-gray-500);
-        }
-        
-        .setting-control {
-            flex-shrink: 0;
+            margin-top: 0.5rem;
         }
         
         /* Form Switch */
@@ -900,6 +148,15 @@
             cursor: pointer;
         }
         
+        /* Form Buttons */
+        .form-buttons {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
         /* Required Field */
         .required {
             color: var(--color-danger);
@@ -918,160 +175,11 @@
             color: var(--color-danger);
         }
         
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1050;
-            overflow: auto;
-        }
-        
-        .modal.show {
-            display: block;
-        }
-        
-        .modal-dialog {
-            margin: 1.75rem auto;
-            max-width: 600px;
-        }
-        
-        .modal-content {
-            position: relative;
-            background-color: white;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            flex-direction: column;
-            outline: 0;
-        }
-        
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .modal-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin: 0;
-        }
-        
-        .btn-close {
-            padding: 0;
-            background: transparent;
-            border: 0;
-            font-size: 1.5rem;
-            line-height: 1;
-            color: var(--color-gray-500);
-            cursor: pointer;
-        }
-        
-        .modal-body {
-            position: relative;
-            flex: 1 1 auto;
-            padding: 1.5rem;
-        }
-        
-        .modal-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 1.25rem 1.5rem;
-            border-top: 1px solid var(--color-gray-200);
-            gap: 0.75rem;
-        }
-        
-        /* Template List */
-        .template-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .template-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 1.25rem;
-            border: 1px solid var(--color-gray-200);
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .template-item:hover {
-            border-color: var(--color-gray-300);
-            background-color: var(--color-gray-50);
-        }
-        
-        .template-item.selected {
-            border-color: var(--color-primary);
-            background-color: rgba(13, 110, 253, 0.04);
-            box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
-        }
-        
-        .template-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--border-radius);
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin-right: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .template-content {
-            flex: 1;
-        }
-        
-        .template-content h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0 0 0.25rem;
-        }
-        
-        .template-content p {
-            font-size: 0.875rem;
-            color: var(--color-gray-500);
-            margin: 0;
-        }
-        
-        /* Responsive */
-        @@media (max-width: 768px) {
-            .form-grid-2 {
-                grid-template-columns: 1fr;
-            }
-            
-            .form-tab span {
-                display: none;
-            }
-            
-            .form-tab i {
-                margin-right: 0;
-                font-size: 1.25rem;
-            }
-            
-            .model-selection {
-                grid-template-columns: 1fr;
+        /* Responsive Styles */
+        @@media (min-width: 768px) {
+            .form-control {
+                max-width: 600px;
             }
         }
-        
-        /* Utility Classes */
-        .mt-3 { margin-top: 1rem; }
-        .mt-4 { margin-top: 1.5rem; }
-        .mb-3 { margin-bottom: 1rem; }
-        .mb-4 { margin-bottom: 1.5rem; }
-        .text-danger { color: var(--color-danger); }
     </style>
 }

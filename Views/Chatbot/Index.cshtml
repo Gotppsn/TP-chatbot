@@ -18,11 +18,6 @@
                 <a class="dropdown-item active" href="#">All Chatbots</a>
                 <a class="dropdown-item" href="#">Active Only</a>
                 <a class="dropdown-item" href="#">Inactive Only</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Customer Service</a>
-                <a class="dropdown-item" href="#">IT Support</a>
-                <a class="dropdown-item" href="#">Sales</a>
-                <a class="dropdown-item" href="#">Billing</a>
             </div>
         </div>
         <a href="/Chatbot/Create" class="btn btn-primary">
@@ -57,29 +52,8 @@
             {
                 <div class="chatbot-card animate-card">
                     <div class="chatbot-card-header">
-                        @{
-                            string iconClass = chatbot.Department switch
-                            {
-                                "Customer Service" => "bi-headset",
-                                "IT Support" => "bi-pc-display",
-                                "Sales" => "bi-currency-dollar",
-                                "Billing" => "bi-credit-card",
-                                "Technical" => "bi-wrench",
-                                _ => "bi-robot"
-                            };
-                            
-                            string colorClass = chatbot.Department switch
-                            {
-                                "Customer Service" => "primary",
-                                "IT Support" => "info",
-                                "Sales" => "warning",
-                                "Billing" => "danger",
-                                "Technical" => "success",
-                                _ => "secondary"
-                            };
-                        }
-                        <div class="chatbot-avatar @colorClass">
-                            <i class="bi @iconClass"></i>
+                        <div class="chatbot-avatar primary">
+                            <i class="bi bi-robot"></i>
                         </div>
                         <div class="chatbot-status @(chatbot.IsActive ? "active" : "inactive")">
                             @(chatbot.IsActive ? "Active" : "Inactive")
@@ -88,14 +62,7 @@
                     
                     <div class="chatbot-card-body">
                         <h3 class="chatbot-name">@chatbot.Name</h3>
-                        <div class="chatbot-model">@chatbot.AiModel</div>
-                        
-                        <div class="chatbot-details">
-                            <div class="chatbot-detail">
-                                <div class="detail-label">Department</div>
-                                <div class="detail-value">@chatbot.Department</div>
-                            </div>
-                        </div>
+                        <div class="chatbot-id">ID: @chatbot.FlowiseId</div>
                         
                         <div class="chatbot-description">
                             @if (string.IsNullOrEmpty(chatbot.Description))
@@ -138,16 +105,6 @@
                                 <i class="bi bi-three-dots-vertical"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item" href="/Chatbot/Details/@chatbot.Id">
-                                    <i class="bi bi-info-circle me-2"></i> View Details
-                                </a>
-                                <a class="dropdown-item" href="/ChatWidget/Embed/@chatbot.Id">
-                                    <i class="bi bi-code-slash me-2"></i> Get Embed Code
-                                </a>
-                                <a class="dropdown-item" href="/Analytics/Chatbot/@chatbot.Id">
-                                    <i class="bi bi-graph-up me-2"></i> View Analytics
-                                </a>
-                                <div class="dropdown-divider"></div>
                                 <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
                                     <button type="submit" class="dropdown-item @(chatbot.IsActive ? "text-warning" : "text-success")">
@@ -185,9 +142,8 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Chatbot</th>
-                        <th>Department</th>
-                        <th>Model</th>
+                        <th>Name</th>
+                        <th>Flowise ID</th>
                         <th>Conversations</th>
                         <th>Success Rate</th>
                         <th>Avg. Response</th>
@@ -201,38 +157,13 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    @{
-                                        string listIconClass = chatbot.Department switch
-                                        {
-                                            "Customer Service" => "bi-headset",
-                                            "IT Support" => "bi-pc-display",
-                                            "Sales" => "bi-currency-dollar",
-                                            "Billing" => "bi-credit-card",
-                                            "Technical" => "bi-wrench",
-                                            _ => "bi-robot"
-                                        };
-                                        
-                                        string listColorClass = chatbot.Department switch
-                                        {
-                                            "Customer Service" => "primary",
-                                            "IT Support" => "info",
-                                            "Sales" => "warning",
-                                            "Billing" => "danger",
-                                            "Technical" => "success",
-                                            _ => "secondary"
-                                        };
-                                    }
-                                    <div class="list-avatar @listColorClass">
-                                        <i class="bi @listIconClass"></i>
+                                    <div class="list-avatar primary">
+                                        <i class="bi bi-robot"></i>
                                     </div>
-                                    <div class="list-chatbot-info">
-                                        <div class="list-chatbot-name">@chatbot.Name</div>
-                                        <div class="list-chatbot-model">@chatbot.AiModel</div>
-                                    </div>
+                                    <div class="list-chatbot-name">@chatbot.Name</div>
                                 </div>
                             </td>
-                            <td>@chatbot.Department</td>
-                            <td>@chatbot.AiModel</td>
+                            <td><span class="text-monospace">@chatbot.FlowiseId</span></td>
                             <td>254</td>
                             <td>93%</td>
                             <td>2.6s</td>
@@ -254,16 +185,6 @@
                                             <i class="bi bi-three-dots-vertical"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-end">
-                                            <a class="dropdown-item" href="/Chatbot/Details/@chatbot.Id">
-                                                <i class="bi bi-info-circle me-2"></i> View Details
-                                            </a>
-                                            <a class="dropdown-item" href="/ChatWidget/Embed/@chatbot.Id">
-                                                <i class="bi bi-code-slash me-2"></i> Get Embed Code
-                                            </a>
-                                            <a class="dropdown-item" href="/Analytics/Chatbot/@chatbot.Id">
-                                                <i class="bi bi-graph-up me-2"></i> View Analytics
-                                            </a>
-                                            <div class="dropdown-divider"></div>
                                             <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
                                                 <button type="submit" class="dropdown-item @(chatbot.IsActive ? "text-warning" : "text-success")">
@@ -324,10 +245,10 @@
                 const chatbotCards = document.querySelectorAll('.chatbot-card:not(.create-card)');
                 chatbotCards.forEach(card => {
                     const chatbotName = card.querySelector('.chatbot-name').textContent.toLowerCase();
-                    const chatbotModel = card.querySelector('.chatbot-model').textContent.toLowerCase();
-                    const chatbotDept = card.querySelector('.detail-value').textContent.toLowerCase();
+                    const chatbotId = card.querySelector('.chatbot-id').textContent.toLowerCase();
+                    const chatbotDesc = card.querySelector('.chatbot-description').textContent.toLowerCase();
                     
-                    if (chatbotName.includes(searchTerm) || chatbotModel.includes(searchTerm) || chatbotDept.includes(searchTerm)) {
+                    if (chatbotName.includes(searchTerm) || chatbotId.includes(searchTerm) || chatbotDesc.includes(searchTerm)) {
                         card.style.display = 'flex';
                     } else {
                         card.style.display = 'none';
@@ -338,10 +259,9 @@
                 const chatbotRows = document.querySelectorAll('#chatbotsListView tbody tr');
                 chatbotRows.forEach(row => {
                     const chatbotName = row.querySelector('.list-chatbot-name').textContent.toLowerCase();
-                    const chatbotModel = row.querySelector('.list-chatbot-model').textContent.toLowerCase();
-                    const chatbotDept = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    const chatbotId = row.querySelector('.text-monospace').textContent.toLowerCase();
                     
-                    if (chatbotName.includes(searchTerm) || chatbotModel.includes(searchTerm) || chatbotDept.includes(searchTerm)) {
+                    if (chatbotName.includes(searchTerm) || chatbotId.includes(searchTerm)) {
                         row.style.display = '';
                     } else {
                         row.style.display = 'none';
@@ -470,7 +390,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             animation: fadeInUp 0.5s ease forwards;
             opacity: 0;
-            min-height: 400px; /* Set a minimum height */
+            min-height: 380px; /* Set a minimum height */
         }
         
         @@keyframes fadeInUp {
@@ -509,11 +429,6 @@
         }
         
         .chatbot-avatar.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
-        .chatbot-avatar.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
-        .chatbot-avatar.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
-        .chatbot-avatar.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
-        .chatbot-avatar.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
-        .chatbot-avatar.secondary { background-color: rgba(108, 117, 125, 0.1); color: var(--color-secondary); }
         
         .chatbot-status {
             display: inline-flex;
@@ -547,38 +462,13 @@
             margin: 0 0 0.25rem;
         }
         
-        .chatbot-model {
-            font-size: 0.875rem;
-            color: var(--color-gray-500);
-            margin-bottom: 1.25rem;
-        }
-        
-        .chatbot-details {
-            display: flex;
-            margin-bottom: 1rem;
-        }
-        
-        .chatbot-detail {
-            min-width: 0;
-        }
-        
-        .detail-label {
+        .chatbot-id {
             font-size: 0.75rem;
             color: var(--color-gray-500);
-            margin-bottom: 0.25rem;
-        }
-        
-        .detail-value {
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: var(--color-gray-800);
-            white-space: nowrap;
+            margin-bottom: 1.25rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding: 0.25rem 0.5rem;
-            background-color: var(--color-gray-100);
-            border-radius: 4px;
-            display: inline-block;
         }
         
         .chatbot-description {
@@ -589,7 +479,7 @@
             flex: 1;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
         }
         
@@ -633,7 +523,7 @@
             border: 2px dashed var(--color-gray-300);
             background-color: var(--color-gray-50);
             cursor: pointer;
-            min-height: 400px; /* Match height of other cards */
+            min-height: 380px; /* Match height of other cards */
             justify-content: center;
             align-items: center;
         }
@@ -695,24 +585,14 @@
         }
         
         .list-avatar.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
-        .list-avatar.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
-        .list-avatar.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
-        .list-avatar.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
-        .list-avatar.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
-        .list-avatar.secondary { background-color: rgba(108, 117, 125, 0.1); color: var(--color-secondary); }
-        
-        .list-chatbot-info {
-            min-width: 0;
-        }
         
         .list-chatbot-name {
             font-weight: 500;
-            margin-bottom: 0.25rem;
         }
         
-        .list-chatbot-model {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
+        .text-monospace {
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.8125rem;
         }
         
         .list-actions {
