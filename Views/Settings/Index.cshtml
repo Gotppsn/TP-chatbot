@@ -442,126 +442,172 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab functionality
-            const tabLinks = document.querySelectorAll('.nav-link[data-bs-toggle="tab"]');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            
-            tabLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    // Hide all tab panes
-                    tabPanes.forEach(pane => {
-                        pane.classList.remove('show', 'active');
-                    });
-                    
-                    // Remove active class from all tab links
-                    tabLinks.forEach(tab => {
-                        tab.classList.remove('active');
-                    });
-                    
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Show target tab pane
-                    const target = document.querySelector(this.getAttribute('data-bs-target'));
-                    target.classList.add('show', 'active');
-                });
-            });
-            
-            // Toggle API Key visibility
-            const toggleApiKey = document.getElementById('toggleApiKey');
-            const apiKeyInput = document.getElementById('FlowiseApiKey');
-            
-            if (toggleApiKey && apiKeyInput) {
-                toggleApiKey.addEventListener('click', function() {
-                    const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    apiKeyInput.setAttribute('type', type);
-                    
-                    const icon = toggleApiKey.querySelector('i');
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
-            }
-            
-            // Department actions
-            // Edit department
-            const editButtons = document.querySelectorAll('.edit-department');
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const deptName = this.getAttribute('data-name');
-                    document.getElementById('oldName').value = deptName;
-                    document.getElementById('editNewName').value = deptName;
-                });
-            });
-            
-            // Delete department
-            const deleteButtons = document.querySelectorAll('.delete-department');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const deptName = this.getAttribute('data-name');
-                    document.getElementById('departmentName').value = deptName;
-                });
-            });
-            
-            // Toast notification
-            function showToast(message, type = 'success') {
-                // Create toast notification
-                const toast = document.createElement('div');
-                toast.className = `toast-notification ${type}`;
-                toast.innerHTML = `
-                    <div class="toast-icon">
-                        <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                    </div>
-                    <div class="toast-content">
-                        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
-                        <div class="toast-message">${message}</div>
-                    </div>
-                    <button class="toast-close">
-                        <i class="bi bi-x"></i>
-                    </button>
-                `;
-                
-                // Add to document
-                document.body.appendChild(toast);
-                
-                // Show toast
-                setTimeout(() => {
-                    toast.classList.add('show');
-                }, 100);
-                
-                // Auto-hide toast after 5 seconds
-                setTimeout(() => {
-                    toast.classList.remove('show');
-                    setTimeout(() => {
-                        document.body.removeChild(toast);
-                    }, 300);
-                }, 5000);
-                
-                // Close button functionality
-                const closeBtn = toast.querySelector('.toast-close');
-                closeBtn.addEventListener('click', function() {
-                    toast.classList.remove('show');
-                    setTimeout(() => {
-                        document.body.removeChild(toast);
-                    }, 300);
-                });
-            }
-            
-            // Show toast messages if they exist in TempData
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <text>
-                showToast('@TempData["SuccessMessage"]', 'success');
-                </text>
-            }
-            
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <text>
-                showToast('@TempData["ErrorMessage"]', 'error');
-                </text>
-            }
-        });
+document.addEventListener('DOMContentLoaded', function() {
+  // Modal functionality
+  const toggleModal = (modalId, show) => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    if (show) {
+      modal.classList.add('show');
+      document.body.classList.add('modal-open');
+    } else {
+      modal.classList.remove('show');
+      document.body.classList.remove('modal-open');
+    }
+  };
+
+  // Close modal when clicking outside of modal content
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        toggleModal(modal.id, false);
+      }
+    });
+  });
+
+  // Open modals
+  document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-bs-target').replace('#', '');
+      toggleModal(target, true);
+    });
+  });
+
+  // Close modals with close button
+  document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modal = btn.closest('.modal');
+      if (modal) {
+        toggleModal(modal.id, false);
+      }
+    });
+  });
+
+  // Department Edit functionality
+  document.querySelectorAll('.edit-department').forEach(button => {
+    button.addEventListener('click', function() {
+      const deptName = this.getAttribute('data-name');
+      const oldNameInput = document.getElementById('oldName');
+      const newNameInput = document.getElementById('editNewName');
+      
+      if (oldNameInput && newNameInput) {
+        oldNameInput.value = deptName;
+        newNameInput.value = deptName;
+      }
+    });
+  });
+
+  // Department Delete functionality
+  document.querySelectorAll('.delete-department').forEach(button => {
+    button.addEventListener('click', function() {
+      const deptName = this.getAttribute('data-name');
+      const deptNameInput = document.getElementById('departmentName');
+      
+      if (deptNameInput) {
+        deptNameInput.value = deptName;
+      }
+    });
+  });
+
+  // Toast notification functionality
+  function showToast(message, type = 'success') {
+    // Create toast notification
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+    toast.innerHTML = `
+      <div class="toast-icon">
+        <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+      </div>
+      <div class="toast-content">
+        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+        <div class="toast-message">${message}</div>
+      </div>
+      <button class="toast-close">
+        <i class="bi bi-x"></i>
+      </button>
+    `;
+    
+    // Add to document
+    document.body.appendChild(toast);
+    
+    // Show toast
+    setTimeout(() => {
+      toast.classList.add('show');
+    }, 100);
+    
+    // Auto-hide toast after 5 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    }, 5000);
+    
+    // Close button functionality
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', function() {
+      toast.classList.remove('show');
+      setTimeout(() => {
+        document.body.removeChild(toast);
+      }, 300);
+    });
+  }
+
+  // Show toast messages if they exist in TempData
+  if (window.tempData) {
+    if (window.tempData.successMessage) {
+      showToast(window.tempData.successMessage, 'success');
+    }
+    
+    if (window.tempData.errorMessage) {
+      showToast(window.tempData.errorMessage, 'error');
+    }
+  }
+
+  // Tab functionality
+  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+    tab.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('[data-bs-toggle="tab"]').forEach(t => {
+        t.classList.remove('active');
+      });
+      
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      // Hide all tab panes
+      document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.remove('show', 'active');
+      });
+      
+      // Show the target tab pane
+      const target = document.querySelector(this.getAttribute('data-bs-target'));
+      if (target) {
+        target.classList.add('show', 'active');
+      }
+    });
+  });
+
+  // Toggle API Key visibility
+  const toggleApiKey = document.getElementById('toggleApiKey');
+  const apiKeyInput = document.getElementById('FlowiseApiKey');
+  
+  if (toggleApiKey && apiKeyInput) {
+    toggleApiKey.addEventListener('click', function() {
+      const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      apiKeyInput.setAttribute('type', type);
+      
+      const icon = toggleApiKey.querySelector('i');
+      if (icon) {
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+      }
+    });
+  }
+});
     </script>
     
     <style>

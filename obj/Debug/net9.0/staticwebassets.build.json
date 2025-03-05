@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "l80m08kLsm2djJuzwyJTGN4KqBQx2wXN+FyJYixgJbI=",
+  "Hash": "Jic4j2/l0o71Fksj+93qlMNTX4Y6w095+N/VYSGrH9o=",
   "Source": "AIHelpdeskSupport",
   "BasePath": "_content/AIHelpdeskSupport",
   "Mode": "Default",
@@ -1403,12 +1403,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\lib\\jquery-validation\\dist\\jquery.validate.js"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-pz8rctr1mu.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-vhhm30ewtz.gz",
       "SourceId": "AIHelpdeskSupport",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/AIHelpdeskSupport",
-      "RelativePath": "css/modern#[.{fingerprint=pz8rctr1mu}]?.css.gz",
+      "RelativePath": "css/modern#[.{fingerprint=vhhm30ewtz}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -1417,8 +1417,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\modern.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "2x26nc3vh5",
-      "Integrity": "upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU=",
+      "Fingerprint": "fbgvpu283y",
+      "Integrity": "pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\modern.css"
@@ -1522,8 +1522,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "pz8rctr1mu",
-      "Integrity": "RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA=",
+      "Fingerprint": "vhhm30ewtz",
+      "Integrity": "E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\modern.css"
@@ -4047,12 +4047,12 @@
     },
     {
       "Route": "css/modern.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-pz8rctr1mu.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-vhhm30ewtz.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000103820598"
+          "Quality": "0.000090975255"
         }
       ],
       "ResponseHeaders": [
@@ -4062,15 +4062,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9631"
+          "Value": "10991"
         },
         {
           "Name": "ETag",
-          "Value": "\"upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU=\""
+          "Value": "\"pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4090,13 +4090,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA=\""
+          "Value": "W/\"E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA="
+          "Value": "sha256-E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk="
         }
       ]
     },
@@ -4111,7 +4111,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "55612"
+          "Value": "65129"
         },
         {
           "Name": "Content-Type",
@@ -4119,11 +4119,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA=\""
+          "Value": "\"E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4133,13 +4133,13 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA="
+          "Value": "sha256-E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk="
         }
       ]
     },
     {
       "Route": "css/modern.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-pz8rctr1mu.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-vhhm30ewtz.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4148,7 +4148,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9631"
+          "Value": "10991"
         },
         {
           "Name": "Content-Type",
@@ -4156,11 +4156,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU=\""
+          "Value": "\"pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4178,18 +4178,18 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU="
+          "Value": "sha256-pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw="
         }
       ]
     },
     {
-      "Route": "css/modern.pz8rctr1mu.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-pz8rctr1mu.gz",
+      "Route": "css/modern.vhhm30ewtz.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-vhhm30ewtz.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000103820598"
+          "Quality": "0.000090975255"
         }
       ],
       "ResponseHeaders": [
@@ -4199,15 +4199,15 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9631"
+          "Value": "10991"
         },
         {
           "Name": "ETag",
-          "Value": "\"upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU=\""
+          "Value": "\"pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4227,13 +4227,13 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA=\""
+          "Value": "W/\"E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk=\""
         }
       ],
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "pz8rctr1mu"
+          "Value": "vhhm30ewtz"
         },
         {
           "Name": "label",
@@ -4241,12 +4241,12 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA="
+          "Value": "sha256-E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk="
         }
       ]
     },
     {
-      "Route": "css/modern.pz8rctr1mu.css",
+      "Route": "css/modern.vhhm30ewtz.css",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\wwwroot\\css\\modern.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4256,7 +4256,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "55612"
+          "Value": "65129"
         },
         {
           "Name": "Content-Type",
@@ -4264,11 +4264,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA=\""
+          "Value": "\"E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4278,7 +4278,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "pz8rctr1mu"
+          "Value": "vhhm30ewtz"
         },
         {
           "Name": "label",
@@ -4286,13 +4286,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-RXaO/vFRT4tv/fhmGee23zRDtPECdESc/tmZB7MYVKA="
+          "Value": "sha256-E8UgdKAr80k/jWFalTu4RhA2WPQjpZ5t9Mtg42xezFk="
         }
       ]
     },
     {
-      "Route": "css/modern.pz8rctr1mu.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-pz8rctr1mu.gz",
+      "Route": "css/modern.vhhm30ewtz.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\flowiseUI\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\zygnymujis-vhhm30ewtz.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4301,7 +4301,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "9631"
+          "Value": "10991"
         },
         {
           "Name": "Content-Type",
@@ -4309,11 +4309,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU=\""
+          "Value": "\"pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 05 Mar 2025 09:47:32 GMT"
+          "Value": "Wed, 05 Mar 2025 09:56:24 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4331,7 +4331,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "pz8rctr1mu"
+          "Value": "vhhm30ewtz"
         },
         {
           "Name": "label",
@@ -4339,7 +4339,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-upTCWh+4pEbJuLpZYyNJJUTbqlQ/zxZr5rxBfBuzBqU="
+          "Value": "sha256-pYrORieaBPX25vXM+/Ke6+JZLjz+Ix53/cyUEhxcNsw="
         }
       ]
     },
