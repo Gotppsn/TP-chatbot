@@ -4,13 +4,19 @@ using AIHelpdeskSupport.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Server=(localdb)\\mssqllocaldb;Database=AIHelpdeskSupport;Trusted_Connection=True;MultipleActiveResultSets=true";
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+// Add ConnectionStringProvider service
+builder.Services.AddSingleton<ConnectionStringProvider>();
+
+// Add database with dynamic connection string
+builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+{
+    var connectionProvider = serviceProvider.GetRequiredService<ConnectionStringProvider>();
+    options.UseSqlServer(connectionProvider.GetConnectionString());
+});
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
@@ -62,11 +68,29 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (!app.Environment.IsDevelopment())
+// Initialize connection string from database settings if available
+using (var scope = app.Services.CreateScope())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    try
+    {
+        // Use appsettings.json connection string for initial database access
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        
+        // Ensure database exists
+        context.Database.EnsureCreated();
+        
+        // Load settings and update connection string provider
+        var settings = context.SystemSettings.FirstOrDefault();
+        if (settings != null)
+        {
+            ConnectionStringProvider.UpdateConnectionString(settings);
+        }
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Error initializing connection string from settings");
+    }
 }
 
 // Create scope for database initialization and user seeding
@@ -91,6 +115,13 @@ using (var scope = app.Services.CreateScope())
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred seeding the DB.");
     }
+}
+
+// Configure the HTTP request pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
@@ -259,39 +290,38 @@ public static class IdentityDataInitializer
         }
     }
 
-public static async Task UpdateUserDepartmentClaims(UserManager<ApplicationUser> userManager)
-{
-    var users = userManager.Users.ToList();
-    foreach (var user in users)
+    public static async Task UpdateUserDepartmentClaims(UserManager<ApplicationUser> userManager)
     {
-        var currentClaims = await userManager.GetClaimsAsync(user);
-        var departmentClaim = currentClaims.FirstOrDefault(c => c.Type == "Department");
-        var roleClaim = currentClaims.FirstOrDefault(c => c.Type == "Role");
+        var users = userManager.Users.ToList();
+        foreach (var user in users)
+        {
+            var currentClaims = await userManager.GetClaimsAsync(user);
+            var departmentClaim = currentClaims.FirstOrDefault(c => c.Type == "Department");
+            var roleClaim = currentClaims.FirstOrDefault(c => c.Type == "Role");
+                
+            // Remove existing department claim if exists
+            if (departmentClaim != null)
+            {
+                await userManager.RemoveClaimAsync(user, departmentClaim);
+            }
             
-        // Remove existing department claim if exists
-        if (departmentClaim != null)
-        {
-            await userManager.RemoveClaimAsync(user, departmentClaim);
-        }
-        
-        // Remove existing role claim if exists
-        if (roleClaim != null)
-        {
-            await userManager.RemoveClaimAsync(user, roleClaim);
-        }
+            // Remove existing role claim if exists
+            if (roleClaim != null)
+            {
+                await userManager.RemoveClaimAsync(user, roleClaim);
+            }
+                
+            // Add department claim
+            if (!string.IsNullOrEmpty(user.Department))
+            {
+                await userManager.AddClaimAsync(user, new Claim("Department", user.Department));
+            }
             
-        // Add department claim
-        if (!string.IsNullOrEmpty(user.Department))
-        {
-            await userManager.AddClaimAsync(user, new Claim("Department", user.Department));
-        }
-        
-        // Add role claim
-        if (!string.IsNullOrEmpty(user.Role))
-        {
-            await userManager.AddClaimAsync(user, new Claim("Role", user.Role));
+            // Add role claim
+            if (!string.IsNullOrEmpty(user.Role))
+            {
+                await userManager.AddClaimAsync(user, new Claim("Role", user.Role));
+            }
         }
     }
-}
-    
 }

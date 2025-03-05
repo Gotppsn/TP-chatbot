@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
 namespace AIHelpdeskSupport.Controllers
 {
@@ -118,6 +119,51 @@ namespace AIHelpdeskSupport.Controllers
 
             TempData["SuccessMessage"] = "API settings saved successfully!";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SaveSqlServerSettings(SystemSettings model)
+        {
+            if (!ModelState.IsValid)
+                return View("Index", model);
+
+            var settings = await _settingsService.GetSettingsAsync();
+
+            settings.SqlServerHost = model.SqlServerHost;
+            settings.SqlServerDatabase = model.SqlServerDatabase;
+            settings.SqlServerUsername = model.SqlServerUsername;
+            settings.SqlServerPassword = model.SqlServerPassword;
+            settings.SqlServerTrustServerCertificate = model.SqlServerTrustServerCertificate;
+            settings.SqlServerMultipleActiveResultSets = model.SqlServerMultipleActiveResultSets;
+
+            var userId = _userManager.GetUserId(User);
+            await _settingsService.UpdateSettingsAsync(settings, userId);
+
+            // Update cached connection string
+            ConnectionStringProvider.UpdateConnectionString(settings);
+
+            TempData["SuccessMessage"] = "SQL Server settings saved successfully!";
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TestSqlConnection([FromBody] SystemSettings model)
+        {
+            try
+            {
+                var connectionString = ConnectionStringProvider.BuildConnectionString(model);
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    await connection.OpenAsync();
+                    return Ok(new { success = true, message = "Connection successful!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = $"Connection failed: {ex.Message}" });
+            }
         }
 
         [HttpPost]
