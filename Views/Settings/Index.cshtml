@@ -61,8 +61,8 @@
                                 @Html.AntiForgeryToken()
                                 <div class="form-group mb-3">
                                     <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
-                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control" value="@Model.FlowiseApiUrl">
-                                    <div class="form-text">The URL of your Flowise API endpoint</div>
+                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control" value="@Model.FlowiseApiUrl" required>
+                                    <div class="form-text">The URL of your Flowise API endpoint (e.g., http://your-server:3000/api/)</div>
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -78,6 +78,7 @@
                                 
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Save API Settings</button>
+                                    <button type="button" class="btn btn-secondary" id="testApiConnection">Test API Connection</button>
                                 </div>
                             </form>
                         </div>
@@ -99,17 +100,17 @@
                                 @Html.AntiForgeryToken()
                                 <div class="form-group mb-3">
                                     <label for="SqlServerHost" class="form-label">Server/Host</label>
-                                    <input type="text" id="SqlServerHost" name="SqlServerHost" class="form-control" value="@Model.SqlServerHost">
+                                    <input type="text" id="SqlServerHost" name="SqlServerHost" class="form-control" value="@Model.SqlServerHost" required>
                                 </div>
                                 
                                 <div class="form-group mb-3">
                                     <label for="SqlServerDatabase" class="form-label">Database Name</label>
-                                    <input type="text" id="SqlServerDatabase" name="SqlServerDatabase" class="form-control" value="@Model.SqlServerDatabase">
+                                    <input type="text" id="SqlServerDatabase" name="SqlServerDatabase" class="form-control" value="@Model.SqlServerDatabase" required>
                                 </div>
                                 
                                 <div class="form-group mb-3">
                                     <label for="SqlServerUsername" class="form-label">Username</label>
-                                    <input type="text" id="SqlServerUsername" name="SqlServerUsername" class="form-control" value="@Model.SqlServerUsername">
+                                    <input type="text" id="SqlServerUsername" name="SqlServerUsername" class="form-control" value="@Model.SqlServerUsername" required>
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -606,6 +607,37 @@
                         showToast(data.message, data.success ? 'success' : 'error');
                     } catch (error) {
                         showToast('Error testing connection: ' + error, 'error');
+                    }
+                });
+            }
+            
+            // Test API Connection
+            const testApiConnectionBtn = document.getElementById('testApiConnection');
+            if (testApiConnectionBtn) {
+                testApiConnectionBtn.addEventListener('click', async function() {
+                    const apiUrl = document.getElementById('FlowiseApiUrl').value;
+                    const apiKey = document.getElementById('FlowiseApiKey').value;
+                    
+                    if (!apiUrl) {
+                        showToast('API URL is required', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch('/api/test/flowise', {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-API-URL': apiUrl,
+                                'X-API-KEY': apiKey
+                            }
+                        });
+                        
+                        const data = await response.json();
+                        showToast(data.configured ? 'API connection successful!' : 'API connection failed', 
+                                  data.configured ? 'success' : 'error');
+                    } catch (error) {
+                        showToast('Error testing API connection: ' + error, 'error');
                     }
                 });
             }

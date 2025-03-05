@@ -63,6 +63,7 @@ builder.Services.AddScoped<IFlowiseService, FlowiseService>();
 builder.Services.AddScoped<IKnowledgeService, KnowledgeService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
+builder.Services.AddScoped<DatabaseMigrationService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -78,6 +79,10 @@ using (var scope = app.Services.CreateScope())
         
         // Ensure database exists
         context.Database.EnsureCreated();
+        
+        // Run database migration to add missing columns
+        var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService>();
+        migrationService.MigrateAsync().Wait();
         
         // Load settings and update connection string provider
         var settings = context.SystemSettings.FirstOrDefault();
@@ -100,12 +105,11 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.EnsureCreated(); // Just create database without migrations for testing
         
+        // Seed users and roles
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         
-        // Seed users and roles
         await IdentityDataInitializer.SeedRolesAsync(roleManager);
         await IdentityDataInitializer.SeedUsersAsync(userManager);
         await IdentityDataInitializer.UpdateUserDepartmentClaims(userManager);
