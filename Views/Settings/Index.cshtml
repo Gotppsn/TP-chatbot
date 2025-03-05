@@ -454,7 +454,7 @@
                         <div class="settings-section">
                             <div class="section-header-actions">
                                 <h3>Departments</h3>
-                                <button class="btn btn-sm btn-primary">
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
                                     <i class="bi bi-plus"></i> Add Department
                                 </button>
                             </div>
@@ -470,74 +470,44 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="department-name">Customer Service</div>
-                                            </td>
-                                            <td>2</td>
-                                            <td>8</td>
-                                            <td>
-                                                <div class="row-actions">
-                                                    <button class="btn-icon" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn-icon" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="department-name">IT Support</div>
-                                            </td>
-                                            <td>3</td>
-                                            <td>5</td>
-                                            <td>
-                                                <div class="row-actions">
-                                                    <button class="btn-icon" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn-icon" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="department-name">Sales</div>
-                                            </td>
-                                            <td>1</td>
-                                            <td>7</td>
-                                            <td>
-                                                <div class="row-actions">
-                                                    <button class="btn-icon" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn-icon" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="department-name">Billing</div>
-                                            </td>
-                                            <td>1</td>
-                                            <td>3</td>
-                                            <td>
-                                                <div class="row-actions">
-                                                    <button class="btn-icon" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
-                                                    <button class="btn-icon" title="Delete">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
+                                        @foreach (var dept in ViewBag.Departments)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <div class="department-name">@dept.Name</div>
+                                                </td>
+                                                <td>@dept.ChatbotCount</td>
+                                                <td>@dept.UserCount</td>
+                                                <td>
+                                                    <div class="row-actions">
+                                                        <button class="btn-icon edit-department-btn" 
+                                                                title="Edit" 
+                                                                data-dept-name="@dept.Name"
+                                                                data-bs-toggle="modal" 
+                                                                data-bs-target="#editDepartmentModal">
+                                                            <i class="bi bi-pencil"></i>
+                                                        </button>
+                                                        @if (dept.UserCount == 0)
+                                                        {
+                                                            <form asp-controller="Settings" asp-action="DeleteDepartment" method="post" class="d-inline">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="departmentName" value="@dept.Name">
+                                                                <button type="submit" class="btn-icon delete-department-btn" title="Delete"
+                                                                        onclick="return confirm('Are you sure you want to delete @dept.Name department?')">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn-icon disabled" title="Cannot delete (has users)">
+                                                                <i class="bi bi-trash text-muted"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -600,6 +570,57 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Department Modal -->
+<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Settings" asp-action="AddDepartment" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Department</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newName">Department Name</label>
+                        <input type="text" id="newName" name="newName" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Department Modal -->
+<div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Settings" asp-action="UpdateDepartment" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="oldName" name="oldName">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Department</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newName">Department Name</label>
+                        <input type="text" id="editName" name="newName" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -941,6 +962,163 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
+        /* Department Table Styles */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table th {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-gray-600);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            text-align: left;
+        }
+        
+        .table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--color-gray-200);
+            vertical-align: middle;
+        }
+        
+        .department-name {
+            font-weight: 500;
+            color: var(--color-gray-800);
+        }
+        
+        .row-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 1px solid var(--color-gray-300);
+            color: var(--color-gray-600);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-800);
+            border-color: var(--color-gray-400);
+        }
+        
+        .btn-icon.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Modal Styles */
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--color-gray-200);
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--color-gray-200);
+        }
+        
+        .modal-title {
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin: 0;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        /* Toast Styles */
+        .toast-container {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 1060;
+        }
+        
+        .toast {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            margin-bottom: 0.75rem;
+            width: 320px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem;
+            animation: slideInRight 0.3s;
+        }
+        
+        .toast.success {
+            border-left: 4px solid var(--success, #28a745);
+        }
+        
+        .toast.error {
+            border-left: 4px solid var(--danger, #dc3545);
+        }
+        
+        .toast-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+        
+        .toast.success .toast-icon {
+            color: var(--success, #28a745);
+        }
+        
+        .toast.error .toast-icon {
+            color: var(--danger, #dc3545);
+        }
+        
+        .toast-content {
+            flex: 1;
+        }
+        
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--color-gray-800);
+        }
+        
+        .toast-message {
+            font-size: 0.875rem;
+            color: var(--color-gray-600);
+        }
+        
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--color-gray-500);
+            cursor: pointer;
+            padding: 0 0 0 0.75rem;
+            font-size: 1.125rem;
+            line-height: 1;
+        }
+        
+        @@keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
         /* Responsive Adjustments */
         @@media (max-width: 991px) {
             .settings-layout {
@@ -968,6 +1146,20 @@
             .nav-link i {
                 margin-right: 0.5rem;
             }
+        }
+        
+        /* Additional utility classes */
+        .d-inline {
+            display: inline;
+        }
+        
+        .text-muted {
+            color: var(--color-gray-500) !important;
+        }
+        
+        .disabled {
+            pointer-events: none;
+            opacity: 0.65;
         }
     </style>
 }
@@ -1025,119 +1217,92 @@
                 });
             }
             
+            // Department management
+            const editDepartmentBtns = document.querySelectorAll('.edit-department-btn');
+            
+            editDepartmentBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const deptName = this.getAttribute('data-dept-name');
+                    document.getElementById('oldName').value = deptName;
+                    document.getElementById('editName').value = deptName;
+                });
+            });
+            
             // Save settings notification
             const saveSettingsBtn = document.getElementById('saveSettings');
             
             if (saveSettingsBtn) {
                 saveSettingsBtn.addEventListener('click', function() {
                     // Create toast notification
-                    const toast = document.createElement('div');
-                    toast.className = 'toast-notification success';
-                    toast.innerHTML = `
-                        <div class="toast-icon">
-                            <i class="bi bi-check-circle"></i>
-                        </div>
-                        <div class="toast-content">
-                            <div class="toast-title">Settings Saved</div>
-                            <div class="toast-message">Your settings have been saved successfully</div>
-                        </div>
-                        <button class="toast-close">
-                            <i class="bi bi-x"></i>
-                        </button>
-                    `;
-                    
-                    // Add to document
-                    document.body.appendChild(toast);
-                    
-                    // Show toast
+                    showToast('success', 'Settings have been saved successfully');
+                });
+            }
+            
+            // Handle toast notifications
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                showToast('success', '@TempData["SuccessMessage"]');
+                </text>
+            }
+            
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                showToast('error', '@TempData["ErrorMessage"]');
+                </text>
+            }
+            
+            // Toast notification function
+            function showToast(type, message) {
+                // Create toast container if it doesn't exist
+                let toastContainer = document.querySelector('.toast-container');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.className = 'toast-container';
+                    document.body.appendChild(toastContainer);
+                }
+                
+                // Create toast
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                
+                // Toast content
+                toast.innerHTML = `
+                    <div class="toast-icon">
+                        <i class="bi ${type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle'}"></i>
+                    </div>
+                    <div class="toast-content">
+                        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" onclick="this.parentElement.remove()">
+                        <i class="bi bi-x"></i>
+                    </button>
+                `;
+                
+                // Add to container
+                toastContainer.appendChild(toast);
+                
+                // Auto-hide toast after 5 seconds
+                setTimeout(() => {
+                    toast.classList.add('hiding');
                     setTimeout(() => {
-                        toast.classList.add('show');
-                    }, 100);
-                    
-                    // Auto-hide toast after 5 seconds
+                        if (toast.parentNode) {
+                            toast.parentNode.removeChild(toast);
+                        }
+                    }, 300);
+                }, 5000);
+                
+                // Close button functionality
+                const closeBtn = toast.querySelector('.toast-close');
+                closeBtn.addEventListener('click', function() {
+                    toast.classList.remove('show');
                     setTimeout(() => {
-                        toast.classList.remove('show');
-                        setTimeout(() => {
-                            document.body.removeChild(toast);
-                        }, 300);
-                    }, 5000);
-                    
-                    // Close button functionality
-                    const closeBtn = toast.querySelector('.toast-close');
-                    closeBtn.addEventListener('click', function() {
-                        toast.classList.remove('show');
-                        setTimeout(() => {
-                            document.body.removeChild(toast);
-                        }, 300);
-                    });
+                        document.body.removeChild(toast);
+                    }, 300);
                 });
             }
         });
     </script>
-    
-    <style>
-        /* Toast Notification Styles */
-        .toast-notification {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            display: flex;
-            align-items: flex-start;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            width: 320px;
-            z-index: 1000;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .toast-notification.success {
-            border-left: 4px solid var(--color-success);
-        }
-        
-        .toast-icon {
-            margin-right: 0.75rem;
-            font-size: 1.25rem;
-        }
-        
-        .toast-notification.success .toast-icon {
-            color: var(--color-success);
-        }
-        
-        .toast-content {
-            flex: 1;
-        }
-        
-        .toast-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .toast-message {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: var(--color-gray-500);
-            cursor: pointer;
-            padding: 0;
-            margin-left: 0.75rem;
-        }
-        
-        .toast-close:hover {
-            color: var(--color-gray-700);
-        }
-    </style>
 }

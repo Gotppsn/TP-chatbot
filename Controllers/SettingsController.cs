@@ -150,6 +150,19 @@ namespace AIHelpdeskSupport.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Check if new department name already exists (and is different from old name)
+            if (oldName != newName)
+            {
+                var departmentExists = await _userManager.Users.AnyAsync(u => u.Department == newName) ||
+                                      await _context.Chatbots.AnyAsync(c => c.Department == newName);
+
+                if (departmentExists)
+                {
+                    TempData["ErrorMessage"] = $"Department '{newName}' already exists.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
             // Update users with the old department name
             var usersToUpdate = await _userManager.Users
                 .Where(u => u.Department == oldName)
@@ -207,7 +220,7 @@ namespace AIHelpdeskSupport.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Create a new chatbot for this department (optional)
+            // Create a new chatbot for this department
             var chatbot = new Chatbot
             {
                 Name = $"{newName} Bot",
