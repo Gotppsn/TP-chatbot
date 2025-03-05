@@ -37,12 +37,8 @@ namespace AIHelpdeskSupport.Services
             if (existingSettings == null)
             {
                 settings.FlowiseApiKey = settings.FlowiseApiKey ?? string.Empty;
-                settings.SqlServerPassword = settings.SqlServerPassword ?? string.Empty;
                 settings.CreatedBy = userId;
                 _context.SystemSettings.Add(settings);
-                
-                // Update connection string cache
-                ConnectionStringProvider.UpdateConnectionString(settings);
             }
             else
             {
@@ -61,14 +57,6 @@ namespace AIHelpdeskSupport.Services
                 existingSettings.FlowiseApiUrl = settings.FlowiseApiUrl;
                 existingSettings.FlowiseApiKey = settings.FlowiseApiKey ?? existingSettings.FlowiseApiKey ?? string.Empty;
                 
-                // SQL Server settings
-                existingSettings.SqlServerHost = settings.SqlServerHost;
-                existingSettings.SqlServerDatabase = settings.SqlServerDatabase;
-                existingSettings.SqlServerUsername = settings.SqlServerUsername;
-                existingSettings.SqlServerPassword = settings.SqlServerPassword ?? existingSettings.SqlServerPassword ?? string.Empty;
-                existingSettings.SqlServerTrustServerCertificate = settings.SqlServerTrustServerCertificate;
-                existingSettings.SqlServerMultipleActiveResultSets = settings.SqlServerMultipleActiveResultSets;
-                
                 // AI model settings
                 existingSettings.DefaultAiModel = settings.DefaultAiModel;
                 existingSettings.DefaultTemperature = settings.DefaultTemperature;
@@ -77,9 +65,6 @@ namespace AIHelpdeskSupport.Services
                 // Update metadata
                 existingSettings.LastUpdatedAt = DateTime.UtcNow;
                 existingSettings.LastUpdatedBy = userId;
-                
-                // Update connection string cache
-                ConnectionStringProvider.UpdateConnectionString(existingSettings);
             }
 
             await _context.SaveChangesAsync();

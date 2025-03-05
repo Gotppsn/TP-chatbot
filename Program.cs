@@ -8,15 +8,9 @@ using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add ConnectionStringProvider service
-builder.Services.AddSingleton<ConnectionStringProvider>();
-
-// Add database with dynamic connection string
-builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
-{
-    var connectionProvider = serviceProvider.GetRequiredService<ConnectionStringProvider>();
-    options.UseSqlServer(connectionProvider.GetConnectionString());
-});
+// Add database with direct connection string
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => 
@@ -57,46 +51,16 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();
 builder.Services.AddScoped<ILdapUserDataParser, LdapUserDataParser>();
 
-// Add Flowise service
+// Add services
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IFlowiseService, FlowiseService>();
 builder.Services.AddScoped<IKnowledgeService, KnowledgeService>();
 builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddScoped<ISettingsService, SettingsService>();
-builder.Services.AddScoped<DatabaseMigrationService>();
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-
-// Initialize connection string from database settings if available
-using (var scope = app.Services.CreateScope())
-{
-    try
-    {
-        // Use appsettings.json connection string for initial database access
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        
-        // Ensure database exists
-        context.Database.EnsureCreated();
-        
-        // Run database migration to add missing columns
-        var migrationService = scope.ServiceProvider.GetRequiredService<DatabaseMigrationService>();
-        migrationService.MigrateAsync().Wait();
-        
-        // Load settings and update connection string provider
-        var settings = context.SystemSettings.FirstOrDefault();
-        if (settings != null)
-        {
-            ConnectionStringProvider.UpdateConnectionString(settings);
-        }
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Error initializing connection string from settings");
-    }
-}
 
 // Create scope for database initialization and user seeding
 using (var scope = app.Services.CreateScope())
@@ -105,6 +69,9 @@ using (var scope = app.Services.CreateScope())
     try 
     {
         var context = services.GetRequiredService<ApplicationDbContext>();
+        
+        // Ensure database exists and any pending migrations are applied
+        context.Database.EnsureCreated();
         
         // Seed users and roles
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();

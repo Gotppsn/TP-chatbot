@@ -29,12 +29,6 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#sql-server" type="button" role="tab">
-                        <i class="bi bi-database"></i>
-                        <span>SQL Server</span>
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button" role="tab">
                         <i class="bi bi-building"></i>
                         <span>Departments</span>
@@ -79,71 +73,6 @@
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Save API Settings</button>
                                     <button type="button" class="btn btn-secondary" id="testApiConnection">Test API Connection</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- SQL Server Settings -->
-            <div class="tab-pane fade" id="sql-server" role="tabpanel">
-                <div class="settings-panel">
-                    <div class="panel-header">
-                        <h2>SQL Server Configuration</h2>
-                        <p>Configure your database connection</p>
-                    </div>
-                    
-                    <div class="panel-body">
-                        <div class="settings-section">
-                            <form asp-action="SaveSqlServerSettings" method="post">
-                                @Html.AntiForgeryToken()
-                                <div class="form-group mb-3">
-                                    <label for="SqlServerHost" class="form-label">Server/Host</label>
-                                    <input type="text" id="SqlServerHost" name="SqlServerHost" class="form-control" value="@Model.SqlServerHost" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="SqlServerDatabase" class="form-label">Database Name</label>
-                                    <input type="text" id="SqlServerDatabase" name="SqlServerDatabase" class="form-control" value="@Model.SqlServerDatabase" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="SqlServerUsername" class="form-label">Username</label>
-                                    <input type="text" id="SqlServerUsername" name="SqlServerUsername" class="form-control" value="@Model.SqlServerUsername" required>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <label for="SqlServerPassword" class="form-label">Password</label>
-                                    <div class="input-group">
-                                        <input type="password" id="SqlServerPassword" name="SqlServerPassword" class="form-control" value="@Model.SqlServerPassword">
-                                        <button class="btn btn-outline-secondary" type="button" id="toggleSqlPassword">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="SqlServerTrustServerCertificate" name="SqlServerTrustServerCertificate" value="true" @(Model.SqlServerTrustServerCertificate ? "checked" : "")>
-                                        <label class="form-check-label" for="SqlServerTrustServerCertificate">
-                                            Trust Server Certificate
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="SqlServerMultipleActiveResultSets" name="SqlServerMultipleActiveResultSets" value="true" @(Model.SqlServerMultipleActiveResultSets ? "checked" : "")>
-                                        <label class="form-check-label" for="SqlServerMultipleActiveResultSets">
-                                            Multiple Active Result Sets
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary">Save SQL Settings</button>
-                                    <button type="button" class="btn btn-secondary" id="testSqlConnection">Test Connection</button>
                                 </div>
                             </form>
                         </div>
@@ -556,58 +485,6 @@
                     const icon = toggleApiKey.querySelector('i');
                     icon.classList.toggle('bi-eye');
                     icon.classList.toggle('bi-eye-slash');
-                });
-            }
-            
-            // Toggle SQL Password visibility
-            const toggleSqlPassword = document.getElementById('toggleSqlPassword');
-            const sqlPasswordInput = document.getElementById('SqlServerPassword');
-            
-            if (toggleSqlPassword && sqlPasswordInput) {
-                toggleSqlPassword.addEventListener('click', function() {
-                    const type = sqlPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    sqlPasswordInput.setAttribute('type', type);
-                    
-                    const icon = toggleSqlPassword.querySelector('i');
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
-            }
-            
-            // Test SQL Connection
-            const testSqlConnectionBtn = document.getElementById('testSqlConnection');
-            if (testSqlConnectionBtn) {
-                testSqlConnectionBtn.addEventListener('click', async function() {
-                    // Get form values
-                    const host = document.getElementById('SqlServerHost').value;
-                    const database = document.getElementById('SqlServerDatabase').value;
-                    const username = document.getElementById('SqlServerUsername').value;
-                    const password = document.getElementById('SqlServerPassword').value;
-                    const trustServerCertificate = document.getElementById('SqlServerTrustServerCertificate').checked;
-                    const multipleActiveResultSets = document.getElementById('SqlServerMultipleActiveResultSets').checked;
-                    
-                    try {
-                        const response = await fetch('/Settings/TestSqlConnection', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                            },
-                            body: JSON.stringify({
-                                sqlServerHost: host,
-                                sqlServerDatabase: database,
-                                sqlServerUsername: username,
-                                sqlServerPassword: password,
-                                sqlServerTrustServerCertificate: trustServerCertificate,
-                                sqlServerMultipleActiveResultSets: multipleActiveResultSets
-                            })
-                        });
-                        
-                        const data = await response.json();
-                        showToast(data.message, data.success ? 'success' : 'error');
-                    } catch (error) {
-                        showToast('Error testing connection: ' + error, 'error');
-                    }
                 });
             }
             

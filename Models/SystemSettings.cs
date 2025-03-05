@@ -37,13 +37,5 @@ namespace AIHelpdeskSupport.Models
         public string CreatedBy { get; set; }
         public DateTime? LastUpdatedAt { get; set; }
         public string LastUpdatedBy { get; set; } = string.Empty;
-
-
-        public string SqlServerHost { get; set; } = "localhost";
-        public string SqlServerDatabase { get; set; } = "AIHelpdeskSupport";
-        public string SqlServerUsername { get; set; } = "sa";
-        public string SqlServerPassword { get; set; } = "";
-        public bool SqlServerTrustServerCertificate { get; set; } = true;
-        public bool SqlServerMultipleActiveResultSets { get; set; } = true;
     }
 }
