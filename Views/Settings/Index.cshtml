@@ -52,11 +52,10 @@
                     <div class="panel-body">
                         <div class="settings-section">
                             <form asp-action="SaveApiSettings" method="post">
-                                @Html.AntiForgeryToken()
                                 <div class="form-group mb-3">
                                     <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
-                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control" value="@Model.FlowiseApiUrl" required>
-                                    <div class="form-text">The URL of your Flowise API endpoint (e.g., http://your-server:3000/api/)</div>
+                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control" value="@Model.FlowiseApiUrl">
+                                    <div class="form-text">The URL of your Flowise API endpoint</div>
                                 </div>
                                 
                                 <div class="form-group mb-3">
@@ -72,7 +71,6 @@
                                 
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Save API Settings</button>
-                                    <button type="button" class="btn btn-secondary" id="testApiConnection">Test API Connection</button>
                                 </div>
                             </form>
                         </div>
@@ -147,7 +145,6 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-action="AddDepartment" method="post">
-                @Html.AntiForgeryToken()
                 <div class="modal-header">
                     <h5 class="modal-title">Add Department</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -172,7 +169,6 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-action="UpdateDepartment" method="post">
-                @Html.AntiForgeryToken()
                 <div class="modal-header">
                     <h5 class="modal-title">Edit Department</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -198,7 +194,6 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form asp-action="DeleteDepartment" method="post">
-                @Html.AntiForgeryToken()
                 <div class="modal-header">
                     <h5 class="modal-title">Delete Department</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -485,37 +480,6 @@
                     const icon = toggleApiKey.querySelector('i');
                     icon.classList.toggle('bi-eye');
                     icon.classList.toggle('bi-eye-slash');
-                });
-            }
-            
-            // Test API Connection
-            const testApiConnectionBtn = document.getElementById('testApiConnection');
-            if (testApiConnectionBtn) {
-                testApiConnectionBtn.addEventListener('click', async function() {
-                    const apiUrl = document.getElementById('FlowiseApiUrl').value;
-                    const apiKey = document.getElementById('FlowiseApiKey').value;
-                    
-                    if (!apiUrl) {
-                        showToast('API URL is required', 'error');
-                        return;
-                    }
-                    
-                    try {
-                        const response = await fetch('/api/test/flowise', {
-                            method: 'GET',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-API-URL': apiUrl,
-                                'X-API-KEY': apiKey
-                            }
-                        });
-                        
-                        const data = await response.json();
-                        showToast(data.configured ? 'API connection successful!' : 'API connection failed', 
-                                  data.configured ? 'success' : 'error');
-                    } catch (error) {
-                        showToast('Error testing API connection: ' + error, 'error');
-                    }
                 });
             }
             
