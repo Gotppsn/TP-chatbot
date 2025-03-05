@@ -404,6 +404,28 @@ namespace AIHelpdeskSupport.Migrations
                     b.Property<int>("SessionTimeout")
                         .HasColumnType("int");
 
+                    b.Property<string>("SqlServerDatabase")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SqlServerHost")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SqlServerMultipleActiveResultSets")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SqlServerPassword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SqlServerTrustServerCertificate")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SqlServerUsername")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SupportEmail")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AIHelpdeskSupport.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250304073505_AllowNullFlowiseApiKey")]
-    partial class AllowNullFlowiseApiKey
+    [Migration("20250305072531_settingconfig")]
+    partial class settingconfig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -406,6 +406,28 @@ namespace AIHelpdeskSupport.Migrations
 
                     b.Property<int>("SessionTimeout")
                         .HasColumnType("int");
+
+                    b.Property<string>("SqlServerDatabase")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SqlServerHost")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SqlServerMultipleActiveResultSets")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SqlServerPassword")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("SqlServerTrustServerCertificate")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SqlServerUsername")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SupportEmail")
                         .IsRequired()

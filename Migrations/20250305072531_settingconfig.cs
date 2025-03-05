@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AIHelpdeskSupport.Migrations
 {
     /// <inheritdoc />
-    public partial class AllowNullFlowiseApiKey : Migration
+    public partial class settingconfig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -121,7 +121,13 @@ namespace AIHelpdeskSupport.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SqlServerHost = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SqlServerDatabase = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SqlServerUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SqlServerPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SqlServerTrustServerCertificate = table.Column<bool>(type: "bit", nullable: false),
+                    SqlServerMultipleActiveResultSets = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
