@@ -623,74 +623,82 @@
          });
          
          // Get Chatflows
-         document.getElementById('getChatflows').addEventListener('click', async function() {
-             const chatflowsContainer = document.getElementById('chatflowsList');
-             chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
-             
-             try {
-                 // First save current settings
-                 const form = document.getElementById('flowiseApiForm');
-                 const formData = new FormData(form);
-                 
-                 const saveResponse = await fetch('/Settings/SaveApiSettings', {
-                     method: 'POST',
-                     body: formData,
-                     headers: {
-                         'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
-                     }
-                 });
-                 
-                 if (!saveResponse.ok) {
-                     throw new Error(`Failed to save API settings: ${saveResponse.status}`);
-                 }
-                 
-                 // Wait to ensure settings propagate
-                 await new Promise(resolve => setTimeout(resolve, 1000));
-                 
-                 // Clear any previous data
-                 chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Fetching chatflows...';
-                 
-                 // Add timestamp to prevent caching
-                 const timestamp = new Date().getTime();
-                 const response = await fetch(`/api/test/chatflows?_=${timestamp}`, {
-                     headers: {
-                         'Cache-Control': 'no-cache, no-store, must-revalidate',
-                         'Pragma': 'no-cache',
-                         'Expires': '0'
-                     }
-                 });
-                 
-                 if (!response.ok) {
-                     const errorText = await response.text();
-                     throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-                 }
-                 
-                 const result = await response.json();
-                 console.log('Chatflows response:', result);
-                 
-                 if (result.success && result.data && result.data.length > 0) {
-                     let html = '<ul class="list-group" style="display: block;">';
-                     result.data.forEach(flow => {
-                         const date = new Date(flow.updatedAt || flow.createdAt || Date.now()).toLocaleDateString();
-                         html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                             ${flow.name || 'Unnamed Flow'}
-                             <div>
-                                 <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id || 'No ID'}</span>
-                                 <small class="text-muted ms-2">${date}</small>
-                             </div>
-                         </li>`;
-                     });
-                     html += '</ul>';
-                     chatflowsContainer.innerHTML = html;
-                 } else {
-                     chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed. Check console for details.</div>';
-                 }
-             } catch (error) {
-                 console.error('Error fetching chatflows:', error);
-                 chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>
-                     <div class="small text-muted mt-2">Check browser console and server logs for details.</div>`;
-             }
-         });
+document.getElementById('getChatflows').addEventListener('click', async function() {
+    const chatflowsContainer = document.getElementById('chatflowsList');
+    chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
+    
+    try {
+        // First save current settings
+        const form = document.getElementById('flowiseApiForm');
+        const formData = new FormData(form);
+        
+        const saveResponse = await fetch('/Settings/SaveApiSettings', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        });
+        
+        if (!saveResponse.ok) {
+            throw new Error(`Failed to save API settings: ${saveResponse.status}`);
+        }
+        
+        // Wait to ensure settings propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Add timestamp and random to prevent caching
+        const timestamp = new Date().getTime();
+        const random = Math.floor(Math.random() * 1000000);
+        const response = await fetch(`/api/test/chatflows?_=${timestamp}&r=${random}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Chatflows response:', result);
+        
+        if (result.success && result.data && result.data.length > 0) {
+            let html = '<ul class="list-group" style="display: block;">';
+            result.data.forEach(flow => {
+                const date = flow.updatedAt || flow.createdAt ? 
+                    new Date(flow.updatedAt || flow.createdAt).toLocaleDateString() : 
+                    'Unknown date';
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${flow.name || 'Unnamed Flow'}
+                    <div>
+                        <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id || 'No ID'}</span>
+                        <small class="text-muted ms-2">${date}</small>
+                    </div>
+                </li>`;
+            });
+            html += '</ul>';
+            chatflowsContainer.innerHTML = html;
+        } else if (result.success && (!result.data || result.data.length === 0)) {
+            chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found. The API connection was successful, but no chatflows were returned.</div>';
+        } else {
+            chatflowsContainer.innerHTML = '<div class="alert alert-warning">API connection failed or no chatflows found. Check console for details.</div>';
+        }
+    } catch (error) {
+        console.error('Error fetching chatflows:', error);
+        chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>
+            <div class="small text-muted mt-2">Try these troubleshooting steps:</div>
+            <ul class="small text-muted">
+                <li>Ensure Flowise is running on the specified URL</li>
+                <li>Check that your API key is correct</li>
+                <li>Verify that CORS is enabled on your Flowise server</li>
+                <li>Check browser console and server logs for more details</li>
+            </ul>`;
+    }
+});
 
          // Override main Save Changes button
          document.getElementById('saveSettings').addEventListener('click', function() {
@@ -796,6 +804,69 @@
              document.body.appendChild(container);
              return container;
          }
+
+         function testFlowiseConnection() {
+    const apiUrl = document.getElementById('FlowiseApiUrl').value;
+    const apiKey = document.getElementById('FlowiseApiKey').value;
+    const statusElement = document.getElementById('apiConnectionStatus');
+    
+    // Show loading state
+    statusElement.innerHTML = '<span class="text-info"><i class="fa fa-spinner fa-spin"></i> Testing connection...</span>';
+    
+    // Call our new API endpoint
+    fetch(`/api/flowise-test/connection?apiUrl=${encodeURIComponent(apiUrl)}&apiKey=${encodeURIComponent(apiKey)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusElement.innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> Connection successful!</span>';
+            } else {
+                statusElement.innerHTML = `<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Connection failed: ${data.message}</span>`;
+            }
+        })
+        .catch(error => {
+            statusElement.innerHTML = `<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Error: ${error.message}</span>`;
+            console.error('Error testing connection:', error);
+        });
+}
+
+function fetchChatflows() {
+    const apiUrl = document.getElementById('FlowiseApiUrl').value;
+    const apiKey = document.getElementById('FlowiseApiKey').value;
+    const chatflowsContainer = document.getElementById('chatflowsList');
+    
+    // Show loading state
+    chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
+    
+    // Call our new API endpoint
+    fetch(`/api/flowise-test/chatflows?apiUrl=${encodeURIComponent(apiUrl)}&apiKey=${encodeURIComponent(apiKey)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data && data.data.length > 0) {
+                let html = '<ul class="list-group">';
+                data.data.forEach(flow => {
+                    const name = flow.name || flow.id || 'Unnamed Flow';
+                    const id = flow.id || 'No ID';
+                    const date = new Date().toLocaleDateString(); // Use flow.updatedAt if available
+                    
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${name}
+                        <div>
+                            <span class="badge bg-primary rounded-pill" title="Flow ID">${id}</span>
+                            <small class="text-muted ms-2">${date}</small>
+                        </div>
+                    </li>`;
+                });
+                html += '</ul>';
+                chatflowsContainer.innerHTML = html;
+            } else {
+                chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed.</div>';
+            }
+        })
+        .catch(error => {
+            chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+            console.error('Error fetching chatflows:', error);
+        });
+}
          
          // Check for success/error messages in TempData
          @if (TempData["SuccessMessage"] != null)

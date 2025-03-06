@@ -144,6 +144,13 @@ public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string Fl
         // Normalize API URL format
         if (!string.IsNullOrEmpty(FlowiseApiUrl))
         {
+            // Ensure URL has protocol
+            if (!FlowiseApiUrl.StartsWith("http://") && !FlowiseApiUrl.StartsWith("https://"))
+            {
+                FlowiseApiUrl = "http://" + FlowiseApiUrl;
+            }
+            
+            // Ensure trailing slash
             FlowiseApiUrl = FlowiseApiUrl.TrimEnd('/') + "/";
         }
         
@@ -162,15 +169,19 @@ public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string Fl
         UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
         UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
         
-        // Reset the FlowiseService HTTP client
-        _flowiseService.TestFlowiseConnectionAsync().Wait();
+        // Wait briefly to ensure settings are applied
+        await Task.Delay(500);
+        
+        // Test connection with new settings
+        bool connectionSuccess = await _flowiseService.TestFlowiseConnectionAsync();
         
         return Ok(new 
         { 
             success = true,
             message = "API settings saved successfully.",
             apiUrl = settings.FlowiseApiUrl,
-            hasApiKey = !string.IsNullOrEmpty(settings.FlowiseApiKey)
+            hasApiKey = !string.IsNullOrEmpty(settings.FlowiseApiKey),
+            connectionTest = connectionSuccess ? "Connection successful" : "Connection failed (API may still work)"
         });
     }
     catch (Exception ex)

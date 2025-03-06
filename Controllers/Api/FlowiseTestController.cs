@@ -396,6 +396,104 @@ namespace AIHelpdeskSupport.Controllers.Api
                });
            }
        }
+
+       [HttpGet("direct-test")]
+public async Task<IActionResult> DirectTest()
+{
+    try
+    {
+        var settings = await _settingsService.GetSettingsAsync();
+        string apiUrl = settings.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/";
+        string apiKey = settings.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+        
+        // Normalize URL
+        if (!apiUrl.EndsWith("/"))
+        {
+            apiUrl += "/";
+        }
+        
+        // Ensure URL has protocol
+        if (!apiUrl.StartsWith("http://") && !apiUrl.StartsWith("https://"))
+        {
+            apiUrl = "http://" + apiUrl;
+        }
+        
+        // Try different endpoints
+        var testResults = new List<object>();
+        var endpoints = new[] { "health", "api/health", "api/v1/health", "api/chatflows", "chatflows", "api/v1/chatflows" };
+        
+        using var httpClient = new HttpClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(10);
+        
+        foreach (var endpoint in endpoints)
+        {
+            try
+            {
+                // Try with URL parameter
+                var paramUrl = $"{apiUrl}{endpoint}?apiKey={apiKey}";
+                var paramResponse = await httpClient.GetAsync(paramUrl);
+                
+                testResults.Add(new
+                {
+                    endpoint,
+                    method = "url_parameter",
+                    url = paramUrl.Replace(apiKey, "***"),
+                    status = (int)paramResponse.StatusCode,
+                    success = paramResponse.IsSuccessStatusCode,
+                    contentLength = (await paramResponse.Content.ReadAsStringAsync()).Length
+                });
+                
+                // Try with header auth
+                var headerResponse = await SendWithHeaderAuth(httpClient, $"{apiUrl}{endpoint}", apiKey);
+                
+                testResults.Add(new
+                {
+                    endpoint,
+                    method = "header_auth",
+                    url = $"{apiUrl}{endpoint}",
+                    status = (int)headerResponse.StatusCode,
+                    success = headerResponse.IsSuccessStatusCode,
+                    contentLength = (await headerResponse.Content.ReadAsStringAsync()).Length
+                });
+            }
+            catch (Exception ex)
+            {
+                testResults.Add(new
+                {
+                    endpoint,
+                    error = ex.Message,
+                    success = false
+                });
+            }
+        }
+        
+        return Ok(new
+        {
+            apiUrl,
+            hasApiKey = !string.IsNullOrEmpty(apiKey),
+            results = testResults
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error in direct test");
+        return StatusCode(500, new { success = false, message = ex.Message });
+    }
+}
+
+private async Task<HttpResponseMessage> SendWithHeaderAuth(HttpClient client, string url, string apiKey)
+{
+    var request = new HttpRequestMessage(HttpMethod.Get, url);
+    
+    if (!string.IsNullOrEmpty(apiKey))
+    {
+        request.Headers.Add("Authorization", $"Bearer {apiKey}");
+        request.Headers.Add("x-api-key", apiKey);
+        request.Headers.Add("apiKey", apiKey);
+    }
+    
+    return await client.SendAsync(request);
+}
    }
 
    public class TestChatRequest
