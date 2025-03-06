@@ -32,9 +32,10 @@ public class FlowiseService : IFlowiseService
     private void ConfigureHttpClient()
     {
         try {
-            // Get latest settings from configuration
-            string apiUrl = _configuration["Flowise:ApiUrl"] ?? "";
-            string apiKey = _configuration["Flowise:ApiKey"] ?? "";
+            // Get latest settings from database instead of configuration
+            var settings = _context.SystemSettings.FirstOrDefault();
+            string apiUrl = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "";
+            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
             
             // Validate URL
             if (string.IsNullOrWhiteSpace(apiUrl))
@@ -309,19 +310,19 @@ public class FlowiseService : IFlowiseService
     }
 
     public async Task<bool> UpdateChatbotAsync(Chatbot chatbot)
-{
-    try
     {
-        _context.Entry(chatbot).State = EntityState.Modified;
-        await _context.SaveChangesAsync();
-        return true;
+        try
+        {
+            _context.Entry(chatbot).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating chatbot {ChatbotId}", chatbot.Id);
+            return false;
+        }
     }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error updating chatbot {ChatbotId}", chatbot.Id);
-        return false;
-    }
-}
 }
 
 public class FlowiseChatflow

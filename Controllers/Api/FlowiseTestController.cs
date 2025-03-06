@@ -72,53 +72,53 @@ namespace AIHelpdeskSupport.Controllers.Api
            }
        }
        
- [HttpGet("chatflows")]
-public async Task<IActionResult> GetChatflows()
-{
-    try
-    {
-        _logger.LogInformation("Fetching chatflows from Flowise API URL: {ApiUrl}", 
-            _configuration["Flowise:ApiUrl"]);
-        
-        var chatflows = await _flowiseService.GetFlowiseChatflowsAsync();
-        
-        // Safely log even if null
-        _logger.LogInformation("Retrieved {Count} chatflows from Flowise API", 
-            chatflows?.Count() ?? 0);
-        
-        // Check if we actually got data
-        if (chatflows == null || !chatflows.Any())
-        {
-            return Ok(new { 
-                success = false, 
-                message = "No chatflows found or API connection failed",
-                data = Array.Empty<object>(),
-                apiUrl = _configuration["Flowise:ApiUrl"],
-                timestamp = DateTime.UtcNow.ToString("o")
-            });
-        }
-        
-        return Ok(new { 
-            success = true, 
-            data = chatflows,
-            count = chatflows.Count(),
-            apiUrl = _configuration["Flowise:ApiUrl"],
-            timestamp = DateTime.UtcNow.ToString("o")
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error fetching chatflows from Flowise API");
-        return StatusCode(500, new { 
-            success = false, 
-            error = ex.Message,
-            innerException = ex.InnerException?.Message,
-            stackTrace = ex.StackTrace,
-            apiUrl = _configuration["Flowise:ApiUrl"],
-            timestamp = DateTime.UtcNow.ToString("o")
-        });
-    }
-}
+       [HttpGet("chatflows")]
+       public async Task<IActionResult> GetChatflows()
+       {
+           try
+           {
+               _logger.LogInformation("Fetching chatflows from Flowise API URL: {ApiUrl}", 
+                   _configuration["Flowise:ApiUrl"]);
+               
+               var chatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+               
+               // Log result
+               _logger.LogInformation("Retrieved {Count} chatflows from Flowise API", 
+                   chatflows?.Count() ?? 0);
+               
+               // Check if we actually got data
+               if (chatflows == null || !chatflows.Any())
+               {
+                   return Ok(new { 
+                       success = false, 
+                       message = "No chatflows found or API connection failed",
+                       data = Array.Empty<object>(),
+                       apiUrl = _configuration["Flowise:ApiUrl"],
+                       timestamp = DateTime.UtcNow.ToString("o")
+                   });
+               }
+               
+               return Ok(new { 
+                   success = true, 
+                   data = chatflows,
+                   count = chatflows.Count(),
+                   apiUrl = _configuration["Flowise:ApiUrl"],
+                   timestamp = DateTime.UtcNow.ToString("o")
+               });
+           }
+           catch (Exception ex)
+           {
+               _logger.LogError(ex, "Error fetching chatflows from Flowise API");
+               return StatusCode(500, new { 
+                   success = false, 
+                   error = ex.Message,
+                   innerException = ex.InnerException?.Message,
+                   stackTrace = ex.StackTrace,
+                   apiUrl = _configuration["Flowise:ApiUrl"],
+                   timestamp = DateTime.UtcNow.ToString("o")
+               });
+           }
+       }
        
        [HttpPost("chat")]
        public async Task<IActionResult> TestChat([FromBody] TestChatRequest request)
@@ -171,6 +171,47 @@ public async Task<IActionResult> GetChatflows()
                timestamp = DateTime.UtcNow.ToString("o")
            });
        }
+       [HttpGet("test-url")]
+public async Task<IActionResult> TestUrl([FromQuery] string url)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(url))
+            return BadRequest(new { success = false, message = "URL parameter is required" });
+
+        _logger.LogInformation("Testing direct URL: {Url}", url);
+        
+        using var httpClient = new HttpClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(15);
+        
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        var response = await httpClient.GetAsync(url, cts.Token);
+        
+        var content = await response.Content.ReadAsStringAsync();
+        string truncatedContent = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
+        
+        return Ok(new { 
+            success = response.IsSuccessStatusCode,
+            statusCode = (int)response.StatusCode,
+            statusMessage = response.StatusCode.ToString(),
+            contentLength = content.Length,
+            contentPreview = truncatedContent,
+            headers = response.Headers.ToDictionary(h => h.Key, h => h.Value),
+            timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error testing URL {Url}", url);
+        return StatusCode(500, new { 
+            success = false, 
+            error = ex.Message,
+            errorType = ex.GetType().Name,
+            url = url,
+            timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+}
    }
 
    public class TestChatRequest

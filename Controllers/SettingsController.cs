@@ -159,6 +159,9 @@ namespace AIHelpdeskSupport.Controllers
               UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
               UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
 
+              // Reset the HttpClient in FlowiseService to pick up new settings
+              await _flowiseService.TestFlowiseConnectionAsync();
+
               TempData["SuccessMessage"] = "API settings saved successfully!";
               return RedirectToAction(nameof(Index));
           }
