@@ -1,3 +1,4 @@
+// Services/FlowiseService.cs
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -32,26 +33,32 @@ public class FlowiseService : IFlowiseService
     {
         // Configure the HttpClient with current settings
         string apiUrl = _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/";
+        
+        // Ensure URL ends with a trailing slash
+        if (!string.IsNullOrEmpty(apiUrl) && !apiUrl.EndsWith("/"))
+        {
+            apiUrl += "/";
+        }
+        
         _httpClient.BaseAddress = new Uri(apiUrl);
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
+        // Clear existing auth headers
+        if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+        {
+            _httpClient.DefaultRequestHeaders.Remove("Authorization");
+        }
+        
+        if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
+        {
+            _httpClient.DefaultRequestHeaders.Remove("x-api-key");
+        }
+        
         // Add API key if configured
         string? apiKey = _configuration["Flowise:ApiKey"];
         if (!string.IsNullOrEmpty(apiKey))
         {
-            // Remove any existing auth headers first
-            if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("Authorization");
-            }
-            
-            if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("x-api-key");
-            }
-            
-            // Add both authentication headers for maximum compatibility
             _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
         }
@@ -145,19 +152,43 @@ public class FlowiseService : IFlowiseService
     {
         try
         {
+            // Update HTTP client configuration to ensure current settings
             ConfigureHttpClient();
+            
+            _logger.LogInformation("Testing Flowise connection to {BaseAddress}", _httpClient.BaseAddress);
+            
+            // Try the health endpoint first
             var response = await _httpClient.GetAsync("health");
             
             if (response.IsSuccessStatusCode)
+            {
+                _logger.LogInformation("Flowise health endpoint check successful");
                 return true;
+            }
             
-            // Try root endpoint as fallback
+            _logger.LogWarning("Flowise health endpoint check failed with status code {StatusCode}", response.StatusCode);
+            
+            // Try the root endpoint as a fallback
             response = await _httpClient.GetAsync("");
-            return response.IsSuccessStatusCode;
+            
+            bool success = response.IsSuccessStatusCode;
+            
+            if (success)
+            {
+                _logger.LogInformation("Flowise root endpoint check successful");
+            }
+            else
+            {
+                string content = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("Flowise root endpoint check failed: {StatusCode}, Response: {Content}", 
+                    response.StatusCode, content);
+            }
+            
+            return success;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error testing Flowise connection");
+            _logger.LogError(ex, "Exception during Flowise connection test");
             return false;
         }
     }
@@ -171,6 +202,7 @@ public class FlowiseService : IFlowiseService
             
             if (!response.IsSuccessStatusCode)
             {
+                _logger.LogWarning("Failed to fetch chatflows: {StatusCode}", response.StatusCode);
                 return Enumerable.Empty<FlowiseChatflow>();
             }
             

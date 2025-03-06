@@ -1,10 +1,10 @@
+// Controllers/Api/FlowiseTestController.cs
 using Microsoft.AspNetCore.Mvc;
 using AIHelpdeskSupport.Services;
 using System;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace AIHelpdeskSupport.Controllers.Api
@@ -46,80 +46,27 @@ namespace AIHelpdeskSupport.Controllers.Api
         {
             try
             {
-                var apiUrl = _configuration["Flowise:ApiUrl"];
-                var apiKey = _configuration["Flowise:ApiKey"];
+                _logger.LogInformation("Testing Flowise connection with URL: {ApiUrl}", _configuration["Flowise:ApiUrl"]);
                 
-                if (string.IsNullOrEmpty(apiUrl))
-                {
-                    return BadRequest(new { success = false, message = "Flowise API URL not configured" });
-                }
+                bool connectionSuccessful = await _flowiseService.TestFlowiseConnectionAsync();
                 
-                using (var client = new HttpClient())
-                {
-                    // Set up the client
-                    client.BaseAddress = new Uri(apiUrl);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    
-                    // Add authentication header if API key is available
-                    if (!string.IsNullOrEmpty(apiKey))
-                    {
-                        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                        client.DefaultRequestHeaders.Add("x-api-key", apiKey);
-                    }
-                    
-                    // Try to access the health endpoint or any public endpoint
-                    var response = await client.GetAsync("health");
-                    
-                    if (response.IsSuccessStatusCode)
-                    {
-                        return Ok(new { 
-                            success = true, 
-                            message = "Successfully connected to Flowise API",
-                            statusCode = (int)response.StatusCode
-                        });
-                    }
-                    
-                    // If that failed, try the root endpoint
-                    response = await client.GetAsync("");
-                    
-                    // Get response content for error details
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    
-                    return Ok(new { 
-                        success = response.IsSuccessStatusCode, 
-                        message = response.IsSuccessStatusCode ? 
-                            "Connected to Flowise API" : 
-                            $"Connection failed with status: {response.StatusCode}",
-                        statusCode = (int)response.StatusCode,
-                        details = responseContent
-                    });
-                }
+                return Ok(new { 
+                    success = connectionSuccessful, 
+                    message = connectionSuccessful ? 
+                        "Successfully connected to Flowise API" : 
+                        "Connection failed to Flowise API",
+                    apiUrl = _configuration["Flowise:ApiUrl"]
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error testing Flowise connection");
-                return BadRequest(new { 
+                return StatusCode(500, new { 
                     success = false, 
                     message = $"Error testing Flowise connection: {ex.Message}",
-                    error = ex.ToString()
+                    details = ex.ToString() 
                 });
             }
-        }
-        
-        [HttpPost("chat")]
-        public async Task<IActionResult> TestChat([FromBody] TestChatRequest request)
-        {
-            if (string.IsNullOrEmpty(request.Message))
-                return BadRequest("Message is required");
-                
-            string sessionId = Guid.NewGuid().ToString();
-            string response = await _flowiseService.GenerateChatResponseAsync(
-                request.ChatbotId, 
-                request.Message, 
-                sessionId);
-                
-            return Ok(new { response, sessionId });
         }
         
         [HttpGet("chatflows")]
@@ -132,6 +79,30 @@ namespace AIHelpdeskSupport.Controllers.Api
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Error fetching chatflows");
+                return StatusCode(500, new { success = false, error = ex.Message });
+            }
+        }
+        
+        [HttpPost("chat")]
+        public async Task<IActionResult> TestChat([FromBody] TestChatRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Message))
+                return BadRequest(new { success = false, message = "Message is required" });
+                
+            try
+            {
+                string sessionId = Guid.NewGuid().ToString();
+                string response = await _flowiseService.GenerateChatResponseAsync(
+                    request.ChatbotId, 
+                    request.Message, 
+                    sessionId);
+                    
+                return Ok(new { success = true, response, sessionId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error testing chat request");
                 return StatusCode(500, new { success = false, error = ex.Message });
             }
         }

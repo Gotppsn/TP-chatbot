@@ -44,23 +44,28 @@ namespace AIHelpdeskSupport.Services
             return settings;
         }
 
-        public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string userId)
-        {
-            try
-            {
-                settings.LastUpdatedAt = DateTime.UtcNow;
-                settings.LastUpdatedBy = userId;
+public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string userId)
+{
+    try
+    {
+        settings.LastUpdatedAt = DateTime.UtcNow;
+        settings.LastUpdatedBy = userId;
 
-                _context.SystemSettings.Update(settings);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating system settings");
-                return false;
-            }
-        }
+        // Explicitly set state to modified
+        _context.Entry(settings).State = EntityState.Modified;
+        
+        // For debugging
+        _logger.LogInformation($"Saving settings: API URL={settings.FlowiseApiUrl}, API Key={settings.FlowiseApiKey?.Length > 0}");
+        
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error updating system settings");
+        return false;
+    }
+}
 
         public async Task<List<string>> GetAllDepartmentsAsync()
         {
