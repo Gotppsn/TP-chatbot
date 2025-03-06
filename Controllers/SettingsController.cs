@@ -135,84 +135,87 @@ namespace AIHelpdeskSupport.Controllers
            return RedirectToAction(nameof(Index));
        }
 
-       [HttpPost]
-       [ValidateAntiForgeryToken]
-       public async Task<IActionResult> SaveApiSettings(SystemSettings model)
-       {
-           if (!ModelState.IsValid)
-               return View("Index", model);
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> SaveApiSettings(SystemSettings model)
+{
+    if (!ModelState.IsValid)
+        return View("Index", model);
 
-           var settings = await _settingsService.GetSettingsAsync();
+    try
+    {
+        var settings = await _settingsService.GetSettingsAsync();
 
-           // Ensure consistent URL format with trailing slash
-           if (!string.IsNullOrEmpty(model.FlowiseApiUrl))
-           {
-               settings.FlowiseApiUrl = model.FlowiseApiUrl.TrimEnd('/') + "/";
-           }
-           else
-           {
-               settings.FlowiseApiUrl = "";
-           }
-           
-           settings.FlowiseApiKey = model.FlowiseApiKey ?? "";
+        // Ensure consistent URL format
+        if (!string.IsNullOrEmpty(model.FlowiseApiUrl))
+        {
+            settings.FlowiseApiUrl = model.FlowiseApiUrl.TrimEnd('/') + "/";
+        }
+        else
+        {
+            settings.FlowiseApiUrl = "";
+        }
+        
+        settings.FlowiseApiKey = model.FlowiseApiKey ?? "";
+        settings.LastUpdatedAt = DateTime.UtcNow;
+        settings.LastUpdatedBy = _userManager.GetUserId(User);
 
-           var userId = _userManager.GetUserId(User);
-           await _settingsService.UpdateSettingsAsync(settings, userId);
-           
-           // Update runtime configuration
-           UpdateRuntimeConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
-           UpdateRuntimeConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
+        // Save to database
+        bool saveResult = await _settingsService.UpdateSettingsAsync(settings, _userManager.GetUserId(User));
+        
+        if (!saveResult)
+        {
+            TempData["ErrorMessage"] = "Failed to save settings to database.";
+            return RedirectToAction(nameof(Index));
+        }
+        
+        // Update the configuration directly
+        UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
+        UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
 
-           _logger.LogInformation("API settings updated: URL={Url}, KeyPresent={KeyPresent}", 
-               settings.FlowiseApiUrl, !string.IsNullOrEmpty(settings.FlowiseApiKey));
+        _logger.LogInformation("API settings updated: URL={Url}, KeyPresent={KeyPresent}", 
+            settings.FlowiseApiUrl, !string.IsNullOrEmpty(settings.FlowiseApiKey));
 
-           TempData["SuccessMessage"] = "API settings saved successfully!";
-           return RedirectToAction(nameof(Index));
-       }
+        TempData["SuccessMessage"] = "API settings saved successfully!";
+        return RedirectToAction(nameof(Index));
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error saving API settings");
+        TempData["ErrorMessage"] = $"Error saving settings: {ex.Message}";
+        return RedirectToAction(nameof(Index));
+    }
+}
 
-       private void UpdateRuntimeConfiguration(string key, string value)
-       {
-           try
-           {
-               // Try accessing the data dictionary via reflection
-               var configType = _configuration.GetType();
-               var dataField = configType.GetField("_data", BindingFlags.NonPublic | BindingFlags.Instance);
-               
-               if (dataField != null)
-               {
-                   var data = dataField.GetValue(_configuration) as IDictionary<string, string>;
-                   if (data != null)
-                   {
-                       data[key] = value;
-                       _logger.LogInformation("Updated runtime configuration for {Key}", key);
-                       return;
-                   }
-               }
-               
-               // Direct set if we can access IConfigurationRoot
-               if (_configuration is IConfigurationRoot configRoot)
-               {
-                   var memoryProvider = configRoot.Providers
-                       .FirstOrDefault(p => p is MemoryConfigurationProvider);
-                       
-                   if (memoryProvider != null)
-                   {
-                       var method = typeof(MemoryConfigurationProvider)
-                           .GetMethod("Set", BindingFlags.Instance | BindingFlags.NonPublic);
-                           
-                       if (method != null)
-                       {
-                           method.Invoke(memoryProvider, new[] { key, value });
-                           _logger.LogInformation("Updated runtime configuration for {Key} via MemoryProvider", key);
-                       }
-                   }
-               }
-           }
-           catch (Exception ex)
-           {
-               _logger.LogError(ex, "Failed to update runtime configuration for {Key}", key);
-           }
-       }
+// Simplified method to update configuration
+private void UpdateConfiguration(string key, string value)
+{
+    try
+    {
+        // Use reflection to update configuration
+        var configuration = (IConfigurationRoot)_configuration;
+        var memoryConfigProvider = configuration.Providers
+            .FirstOrDefault(p => p.GetType().Name == "MemoryConfigurationProvider");
+            
+        if (memoryConfigProvider != null)
+        {
+            Type providerType = memoryConfigProvider.GetType();
+            var data = providerType.GetProperty("Data", 
+                System.Reflection.BindingFlags.Instance | 
+                System.Reflection.BindingFlags.NonPublic)?.GetValue(memoryConfigProvider) as IDictionary<string, string>;
+                
+            if (data != null)
+            {
+                data[key] = value;
+                _logger.LogInformation("Updated runtime configuration for {Key}", key);
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Failed to update runtime configuration for {Key}", key);
+    }
+}
 
        [HttpPost]
        [ValidateAntiForgeryToken]

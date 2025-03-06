@@ -51,11 +51,31 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
         settings.LastUpdatedAt = DateTime.UtcNow;
         settings.LastUpdatedBy = userId;
 
-        // Explicitly set state to modified
-        _context.Entry(settings).State = EntityState.Modified;
+        // Critical: Ensure we're tracking the entity correctly
+        var existingSettings = await _context.SystemSettings.FirstOrDefaultAsync();
         
-        // For debugging
-        _logger.LogInformation($"Saving settings: API URL={settings.FlowiseApiUrl}, API Key={settings.FlowiseApiKey?.Length > 0}");
+        if (existingSettings == null)
+        {
+            // Create new if doesn't exist
+            _context.SystemSettings.Add(settings);
+        }
+        else
+        {
+            // Update existing by copying properties
+            existingSettings.FlowiseApiUrl = settings.FlowiseApiUrl;
+            existingSettings.FlowiseApiKey = settings.FlowiseApiKey; 
+            existingSettings.OrganizationName = settings.OrganizationName;
+            existingSettings.DefaultLanguage = settings.DefaultLanguage;
+            existingSettings.TimeZone = settings.TimeZone;
+            existingSettings.DateFormat = settings.DateFormat;
+            existingSettings.Theme = settings.Theme;
+            existingSettings.AccentColor = settings.AccentColor;
+            existingSettings.DefaultAiModel = settings.DefaultAiModel;
+            existingSettings.DefaultTemperature = settings.DefaultTemperature;
+            existingSettings.DefaultMaxTokens = settings.DefaultMaxTokens;
+            existingSettings.LastUpdatedAt = settings.LastUpdatedAt;
+            existingSettings.LastUpdatedBy = settings.LastUpdatedBy;
+        }
         
         await _context.SaveChangesAsync();
         return true;
