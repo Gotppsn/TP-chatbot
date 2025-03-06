@@ -1,734 +1,838 @@
 @model AIHelpdeskSupport.Models.SystemSettings
 @{
-   ViewData["Title"] = "Settings";
+  ViewData["Title"] = "Settings";
 }
 
 <div class="page-header">
-   <div>
-       <h1 class="page-title">Settings</h1>
-       <p class="text-muted">Configure your AI Helpdesk platform</p>
-   </div>
-   <div class="page-actions">
-       <button id="saveSettings" class="btn btn-primary">
-           <i class="bi bi-check-lg"></i>
-           Save Changes
-       </button>
-   </div>
+  <div>
+      <h1 class="page-title">Settings</h1>
+      <p class="text-muted">Configure your AI Helpdesk platform</p>
+  </div>
+  <div class="page-actions">
+      <button id="saveSettings" class="btn btn-primary">
+          <i class="bi bi-check-lg"></i>
+          Save Changes
+      </button>
+  </div>
 </div>
 
 <div class="settings-layout">
-   <!-- Settings Navigation -->
-   <div class="settings-nav">
-       <div class="nav-section">
-           <div class="nav-section-title">AI Configuration</div>
-           <ul class="nav-tabs" role="tablist">
-               <li class="nav-item" role="presentation">
-                   <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button"
-                       role="tab">
-                       <i class="bi bi-cpu"></i>
-                       <span>Flowise API Setting</span>
-                   </button>
-               </li>
-               <li class="nav-item" role="presentation">
-                   <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button"
-                       role="tab">
-                       <i class="bi bi-building"></i>
-                       <span>Departments</span>
-                   </button>
-               </li>
-           </ul>
-       </div>
-   </div>
+  <!-- Settings Navigation -->
+  <div class="settings-nav">
+      <div class="nav-section">
+          <div class="nav-section-title">AI Configuration</div>
+          <ul class="nav-tabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button"
+                      role="tab">
+                      <i class="bi bi-cpu"></i>
+                      <span>Flowise API Setting</span>
+                  </button>
+              </li>
+              <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button"
+                      role="tab">
+                      <i class="bi bi-building"></i>
+                      <span>Departments</span>
+                  </button>
+              </li>
+          </ul>
+      </div>
+  </div>
 
-   <!-- Settings Content -->
-   <div class="settings-content">
-       <div class="tab-content">
-           <!-- Flowise API Settings -->
-           <div class="tab-pane fade show active" id="flowise-api" role="tabpanel">
-               <div class="settings-panel">
-                   <div class="panel-header">
-                       <h2>Flowise API Settings</h2>
-                       <p>Configure your Flowise API connection</p>
-                   </div>
+  <!-- Settings Content -->
+  <div class="settings-content">
+      <div class="tab-content">
+          <!-- Flowise API Settings -->
+          <div class="tab-pane fade show active" id="flowise-api" role="tabpanel">
+              <div class="settings-panel">
+                  <div class="panel-header">
+                      <h2>Flowise API Settings</h2>
+                      <p>Configure your Flowise API connection</p>
+                  </div>
 
-                   <div class="panel-body">
-                       <div class="settings-section">
-                           <form asp-action="SaveApiSettings" method="post" id="flowiseApiForm">
-                               @Html.AntiForgeryToken()
-                               <div class="form-group mb-3">
-                                   <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
-                                   <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control"
-                                       value="@Model.FlowiseApiUrl" placeholder="http://localhost:3000/api/">
-                                   <div class="form-text">The URL of your Flowise API endpoint</div>
-                               </div>
+                  <div class="panel-body">
+                      <div class="settings-section">
+                          <form asp-action="SaveApiSettings" method="post" id="flowiseApiForm">
+                              @Html.AntiForgeryToken()
+                              <div class="form-group mb-3">
+                                  <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
+                                  <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control"
+                                      value="@Model.FlowiseApiUrl" placeholder="http://localhost:3000/api/">
+                                  <div class="form-text">The URL of your Flowise API endpoint</div>
+                              </div>
 
-                               <div class="form-group mb-3">
-                                   <label for="FlowiseApiKey" class="form-label">API Key</label>
-                                   <div class="input-group">
-                                       <input type="password" id="FlowiseApiKey" name="FlowiseApiKey"
-                                           class="form-control" value="@Model.FlowiseApiKey">
-                                       <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
-                                           <i class="bi bi-eye"></i>
-                                       </button>
-                                   </div>
-                                   <div class="form-text">Your Flowise API key for authentication</div>
-                               </div>
+                              <div class="form-group mb-3">
+                                  <label for="FlowiseApiKey" class="form-label">API Key</label>
+                                  <div class="input-group">
+                                      <input type="password" id="FlowiseApiKey" name="FlowiseApiKey"
+                                          class="form-control" value="@Model.FlowiseApiKey">
+                                      <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                          <i class="bi bi-eye"></i>
+                                      </button>
+                                  </div>
+                                  <div class="form-text">Your Flowise API key for authentication</div>
+                              </div>
 
-                               <div class="form-group mb-3">
-                                   <button type="button" id="testApiConnection" class="btn btn-outline-primary">
-                                       <i class="bi bi-plug"></i> Test Connection
-                                   </button>
-                                   <div id="apiConnectionStatus" class="mt-2"></div>
-                               </div>
+                              <div class="form-group mb-3">
+                                  <button type="button" id="testApiConnection" class="btn btn-outline-primary">
+                                      <i class="bi bi-plug"></i> Test Connection
+                                  </button>
+                                  <div id="apiConnectionStatus" class="mt-2"></div>
+                              </div>
 
-                               <div class="form-group mb-3">
-                                   <button type="button" id="getChatflows" class="btn btn-outline-secondary">
-                                       <i class="bi bi-list-check"></i> List Chatflows
-                                   </button>
-                                   <div id="chatflowsList" class="mt-2">
-                                       <ul class="list-group" style="display: none;"></ul>
-                                   </div>
-                               </div>
+                              <div class="form-group mb-3">
+                                  <button type="button" id="getChatflows" class="btn btn-outline-secondary">
+                                      <i class="bi bi-list-check"></i> List Chatflows
+                                  </button>
+                                  <div id="chatflowsList" class="mt-2">
+                                      <ul class="list-group" style="display: none;"></ul>
+                                  </div>
+                              </div>
 
-                               <div class="form-group">
-                                   <button type="submit" class="btn btn-primary" id="saveApiSettings">Save API Settings</button>
-                               </div>
-                           </form>
-                       </div>
-                   </div>
-               </div>
-           </div>
+                              <div class="form-group">
+                                  <button type="submit" class="btn btn-primary" id="saveApiSettings">Save API Settings</button>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
 
-           <!-- Departments Tab -->
-           <div class="tab-pane fade" id="departments" role="tabpanel">
-               <div class="settings-panel">
-                   <div class="panel-header">
-                       <h2>Department Management</h2>
-                       <p>Configure departments for organizational structure</p>
-                   </div>
+          <!-- Departments Tab -->
+          <div class="tab-pane fade" id="departments" role="tabpanel">
+              <div class="settings-panel">
+                  <div class="panel-header">
+                      <h2>Department Management</h2>
+                      <p>Configure departments for organizational structure</p>
+                  </div>
 
-                   <div class="panel-body">
-                       <div class="settings-section">
-                           <div class="section-header-actions">
-                               <h3>Departments</h3>
-                               <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                                   data-bs-target="#addDepartmentModal">
-                                   <i class="bi bi-plus"></i> Add Department
-                               </button>
-                           </div>
+                  <div class="panel-body">
+                      <div class="settings-section">
+                          <div class="section-header-actions">
+                              <h3>Departments</h3>
+                              <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                  data-bs-target="#addDepartmentModal">
+                                  <i class="bi bi-plus"></i> Add Department
+                              </button>
+                          </div>
 
-                           <div class="table-responsive">
-                               <table class="table table-striped table-hover">
-                                   <thead>
-                                       <tr>
-                                           <th>Department Name</th>
-                                           <th>Users</th>
-                                           <th>Chatbots</th>
-                                           <th>Created</th>
-                                           <th>Actions</th>
-                                       </tr>
-                                   </thead>
-                                   <tbody>
-                                       @if (ViewBag.Departments != null && ViewBag.Departments.Count > 0)
-                                       {
-                                           @foreach (var dept in ViewBag.Departments)
-                                           {
-                                               <tr>
-                                                   <td>
-                                                       <div class="department-name">@dept.Name</div>
-                                                   </td>
-                                                   <td>@dept.UserCount</td>
-                                                   <td>@dept.ChatbotCount</td>
-                                                   <td>
-                                                       <span title="Created by: @dept.CreatedBy">@(dept.CreatedAt?.ToString("MM/dd/yyyy") ?? "-")</span>                     
-                                                   </td>
-                                                   <td>
-                                                       <div class="row-actions">
-                                                           <button class="btn-icon edit-department" title="Edit"
-                                                               data-name="@dept.Name" data-bs-toggle="modal"
-                                                               data-bs-target="#editDepartmentModal">
-                                                               <i class="bi bi-pencil"></i>
-                                                           </button>
-                                                           <button
-                                                               class="btn-icon delete-department @(dept.UserCount > 0 ? "disabled" : "")"
-                                                               title="Delete" data-name="@dept.Name" data-bs-toggle="modal"
-                                                               data-bs-target="#deleteDepartmentModal" @(dept.UserCount > 0 ?
-                                                               "disabled" : "")>
-                                                               <i class="bi bi-trash"></i>
-                                                           </button>
-                                                       </div>
-                                                   </td>
-                                               </tr>
-                                           }
-                                       }
-                                       else
-                                       {
-                                           <tr>
-                                               <td colspan="5" class="text-center">No departments found. Add a department
-                                                   to get started.</td>
-                                           </tr>
-                                       }
-                                   </tbody>
-                               </table>
-                           </div>
-                       </div>
-                   </div>
-               </div>
-           </div>
-       </div>
-   </div>
+                          <div class="table-responsive">
+                              <table class="table table-striped table-hover">
+                                  <thead>
+                                      <tr>
+                                          <th>Department Name</th>
+                                          <th>Users</th>
+                                          <th>Chatbots</th>
+                                          <th>Created</th>
+                                          <th>Actions</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      @if (ViewBag.Departments != null && ViewBag.Departments.Count > 0)
+                                      {
+                                          @foreach (var dept in ViewBag.Departments)
+                                          {
+                                              <tr>
+                                                  <td>
+                                                      <div class="department-name">@dept.Name</div>
+                                                  </td>
+                                                  <td>@dept.UserCount</td>
+                                                  <td>@dept.ChatbotCount</td>
+                                                  <td>
+                                                      <span title="Created by: @dept.CreatedBy">@(dept.CreatedAt?.ToString("MM/dd/yyyy") ?? "-")</span>                     
+                                                  </td>
+                                                  <td>
+                                                      <div class="row-actions">
+                                                          <button class="btn-icon edit-department" title="Edit"
+                                                              data-name="@dept.Name" data-bs-toggle="modal"
+                                                              data-bs-target="#editDepartmentModal">
+                                                              <i class="bi bi-pencil"></i>
+                                                          </button>
+                                                          <button
+                                                              class="btn-icon delete-department @(dept.UserCount > 0 ? "disabled" : "")"
+                                                              title="Delete" data-name="@dept.Name" data-bs-toggle="modal"
+                                                              data-bs-target="#deleteDepartmentModal" @(dept.UserCount > 0 ?
+                                                              "disabled" : "")>
+                                                              <i class="bi bi-trash"></i>
+                                                          </button>
+                                                      </div>
+                                                  </td>
+                                              </tr>
+                                          }
+                                      }
+                                      else
+                                      {
+                                          <tr>
+                                              <td colspan="5" class="text-center">No departments found. Add a department
+                                                  to get started.</td>
+                                          </tr>
+                                      }
+                                  </tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
 </div>
 
 <!-- Add Department Modal -->
 <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-hidden="true">
-   <div class="modal-dialog">
-       <div class="modal-content">
-           <form asp-action="AddDepartment" method="post">
-               @Html.AntiForgeryToken()
-               <div class="modal-header">
-                   <h5 class="modal-title">Add Department</h5>
-                   <button type="button" class="btn-close" data-bs-dismiss="modal"
-                       aria-label="Close"></button>
-               </div>
-               <div class="modal-body">
-                   <div class="form-group">
-                       <label for="newName" class="form-label">Department Name</label>
-                       <input type="text" id="newName" name="newName" class="form-control" required>
-                   </div>
-               </div>
-               <div class="modal-footer">
-                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                   <button type="submit" class="btn btn-primary">Add Department</button>
-               </div>
-           </form>
-       </div>
-   </div>
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form asp-action="AddDepartment" method="post">
+              @Html.AntiForgeryToken()
+              <div class="modal-header">
+                  <h5 class="modal-title">Add Department</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <div class="form-group">
+                      <label for="newName" class="form-label">Department Name</label>
+                      <input type="text" id="newName" name="newName" class="form-control" required>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Add Department</button>
+              </div>
+          </form>
+      </div>
+  </div>
 </div>
 
 <!-- Edit Department Modal -->
 <div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
-   <div class="modal-dialog">
-       <div class="modal-content">
-           <form asp-action="UpdateDepartment" method="post">
-               @Html.AntiForgeryToken()
-               <div class="modal-header">
-                   <h5 class="modal-title">Edit Department</h5>
-                   <button type="button" class="btn-close" data-bs-dismiss="modal"
-                       aria-label="Close"></button>
-               </div>
-               <div class="modal-body">
-                   <input type="hidden" id="oldName" name="oldName">
-                   <div class="form-group">
-                       <label for="editNewName" class="form-label">Department Name</label>
-                       <input type="text" id="editNewName" name="newName" class="form-control" required>
-                   </div>
-               </div>
-               <div class="modal-footer">
-                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                   <button type="submit" class="btn btn-primary">Save Changes</button>
-               </div>
-           </form>
-       </div>
-   </div>
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form asp-action="UpdateDepartment" method="post">
+              @Html.AntiForgeryToken()
+              <div class="modal-header">
+                  <h5 class="modal-title">Edit Department</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <input type="hidden" id="oldName" name="oldName">
+                  <div class="form-group">
+                      <label for="editNewName" class="form-label">Department Name</label>
+                      <input type="text" id="editNewName" name="newName" class="form-control" required>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+          </form>
+      </div>
+  </div>
 </div>
 
 <!-- Delete Department Modal -->
 <div class="modal fade" id="deleteDepartmentModal" tabindex="-1" aria-hidden="true">
-   <div class="modal-dialog">
-       <div class="modal-content">
-           <form asp-action="DeleteDepartment" method="post">
-               @Html.AntiForgeryToken()
-               <div class="modal-header">
-                   <h5 class="modal-title">Delete Department</h5>
-                   <button type="button" class="btn-close" data-bs-dismiss="modal"
-                       aria-label="Close"></button>
-               </div>
-               <div class="modal-body">
-                   <input type="hidden" id="departmentName" name="departmentName">
-                   <p>Are you sure you want to delete this department? This action cannot be undone.</p>
-                   <p class="text-danger">Note: Departments with assigned users cannot be deleted.</p>
-               </div>
-               <div class="modal-footer">
-                   <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                   <button type="submit" class="btn btn-danger">Delete Department</button>
-               </div>
-           </form>
-       </div>
-   </div>
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <form asp-action="DeleteDepartment" method="post">
+              @Html.AntiForgeryToken()
+              <div class="modal-header">
+                  <h5 class="modal-title">Delete Department</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"
+                      aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <input type="hidden" id="departmentName" name="departmentName">
+                  <p>Are you sure you want to delete this department? This action cannot be undone.</p>
+                  <p class="text-danger">Note: Departments with assigned users cannot be deleted.</p>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-danger">Delete Department</button>
+              </div>
+          </form>
+      </div>
+  </div>
 </div>
 
 @section Styles {
-   <style>
-       /* Settings Layout */
-       .settings-layout {
-           display: flex;
-           gap: 1.5rem;
-           min-height: calc(100vh - 200px);
-       }
+  <style>
+      /* Settings Layout */
+      .settings-layout {
+          display: flex;
+          gap: 1.5rem;
+          min-height: calc(100vh - 200px);
+      }
 
-       .settings-nav {
-           width: 260px;
-           flex-shrink: 0;
-       }
+      .settings-nav {
+          width: 260px;
+          flex-shrink: 0;
+      }
 
-       .settings-content {
-           flex: 1;
-           min-width: 0;
-       }
+      .settings-content {
+          flex: 1;
+          min-width: 0;
+      }
 
-       /* Settings Navigation */
-       .nav-section {
-           margin-bottom: 1.5rem;
-       }
+      /* Settings Navigation */
+      .nav-section {
+          margin-bottom: 1.5rem;
+      }
 
-       .nav-section-title {
-           font-size: 0.75rem;
-           font-weight: 600;
-           text-transform: uppercase;
-           color: var(--color-gray-500);
-           padding: 0 0.75rem;
-           margin-bottom: 0.5rem;
-       }
+      .nav-section-title {
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: var(--color-gray-500);
+          padding: 0 0.75rem;
+          margin-bottom: 0.5rem;
+      }
 
-       .nav-tabs {
-           list-style: none;
-           padding: 0;
-           margin: 0;
-       }
+      .nav-tabs {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+      }
 
-       .nav-item {
-           margin-bottom: 0.25rem;
-       }
+      .nav-item {
+          margin-bottom: 0.25rem;
+      }
 
-       .nav-link {
-           display: flex;
-           align-items: center;
-           padding: 0.75rem;
-           font-size: 0.875rem;
-           color: var(--color-gray-700);
-           border-radius: var(--border-radius);
-           transition: all 0.3s ease;
-           border: none;
-           background: none;
-           width: 100%;
-           text-align: left;
-           cursor: pointer;
-       }
+      .nav-link {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem;
+          font-size: 0.875rem;
+          color: var(--color-gray-700);
+          border-radius: var(--border-radius);
+          transition: all 0.3s ease;
+          border: none;
+          background: none;
+          width: 100%;
+          text-align: left;
+          cursor: pointer;
+      }
 
-       .nav-link i {
-           margin-right: 0.75rem;
-           font-size: 1.125rem;
-           color: var(--color-gray-500);
-           transition: color 0.3s ease;
-       }
+      .nav-link i {
+          margin-right: 0.75rem;
+          font-size: 1.125rem;
+          color: var(--color-gray-500);
+          transition: color 0.3s ease;
+      }
 
-       .nav-link:hover {
-           background-color: var(--color-gray-100);
-           color: var(--color-gray-900);
-       }
+      .nav-link:hover {
+          background-color: var(--color-gray-100);
+          color: var(--color-gray-900);
+      }
 
-       .nav-link:hover i {
-           color: var(--color-gray-700);
-       }
+      .nav-link:hover i {
+          color: var(--color-gray-700);
+      }
 
-       .nav-link.active {
-           background-color: rgba(13, 110, 253, 0.1);
-           color: var(--color-primary);
-           font-weight: 500;
-       }
+      .nav-link.active {
+          background-color: rgba(13, 110, 253, 0.1);
+          color: var(--color-primary);
+          font-weight: 500;
+      }
 
-       .nav-link.active i {
-           color: var(--color-primary);
-       }
+      .nav-link.active i {
+          color: var(--color-primary);
+      }
 
-       /* Settings Panel */
-       .settings-panel {
-           background-color: white;
-           border-radius: var(--border-radius-lg);
-           box-shadow: var(--shadow);
-           overflow: hidden;
-       }
+      /* Settings Panel */
+      .settings-panel {
+          background-color: white;
+          border-radius: var(--border-radius-lg);
+          box-shadow: var(--shadow);
+          overflow: hidden;
+      }
 
-       .panel-header {
-           padding: 1.5rem;
-           border-bottom: 1px solid var(--color-gray-200);
-       }
+      .panel-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid var(--color-gray-200);
+      }
 
-       .panel-header h2 {
-           font-size: 1.25rem;
-           font-weight: 600;
-           margin: 0 0 0.5rem;
-       }
+      .panel-header h2 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          margin: 0 0 0.5rem;
+      }
 
-       .panel-header p {
-           color: var(--color-gray-500);
-           margin: 0;
-           font-size: 0.875rem;
-       }
+      .panel-header p {
+          color: var(--color-gray-500);
+          margin: 0;
+          font-size: 0.875rem;
+      }
 
-       .panel-body {
-           padding: 1.5rem;
-       }
+      .panel-body {
+          padding: 1.5rem;
+      }
 
-       /* Settings Sections */
-       .settings-section {
-           margin-bottom: 2rem;
-           padding-bottom: 2rem;
-           border-bottom: 1px solid var(--color-gray-200);
-       }
+      /* Settings Sections */
+      .settings-section {
+          margin-bottom: 2rem;
+          padding-bottom: 2rem;
+          border-bottom: 1px solid var(--color-gray-200);
+      }
 
-       .settings-section:last-child {
-           margin-bottom: 0;
-           padding-bottom: 0;
-           border-bottom: none;
-       }
+      .settings-section:last-child {
+          margin-bottom: 0;
+          padding-bottom: 0;
+          border-bottom: none;
+      }
 
-       .settings-section h3 {
-           font-size: 1rem;
-           font-weight: 600;
-           margin: 0 0 1.25rem;
-           color: var(--color-gray-800);
-       }
+      .settings-section h3 {
+          font-size: 1rem;
+          font-weight: 600;
+          margin: 0 0 1.25rem;
+          color: var(--color-gray-800);
+      }
 
-       .section-header-actions {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           margin-bottom: 1.25rem;
-       }
+      .section-header-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.25rem;
+      }
 
-       .section-header-actions h3 {
-           margin: 0;
-       }
+      .section-header-actions h3 {
+          margin: 0;
+      }
 
-       /* Setting Item */
-       .setting-item {
-           display: flex;
-           align-items: flex-start;
-           justify-content: space-between;
-           padding: 1rem 0;
-           border-bottom: 1px solid var(--color-gray-200);
-       }
+      /* Setting Item */
+      .setting-item {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          padding: 1rem 0;
+          border-bottom: 1px solid var(--color-gray-200);
+      }
 
-       .setting-item:last-child {
-           border-bottom: none;
-           padding-bottom: 0;
-       }
+      .setting-item:last-child {
+          border-bottom: none;
+          padding-bottom: 0;
+      }
 
-       .setting-item-info {
-           flex: 1;
-           min-width: 0;
-           padding-right: 1.5rem;
-       }
+      .setting-item-info {
+          flex: 1;
+          min-width: 0;
+          padding-right: 1.5rem;
+      }
 
-       .setting-item-title {
-           font-weight: 500;
-           color: var(--color-gray-800);
-           margin-bottom: 0.25rem;
-       }
+      .setting-item-title {
+          font-weight: 500;
+          color: var(--color-gray-800);
+          margin-bottom: 0.25rem;
+      }
 
-       .setting-item-description {
-           font-size: 0.75rem;
-           color: var(--color-gray-500);
-       }
+      .setting-item-description {
+          font-size: 0.75rem;
+          color: var(--color-gray-500);
+      }
 
-       .setting-item-control {
-           flex-shrink: 0;
-       }
+      .setting-item-control {
+          flex-shrink: 0;
+      }
 
-       /* Button icons */
-       .btn-icon {
-           border: none;
-           background: none;
-           padding: 0.25rem;
-           cursor: pointer;
-           margin-right: 0.5rem;
-           color: var(--color-gray-500);
-       }
+      /* Button icons */
+      .btn-icon {
+          border: none;
+          background: none;
+          padding: 0.25rem;
+          cursor: pointer;
+          margin-right: 0.5rem;
+          color: var(--color-gray-500);
+      }
 
-       .btn-icon:hover {
-           color: var(--color-primary);
-       }
+      .btn-icon:hover {
+          color: var(--color-primary);
+      }
 
-       .btn-icon i {
-           font-size: 1rem;
-       }
+      .btn-icon i {
+          font-size: 1rem;
+      }
 
-       /* Responsive Adjustments */
-       @@media(max-width: 991px) {
-           .settings-layout {
-               flex-direction: column;
-           }
+      /* Responsive Adjustments */
+      @@media(max-width: 991px) {
+          .settings-layout {
+              flex-direction: column;
+          }
 
-           .settings-nav {
-               width: 100%;
-           }
+          .settings-nav {
+              width: 100%;
+          }
 
-           .nav-tabs {
-               display: flex;
-               flex-wrap: wrap;
-               gap: 0.5rem;
-           }
+          .nav-tabs {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 0.5rem;
+          }
 
-           .nav-item {
-               margin-bottom: 0;
-           }
+          .nav-item {
+              margin-bottom: 0;
+          }
 
-           .nav-link {
-               padding: 0.5rem 0.75rem;
-           }
+          .nav-link {
+              padding: 0.5rem 0.75rem;
+          }
 
-           .nav-link i {
-               margin-right: 0.5rem;
-           }
-       }
+          .nav-link i {
+              margin-right: 0.5rem;
+          }
+      }
 
-       /* Chatflows list */
-       #chatflowsList ul {
-           max-height: 300px;
-           overflow-y: auto;
-           margin-top: 10px;
-       }
+      /* Chatflows list */
+      #chatflowsList ul {
+          max-height: 300px;
+          overflow-y: auto;
+          margin-top: 10px;
+      }
 
-       #chatflowsList .list-group-item {
-           display: flex;
-           justify-content: space-between;
-           align-items: center;
-           font-size: 0.9rem;
-       }
+      #chatflowsList .list-group-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.9rem;
+      }
 
-       #chatflowsList .badge {
-           font-size: 0.7rem;
-           margin-left: 8px;
-       }
+      #chatflowsList .badge {
+          font-size: 0.7rem;
+          margin-left: 8px;
+      }
 
-       #apiConnectionStatus {
-           font-size: 0.9rem;
-           padding: 8px 0;
-       }
-   </style>
+      #apiConnectionStatus {
+          font-size: 0.9rem;
+          padding: 8px 0;
+      }
+
+      .toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  max-width: 350px;
+}
+
+.toast {
+  background-color: white;
+  color: #212529;
+  border-radius: 4px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  margin-bottom: 10px;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.toast.bg-success {
+  border-left: 4px solid #28a745;
+  background-color: #f8fff9;
+}
+
+.toast.bg-danger {
+  border-left: 4px solid #dc3545;
+  background-color: #fff9f9;
+}
+
+.toast .toast-header {
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toast .toast-body {
+  padding: 0.75rem 1rem;
+  color: #495057;
+}
+
+.toast.bg-success .toast-body {
+  color: #155724;
+}
+
+.toast.bg-danger .toast-body {
+  color: #721c24;
+}
+  </style>
 }
 
 @section Scripts {
-   <script>
-       document.addEventListener('DOMContentLoaded', function () {
-           // Toggle API Key visibility
-           document.getElementById('toggleApiKey').addEventListener('click', function() {
-               const apiKeyInput = document.getElementById('FlowiseApiKey');
-               const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
-               apiKeyInput.setAttribute('type', type);
-               
-               const icon = this.querySelector('i');
-               icon.classList.toggle('bi-eye');
-               icon.classList.toggle('bi-eye-slash');
-           });
+  <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          // Toggle API Key visibility
+          document.getElementById('toggleApiKey').addEventListener('click', function() {
+              const apiKeyInput = document.getElementById('FlowiseApiKey');
+              const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+              apiKeyInput.setAttribute('type', type);
+              
+              const icon = this.querySelector('i');
+              icon.classList.toggle('bi-eye');
+              icon.classList.toggle('bi-eye-slash');
+          });
 
-           // Test API Connection
-           document.getElementById('testApiConnection').addEventListener('click', async function() {
-               const statusElement = document.getElementById('apiConnectionStatus');
-               statusElement.innerHTML = '<span class="text-warning"><i class="bi bi-hourglass-split"></i> Testing connection...</span>';
-               
-               try {
-                   // First save current settings
-                   const formData = new FormData(document.getElementById('flowiseApiForm'));
-                   const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                   
-                   const saveResponse = await fetch('/Settings/SaveApiSettings', {
-                       method: 'POST',
-                       body: formData,
-                       headers: {
-                           'RequestVerificationToken': token
-                       }
-                   });
-                   
-                   if (!saveResponse.ok) {
-                       const errorText = await saveResponse.text();
-                       throw new Error(`Failed to save API settings: ${saveResponse.status} - ${errorText}`);
-                   }
-                   
-                   // Wait a moment to ensure settings propagate
-                   await new Promise(resolve => setTimeout(resolve, 800));
-                   
-                   // Test connection with fresh settings
-                   const testResponse = await fetch('/api/test/flowise-connection');
-                   if (!testResponse.ok) {
-                       throw new Error(`HTTP error: ${testResponse.status}`);
-                   }
-                   
-                   const result = await testResponse.json();
-                   console.log('Connection test result:', result);
-                   
-                   if (result.success) {
-                       statusElement.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Connection successful!</span>';
-                   } else {
-                       statusElement.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Connection failed: ${result.message}</span>`;
-                       console.error('Connection details:', result);
-                   }
-               } catch (error) {
-                   statusElement.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Error: ${error.message}</span>`;
-                   console.error('Error testing connection:', error);
-               }
-           });
-           
-           // Get Chatflows
-           document.getElementById('getChatflows').addEventListener('click', async function() {
-               const chatflowsContainer = document.getElementById('chatflowsList');
-               chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
-               
-               try {
-                   // First save current settings
-                   const formData = new FormData(document.getElementById('flowiseApiForm'));
-                   const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                   
-                   const saveResponse = await fetch('/Settings/SaveApiSettings', {
-                       method: 'POST',
-                       body: formData,
-                       headers: {
-                           'RequestVerificationToken': token
-                       }
-                   });
-                   
-                   if (!saveResponse.ok) {
-                       const errorText = await saveResponse.text();
-                       throw new Error(`Failed to save API settings: ${saveResponse.status} - ${errorText}`);
-                   }
-                   
-                   // Wait a moment to ensure settings propagate
-                   await new Promise(resolve => setTimeout(resolve, 800));
-                   
-                   // Fetch chatflows with fresh settings
-                   const response = await fetch('/api/test/chatflows');
-                   if (!response.ok) {
-                       const errorText = await response.text();
-                       throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-                   }
-                   
-                   const result = await response.json();
-                   console.log('Chatflows response:', result);
-                   
-                   if (result.success && result.data && result.data.length > 0) {
-                       let html = '<ul class="list-group" style="display: block;">';
-                       result.data.forEach(flow => {
-                           const date = new Date(flow.updatedAt || flow.createdAt).toLocaleDateString();
-                           html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                               ${flow.name}
-                               <div>
-                                   <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id}</span>
-                                   <small class="text-muted ms-2">${date}</small>
-                               </div>
-                           </li>`;
-                       });
-                       html += '</ul>';
-                       chatflowsContainer.innerHTML = html;
-                   } else {
-                       chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed.</div>';
-                   }
-               } catch (error) {
-                   chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-                   console.error('Error fetching chatflows:', error);
-               }
-           });
-           
-           // Department Edit functionality
-           document.querySelectorAll('.edit-department').forEach(button => {
-               button.addEventListener('click', function () {
-                   const deptName = this.getAttribute('data-name');
-                   const oldNameInput = document.getElementById('oldName');
-                   const newNameInput = document.getElementById('editNewName');
+          // Test API Connection
+          document.getElementById('testApiConnection').addEventListener('click', async function() {
+              const statusElement = document.getElementById('apiConnectionStatus');
+              statusElement.innerHTML = '<span class="text-warning"><i class="bi bi-hourglass-split"></i> Testing connection...</span>';
+              
+              try {
+                  // First save current settings
+                  const form = document.getElementById('flowiseApiForm');
+                  const formData = new FormData(form);
+                  
+                  // Log form data for debugging
+                  console.log('FlowiseApiUrl:', formData.get('FlowiseApiUrl'));
+                  console.log('FlowiseApiKey present:', formData.get('FlowiseApiKey') ? 'Yes' : 'No');
 
-                   if (oldNameInput && newNameInput) {
-                       oldNameInput.value = deptName;
-                       newNameInput.value = deptName;
-                   }
-               });
-           });
+                  // Use fetch API to submit the form
+                  const saveResponse = await fetch('/Settings/SaveApiSettings', {
+                      method: 'POST',
+                      body: formData
+                  });
+                  
+                  if (!saveResponse.ok) {
+                      const errorText = await saveResponse.text();
+                      throw new Error(`Failed to save API settings: ${saveResponse.status} - ${errorText}`);
+                  }
+                  
+                  // Wait a moment to ensure settings propagate
+                  await new Promise(resolve => setTimeout(resolve, 800));
+                  
+                  // Test connection with fresh settings
+                  const testResponse = await fetch('/api/test/flowise-connection');
+                  if (!testResponse.ok) {
+                      throw new Error(`HTTP error: ${testResponse.status}`);
+                  }
+                  
+                  const result = await testResponse.json();
+                  console.log('Connection test result:', result);
+                  
+                  if (result.success) {
+                      statusElement.innerHTML = '<span class="text-success"><i class="bi bi-check-circle"></i> Connection successful!</span>';
+                  } else {
+                      statusElement.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Connection failed: ${result.message}</span>`;
+                      console.error('Connection details:', result);
+                  }
+              } catch (error) {
+                  statusElement.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle"></i> Error: ${error.message}</span>`;
+                  console.error('Error testing connection:', error);
+              }
+          });
+          
+          // Get Chatflows
+          document.getElementById('getChatflows').addEventListener('click', async function() {
+              const chatflowsContainer = document.getElementById('chatflowsList');
+              chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
+              
+              try {
+                  // First save current settings
+                  const form = document.getElementById('flowiseApiForm');
+                  const formData = new FormData(form);
+                  
+                  const saveResponse = await fetch('/Settings/SaveApiSettings', {
+                      method: 'POST',
+                      body: formData
+                  });
+                  
+                  if (!saveResponse.ok) {
+                      const errorText = await saveResponse.text();
+                      throw new Error(`Failed to save API settings: ${saveResponse.status} - ${errorText}`);
+                  }
+                  
+                  // Wait a moment to ensure settings propagate
+                  await new Promise(resolve => setTimeout(resolve, 800));
+                  
+                  // Fetch chatflows with fresh settings
+                  const response = await fetch('/api/test/chatflows');
+                  if (!response.ok) {
+                      const errorText = await response.text();
+                      throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                  }
+                  
+                  const result = await response.json();
+                  console.log('Chatflows response:', result);
+                  
+                  if (result.success && result.data && result.data.length > 0) {
+                      let html = '<ul class="list-group" style="display: block;">';
+                      result.data.forEach(flow => {
+                          const date = new Date(flow.updatedAt || flow.createdAt).toLocaleDateString();
+                          html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                              ${flow.name}
+                              <div>
+                                  <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id}</span>
+                                  <small class="text-muted ms-2">${date}</small>
+                              </div>
+                          </li>`;
+                      });
+                      html += '</ul>';
+                      chatflowsContainer.innerHTML = html;
+                  } else {
+                      chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed.</div>';
+                  }
+              } catch (error) {
+                  chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
+                  console.error('Error fetching chatflows:', error);
+              }
+          });
 
-           // Department Delete functionality
-           document.querySelectorAll('.delete-department').forEach(button => {
-               button.addEventListener('click', function () {
-                   if (this.classList.contains('disabled')) {
-                       return;
-                   }
-                   const deptName = this.getAttribute('data-name');
-                   const deptNameInput = document.getElementById('departmentName');
+document.querySelector('button.btn.btn-primary').addEventListener('click', async function(e) {
+    e.preventDefault();
+    
+    const flowiseApiUrl = document.querySelector('input[placeholder="http://localhost:3000/api/"]').value;
+    const flowiseApiKey = document.querySelector('input[type="password"]').value;
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/Settings/SaveApiSettings';
+    form.style.display = 'none';
+    
+    // Add CSRF token
+    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+    if (tokenElement) {
+        const tokenInput = document.createElement('input');
+        tokenInput.type = 'hidden';
+        tokenInput.name = '__RequestVerificationToken';
+        tokenInput.value = tokenElement.value;
+        form.appendChild(tokenInput);
+    }
+    
+    // Add URL input
+    const urlInput = document.createElement('input');
+    urlInput.type = 'hidden';
+    urlInput.name = 'FlowiseApiUrl';
+    urlInput.value = flowiseApiUrl;
+    form.appendChild(urlInput);
+    
+    // Add key input
+    const keyInput = document.createElement('input');
+    keyInput.type = 'hidden';
+    keyInput.name = 'FlowiseApiKey';
+    keyInput.value = flowiseApiKey;
+    form.appendChild(keyInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+});
+          
+          // Override main Save Changes button
+          document.getElementById('saveSettings').addEventListener('click', function() {
+              // Submit the visible form based on active tab
+              const activeTab = document.querySelector('.tab-pane.active');
+              if (activeTab) {
+                  const form = activeTab.querySelector('form');
+                  if (form) {
+                      form.submit();
+                  }
+              }
+          });
+          
+          // Department Edit functionality
+          document.querySelectorAll('.edit-department').forEach(button => {
+              button.addEventListener('click', function () {
+                  const deptName = this.getAttribute('data-name');
+                  const oldNameInput = document.getElementById('oldName');
+                  const newNameInput = document.getElementById('editNewName');
 
-                   if (deptNameInput) {
-                       deptNameInput.value = deptName;
-                   }
-               });
-           });
+                  if (oldNameInput && newNameInput) {
+                      oldNameInput.value = deptName;
+                      newNameInput.value = deptName;
+                  }
+              });
+          });
 
-           // Modal functionality for Bootstrap 5
-           const modalTriggers = document.querySelectorAll('[data-bs-toggle="modal"]');
-           modalTriggers.forEach(trigger => {
-               trigger.addEventListener('click', function() {
-                   const targetId = this.getAttribute('data-bs-target');
-                   const modalElement = document.querySelector(targetId);
-                   
-                   if (modalElement) {
-                       const modal = new bootstrap.Modal(modalElement);
-                       modal.show();
-                   }
-               });
-           });
-           
-           // Display success/error messages as toasts
-           function showToast(message, type) {
-               const toastContainer = document.getElementById('toastContainer') || createToastContainer();
-               
-               const toast = document.createElement('div');
-               toast.className = `toast ${type} show`;
-               toast.setAttribute('role', 'alert');
-               toast.setAttribute('aria-live', 'assertive');
-               toast.setAttribute('aria-atomic', 'true');
-               
-               toast.innerHTML = `
-                   <div class="toast-header">
-                       <strong class="me-auto">${type === 'bg-success' ? 'Success' : 'Error'}</strong>
-                       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                   </div>
-                   <div class="toast-body text-white">
-                       ${message}
-                   </div>
-               `;
-               
-               toastContainer.appendChild(toast);
-               
-               // Remove after 5 seconds
-               setTimeout(() => {
-                   toast.classList.remove('show');
-                   setTimeout(() => toastContainer.removeChild(toast), 500);
-               }, 5000);
-               
-               // Add close button functionality
-               const closeButton = toast.querySelector('.btn-close');
-               if (closeButton) {
-                   closeButton.addEventListener('click', function() {
-                       toast.classList.remove('show');
-                       setTimeout(() => toastContainer.removeChild(toast), 500);
-                   });
-               }
-           }
-           
-           function createToastContainer() {
-               const container = document.createElement('div');
-               container.id = 'toastContainer';
-               container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
-               container.style.zIndex = '5000';
-               document.body.appendChild(container);
-               return container;
-           }
-           
-           // Check for success/error messages in TempData
-           @if (TempData["SuccessMessage"] != null)
-           {
-               <text>showToast('@TempData["SuccessMessage"]', 'bg-success');</text>
-           }
-           
-           @if (TempData["ErrorMessage"] != null)
-           {
-               <text>showToast('@TempData["ErrorMessage"]', 'bg-danger');</text>
-           }
-       });
-   </script>
+          // Department Delete functionality
+          document.querySelectorAll('.delete-department').forEach(button => {
+              button.addEventListener('click', function () {
+                  if (this.classList.contains('disabled')) {
+                      return;
+                  }
+                  const deptName = this.getAttribute('data-name');
+                  const deptNameInput = document.getElementById('departmentName');
+
+                  if (deptNameInput) {
+                      deptNameInput.value = deptName;
+                  }
+              });
+          });
+
+          // Modal functionality for Bootstrap 5
+          const modalTriggers = document.querySelectorAll('[data-bs-toggle="modal"]');
+          modalTriggers.forEach(trigger => {
+              trigger.addEventListener('click', function() {
+                  const targetId = this.getAttribute('data-bs-target');
+                  const modalElement = document.querySelector(targetId);
+                  
+                  if (modalElement) {
+                      const modal = new bootstrap.Modal(modalElement);
+                      modal.show();
+                  }
+              });
+          });
+          
+          // Display success/error messages as toasts
+ function showToast(message, type) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="toast-header">
+            <strong class="me-auto">${type === 'bg-success' ? 'Success' : 'Error'}</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Force reflow to trigger animation
+    toast.offsetHeight;
+    toast.classList.add('show');
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toastContainer.removeChild(toast), 300);
+    }, 5000);
+    
+    // Add close button functionality
+    const closeButton = toast.querySelector('.btn-close');
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            toast.style.opacity = '0';
+            setTimeout(() => toastContainer.removeChild(toast), 300);
+        });
+    }
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container';
+    document.body.appendChild(container);
+    return container;
+}
+          
+          // Check for success/error messages in TempData
+          @if (TempData["SuccessMessage"] != null)
+          {
+              <text>showToast('@TempData["SuccessMessage"]', 'bg-success');</text>
+          }
+          
+          @if (TempData["ErrorMessage"] != null)
+          {
+              <text>showToast('@TempData["ErrorMessage"]', 'bg-danger');</text>
+          }
+      });
+  </script>
 }

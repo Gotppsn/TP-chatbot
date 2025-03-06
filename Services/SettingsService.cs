@@ -44,48 +44,58 @@ namespace AIHelpdeskSupport.Services
             return settings;
         }
 
-public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string userId)
-{
-    try
-    {
-        settings.LastUpdatedAt = DateTime.UtcNow;
-        settings.LastUpdatedBy = userId;
+        // In Services/SettingsService.cs
+        public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string userId)
+        {
+            try
+            {
+                // Get existing settings with tracking enabled
+                var existingSettings = await _context.SystemSettings.FirstOrDefaultAsync();
 
-        // Critical: Ensure we're tracking the entity correctly
-        var existingSettings = await _context.SystemSettings.FirstOrDefaultAsync();
-        
-        if (existingSettings == null)
-        {
-            // Create new if doesn't exist
-            _context.SystemSettings.Add(settings);
+                if (existingSettings == null)
+                {
+                    // Create new settings if none exist
+                    settings.CreatedAt = DateTime.UtcNow;
+                    settings.CreatedBy = userId ?? "System";
+                    settings.LastUpdatedAt = DateTime.UtcNow;
+                    settings.LastUpdatedBy = userId ?? "System";
+                    _context.SystemSettings.Add(settings);
+                }
+                else
+                {
+                    // Explicitly update each property
+                    existingSettings.OrganizationName = settings.OrganizationName;
+                    existingSettings.SupportEmail = settings.SupportEmail;
+                    existingSettings.DefaultLanguage = settings.DefaultLanguage;
+                    existingSettings.TimeZone = settings.TimeZone;
+                    existingSettings.DateFormat = settings.DateFormat;
+                    existingSettings.SessionTimeout = settings.SessionTimeout;
+                    existingSettings.RememberSessions = settings.RememberSessions;
+                    existingSettings.Theme = settings.Theme;
+                    existingSettings.AccentColor = settings.AccentColor;
+                    existingSettings.DefaultAiModel = settings.DefaultAiModel;
+                    existingSettings.DefaultTemperature = settings.DefaultTemperature;
+                    existingSettings.DefaultMaxTokens = settings.DefaultMaxTokens;
+                    existingSettings.FlowiseApiUrl = settings.FlowiseApiUrl;
+                    existingSettings.FlowiseApiKey = settings.FlowiseApiKey;
+                    existingSettings.LastUpdatedAt = DateTime.UtcNow;
+                    existingSettings.LastUpdatedBy = userId ?? "System";
+                    // Update tracked entity
+                    _context.SystemSettings.Update(existingSettings);
+                }
+
+                // Explicitly save changes with logging
+                int rowsAffected = await _context.SaveChangesAsync();
+                _logger.LogInformation("SystemSettings updated with {RowsAffected} rows affected", rowsAffected);
+
+                return rowsAffected > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating system settings: {ErrorMessage}", ex.Message);
+                return false;
+            }
         }
-        else
-        {
-            // Update existing by copying properties
-            existingSettings.FlowiseApiUrl = settings.FlowiseApiUrl;
-            existingSettings.FlowiseApiKey = settings.FlowiseApiKey; 
-            existingSettings.OrganizationName = settings.OrganizationName;
-            existingSettings.DefaultLanguage = settings.DefaultLanguage;
-            existingSettings.TimeZone = settings.TimeZone;
-            existingSettings.DateFormat = settings.DateFormat;
-            existingSettings.Theme = settings.Theme;
-            existingSettings.AccentColor = settings.AccentColor;
-            existingSettings.DefaultAiModel = settings.DefaultAiModel;
-            existingSettings.DefaultTemperature = settings.DefaultTemperature;
-            existingSettings.DefaultMaxTokens = settings.DefaultMaxTokens;
-            existingSettings.LastUpdatedAt = settings.LastUpdatedAt;
-            existingSettings.LastUpdatedBy = settings.LastUpdatedBy;
-        }
-        
-        await _context.SaveChangesAsync();
-        return true;
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error updating system settings");
-        return false;
-    }
-}
 
         public async Task<List<string>> GetAllDepartmentsAsync()
         {
@@ -95,13 +105,13 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
                 .Select(u => u.Department)
                 .Distinct()
                 .ToListAsync();
-                
+
             var chatbotDepartments = await _context.Chatbots
                 .Where(c => !string.IsNullOrEmpty(c.Department))
                 .Select(c => c.Department)
                 .Distinct()
                 .ToListAsync();
-                
+
             // Combine and remove duplicates
             return userDepartments.Union(chatbotDepartments)
                 .OrderBy(d => d)
@@ -112,7 +122,7 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
         {
             if (string.IsNullOrEmpty(departmentName))
                 return false;
-                
+
             return await _context.Users.AnyAsync(u => u.Department == departmentName) ||
                    await _context.Chatbots.AnyAsync(c => c.Department == departmentName);
         }
@@ -135,7 +145,7 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
 
                 _context.Chatbots.Add(chatbot);
                 await _context.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Created new department {Department} with default chatbot", name);
                 return true;
             }
@@ -152,7 +162,7 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
             {
                 // Begin transaction
                 using var transaction = await _context.Database.BeginTransactionAsync();
-                
+
                 // Update users with the old department name
                 var usersToUpdate = await _context.Users
                     .Where(u => u.Department == oldName)
@@ -177,7 +187,7 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
-                
+
                 _logger.LogInformation("Updated department name from {OldName} to {NewName}", oldName, newName);
                 return true;
             }
@@ -202,7 +212,7 @@ public async Task<bool> UpdateSettingsAsync(SystemSettings settings, string user
                     _context.Chatbots.RemoveRange(chatbotsToDelete);
                     await _context.SaveChangesAsync();
                 }
-                
+
                 _logger.LogInformation("Deleted department {Department} and its chatbots", name);
                 return true;
             }

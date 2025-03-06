@@ -31,7 +31,7 @@ public class FlowiseService : IFlowiseService
     
 private void ConfigureHttpClient()
 {
-    // Get latest settings from configuration - this is crucial
+    // Get latest settings from configuration to ensure we have current values
     string apiUrl = _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/";
     
     // Ensure URL ends with a trailing slash
