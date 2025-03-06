@@ -17,15 +17,18 @@ namespace AIHelpdeskSupport.Controllers
         private readonly IFlowiseService _flowiseService;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<ChatbotController> _logger;
+        private readonly ISettingsService _settingsService;
 
         public ChatbotController(
             IFlowiseService flowiseService,
             ApplicationDbContext context,
-            ILogger<ChatbotController> logger)
+            ILogger<ChatbotController> logger,
+            ISettingsService settingsService)
         {
             _flowiseService = flowiseService;
             _context = context;
             _logger = logger;
+            _settingsService = settingsService;
         }
 
         public async Task<IActionResult> Index()
@@ -53,8 +56,12 @@ namespace AIHelpdeskSupport.Controllers
             }
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            // Get all departments for dropdown
+            var departments = await _settingsService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+            
             return View();
         }
 
@@ -77,6 +84,11 @@ namespace AIHelpdeskSupport.Controllers
                 TempData["SuccessMessage"] = "Chatbot created successfully.";
                 return RedirectToAction(nameof(Index));
             }
+            
+            // Get departments again if validation fails
+            var departments = await _settingsService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+            
             return View(chatbot);
         }
 
@@ -102,6 +114,10 @@ namespace AIHelpdeskSupport.Controllers
                 {
                     return NotFound();
                 }
+
+                // Get all departments for dropdown
+                var departments = await _settingsService.GetAllDepartmentsAsync();
+                ViewBag.Departments = departments;
 
                 return View(chatbot);
             }
@@ -158,6 +174,10 @@ namespace AIHelpdeskSupport.Controllers
                     ModelState.AddModelError("", "An error occurred while updating the chatbot.");
                 }
             }
+
+            // Get departments again if we need to redisplay the form
+            var departments = await _settingsService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
 
             return View(chatbot);
         }
