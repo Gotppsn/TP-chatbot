@@ -23,13 +23,15 @@
             <div class="nav-section-title">AI Configuration</div>
             <ul class="nav-tabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button" role="tab">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button"
+                        role="tab">
                         <i class="bi bi-cpu"></i>
                         <span>Flowise API Setting</span>
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button" role="tab">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button"
+                        role="tab">
                         <i class="bi bi-building"></i>
                         <span>Departments</span>
                     </button>
@@ -48,27 +50,29 @@
                         <h2>Flowise API Settings</h2>
                         <p>Configure your Flowise API connection</p>
                     </div>
-                    
+
                     <div class="panel-body">
                         <div class="settings-section">
                             <form asp-action="SaveApiSettings" method="post">
                                 <div class="form-group mb-3">
                                     <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
-                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control" value="@Model.FlowiseApiUrl">
+                                    <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control"
+                                        value="@Model.FlowiseApiUrl">
                                     <div class="form-text">The URL of your Flowise API endpoint</div>
                                 </div>
-                                
+
                                 <div class="form-group mb-3">
                                     <label for="FlowiseApiKey" class="form-label">API Key</label>
                                     <div class="input-group">
-                                        <input type="password" id="FlowiseApiKey" name="FlowiseApiKey" class="form-control" value="@Model.FlowiseApiKey">
+                                        <input type="password" id="FlowiseApiKey" name="FlowiseApiKey"
+                                            class="form-control" value="@Model.FlowiseApiKey">
                                         <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
                                             <i class="bi bi-eye"></i>
                                         </button>
                                     </div>
                                     <div class="form-text">Your Flowise API key for authentication</div>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary">Save API Settings</button>
                                 </div>
@@ -77,7 +81,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Departments Tab -->
             <div class="tab-pane fade" id="departments" role="tabpanel">
                 <div class="settings-panel">
@@ -85,28 +89,30 @@
                         <h2>Department Management</h2>
                         <p>Configure departments for organizational structure</p>
                     </div>
-                    
+
                     <div class="panel-body">
                         <div class="settings-section">
                             <div class="section-header-actions">
                                 <h3>Departments</h3>
-                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addDepartmentModal">
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#addDepartmentModal">
                                     <i class="bi bi-plus"></i> Add Department
                                 </button>
                             </div>
-                            
+
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>Department Name</th>
-                                            <th>Chatbots</th>
                                             <th>Users</th>
+                                            <th>Chatbots</th>
+                                            <th>Created</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (ViewBag.Departments != null)
+                                        @if (ViewBag.Departments != null && ViewBag.Departments.Count > 0)
                                         {
                                             @foreach (var dept in ViewBag.Departments)
                                             {
@@ -114,573 +120,599 @@
                                                     <td>
                                                         <div class="department-name">@dept.Name</div>
                                                     </td>
-                                                    <td>@dept.ChatbotCount</td>
                                                     <td>@dept.UserCount</td>
+                                                    <td>@dept.ChatbotCount</td>
+                                                    <td>
+                                                        @if (dept.CreatedAt != null)
+                                                        {
+                                                            <span
+                                                                title="Created by: @dept.CreatedBy">@dept.CreatedAt.Value.ToString("MM/dd/yyyy")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>-</span>
+                                                        }
+                                                    </td>
                                                     <td>
                                                         <div class="row-actions">
-                                                            <button class="btn-icon edit-department" title="Edit" data-name="@dept.Name" data-bs-toggle="modal" data-bs-target="#editDepartmentModal">
+                                                            <button class="btn-icon edit-department" title="Edit"
+                                                                data-name="@dept.Name" data-bs-toggle="modal"
+                                                                data-bs-target="#editDepartmentModal">
                                                                 <i class="bi bi-pencil"></i>
                                                             </button>
-                                                            <button class="btn-icon delete-department" title="Delete" data-name="@dept.Name" data-bs-toggle="modal" data-bs-target="#deleteDepartmentModal">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            }
+                                                            <button
+                                                                class="btn-icon delete-department @(dept.UserCount > 0 ? "disabled" : "")"
+                                                                title="Delete" data-name="@dept.Name" data-bs-toggle="modal"
+                                                                data-bs-target="#deleteDepartmentModal" @(dept.UserCount > 0 ?
+                                                                "disabled" : "")>
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                                                                }
+                                        }
+                                        else
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center">No departments found. Add a department
+                                                    to get started.</td>
+                                            </tr>
                                         }
                                     </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Add Department Modal -->
-<div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-action="AddDepartment" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Department</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="newName" class="form-label">Department Name</label>
-                        <input type="text" id="newName" name="newName" class="form-control" required>
+            <!-- Add Department Modal -->
+            <div class="modal fade" id="addDepartmentModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-action="AddDepartment" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Department</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="form-group">
+                                    <label for="newName" class="form-label">Department Name</label>
+                                    <input type="text" id="newName" name="newName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Add Department</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Department</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+            </div>
 
-<!-- Edit Department Modal -->
-<div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-action="UpdateDepartment" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Department</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="oldName" name="oldName">
-                    <div class="form-group">
-                        <label for="newName" class="form-label">Department Name</label>
-                        <input type="text" id="editNewName" name="newName" class="form-control" required>
+            <!-- Edit Department Modal -->
+            <div class="modal fade" id="editDepartmentModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-action="UpdateDepartment" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Department</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="oldName" name="oldName">
+                                <div class="form-group">
+                                    <label for="editNewName" class="form-label">Department Name</label>
+                                    <input type="text" id="editNewName" name="newName" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save Changes</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+            </div>
 
-<!-- Delete Department Modal -->
-<div class="modal fade" id="deleteDepartmentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form asp-action="DeleteDepartment" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title">Delete Department</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- Delete Department Modal -->
+            <div class="modal fade" id="deleteDepartmentModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form asp-action="DeleteDepartment" method="post">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Department</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="departmentName" name="departmentName">
+                                <p>Are you sure you want to delete this department? This action cannot be undone.</p>
+                                <p class="text-danger">Note: Departments with assigned users cannot be deleted.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete Department</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="departmentName" name="departmentName">
-                    <p>Are you sure you want to delete this department? This action cannot be undone.</p>
-                    <p class="text-danger">Note: Departments with assigned users cannot be deleted.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Delete Department</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+            </div>
 
 @section Styles {
-    <style>
-        /* Settings Layout */
-        .settings-layout {
-            display: flex;
-            gap: 1.5rem;
-            min-height: calc(100vh - 200px);
-        }
-        
-        .settings-nav {
-            width: 260px;
-            flex-shrink: 0;
-        }
-        
-        .settings-content {
-            flex: 1;
-            min-width: 0;
-        }
-        
-        /* Settings Navigation */
-        .nav-section {
-            margin-bottom: 1.5rem;
-        }
-        
-        .nav-section-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--color-gray-500);
-            padding: 0 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .nav-tabs {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .nav-item {
-            margin-bottom: 0.25rem;
-        }
-        
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem;
-            font-size: 0.875rem;
-            color: var(--color-gray-700);
-            border-radius: var(--border-radius);
-            transition: all 0.3s ease;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-        }
-        
-        .nav-link i {
-            margin-right: 0.75rem;
-            font-size: 1.125rem;
-            color: var(--color-gray-500);
-            transition: color 0.3s ease;
-        }
-        
-        .nav-link:hover {
-            background-color: var(--color-gray-100);
-            color: var(--color-gray-900);
-        }
-        
-        .nav-link:hover i {
-            color: var(--color-gray-700);
-        }
-        
-        .nav-link.active {
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
-            font-weight: 500;
-        }
-        
-        .nav-link.active i {
-            color: var(--color-primary);
-        }
-        
-        /* Settings Panel */
-        .settings-panel {
-            background-color: white;
-            border-radius: var(--border-radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-        
-        .panel-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .panel-header h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0 0 0.5rem;
-        }
-        
-        .panel-header p {
-            color: var(--color-gray-500);
-            margin: 0;
-            font-size: 0.875rem;
-        }
-        
-        .panel-body {
-            padding: 1.5rem;
-        }
-        
-        /* Settings Sections */
-        .settings-section {
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .settings-section:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-        
-        .settings-section h3 {
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 0 0 1.25rem;
-            color: var(--color-gray-800);
-        }
-        
-        .section-header-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-        }
-        
-        .section-header-actions h3 {
-            margin: 0;
-        }
-        
-        /* Setting Item */
-        .setting-item {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--color-gray-200);
-        }
-        
-        .setting-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        
-        .setting-item-info {
-            flex: 1;
-            min-width: 0;
-            padding-right: 1.5rem;
-        }
-        
-        .setting-item-title {
-            font-weight: 500;
-            color: var(--color-gray-800);
-            margin-bottom: 0.25rem;
-        }
-        
-        .setting-item-description {
-            font-size: 0.75rem;
-            color: var(--color-gray-500);
-        }
-        
-        .setting-item-control {
-            flex-shrink: 0;
-        }
-        
-        /* Button icons */
-        .btn-icon {
-            border: none;
-            background: none;
-            padding: 0.25rem;
-            cursor: pointer;
-            margin-right: 0.5rem;
-            color: var(--color-gray-500);
-        }
-        
-        .btn-icon:hover {
-            color: var(--color-primary);
-        }
-        
-        .btn-icon i {
-            font-size: 1rem;
-        }
-        
-        /* Responsive Adjustments */
-        @@media (max-width: 991px) {
-            .settings-layout {
-                flex-direction: column;
-            }
-            
-            .settings-nav {
-                width: 100%;
-            }
-            
-            .nav-tabs {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 0.5rem;
-            }
-            
-            .nav-item {
-                margin-bottom: 0;
-            }
-            
-            .nav-link {
-                padding: 0.5rem 0.75rem;
-            }
-            
-            .nav-link i {
-                margin-right: 0.5rem;
-            }
-        }
-    </style>
-}
+                <style>
+                    /* Settings Layout */
+                    .settings-layout {
+                        display: flex;
+                        gap: 1.5rem;
+                        min-height: calc(100vh - 200px);
+                    }
 
-@section Scripts {
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Modal functionality
-  const toggleModal = (modalId, show) => {
-    const modal = document.getElementById(modalId);
-    if (!modal) return;
-    
-    if (show) {
-      modal.classList.add('show');
-      document.body.classList.add('modal-open');
-    } else {
-      modal.classList.remove('show');
-      document.body.classList.remove('modal-open');
+                    .settings-nav {
+                        width: 260px;
+                        flex-shrink: 0;
+                    }
+
+                    .settings-content {
+                        flex: 1;
+                        min-width: 0;
+                    }
+
+                    /* Settings Navigation */
+                    .nav-section {
+                        margin-bottom: 1.5rem;
+                    }
+
+                    .nav-section-title {
+                        font-size: 0.75rem;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        color: var(--color-gray-500);
+                        padding: 0 0.75rem;
+                        margin-bottom: 0.5rem;
+                    }
+
+                    .nav-tabs {
+                        list-style: none;
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    .nav-item {
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .nav-link {
+                        display: flex;
+                        align-items: center;
+                        padding: 0.75rem;
+                        font-size: 0.875rem;
+                        color: var(--color-gray-700);
+                        border-radius: var(--border-radius);
+                        transition: all 0.3s ease;
+                        border: none;
+                        background: none;
+                        width: 100%;
+                        text-align: left;
+                        cursor: pointer;
+                    }
+
+                    .nav-link i {
+                        margin-right: 0.75rem;
+                        font-size: 1.125rem;
+                        color: var(--color-gray-500);
+                        transition: color 0.3s ease;
+                    }
+
+                    .nav-link:hover {
+                        background-color: var(--color-gray-100);
+                        color: var(--color-gray-900);
+                    }
+
+                    .nav-link:hover i {
+                        color: var(--color-gray-700);
+                    }
+
+                    .nav-link.active {
+                        background-color: rgba(13, 110, 253, 0.1);
+                        color: var(--color-primary);
+                        font-weight: 500;
+                    }
+
+                    .nav-link.active i {
+                        color: var(--color-primary);
+                    }
+
+                    /* Settings Panel */
+                    .settings-panel {
+                        background-color: white;
+                        border-radius: var(--border-radius-lg);
+                        box-shadow: var(--shadow);
+                        overflow: hidden;
+                    }
+
+                    .panel-header {
+                        padding: 1.5rem;
+                        border-bottom: 1px solid var(--color-gray-200);
+                    }
+
+                    .panel-header h2 {
+                        font-size: 1.25rem;
+                        font-weight: 600;
+                        margin: 0 0 0.5rem;
+                    }
+
+                    .panel-header p {
+                        color: var(--color-gray-500);
+                        margin: 0;
+                        font-size: 0.875rem;
+                    }
+
+                    .panel-body {
+                        padding: 1.5rem;
+                    }
+
+                    /* Settings Sections */
+                    .settings-section {
+                        margin-bottom: 2rem;
+                        padding-bottom: 2rem;
+                        border-bottom: 1px solid var(--color-gray-200);
+                    }
+
+                    .settings-section:last-child {
+                        margin-bottom: 0;
+                        padding-bottom: 0;
+                        border-bottom: none;
+                    }
+
+                    .settings-section h3 {
+                        font-size: 1rem;
+                        font-weight: 600;
+                        margin: 0 0 1.25rem;
+                        color: var(--color-gray-800);
+                    }
+
+                    .section-header-actions {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 1.25rem;
+                    }
+
+                    .section-header-actions h3 {
+                        margin: 0;
+                    }
+
+                    /* Setting Item */
+                    .setting-item {
+                        display: flex;
+                        align-items: flex-start;
+                        justify-content: space-between;
+                        padding: 1rem 0;
+                        border-bottom: 1px solid var(--color-gray-200);
+                    }
+
+                    .setting-item:last-child {
+                        border-bottom: none;
+                        padding-bottom: 0;
+                    }
+
+                    .setting-item-info {
+                        flex: 1;
+                        min-width: 0;
+                        padding-right: 1.5rem;
+                    }
+
+                    .setting-item-title {
+                        font-weight: 500;
+                        color: var(--color-gray-800);
+                        margin-bottom: 0.25rem;
+                    }
+
+                    .setting-item-description {
+                        font-size: 0.75rem;
+                        color: var(--color-gray-500);
+                    }
+
+                    .setting-item-control {
+                        flex-shrink: 0;
+                    }
+
+                    /* Button icons */
+                    .btn-icon {
+                        border: none;
+                        background: none;
+                        padding: 0.25rem;
+                        cursor: pointer;
+                        margin-right: 0.5rem;
+                        color: var(--color-gray-500);
+                    }
+
+                    .btn-icon:hover {
+                        color: var(--color-primary);
+                    }
+
+                    .btn-icon i {
+                        font-size: 1rem;
+                    }
+
+                    /* Responsive Adjustments */
+                    @@media(max - width: 991px) {
+                            .settings-layout {
+                                flex-direction: column;
+                            }
+
+                            .settings-nav {
+                                width: 100%;
+                            }
+
+                            .nav-tabs {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 0.5rem;
+                            }
+
+                            .nav-item {
+                                margin-bottom: 0;
+                            }
+
+                            .nav-link {
+                                padding: 0.5rem 0.75rem;
+                            }
+
+                            .nav-link i {
+                                margin-right: 0.5rem;
+                            }
+                        }
+                    </style>
     }
-  };
 
-  // Close modal when clicking outside of modal content
-  document.querySelectorAll('.modal').forEach(modal => {
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        toggleModal(modal.id, false);
-      }
-    });
-  });
+    @section Scripts {
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function () {
+                            // Modal functionality
+                            const toggleModal = (modalId, show) => {
+                                const modal = document.getElementById(modalId);
+                                if (!modal) return;
 
-  // Open modals
-  document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const target = btn.getAttribute('data-bs-target').replace('#', '');
-      toggleModal(target, true);
-    });
-  });
+                                if (show) {
+                                    modal.classList.add('show');
+                                    document.body.classList.add('modal-open');
+                                } else {
+                                    modal.classList.remove('show');
+                                    document.body.classList.remove('modal-open');
+                                }
+                            };
 
-  // Close modals with close button
-  document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const modal = btn.closest('.modal');
-      if (modal) {
-        toggleModal(modal.id, false);
-      }
-    });
-  });
+                            // Close modal when clicking outside of modal content
+                            document.querySelectorAll('.modal').forEach(modal => {
+                                modal.addEventListener('click', (e) => {
+                                    if (e.target === modal) {
+                                        toggleModal(modal.id, false);
+                                    }
+                                });
+                            });
 
-  // Department Edit functionality
-  document.querySelectorAll('.edit-department').forEach(button => {
-    button.addEventListener('click', function() {
-      const deptName = this.getAttribute('data-name');
-      const oldNameInput = document.getElementById('oldName');
-      const newNameInput = document.getElementById('editNewName');
-      
-      if (oldNameInput && newNameInput) {
-        oldNameInput.value = deptName;
-        newNameInput.value = deptName;
-      }
-    });
-  });
+                            // Open modals
+                            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    const target = btn.getAttribute('data-bs-target').replace('#', '');
+                                    toggleModal(target, true);
+                                });
+                            });
 
-  // Department Delete functionality
-  document.querySelectorAll('.delete-department').forEach(button => {
-    button.addEventListener('click', function() {
-      const deptName = this.getAttribute('data-name');
-      const deptNameInput = document.getElementById('departmentName');
-      
-      if (deptNameInput) {
-        deptNameInput.value = deptName;
-      }
-    });
-  });
+                            // Close modals with close button
+                            document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(btn => {
+                                btn.addEventListener('click', () => {
+                                    const modal = btn.closest('.modal');
+                                    if (modal) {
+                                        toggleModal(modal.id, false);
+                                    }
+                                });
+                            });
 
-  // Toast notification functionality
-  function showToast(message, type = 'success') {
-    // Create toast notification
-    const toast = document.createElement('div');
-    toast.className = `toast-notification ${type}`;
-    toast.innerHTML = `
-      <div class="toast-icon">
-        <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-      </div>
-      <div class="toast-content">
-        <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
-        <div class="toast-message">${message}</div>
-      </div>
-      <button class="toast-close">
-        <i class="bi bi-x"></i>
-      </button>
-    `;
-    
-    // Add to document
-    document.body.appendChild(toast);
-    
-    // Show toast
-    setTimeout(() => {
-      toast.classList.add('show');
-    }, 100);
-    
-    // Auto-hide toast after 5 seconds
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    }, 5000);
-    
-    // Close button functionality
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', function() {
-      toast.classList.remove('show');
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
-    });
-  }
+                            // Department Edit functionality
+                            document.querySelectorAll('.edit-department').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    const deptName = this.getAttribute('data-name');
+                                    const oldNameInput = document.getElementById('oldName');
+                                    const newNameInput = document.getElementById('editNewName');
 
-  // Show toast messages if they exist in TempData
-  if (window.tempData) {
-    if (window.tempData.successMessage) {
-      showToast(window.tempData.successMessage, 'success');
+                                    if (oldNameInput && newNameInput) {
+                                        oldNameInput.value = deptName;
+                                        newNameInput.value = deptName;
+                                    }
+                                });
+                            });
+
+                            // Department Delete functionality
+                            document.querySelectorAll('.delete-department').forEach(button => {
+                                button.addEventListener('click', function () {
+                                    if (this.classList.contains('disabled')) {
+                                        return;
+                                    }
+                                    const deptName = this.getAttribute('data-name');
+                                    const deptNameInput = document.getElementById('departmentName');
+
+                                    if (deptNameInput) {
+                                        deptNameInput.value = deptName;
+                                    }
+                                });
+                            });
+
+                            // Toast notification functionality
+                            function showToast(message, type = 'success') {
+                                // Create toast notification
+                                const toast = document.createElement('div');
+                                toast.className = `toast-notification ${type}`;
+                                toast.innerHTML = `
+              <div class="toast-icon">
+                <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+              </div>
+              <div class="toast-content">
+                <div class="toast-title">${type === 'success' ? 'Success' : 'Error'}</div>
+                <div class="toast-message">${message}</div>
+              </div>
+              <button class="toast-close">
+                <i class="bi bi-x"></i>
+              </button>
+            `;
+
+                                // Add to document
+                                document.body.appendChild(toast);
+
+                                // Show toast
+                                setTimeout(() => {
+                                    toast.classList.add('show');
+                                }, 100);
+
+                                // Auto-hide toast after 5 seconds
+                                setTimeout(() => {
+                                    toast.classList.remove('show');
+                                    setTimeout(() => {
+                                        document.body.removeChild(toast);
+                                    }, 300);
+                                }, 5000);
+
+                                // Close button functionality
+                                const closeBtn = toast.querySelector('.toast-close');
+                                closeBtn.addEventListener('click', function () {
+                                    toast.classList.remove('show');
+                                    setTimeout(() => {
+                                        document.body.removeChild(toast);
+                                    }, 300);
+                                });
+                            }
+
+                            // Show toast messages if they exist in TempData
+                            if (window.tempData) {
+                                if (window.tempData.successMessage) {
+                                    showToast(window.tempData.successMessage, 'success');
+                                }
+
+                                if (window.tempData.errorMessage) {
+                                    showToast(window.tempData.errorMessage, 'error');
+                                }
+                            }
+
+                            // Tab functionality
+                            document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+                                tab.addEventListener('click', function (e) {
+                                    e.preventDefault();
+
+                                    // Remove active class from all tabs
+                                    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(t => {
+                                        t.classList.remove('active');
+                                    });
+
+                                    // Add active class to clicked tab
+                                    this.classList.add('active');
+
+                                    // Hide all tab panes
+                                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                                        pane.classList.remove('show', 'active');
+                                    });
+
+                                    // Show the target tab pane
+                                    const target = document.querySelector(this.getAttribute('data-bs-target'));
+                                    if (target) {
+                                        target.classList.add('show', 'active');
+                                    }
+                                });
+                            });
+
+                            // Toggle API Key visibility
+                            const toggleApiKey = document.getElementById('toggleApiKey');
+                            const apiKeyInput = document.getElementById('FlowiseApiKey');
+
+                            if (toggleApiKey && apiKeyInput) {
+                                toggleApiKey.addEventListener('click', function () {
+                                    const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                                    apiKeyInput.setAttribute('type', type);
+
+                                    const icon = toggleApiKey.querySelector('i');
+                                    if (icon) {
+                                        icon.classList.toggle('bi-eye');
+                                        icon.classList.toggle('bi-eye-slash');
+                                    }
+                                });
+                            }
+                        });
+                    </script>
+
+                    <style>
+                        /* Toast Notification Styles */
+                        .toast-notification {
+                            position: fixed;
+                            bottom: 24px;
+                            right: 24px;
+                            display: flex;
+                            align-items: flex-start;
+                            background-color: white;
+                            border-radius: var(--border-radius);
+                            box-shadow: var(--shadow-lg);
+                            padding: 1rem;
+                            width: 320px;
+                            z-index: 1000;
+                            transform: translateY(100%);
+                            opacity: 0;
+                            transition: all 0.3s ease;
+                        }
+
+                        .toast-notification.show {
+                            transform: translateY(0);
+                            opacity: 1;
+                        }
+
+                        .toast-notification.success {
+                            border-left: 4px solid var(--color-success);
+                        }
+
+                        .toast-notification.error {
+                            border-left: 4px solid var(--color-danger);
+                        }
+
+                        .toast-icon {
+                            margin-right: 0.75rem;
+                            font-size: 1.25rem;
+                        }
+
+                        .toast-notification.success .toast-icon {
+                            color: var(--color-success);
+                        }
+
+                        .toast-notification.error .toast-icon {
+                            color: var(--color-danger);
+                        }
+
+                        .toast-content {
+                            flex: 1;
+                        }
+
+                        .toast-title {
+                            font-weight: 600;
+                            margin-bottom: 0.25rem;
+                        }
+
+                        .toast-message {
+                            font-size: 0.875rem;
+                            color: var(--color-gray-600);
+                        }
+
+                        .toast-close {
+                            background: none;
+                            border: none;
+                            font-size: 1.25rem;
+                            color: var(--color-gray-500);
+                            cursor: pointer;
+                            padding: 0;
+                            margin-left: 0.75rem;
+                        }
+
+                        .toast-close:hover {
+                            color: var(--color-gray-700);
+                        }
+                    </style>
     }
-    
-    if (window.tempData.errorMessage) {
-      showToast(window.tempData.errorMessage, 'error');
-    }
-  }
-
-  // Tab functionality
-  document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-    tab.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Remove active class from all tabs
-      document.querySelectorAll('[data-bs-toggle="tab"]').forEach(t => {
-        t.classList.remove('active');
-      });
-      
-      // Add active class to clicked tab
-      this.classList.add('active');
-      
-      // Hide all tab panes
-      document.querySelectorAll('.tab-pane').forEach(pane => {
-        pane.classList.remove('show', 'active');
-      });
-      
-      // Show the target tab pane
-      const target = document.querySelector(this.getAttribute('data-bs-target'));
-      if (target) {
-        target.classList.add('show', 'active');
-      }
-    });
-  });
-
-  // Toggle API Key visibility
-  const toggleApiKey = document.getElementById('toggleApiKey');
-  const apiKeyInput = document.getElementById('FlowiseApiKey');
-  
-  if (toggleApiKey && apiKeyInput) {
-    toggleApiKey.addEventListener('click', function() {
-      const type = apiKeyInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      apiKeyInput.setAttribute('type', type);
-      
-      const icon = toggleApiKey.querySelector('i');
-      if (icon) {
-        icon.classList.toggle('bi-eye');
-        icon.classList.toggle('bi-eye-slash');
-      }
-    });
-  }
-});
-    </script>
-    
-    <style>
-        /* Toast Notification Styles */
-        .toast-notification {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            display: flex;
-            align-items: flex-start;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-lg);
-            padding: 1rem;
-            width: 320px;
-            z-index: 1000;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-        
-        .toast-notification.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        .toast-notification.success {
-            border-left: 4px solid var(--color-success);
-        }
-        
-        .toast-notification.error {
-            border-left: 4px solid var(--color-danger);
-        }
-        
-        .toast-icon {
-            margin-right: 0.75rem;
-            font-size: 1.25rem;
-        }
-        
-        .toast-notification.success .toast-icon {
-            color: var(--color-success);
-        }
-        
-        .toast-notification.error .toast-icon {
-            color: var(--color-danger);
-        }
-        
-        .toast-content {
-            flex: 1;
-        }
-        
-        .toast-title {
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-        
-        .toast-message {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-        }
-        
-        .toast-close {
-            background: none;
-            border: none;
-            font-size: 1.25rem;
-            color: var(--color-gray-500);
-            cursor: pointer;
-            padding: 0;
-            margin-left: 0.75rem;
-        }
-        
-        .toast-close:hover {
-            color: var(--color-gray-700);
-        }
-    </style>
-}

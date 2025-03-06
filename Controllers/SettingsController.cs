@@ -7,6 +7,7 @@ using AIHelpdeskSupport.Attributes;
 using AIHelpdeskSupport.Data;
 using AIHelpdeskSupport.Models;
 using AIHelpdeskSupport.Services;
+using AIHelpdeskSupport.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,42 +22,67 @@ namespace AIHelpdeskSupport.Controllers
         private readonly ISettingsService _settingsService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<SettingsController> _logger;
 
         public SettingsController(
             ISettingsService settingsService, 
             UserManager<ApplicationUser> userManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ILogger<SettingsController> logger)
         {
             _settingsService = settingsService;
             _userManager = userManager;
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+public async Task<IActionResult> Index()
+{
+    var userId = _userManager.GetUserId(User);
+    var settings = await _settingsService.GetSettingsAsync(userId);
+    
+    // Get users and chatbots for department data
+    var users = await _userManager.Users.ToListAsync();
+    var chatbots = await _context.Chatbots.ToListAsync();
+    
+    var departments = users
+        .Where(u => !string.IsNullOrEmpty(u.Department))
+        .GroupBy(u => u.Department)
+        .Select(group => new DepartmentViewModel
         {
-            var userId = _userManager.GetUserId(User);
-            var settings = await _settingsService.GetSettingsAsync(userId);
-            
-            // Get department data from users and chatbots
-            var users = await _userManager.Users.ToListAsync();
-            var chatbots = await _context.Chatbots.ToListAsync();
-            
-            var departments = users
-                .Where(u => !string.IsNullOrEmpty(u.Department))
-                .GroupBy(u => u.Department)
-                .Select(group => new
-                {
-                    Name = group.Key,
-                    UserCount = group.Count(),
-                    ChatbotCount = chatbots.Count(c => c.Department == group.Key)
-                })
-                .OrderBy(d => d.Name)
-                .ToList();
-            
-            ViewBag.Departments = departments;
-            
-            return View(settings);
-        }
+            Name = group.Key,
+            UserCount = group.Count(),
+            ChatbotCount = chatbots.Count(c => c.Department == group.Key),
+            // Make sure we're treating CreatedAt as nullable
+            CreatedAt = chatbots.Where(c => c.Department == group.Key)
+                               .OrderBy(c => c.CreatedAt)
+                               .FirstOrDefault()?.CreatedAt,
+            CreatedBy = chatbots.Where(c => c.Department == group.Key)
+                               .OrderBy(c => c.CreatedAt)
+                               .FirstOrDefault()?.CreatedBy ?? "System"
+        })
+        .ToList();
+    
+    // Add departments that exist only in chatbots but not in users
+    var chatbotOnlyDepartments = chatbots
+        .Where(c => !string.IsNullOrEmpty(c.Department) && 
+                    !departments.Any(d => d.Name == c.Department))
+        .GroupBy(c => c.Department)
+        .Select(group => new DepartmentViewModel
+        {
+            Name = group.Key,
+            UserCount = 0,
+            ChatbotCount = group.Count(),
+            CreatedAt = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedAt,
+            CreatedBy = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedBy ?? "System"
+        });
+    
+    departments.AddRange(chatbotOnlyDepartments);
+    
+    ViewBag.Departments = departments.OrderBy(d => d.Name).ToList();
+    
+    return View(settings);
+}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -142,66 +168,6 @@ namespace AIHelpdeskSupport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateDepartment(string oldName, string newName)
-        {
-            if (string.IsNullOrWhiteSpace(newName))
-            {
-                TempData["ErrorMessage"] = "Department name cannot be empty.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            // Check if new department name already exists (and is different from old name)
-            if (oldName != newName)
-            {
-                var departmentExists = await _userManager.Users.AnyAsync(u => u.Department == newName) ||
-                                      await _context.Chatbots.AnyAsync(c => c.Department == newName);
-
-                if (departmentExists)
-                {
-                    TempData["ErrorMessage"] = $"Department '{newName}' already exists.";
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-
-            // Update users with the old department name
-            var usersToUpdate = await _userManager.Users
-                .Where(u => u.Department == oldName)
-                .ToListAsync();
-
-            foreach (var user in usersToUpdate)
-            {
-                user.Department = newName;
-                await _userManager.UpdateAsync(user);
-                
-                // Update the department claim
-                var claims = await _userManager.GetClaimsAsync(user);
-                var deptClaim = claims.FirstOrDefault(c => c.Type == "Department");
-                if (deptClaim != null)
-                {
-                    await _userManager.RemoveClaimAsync(user, deptClaim);
-                    await _userManager.AddClaimAsync(user, new Claim("Department", newName));
-                }
-            }
-
-            // Update chatbots with the old department name
-            var chatbotsToUpdate = await _context.Chatbots
-                .Where(c => c.Department == oldName)
-                .ToListAsync();
-
-            foreach (var chatbot in chatbotsToUpdate)
-            {
-                chatbot.Department = newName;
-                _context.Update(chatbot);
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Department '{oldName}' has been renamed to '{newName}'.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddDepartment(string newName)
         {
             if (string.IsNullOrWhiteSpace(newName))
@@ -211,8 +177,7 @@ namespace AIHelpdeskSupport.Controllers
             }
 
             // Check if department already exists
-            var departmentExists = await _userManager.Users.AnyAsync(u => u.Department == newName) ||
-                                   await _context.Chatbots.AnyAsync(c => c.Department == newName);
+            bool departmentExists = await _settingsService.DepartmentExistsAsync(newName);
 
             if (departmentExists)
             {
@@ -220,21 +185,58 @@ namespace AIHelpdeskSupport.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Create a new chatbot for this department
-            var chatbot = new Chatbot
+            // Get current user ID
+            string userId = _userManager.GetUserId(User);
+            
+            // Create the department (includes creating default chatbot)
+            bool success = await _settingsService.CreateDepartmentAsync(newName, userId);
+
+            if (success)
             {
-                Name = $"{newName} Bot",
-                Department = newName,
-                AiModel = "gpt-3.5-turbo",
-                Description = $"Default chatbot for {newName} department",
-                CreatedBy = _userManager.GetUserId(User),
-                IsActive = true
-            };
+                TempData["SuccessMessage"] = $"Department '{newName}' has been added successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Failed to add department '{newName}'.";
+            }
+            
+            return RedirectToAction(nameof(Index));
+        }
 
-            _context.Chatbots.Add(chatbot);
-            await _context.SaveChangesAsync();
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateDepartment(string oldName, string newName)
+        {
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                TempData["ErrorMessage"] = "Department name cannot be empty.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            TempData["SuccessMessage"] = $"Department '{newName}' has been added.";
+            // Skip check if name isn't changing
+            if (oldName != newName)
+            {
+                // Check if new department name already exists
+                bool departmentExists = await _settingsService.DepartmentExistsAsync(newName);
+
+                if (departmentExists)
+                {
+                    TempData["ErrorMessage"] = $"Department '{newName}' already exists.";
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+
+            bool success = await _settingsService.UpdateDepartmentAsync(oldName, newName);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = $"Department '{oldName}' has been renamed to '{newName}'.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = $"Failed to update department.";
+            }
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -252,18 +254,17 @@ namespace AIHelpdeskSupport.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Delete chatbots in this department
-            var chatbotsToDelete = await _context.Chatbots
-                .Where(c => c.Department == departmentName)
-                .ToListAsync();
+            bool success = await _settingsService.DeleteDepartmentAsync(departmentName);
 
-            if (chatbotsToDelete.Any())
+            if (success)
             {
-                _context.Chatbots.RemoveRange(chatbotsToDelete);
-                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Department '{departmentName}' has been deleted.";
             }
-
-            TempData["SuccessMessage"] = $"Department '{departmentName}' has been deleted.";
+            else
+            {
+                TempData["ErrorMessage"] = $"Failed to delete department '{departmentName}'.";
+            }
+            
             return RedirectToAction(nameof(Index));
         }
     }
