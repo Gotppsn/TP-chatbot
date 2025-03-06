@@ -59,7 +59,7 @@
                                  <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
                                  <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control"
                                      value="@Model.FlowiseApiUrl" placeholder="http://localhost:3000/api/">
-                                 <div class="form-text">The URL of your Flowise API endpoint</div>
+                                 <div class="form-text">The URL of your Flowise API endpoint (Example: http://localhost:3000/api/)</div>
                              </div>
 
                              <div class="form-group mb-3">
@@ -85,15 +85,21 @@
                                  <button type="button" id="getChatflows" class="btn btn-outline-secondary">
                                      <i class="bi bi-list-check"></i> List Chatflows
                                  </button>
-                                 <div id="chatflowsList" class="mt-2">
-                                     <ul class="list-group" style="display: none;"></ul>
-                                 </div>
                              </div>
 
                              <div class="form-group">
                                  <button type="submit" class="btn btn-primary" id="saveApiSettings">Save API Settings</button>
                              </div>
                          </form>
+
+                         <!-- Chatflows List Container with Modern Design -->
+                         <div id="chatflowsContainer" class="mt-4">
+                             <div id="chatflowsHeader" class="d-flex justify-content-between align-items-center mb-3" style="display: none;">
+                                 <h4 class="m-0">Available Chatflows</h4>
+                                 <span class="badge bg-primary rounded-pill" id="chatflowsCount">0</span>
+                             </div>
+                             <div id="chatflowsList" class="chatflows-grid"></div>
+                         </div>
                      </div>
                  </div>
              </div>
@@ -401,41 +407,6 @@
          margin: 0;
      }
 
-     /* Setting Item */
-     .setting-item {
-         display: flex;
-         align-items: flex-start;
-         justify-content: space-between;
-         padding: 1rem 0;
-         border-bottom: 1px solid var(--color-gray-200);
-     }
-
-     .setting-item:last-child {
-         border-bottom: none;
-         padding-bottom: 0;
-     }
-
-     .setting-item-info {
-         flex: 1;
-         min-width: 0;
-         padding-right: 1.5rem;
-     }
-
-     .setting-item-title {
-         font-weight: 500;
-         color: var(--color-gray-800);
-         margin-bottom: 0.25rem;
-     }
-
-     .setting-item-description {
-         font-size: 0.75rem;
-         color: var(--color-gray-500);
-     }
-
-     .setting-item-control {
-         flex-shrink: 0;
-     }
-
      /* Button icons */
      .btn-icon {
          border: none;
@@ -452,6 +423,82 @@
 
      .btn-icon i {
          font-size: 1rem;
+     }
+
+     /* Redesigned Chatflows List */
+     .chatflows-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+         gap: 1rem;
+         margin-top: 1.5rem;
+     }
+
+     .chatflow-card {
+         border: 1px solid var(--color-gray-200);
+         border-radius: 8px;
+         padding: 1rem;
+         background-color: white;
+         transition: transform 0.2s ease, box-shadow 0.2s ease;
+         position: relative;
+     }
+
+     .chatflow-card:hover {
+         transform: translateY(-3px);
+         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+     }
+
+     .chatflow-card .card-header {
+         display: flex;
+         align-items: flex-start;
+         justify-content: space-between;
+         margin-bottom: 0.75rem;
+     }
+
+     .chatflow-card .card-title {
+         font-weight: 600;
+         font-size: 1rem;
+         margin: 0;
+         color: var(--color-gray-800);
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+         max-width: 200px;
+     }
+
+     .chatflow-card .badge {
+         font-size: 0.75rem;
+         padding: 0.25rem 0.5rem;
+     }
+
+     .chatflow-card .card-info {
+         font-size: 0.75rem;
+         color: var(--color-gray-500);
+         display: flex;
+         align-items: center;
+         margin-top: 0.5rem;
+     }
+
+     .chatflow-card .card-info i {
+         margin-right: 0.25rem;
+     }
+
+     .chatflow-card .card-actions {
+         margin-top: 1rem;
+         display: flex;
+         justify-content: flex-end;
+     }
+
+     .chatflow-card .btn-sm {
+         padding: 0.25rem 0.5rem;
+         font-size: 0.75rem;
+     }
+
+     .chatflow-error {
+         padding: 1.5rem;
+         border-radius: 8px;
+         background-color: #f8f9fa;
+         text-align: center;
+         margin-top: 1rem;
      }
 
      /* Responsive Adjustments */
@@ -481,32 +528,13 @@
          .nav-link i {
              margin-right: 0.5rem;
          }
+         
+         .chatflows-grid {
+             grid-template-columns: 1fr;
+         }
      }
 
-     /* Chatflows list */
-     #chatflowsList ul {
-         max-height: 300px;
-         overflow-y: auto;
-         margin-top: 10px;
-     }
-
-     #chatflowsList .list-group-item {
-         display: flex;
-         justify-content: space-between;
-         align-items: center;
-         font-size: 0.9rem;
-     }
-
-     #chatflowsList .badge {
-         font-size: 0.7rem;
-         margin-left: 8px;
-     }
-
-     #apiConnectionStatus {
-         font-size: 0.9rem;
-         padding: 8px 0;
-     }
-
+     /* Toast notifications */
      .toast-container {
        position: fixed;
        bottom: 20px;
@@ -622,83 +650,214 @@
              }
          });
          
-         // Get Chatflows
-document.getElementById('getChatflows').addEventListener('click', async function() {
-    const chatflowsContainer = document.getElementById('chatflowsList');
-    chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
-    
-    try {
-        // First save current settings
-        const form = document.getElementById('flowiseApiForm');
-        const formData = new FormData(form);
-        
-        const saveResponse = await fetch('/Settings/SaveApiSettings', {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
-            }
-        });
-        
-        if (!saveResponse.ok) {
-            throw new Error(`Failed to save API settings: ${saveResponse.status}`);
-        }
-        
-        // Wait to ensure settings propagate
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Add timestamp and random to prevent caching
-        const timestamp = new Date().getTime();
-        const random = Math.floor(Math.random() * 1000000);
-        const response = await fetch(`/api/test/chatflows?_=${timestamp}&r=${random}`, {
-            headers: {
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
-            }
-        });
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-        }
-        
-        const result = await response.json();
-        console.log('Chatflows response:', result);
-        
-        if (result.success && result.data && result.data.length > 0) {
-            let html = '<ul class="list-group" style="display: block;">';
-            result.data.forEach(flow => {
-                const date = flow.updatedAt || flow.createdAt ? 
-                    new Date(flow.updatedAt || flow.createdAt).toLocaleDateString() : 
-                    'Unknown date';
-                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                    ${flow.name || 'Unnamed Flow'}
-                    <div>
-                        <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id || 'No ID'}</span>
-                        <small class="text-muted ms-2">${date}</small>
-                    </div>
-                </li>`;
-            });
-            html += '</ul>';
-            chatflowsContainer.innerHTML = html;
-        } else if (result.success && (!result.data || result.data.length === 0)) {
-            chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found. The API connection was successful, but no chatflows were returned.</div>';
-        } else {
-            chatflowsContainer.innerHTML = '<div class="alert alert-warning">API connection failed or no chatflows found. Check console for details.</div>';
-        }
-    } catch (error) {
-        console.error('Error fetching chatflows:', error);
-        chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>
-            <div class="small text-muted mt-2">Try these troubleshooting steps:</div>
-            <ul class="small text-muted">
-                <li>Ensure Flowise is running on the specified URL</li>
-                <li>Check that your API key is correct</li>
-                <li>Verify that CORS is enabled on your Flowise server</li>
-                <li>Check browser console and server logs for more details</li>
-            </ul>`;
-    }
-});
+         // Get Chatflows - Updated with new design
+         document.getElementById('getChatflows').addEventListener('click', async function() {
+             const chatflowsContainer = document.getElementById('chatflowsContainer');
+             const chatflowsList = document.getElementById('chatflowsList');
+             const chatflowsHeader = document.getElementById('chatflowsHeader');
+             const chatflowsCount = document.getElementById('chatflowsCount');
+             
+             chatflowsList.innerHTML = '<div class="d-flex justify-content-center my-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+             chatflowsHeader.style.display = 'none';
+             
+             try {
+                 // First save current settings
+                 const form = document.getElementById('flowiseApiForm');
+                 const formData = new FormData(form);
+                 
+                 const saveResponse = await fetch('/Settings/SaveApiSettings', {
+                     method: 'POST',
+                     body: formData,
+                     headers: {
+                         'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+                     }
+                 });
+                 
+                 if (!saveResponse.ok) {
+                     throw new Error(`Failed to save API settings: ${saveResponse.status}`);
+                 }
+                 
+                 // Wait to ensure settings propagate
+                 await new Promise(resolve => setTimeout(resolve, 800));
+                 
+                 // When constructing the URL for testing, ensure no duplicate "api/"
+                 const apiUrl = document.getElementById('FlowiseApiUrl').value;
+                 const apiKey = document.getElementById('FlowiseApiKey').value;
+                 // Standardize URL to ensure it ends with a slash
+                 const cleanApiUrl = apiUrl.endsWith('/') ? apiUrl : apiUrl + '/';
+                 
+                 // Add timestamp to prevent caching
+                 const timestamp = new Date().getTime();
+                 const random = Math.floor(Math.random() * 1000000);
+                 const response = await fetch(`/api/test/direct-chatflows?url=${encodeURIComponent(cleanApiUrl)}&apiKey=${encodeURIComponent(apiKey)}&_=${timestamp}&r=${random}`, {
+                     headers: {
+                         'Cache-Control': 'no-cache, no-store, must-revalidate',
+                         'Pragma': 'no-cache',
+                         'Expires': '0'
+                     }
+                 });
+                 
+                 if (!response.ok) {
+                     const errorText = await response.text();
+                     throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+                 }
+                 
+                 const result = await response.json();
+                 console.log('Chatflows response:', result);
+                 
+                 // Check specifically for auth issues
+                 if (result.statusMessage === "Unauthorized" || (result.contentPreview && result.contentPreview.includes("Unauthorized Access"))) {
+                     chatflowsList.innerHTML = `
+                         <div class="chatflow-error">
+                             <div class="alert alert-danger mb-3">
+                                 <i class="bi bi-shield-lock me-2"></i>
+                                 <strong>Authentication Error</strong>
+                             </div>
+                             <p>The API requires a valid API key to access chatflows.</p>
+                             <div class="mt-3">
+                                 <div class="d-flex justify-content-center">
+                                     <button class="btn btn-outline-primary" onclick="document.getElementById('FlowiseApiKey').focus()">
+                                         <i class="bi bi-key me-2"></i> Update API Key
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>`;
+                     return;
+                 }
+                 
+                 if (result.success && result.contentPreview) {
+                     try {
+                         // Try to parse as JSON
+                         const jsonContent = JSON.parse(result.contentPreview);
+                         
+                         if (Array.isArray(jsonContent)) {
+                             // We got a chatflows array
+                             if (jsonContent.length === 0) {
+                                 chatflowsList.innerHTML = `
+                                     <div class="chatflow-error">
+                                         <div class="text-center py-4">
+                                             <i class="bi bi-diagram-3 fs-1 text-muted mb-3"></i>
+                                             <h5>No Chatflows Found</h5>
+                                             <p class="text-muted">Connection successful, but no flows exist yet.</p>
+                                         </div>
+                                     </div>`;
+                             } else {
+                                 // Update the count and show header
+                                 chatflowsCount.textContent = jsonContent.length;
+                                 chatflowsHeader.style.display = 'flex';
+                                 
+                                 let html = '';
+                                 jsonContent.forEach(flow => {
+                                     const date = flow.updatedAt || flow.createdAt ? 
+                                         new Date(flow.updatedAt || flow.createdAt).toLocaleDateString() : 
+                                         'Unknown date';
+                                     const flowId = flow.id || 'No ID';
+                                     
+                                     html += `
+                                         <div class="chatflow-card">
+                                             <div class="card-header">
+                                                 <h3 class="card-title" title="${flow.name || 'Unnamed Flow'}">${flow.name || 'Unnamed Flow'}</h3>
+                                                 <span class="badge bg-primary">${flowId}</span>
+                                             </div>
+                                             <div class="card-info">
+                                                 <i class="bi bi-calendar3"></i> ${date}
+                                             </div>
+                                             <div class="card-actions">
+                                                 <button class="btn btn-sm btn-outline-primary me-2" onclick="assignChatflow('${flowId}')">
+                                                     <i class="bi bi-link me-1"></i> Assign
+                                                 </button>
+                                                 <button class="btn btn-sm btn-outline-secondary">
+                                                     <i class="bi bi-info-circle me-1"></i> Details
+                                                 </button>
+                                             </div>
+                                         </div>`;
+                                 });
+                                 chatflowsList.innerHTML = html;
+                             }
+                         } else {
+                             // Show raw data for debugging
+                             chatflowsList.innerHTML = `
+                                 <div class="chatflow-error">
+                                     <div class="alert alert-warning mb-3">
+                                         <i class="bi bi-exclamation-triangle me-2"></i>
+                                         <strong>Unexpected Response Format</strong>
+                                     </div>
+                                     <p>Received valid JSON but couldn't identify chatflows.</p>
+                                     <pre class="bg-light p-3 mt-3" style="max-height:300px;overflow:auto;text-align:left;">${JSON.stringify(jsonContent, null, 2)}</pre>
+                                 </div>`;
+                         }
+                     } catch (jsonError) {
+                         // Not valid JSON - likely HTML
+                         if (result.contentType === "HTML" || result.contentPreview.includes("<!DOCTYPE html>")) {
+                             chatflowsList.innerHTML = `
+                                 <div class="chatflow-error">
+                                     <div class="alert alert-warning mb-3">
+                                         <i class="bi bi-exclamation-triangle me-2"></i>
+                                         <strong>Invalid Response Format</strong>
+                                     </div>
+                                     <p>Received HTML instead of JSON. The URL might be pointing to the Flowise UI instead of the API.</p>
+                                     <div class="alert alert-info mt-3">
+                                         <strong>Hint:</strong> Make sure your API URL is <code>http://localhost:3000/api/</code> (ends with /api/)
+                                     </div>
+                                 </div>`;
+                         } else {
+                             chatflowsList.innerHTML = `
+                                 <div class="chatflow-error">
+                                     <div class="alert alert-danger mb-3">
+                                         <i class="bi bi-exclamation-triangle me-2"></i>
+                                         <strong>Invalid Response Format</strong>
+                                     </div>
+                                     <p>Unable to parse the response. See raw content below:</p>
+                                     <div class="bg-light p-3 mt-3" style="max-height:200px;overflow:auto;text-align:left;font-size:0.8rem;">${result.contentPreview}</div>
+                                 </div>`;
+                         }
+                     }
+                 } else {
+                     chatflowsList.innerHTML = `
+                         <div class="chatflow-error">
+                             <div class="alert alert-warning mb-3">
+                                 <i class="bi bi-exclamation-triangle me-2"></i>
+                                 <strong>Connection Failed</strong>
+                             </div>
+                             <p>Status: ${result.statusCode} ${result.statusMessage || ''}</p>
+                             <div class="mt-3">
+                                 <h6>Troubleshooting Steps:</h6>
+                                 <ul class="text-start">
+                                     <li>Ensure Flowise is running at <code>${apiUrl}</code></li>
+                                     <li>Try using <code>http://localhost:3000/api/</code> as your API URL</li>
+                                     <li>Verify API key is correct (if required)</li>
+                                     <li>Check browser console for more details</li>
+                                 </ul>
+                             </div>
+                         </div>`;
+                 }
+             } catch (error) {
+                 console.error('Error fetching chatflows:', error);
+                 chatflowsList.innerHTML = `
+                     <div class="chatflow-error">
+                         <div class="alert alert-danger mb-3">
+                             <i class="bi bi-exclamation-circle me-2"></i>
+                             <strong>Error</strong>
+                         </div>
+                         <p>${error.message}</p>
+                         <div class="mt-3">
+                             <h6>Troubleshooting Steps:</h6>
+                             <ul class="text-start">
+                                 <li>Check that Flowise is running</li>
+                                 <li>Verify your API URL is correct</li>
+                                 <li>Check network tab in console for details</li>
+                             </ul>
+                         </div>
+                     </div>`;
+             }
+         });
+         
+         // Optional: Implement the assignChatflow function
+         window.assignChatflow = function(flowId) {
+             // Get the current chatbot ID or show a selection dialog
+             alert(`Assigning chatflow ${flowId} - Implement this function to select a chatbot and assign it`);
+             // In a real implementation, you would call an API to assign the chatflow to a chatbot
+         };
 
          // Override main Save Changes button
          document.getElementById('saveSettings').addEventListener('click', function() {
@@ -804,69 +963,6 @@ document.getElementById('getChatflows').addEventListener('click', async function
              document.body.appendChild(container);
              return container;
          }
-
-         function testFlowiseConnection() {
-    const apiUrl = document.getElementById('FlowiseApiUrl').value;
-    const apiKey = document.getElementById('FlowiseApiKey').value;
-    const statusElement = document.getElementById('apiConnectionStatus');
-    
-    // Show loading state
-    statusElement.innerHTML = '<span class="text-info"><i class="fa fa-spinner fa-spin"></i> Testing connection...</span>';
-    
-    // Call our new API endpoint
-    fetch(`/api/flowise-test/connection?apiUrl=${encodeURIComponent(apiUrl)}&apiKey=${encodeURIComponent(apiKey)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                statusElement.innerHTML = '<span class="text-success"><i class="fa fa-check-circle"></i> Connection successful!</span>';
-            } else {
-                statusElement.innerHTML = `<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Connection failed: ${data.message}</span>`;
-            }
-        })
-        .catch(error => {
-            statusElement.innerHTML = `<span class="text-danger"><i class="fa fa-exclamation-triangle"></i> Error: ${error.message}</span>`;
-            console.error('Error testing connection:', error);
-        });
-}
-
-function fetchChatflows() {
-    const apiUrl = document.getElementById('FlowiseApiUrl').value;
-    const apiKey = document.getElementById('FlowiseApiKey').value;
-    const chatflowsContainer = document.getElementById('chatflowsList');
-    
-    // Show loading state
-    chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
-    
-    // Call our new API endpoint
-    fetch(`/api/flowise-test/chatflows?apiUrl=${encodeURIComponent(apiUrl)}&apiKey=${encodeURIComponent(apiKey)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.data && data.data.length > 0) {
-                let html = '<ul class="list-group">';
-                data.data.forEach(flow => {
-                    const name = flow.name || flow.id || 'Unnamed Flow';
-                    const id = flow.id || 'No ID';
-                    const date = new Date().toLocaleDateString(); // Use flow.updatedAt if available
-                    
-                    html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                        ${name}
-                        <div>
-                            <span class="badge bg-primary rounded-pill" title="Flow ID">${id}</span>
-                            <small class="text-muted ms-2">${date}</small>
-                        </div>
-                    </li>`;
-                });
-                html += '</ul>';
-                chatflowsContainer.innerHTML = html;
-            } else {
-                chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed.</div>';
-            }
-        })
-        .catch(error => {
-            chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-            console.error('Error fetching chatflows:', error);
-        });
-}
          
          // Check for success/error messages in TempData
          @if (TempData["SuccessMessage"] != null)

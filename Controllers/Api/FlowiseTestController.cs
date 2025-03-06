@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AIHelpdeskSupport.Controllers.Api
@@ -220,75 +221,181 @@ namespace AIHelpdeskSupport.Controllers.Api
            }
        }
        
-       [HttpGet("direct-chatflows")]
-       public async Task<IActionResult> TestDirectChatflows([FromQuery] string url, [FromQuery] string apiKey)
-       {
-           try
-           {
-               // Use provided URL or get from settings
-               if (string.IsNullOrEmpty(url))
-               {
-                   var settings = await _settingsService.GetSettingsAsync();
-                   url = (settings.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/") + "chatflows";
-               }
-               
-               // Use provided key or get from settings
-               if (string.IsNullOrEmpty(apiKey))
-               {
-                   var settings = await _settingsService.GetSettingsAsync();
-                   apiKey = settings.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
-               }
-               
-               _logger.LogInformation("Testing direct chatflows at URL: {Url} with API key: {KeyProvided}", 
-                   url, !string.IsNullOrEmpty(apiKey));
-               
-               using var httpClient = new HttpClient();
-               httpClient.Timeout = TimeSpan.FromSeconds(15);
-               
-               // Add auth headers if key provided
-               if (!string.IsNullOrEmpty(apiKey))
-               {
-                   httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                   httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-               }
-               
-               // First try with headers
-               var response = await httpClient.GetAsync(url);
-               
-               // If that fails and we have an API key, try with query parameter
-               if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
-               {
-                   if (url.Contains("?"))
-                       response = await httpClient.GetAsync(url + "&apiKey=" + apiKey);
-                   else
-                       response = await httpClient.GetAsync(url + "?apiKey=" + apiKey);
-               }
-               
-               var content = await response.Content.ReadAsStringAsync();
-               
-               return Ok(new { 
-                   success = response.IsSuccessStatusCode,
-                   statusCode = (int)response.StatusCode,
-                   statusMessage = response.StatusCode.ToString(),
-                   contentLength = content.Length,
-                   contentPreview = content.Length > 1000 ? content.Substring(0, 1000) + "..." : content,
-                   apiUrl = url,
-                   apiKeyProvided = !string.IsNullOrEmpty(apiKey),
-                   timestamp = DateTime.UtcNow.ToString("o")
-               });
-           }
-           catch (Exception ex)
-           {
-               _logger.LogError(ex, "Error testing direct chatflows at URL {Url}", url);
-               return StatusCode(500, new { 
-                   success = false, 
-                   error = ex.Message,
-                   errorType = ex.GetType().Name,
-                   url = url,
-                   timestamp = DateTime.UtcNow.ToString("o")
-               });
-           }
-       }
+[HttpGet("direct-chatflows")]
+public async Task<IActionResult> TestDirectChatflows([FromQuery] string url = null, [FromQuery] string apiKey = null)
+{
+    try
+    {
+        var settings = await _settingsService.GetSettingsAsync();
+        
+        // Use provided URL or get from settings
+        if (string.IsNullOrEmpty(url))
+        {
+            url = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/";
+            
+            // Ensure URL has protocol
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+            {
+                url = "http://" + url;
+            }
+            
+            // Ensure URL ends with a slash
+            if (!url.EndsWith("/"))
+            {
+                url += "/";
+            }
+        }
+        
+        // Use provided key or get from settings
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+        }
+        
+        _logger.LogInformation("Testing direct chatflows at URL: {Url} with API key provided: {KeyProvided}", 
+            url, !string.IsNullOrEmpty(apiKey));
+        
+        using var httpClient = new HttpClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(15);
+        
+        // Add proper Accept header for JSON
+        httpClient.DefaultRequestHeaders.Accept.Clear();
+        httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        
+        // Try different endpoints with proper authentication
+        var endpoints = new[] 
+        {
+            url + "v1/chatflows",
+            url + "api/chatflows", 
+            url + "chatflows"
+        };
+        
+        HttpResponseMessage response = null;
+        string content = null;
+        string usedEndpoint = null;
+        
+        foreach (var endpoint in endpoints)
+        {
+            // First try with URL param authentication (most reliable)
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                try
+                {
+                    string requestUrl = endpoint.Contains("?") ? 
+                        $"{endpoint}&apiKey={apiKey}" : 
+                        $"{endpoint}?apiKey={apiKey}";
+                    
+                    _logger.LogInformation("Trying endpoint with URL param: {Endpoint}", 
+                        requestUrl.Replace(apiKey, "[REDACTED]"));
+                    
+                    response = await httpClient.GetAsync(requestUrl);
+                    content = await response.Content.ReadAsStringAsync();
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+                        usedEndpoint = endpoint;
+                        _logger.LogInformation("Success with URL param authentication at {Endpoint}", endpoint);
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Error with URL param authentication: {Error}", ex.Message);
+                }
+            }
+            
+            // Next try with header authentication
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                try
+                {
+                    httpClient.DefaultRequestHeaders.Clear();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                    
+                    _logger.LogInformation("Trying endpoint with header auth: {Endpoint}", endpoint);
+                    
+                    response = await httpClient.GetAsync(endpoint);
+                    content = await response.Content.ReadAsStringAsync();
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+                        usedEndpoint = endpoint;
+                        _logger.LogInformation("Success with header authentication at {Endpoint}", endpoint);
+                        break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning("Error with header authentication: {Error}", ex.Message);
+                }
+            }
+            
+            // Finally try with no authentication (for open endpoints)
+            try
+            {
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+                
+                _logger.LogInformation("Trying endpoint with no auth: {Endpoint}", endpoint);
+                
+                response = await httpClient.GetAsync(endpoint);
+                content = await response.Content.ReadAsStringAsync();
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    usedEndpoint = endpoint;
+                    _logger.LogInformation("Success with no authentication at {Endpoint}", endpoint);
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Error with no authentication: {Error}", ex.Message);
+            }
+        }
+        
+        // Check for auth errors
+        bool isAuthError = response != null && 
+            (response.StatusCode == System.Net.HttpStatusCode.Unauthorized || 
+             content?.Contains("Unauthorized") == true);
+            
+        if (isAuthError)
+        {
+            return Ok(new {
+                success = false,
+                statusCode = (int)response.StatusCode,
+                statusMessage = "Unauthorized",
+                message = "Authentication failed. Make sure your API key is correct.",
+                apiKeyProvided = !string.IsNullOrEmpty(apiKey),
+                apiUrl = usedEndpoint,
+                contentPreview = content,
+                timestamp = DateTime.UtcNow.ToString("o")
+            });
+        }
+        
+        return Ok(new {
+            success = response?.IsSuccessStatusCode ?? false,
+            statusCode = response?.StatusCode.ToString() ?? "Unknown",
+            statusMessage = response?.ReasonPhrase ?? "Unknown",
+            contentLength = content?.Length ?? 0,
+            contentPreview = content,
+            apiUrl = usedEndpoint,
+            apiKeyProvided = !string.IsNullOrEmpty(apiKey),
+            timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error testing direct chatflows");
+        return StatusCode(500, new {
+            success = false,
+            error = ex.Message,
+            timestamp = DateTime.UtcNow.ToString("o")
+        });
+    }
+}
        
        [HttpGet("test-auth")]
        public async Task<IActionResult> TestAuth([FromQuery] string url, [FromQuery] string apiKey)
@@ -398,102 +505,104 @@ namespace AIHelpdeskSupport.Controllers.Api
        }
 
        [HttpGet("direct-test")]
-public async Task<IActionResult> DirectTest()
-{
-    try
-    {
-        var settings = await _settingsService.GetSettingsAsync();
-        string apiUrl = settings.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/";
-        string apiKey = settings.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
-        
-        // Normalize URL
-        if (!apiUrl.EndsWith("/"))
-        {
-            apiUrl += "/";
-        }
-        
-        // Ensure URL has protocol
-        if (!apiUrl.StartsWith("http://") && !apiUrl.StartsWith("https://"))
-        {
-            apiUrl = "http://" + apiUrl;
-        }
-        
-        // Try different endpoints
-        var testResults = new List<object>();
-        var endpoints = new[] { "health", "api/health", "api/v1/health", "api/chatflows", "chatflows", "api/v1/chatflows" };
-        
-        using var httpClient = new HttpClient();
-        httpClient.Timeout = TimeSpan.FromSeconds(10);
-        
-        foreach (var endpoint in endpoints)
-        {
-            try
-            {
-                // Try with URL parameter
-                var paramUrl = $"{apiUrl}{endpoint}?apiKey={apiKey}";
-                var paramResponse = await httpClient.GetAsync(paramUrl);
-                
-                testResults.Add(new
-                {
-                    endpoint,
-                    method = "url_parameter",
-                    url = paramUrl.Replace(apiKey, "***"),
-                    status = (int)paramResponse.StatusCode,
-                    success = paramResponse.IsSuccessStatusCode,
-                    contentLength = (await paramResponse.Content.ReadAsStringAsync()).Length
-                });
-                
-                // Try with header auth
-                var headerResponse = await SendWithHeaderAuth(httpClient, $"{apiUrl}{endpoint}", apiKey);
-                
-                testResults.Add(new
-                {
-                    endpoint,
-                    method = "header_auth",
-                    url = $"{apiUrl}{endpoint}",
-                    status = (int)headerResponse.StatusCode,
-                    success = headerResponse.IsSuccessStatusCode,
-                    contentLength = (await headerResponse.Content.ReadAsStringAsync()).Length
-                });
-            }
-            catch (Exception ex)
-            {
-                testResults.Add(new
-                {
-                    endpoint,
-                    error = ex.Message,
-                    success = false
-                });
-            }
-        }
-        
-        return Ok(new
-        {
-            apiUrl,
-            hasApiKey = !string.IsNullOrEmpty(apiKey),
-            results = testResults
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error in direct test");
-        return StatusCode(500, new { success = false, message = ex.Message });
-    }
-}
+       public async Task<IActionResult> DirectTest()
+       {
+           try
+           {
+               var settings = await _settingsService.GetSettingsAsync();
+               string apiUrl = settings.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/";
+               string apiKey = settings.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+               
+               // Normalize URL
+               if (!apiUrl.EndsWith("/"))
+               {
+                   apiUrl += "/";
+               }
+               
+               // Ensure URL has protocol
+               if (!apiUrl.StartsWith("http://") && !apiUrl.StartsWith("https://"))
+               {
+                   apiUrl = "http://" + apiUrl;
+               }
+               
+               // Try different endpoints
+               var testResults = new List<object>();
+               var endpoints = new[] { "health", "api/health", "api/v1/health", "api/chatflows", "chatflows", "api/v1/chatflows" };
+               
+               using var httpClient = new HttpClient();
+               httpClient.Timeout = TimeSpan.FromSeconds(10);
+               
+               foreach (var endpoint in endpoints)
+               {
+                   try
+                   {
+                       // Try with URL parameter
+                       var paramUrl = !string.IsNullOrEmpty(apiKey) ? 
+                           $"{apiUrl}{endpoint}?apiKey={apiKey}" : $"{apiUrl}{endpoint}";
+                       
+                       var paramResponse = await httpClient.GetAsync(paramUrl);
+                       
+                       testResults.Add(new
+                       {
+                           endpoint,
+                           method = "url_parameter",
+                           url = paramUrl.Replace(apiKey, "***"),
+                           status = (int)paramResponse.StatusCode,
+                           success = paramResponse.IsSuccessStatusCode,
+                           contentLength = (await paramResponse.Content.ReadAsStringAsync()).Length
+                       });
+                       
+                       // Try with header auth
+                       var headerResponse = await SendWithHeaderAuth(httpClient, $"{apiUrl}{endpoint}", apiKey);
+                       
+                       testResults.Add(new
+                       {
+                           endpoint,
+                           method = "header_auth",
+                           url = $"{apiUrl}{endpoint}",
+                           status = (int)headerResponse.StatusCode,
+                           success = headerResponse.IsSuccessStatusCode,
+                           contentLength = (await headerResponse.Content.ReadAsStringAsync()).Length
+                       });
+                   }
+                   catch (Exception ex)
+                   {
+                       testResults.Add(new
+                       {
+                           endpoint,
+                           error = ex.Message,
+                           success = false
+                       });
+                   }
+               }
+               
+               return Ok(new
+               {
+                   apiUrl,
+                   hasApiKey = !string.IsNullOrEmpty(apiKey),
+                   results = testResults
+               });
+           }
+           catch (Exception ex)
+           {
+               _logger.LogError(ex, "Error in direct test");
+               return StatusCode(500, new { success = false, message = ex.Message });
+           }
+       }
 
-private async Task<HttpResponseMessage> SendWithHeaderAuth(HttpClient client, string url, string apiKey)
-{
-    var request = new HttpRequestMessage(HttpMethod.Get, url);
-    
-    if (!string.IsNullOrEmpty(apiKey))
-    {
-        request.Headers.Add("Authorization", $"Bearer {apiKey}");
-        request.Headers.Add("x-api-key", apiKey);
-        request.Headers.Add("apiKey", apiKey);
-    }
-    
-    return await client.SendAsync(request);
-}
+       private async Task<HttpResponseMessage> SendWithHeaderAuth(HttpClient client, string url, string apiKey)
+       {
+           var request = new HttpRequestMessage(HttpMethod.Get, url);
+           
+           if (!string.IsNullOrEmpty(apiKey))
+           {
+               request.Headers.Add("Authorization", $"Bearer {apiKey}");
+               request.Headers.Add("x-api-key", apiKey);
+               request.Headers.Add("apiKey", apiKey);
+           }
+           
+           return await client.SendAsync(request);
+       }
    }
 
    public class TestChatRequest
