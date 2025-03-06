@@ -123,15 +123,7 @@
                                                     <td>@dept.UserCount</td>
                                                     <td>@dept.ChatbotCount</td>
                                                     <td>
-                                                        @if (dept.CreatedAt != null)
-                                                        {
-                                                            <span
-                                                                title="Created by: @dept.CreatedBy">@dept.CreatedAt.Value.ToString("MM/dd/yyyy")</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>-</span>
-                                                        }
+                                                        <span title="Created by: @dept.CreatedBy">@(dept.CreatedAt?.ToString("MM/dd/yyyy") ?? "-")</span>                     
                                                     </td>
                                                     <td>
                                                         <div class="row-actions">
