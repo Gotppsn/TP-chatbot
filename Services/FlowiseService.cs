@@ -29,42 +29,81 @@ public class FlowiseService : IFlowiseService
         ConfigureHttpClient();
     }
     
-    private void ConfigureHttpClient()
+  private void ConfigureHttpClient()
+{
+    try {
+        // Get latest settings from database
+        var settings = _context.SystemSettings.FirstOrDefault();
+        string apiUrl = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "";
+        string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+        
+        if (string.IsNullOrWhiteSpace(apiUrl))
+        {
+            _logger.LogError("Flowise API URL is empty - using default http://localhost:3000/api/");
+            apiUrl = "http://localhost:3000/api/";
+        }
+        
+        // Normalize URL format
+        if (!apiUrl.EndsWith("/"))
+            apiUrl += "/";
+            
+        // If URL doesn't contain /api/, add it
+        if (!apiUrl.EndsWith("api/") && !apiUrl.Contains("/api/"))
+        {
+            apiUrl = apiUrl.TrimEnd('/') + "/api/";
+            _logger.LogWarning("API URL didn't contain 'api/' path, corrected to: {ApiUrl}", apiUrl);
+        }
+        
+        // Ensure URL has protocol
+        if (!apiUrl.StartsWith("http://") && !apiUrl.StartsWith("https://"))
+            apiUrl = "http://" + apiUrl;
+        
+        _httpClient.BaseAddress = new Uri(apiUrl);
+        _httpClient.DefaultRequestHeaders.Clear();
+        _httpClient.DefaultRequestHeaders.Accept.Clear();
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        
+        if (!string.IsNullOrEmpty(apiKey))
+        {
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+        }
+        
+        _logger.LogInformation("HTTP client configured with base URL: {BaseUrl}", apiUrl);
+    }
+    catch (Exception ex) {
+        _logger.LogError(ex, "Error configuring HTTP client");
+    }
+}
+
+    private async Task<HttpResponseMessage> TryMultipleEndpoints(string[] endpoints, string apiKey, CancellationToken cancellationToken)
     {
-        try {
-            // Get latest settings from database
-            var settings = _context.SystemSettings.FirstOrDefault();
-            string apiUrl = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "";
-            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
-            
-            if (string.IsNullOrWhiteSpace(apiUrl))
+        foreach (var endpoint in endpoints)
+        {
+            try
             {
-                _logger.LogError("Flowise API URL is empty - using default http://localhost:3000/api/");
-                apiUrl = "http://localhost:3000/api/";
+                string url = !string.IsNullOrEmpty(apiKey) ? 
+                    $"{endpoint}?apiKey={apiKey}" : endpoint;
+                
+                _logger.LogDebug("Trying endpoint: {Endpoint}", url);
+                var response = await _httpClient.GetAsync(url, cancellationToken);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    _logger.LogInformation("Successfully reached endpoint: {Endpoint}", endpoint);
+                    return response;
+                }
+                
+                _logger.LogWarning("Endpoint {Endpoint} returned {StatusCode}", 
+                    endpoint, response.StatusCode);
             }
-            
-            if (!apiUrl.EndsWith("/"))
-                apiUrl += "/";
-            
-            if (!apiUrl.StartsWith("http://") && !apiUrl.StartsWith("https://"))
-                apiUrl = "http://" + apiUrl;
-            
-            _httpClient.BaseAddress = new Uri(apiUrl);
-            _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Clear();
-            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            
-            if (!string.IsNullOrEmpty(apiKey))
+            catch (Exception ex)
             {
-                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                _logger.LogWarning("Error trying endpoint {Endpoint}: {Error}", endpoint, ex.Message);
             }
-            
-            _logger.LogInformation("HTTP client configured with base URL: {BaseUrl}", apiUrl);
         }
-        catch (Exception ex) {
-            _logger.LogError(ex, "Error configuring HTTP client");
-        }
+        
+        throw new InvalidOperationException("Failed to connect to any Flowise API endpoint. Please check your API URL and key.");
     }
 
     public async Task<IEnumerable<Chatbot>> GetAllChatbotsAsync()
@@ -202,93 +241,140 @@ public class FlowiseService : IFlowiseService
         }
     }
     
-    public async Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync()
+public async Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync()
+{
+    try
     {
+        ConfigureHttpClient();
+        
+        var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+        string apiUrl = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "";
+        string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+        
+        if (_httpClient.BaseAddress == null)
+        {
+            throw new InvalidOperationException("Flowise API URL is not configured.");
+        }
+        
+        // Check if we're using UI URL instead of API URL
+        string baseUrl = _httpClient.BaseAddress.ToString();
+        if (baseUrl.EndsWith("/") && !baseUrl.EndsWith("api/"))
+        {
+            // Convert UI URL to API URL
+            string apiEndpoint = baseUrl + "api/";
+            _logger.LogWarning("Detected UI URL instead of API URL. Using {ApiUrl} instead", apiEndpoint);
+            _httpClient.BaseAddress = new Uri(apiEndpoint);
+        }
+        
+        _logger.LogInformation("Requesting chatflows from: {BaseUrl}", _httpClient.BaseAddress);
+        
+        string[] endpoints = { "chatflows", "api/v1/chatflows", "v1/chatflows" };
+        
+        HttpResponseMessage response = null;
+        string content = null;
+        string usedEndpoint = null;
+        
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        
+        // Try each endpoint
+        foreach (var endpoint in endpoints)
+        {
+            try
+            {
+                string url = !string.IsNullOrEmpty(apiKey) ? 
+                    $"{endpoint}?apiKey={apiKey}" : endpoint;
+                
+                _logger.LogInformation("Trying endpoint: {Endpoint}", endpoint);
+                response = await _httpClient.GetAsync(url, cts.Token);
+                
+                content = await response.Content.ReadAsStringAsync();
+                
+                // Check if we got HTML instead of JSON
+                if (content.TrimStart().StartsWith("<!DOCTYPE") || content.TrimStart().StartsWith("<html"))
+                {
+                    _logger.LogWarning("Received HTML instead of JSON for endpoint {Endpoint}", endpoint);
+                    continue;
+                }
+                
+                if (response.IsSuccessStatusCode &&
+                    (content.TrimStart().StartsWith("[") || content.TrimStart().StartsWith("{")))
+                {
+                    usedEndpoint = endpoint;
+                    _logger.LogInformation("Success with endpoint: {Endpoint}", endpoint);
+                    break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Error with endpoint {Endpoint}: {Error}", endpoint, ex.Message);
+            }
+        }
+        
+        // If we're getting HTML content, we're probably pointed at the UI not the API
+        if (content != null && (content.TrimStart().StartsWith("<!DOCTYPE") || content.TrimStart().StartsWith("<html")))
+        {
+            throw new InvalidOperationException(
+                "Received HTML instead of JSON from all endpoints. " +
+                "Your API URL is likely pointing to the Flowise UI instead of the API. " +
+                "Please update your API URL to include '/api/' at the end, e.g. 'http://localhost:3000/api/'"
+            );
+        }
+        
+        if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(usedEndpoint))
+        {
+            throw new InvalidOperationException("Could not get a valid JSON response from any endpoint");
+        }
+        
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            AllowTrailingCommas = true,
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+        
         try
         {
-            ConfigureHttpClient();
-            
-            var settings = await _context.SystemSettings.FirstOrDefaultAsync();
-            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
-            
-            _logger.LogInformation("Requesting chatflows from: {BaseUrl}chatflows", _httpClient.BaseAddress);
-            
-            List<string> endpoints = new List<string> { "chatflows", "api/chatflows", "v1/chatflows", "api/v1/chatflows" };
-            
-            HttpResponseMessage response = null;
-            string content = null;
-            
-            foreach (var endpoint in endpoints)
-            {
-                try
-                {
-                    using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                    
-                    string url = !string.IsNullOrEmpty(apiKey) ? 
-                        $"{endpoint}?apiKey={apiKey}" : endpoint;
-                    
-                    _logger.LogInformation("Trying endpoint: {Endpoint}", url);
-                    response = await _httpClient.GetAsync(url, cts.Token);
-                    
-                    if (response.IsSuccessStatusCode)
-                    {
-                        content = await response.Content.ReadAsStringAsync();
-                        _logger.LogInformation("Successful response from {Endpoint} - content length: {Length}", 
-                            url, content.Length);
-                        break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning("Error trying endpoint {Endpoint}: {Error}", endpoint, ex.Message);
-                }
-            }
-            
-            if (content == null)
-            {
-                _logger.LogWarning("Failed to get chatflows from any endpoint");
-                return Enumerable.Empty<FlowiseChatflow>();
-            }
-            
-            _logger.LogInformation("Received response: {Content}", 
-                content.Length > 100 ? content.Substring(0, 100) + "..." : content);
-            
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            
-            if (content.StartsWith("["))
+            // Direct array format
+            if (content.TrimStart().StartsWith("["))
             {
                 var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(content, options);
-                _logger.LogInformation("Deserialized {Count} chatflows", chatflows?.Count ?? 0);
-                return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+                _logger.LogInformation("Parsed {Count} chatflows from direct array", chatflows?.Count ?? 0);
+                return chatflows ?? new List<FlowiseChatflow>();
             }
-            else if (content.StartsWith("{"))
+            
+            // Object with array property
+            if (content.TrimStart().StartsWith("{"))
             {
-                using JsonDocument doc = JsonDocument.Parse(content);
+                using var doc = JsonDocument.Parse(content);
                 
-                foreach (var propertyName in new[] { "data", "flows", "chatflows", "result", "results" })
+                // Try common property names
+                foreach (var propertyName in new[] { "data", "flows", "chatflows", "result", "results", "items" })
                 {
                     if (doc.RootElement.TryGetProperty(propertyName, out JsonElement dataElement) && 
                         dataElement.ValueKind == JsonValueKind.Array)
                     {
                         var chatflowsJson = dataElement.GetRawText();
                         var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(chatflowsJson, options);
-                        _logger.LogInformation("Deserialized {Count} chatflows from property {Property}", 
+                        _logger.LogInformation("Found {Count} chatflows in '{Property}' property", 
                             chatflows?.Count ?? 0, propertyName);
-                        return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+                        return chatflows ?? new List<FlowiseChatflow>();
                     }
                 }
             }
-            
-            _logger.LogWarning("Could not parse response format: {Content}", 
-                content.Substring(0, Math.Min(100, content.Length)));
-            return Enumerable.Empty<FlowiseChatflow>();
         }
-        catch (Exception ex)
+        catch (JsonException ex)
         {
-            _logger.LogError(ex, "Error fetching Flowise chatflows: {Message}", ex.Message);
-            return Enumerable.Empty<FlowiseChatflow>();
+            _logger.LogError(ex, "JSON parsing error: {Message}", ex.Message);
         }
+        
+        throw new FormatException("Could not parse chatflows from response");
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error fetching Flowise chatflows: {Message}", ex.Message);
+        throw;
+    }
+}
 
     public async Task<bool> UpdateChatbotAsync(Chatbot chatbot)
     {

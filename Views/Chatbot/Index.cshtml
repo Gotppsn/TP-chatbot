@@ -50,6 +50,14 @@
     </div>
 }
 
+@if (TempData["SyncStats"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong><i class="bi bi-info-circle"></i> Sync Results:</strong> @TempData["SyncStats"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="card main-card">
     <div class="card-header">
         <div class="card-header-actions">
@@ -1100,6 +1108,12 @@
             background-color: rgba(220, 53, 69, 0.1);
             border-color: rgba(220, 53, 69, 0.2);
             color: var(--color-danger);
+        }
+        
+        .alert-info {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-color: rgba(13, 110, 253, 0.2);
+            color: var(--color-primary);
         }
         
         .btn-close {

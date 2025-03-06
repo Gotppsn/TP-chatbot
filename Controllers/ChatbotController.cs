@@ -221,38 +221,51 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-                await SyncFlowiseChatbots();
-                TempData["SuccessMessage"] = "Successfully synchronized chatbots with Flowise.";
+                var result = await SyncFlowiseChatbots();
+                
+                if (result.Success)
+                {
+                    TempData["SuccessMessage"] = result.Message;
+                    TempData["SyncStats"] = $"Found: {result.TotalFound}, Added: {result.NewCount}, Updated: {result.UpdatedCount}, Unchanged: {result.UnchangedCount}, Skipped: {result.SkippedCount}";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.Message;
+                }
+                
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during manual Flowise sync");
-                TempData["ErrorMessage"] = "Error synchronizing with Flowise: " + ex.Message;
+                _logger.LogError(ex, "Unexpected error during manual Flowise sync");
+                TempData["ErrorMessage"] = "Unexpected error: " + ex.Message;
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        private async Task SyncFlowiseChatbots()
+        private async Task<SyncResult> SyncFlowiseChatbots()
         {
+            var result = new SyncResult();
+            
             try
             {
                 var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+                
                 if (flowiseChatflows == null || !flowiseChatflows.Any())
                 {
-                    _logger.LogWarning("No chatflows found in Flowise API");
-                    return;
+                    result.Message = "No chatflows found in Flowise API. Check API configuration.";
+                    return result;
                 }
 
-                _logger.LogInformation("Found {Count} chatflows in Flowise", flowiseChatflows.Count());
-                int newCount = 0;
-                int updatedCount = 0;
+                result.TotalFound = flowiseChatflows.Count();
+                _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
                 
                 foreach (var chatflow in flowiseChatflows)
                 {
                     if (string.IsNullOrEmpty(chatflow.Id))
                     {
-                        continue; // Skip invalid chatflows
+                        result.SkippedCount++;
+                        continue;
                     }
                     
                     var existingChatbot = await _context.Chatbots
@@ -260,43 +273,80 @@ namespace AIHelpdeskSupport.Controllers
                     
                     if (existingChatbot == null)
                     {
+                        // Get department settings
+                        var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+                        string defaultDepartment = "General";
+                        string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
+                        
                         // Create new chatbot
                         var newChatbot = new Chatbot
                         {
                             Name = chatflow.Name,
-                            Description = "Imported from Flowise",
+                            Description = "Imported from Flowise - " + DateTime.UtcNow.ToString("yyyy-MM-dd"),
                             FlowiseId = chatflow.Id,
-                            Department = "General",
-                            AiModel = "gpt-3.5-turbo",
+                            Department = defaultDepartment,
+                            AiModel = defaultModel,
                             IsActive = true,
                             CreatedAt = DateTime.UtcNow,
                             CreatedBy = "System-Sync"
                         };
                         
                         _context.Chatbots.Add(newChatbot);
-                        newCount++;
+                        result.NewCount++;
                     }
                     else
                     {
-                        // Update existing chatbot if name changed
+                        // Check if any properties need updating
+                        bool updated = false;
+                        
                         if (existingChatbot.Name != chatflow.Name)
                         {
                             existingChatbot.Name = chatflow.Name;
+                            updated = true;
+                        }
+                        
+                        // Update last sync timestamp
+                        existingChatbot.LastUpdatedAt = DateTime.UtcNow;
+                        
+                        if (updated)
+                        {
                             _context.Chatbots.Update(existingChatbot);
-                            updatedCount++;
+                            result.UpdatedCount++;
+                        }
+                        else
+                        {
+                            result.UnchangedCount++;
                         }
                     }
                 }
                 
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Flowise sync completed: {New} new, {Updated} updated chatbots", 
-                    newCount, updatedCount);
+                
+                result.Success = true;
+                result.Message = $"Sync completed: {result.NewCount} new, {result.UpdatedCount} updated, {result.SkippedCount} skipped chatbots";
+                _logger.LogInformation(result.Message);
             }
             catch (Exception ex)
             {
+                result.Success = false;
+                result.Message = $"Error: {ex.Message}";
+                result.Exception = ex;
                 _logger.LogError(ex, "Error synchronizing Flowise chatbots");
-                throw; // Re-throw to be handled by caller
             }
+            
+            return result;
+        }
+
+        private class SyncResult
+        {
+            public bool Success { get; set; } = false;
+            public int TotalFound { get; set; } = 0;
+            public int NewCount { get; set; } = 0;
+            public int UpdatedCount { get; set; } = 0;
+            public int SkippedCount { get; set; } = 0;
+            public int UnchangedCount { get; set; } = 0;
+            public string Message { get; set; } = string.Empty;
+            public Exception Exception { get; set; } = null;
         }
 
         private async Task<bool> ChatbotExists(int id)
