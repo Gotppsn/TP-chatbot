@@ -1,7 +1,7 @@
-// Services/FlowiseService.cs
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using AIHelpdeskSupport.Data;
 using AIHelpdeskSupport.Models;
 using Microsoft.EntityFrameworkCore;
@@ -29,43 +29,65 @@ public class FlowiseService : IFlowiseService
         ConfigureHttpClient();
     }
     
-private void ConfigureHttpClient()
-{
-    // Get latest settings from configuration to ensure we have current values
-    string apiUrl = _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/";
-    
-    // Ensure URL ends with a trailing slash
-    if (!string.IsNullOrEmpty(apiUrl) && !apiUrl.EndsWith("/"))
+    private void ConfigureHttpClient()
     {
-        apiUrl += "/";
-    }
-    
-    _httpClient.BaseAddress = new Uri(apiUrl);
-    _httpClient.DefaultRequestHeaders.Accept.Clear();
-    _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        try {
+            // Get latest settings from configuration
+            string apiUrl = _configuration["Flowise:ApiUrl"] ?? "";
+            string apiKey = _configuration["Flowise:ApiKey"] ?? "";
+            
+            // Validate URL
+            if (string.IsNullOrWhiteSpace(apiUrl))
+            {
+                _logger.LogWarning("Flowise API URL is empty");
+                apiUrl = "http://localhost:3000/api/";
+            }
+            
+            // Ensure URL ends with a trailing slash
+            if (!apiUrl.EndsWith("/"))
+            {
+                apiUrl += "/";
+            }
+            
+            // Set base address if different
+            if (_httpClient.BaseAddress == null || _httpClient.BaseAddress.ToString() != apiUrl)
+            {
+                _httpClient.BaseAddress = new Uri(apiUrl);
+            }
+            
+            // Clear and set headers
+            _httpClient.DefaultRequestHeaders.Accept.Clear();
+            _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-    // Clear existing auth headers to prevent duplicates
-    if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-    {
-        _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            // Clear existing auth headers
+            if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            }
+            
+            if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("x-api-key");
+            }
+            
+            // Add API key if provided
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                _logger.LogInformation("Added API key to HTTP client headers");
+            }
+            else
+            {
+                _logger.LogWarning("No API key provided for Flowise");
+            }
+            
+            _logger.LogInformation("HTTP client configured with URL: {ApiUrl}", apiUrl);
+        }
+        catch (Exception ex) {
+            _logger.LogError(ex, "Error configuring HTTP client");
+        }
     }
-    
-    if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
-    {
-        _httpClient.DefaultRequestHeaders.Remove("x-api-key");
-    }
-    
-    // Add API key if configured
-    string apiKey = _configuration["Flowise:ApiKey"];
-    if (!string.IsNullOrEmpty(apiKey))
-    {
-        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-        _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-    }
-    
-    _logger.LogInformation("Configured HttpClient with URL: {ApiUrl}, Key present: {KeyPresent}", 
-        apiUrl, !string.IsNullOrEmpty(apiKey));
-}
 
     public async Task<IEnumerable<Chatbot>> GetAllChatbotsAsync()
     {
@@ -113,8 +135,9 @@ private void ConfigureHttpClient()
             _logger.LogInformation("Sending request to Flowise API: {Endpoint} with chatId: {ChatId}", 
                 _httpClient.BaseAddress + "prediction", chatbot.FlowiseId);
 
-            // Send request to Flowise
-            var response = await _httpClient.PostAsJsonAsync("prediction", payload);
+            // Send request to Flowise with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var response = await _httpClient.PostAsJsonAsync("prediction", payload, cts.Token);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -160,8 +183,11 @@ private void ConfigureHttpClient()
             
             _logger.LogInformation("Testing Flowise connection to {BaseAddress}", _httpClient.BaseAddress);
             
-            // Try the health endpoint first
-            var response = await _httpClient.GetAsync("health");
+            // Try the health endpoint first with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            
+            // Try the health endpoint
+            var response = await _httpClient.GetAsync("health", cts.Token);
             
             if (response.IsSuccessStatusCode)
             {
@@ -172,7 +198,7 @@ private void ConfigureHttpClient()
             _logger.LogWarning("Flowise health endpoint check failed with status code {StatusCode}", response.StatusCode);
             
             // Try the root endpoint as a fallback
-            response = await _httpClient.GetAsync("");
+            response = await _httpClient.GetAsync("", cts.Token);
             
             bool success = response.IsSuccessStatusCode;
             
@@ -189,49 +215,98 @@ private void ConfigureHttpClient()
             
             return success;
         }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP Request exception during Flowise connection test: {Message}", ex.Message);
+            return false;
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Timeout during Flowise connection test");
+            return false;
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception during Flowise connection test");
+            _logger.LogError(ex, "Unexpected exception during Flowise connection test: {Message}", ex.Message);
             return false;
         }
     }
     
-public async Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync()
-{
-    try
+    public async Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync()
     {
-        // Always configure HTTP client before making request
-        ConfigureHttpClient();
-        
-        // Call the chatflows endpoint
-        var response = await _httpClient.GetAsync("chatflows");
-        
-        // Log the response for debugging
-        var content = await response.Content.ReadAsStringAsync();
-        _logger.LogInformation("Chatflows response: {StatusCode}, Content: {Content}", 
-            response.StatusCode, content);
-            
-        if (!response.IsSuccessStatusCode)
+        try
         {
-            _logger.LogWarning("Failed to fetch chatflows: {StatusCode}", response.StatusCode);
+            // Always configure HTTP client before each request
+            ConfigureHttpClient();
+            
+            // Log request before sending
+            _logger.LogInformation("Requesting chatflows from: {BaseUrl}chatflows", _httpClient.BaseAddress);
+            
+            // Call the chatflows endpoint with timeout
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            var response = await _httpClient.GetAsync("chatflows", cts.Token);
+            
+            // Detailed logging for debugging
+            var content = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Chatflows response: Status={StatusCode}, Content length={Length}", 
+                response.StatusCode, content?.Length ?? 0);
+                
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("Failed to fetch chatflows: {StatusCode}, Error={Content}", 
+                    response.StatusCode, content);
+                return Enumerable.Empty<FlowiseChatflow>();
+            }
+            
+            var options = new JsonSerializerOptions { 
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+            
+            // Handle both array and object responses
+            if (content.StartsWith("["))
+            {
+                var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(content, options);
+                return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+            }
+            else if (content.StartsWith("{"))
+            {
+                // Some Flowise versions return { data: [...] } format
+                using JsonDocument doc = JsonDocument.Parse(content);
+                if (doc.RootElement.TryGetProperty("data", out JsonElement dataElement) && 
+                    dataElement.ValueKind == JsonValueKind.Array)
+                {
+                    var chatflowsJson = dataElement.GetRawText();
+                    var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(chatflowsJson, options);
+                    return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+                }
+            }
+            
+            _logger.LogWarning("Unexpected response format from Flowise API");
             return Enumerable.Empty<FlowiseChatflow>();
         }
-        
-        var options = new JsonSerializerOptions { 
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase 
-        };
-        
-        var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(content, options);
-        
-        return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "HTTP request error fetching Flowise chatflows: {Message}", ex.Message);
+            return Enumerable.Empty<FlowiseChatflow>();
+        }
+        catch (TaskCanceledException ex)
+        {
+            _logger.LogError(ex, "Request timeout while fetching Flowise chatflows");
+            return Enumerable.Empty<FlowiseChatflow>();
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "JSON parsing error in Flowise chatflows response");
+            return Enumerable.Empty<FlowiseChatflow>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error fetching Flowise chatflows: {Message}", ex.Message);
+            return Enumerable.Empty<FlowiseChatflow>();
+        }
     }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error fetching Flowise chatflows");
-        return Enumerable.Empty<FlowiseChatflow>();
-    }
-}
 }
 
 public class FlowiseChatflow
@@ -240,4 +315,7 @@ public class FlowiseChatflow
     public string Name { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
+    
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement>? AdditionalProperties { get; set; }
 }

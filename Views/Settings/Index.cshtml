@@ -624,60 +624,79 @@
           });
           
           // Get Chatflows
-          document.getElementById('getChatflows').addEventListener('click', async function() {
-              const chatflowsContainer = document.getElementById('chatflowsList');
-              chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
-              
-              try {
-                  // First save current settings
-                  const form = document.getElementById('flowiseApiForm');
-                  const formData = new FormData(form);
-                  
-                  const saveResponse = await fetch('/Settings/SaveApiSettings', {
-                      method: 'POST',
-                      body: formData
-                  });
-                  
-                  if (!saveResponse.ok) {
-                      const errorText = await saveResponse.text();
-                      throw new Error(`Failed to save API settings: ${saveResponse.status} - ${errorText}`);
-                  }
-                  
-                  // Wait a moment to ensure settings propagate
-                  await new Promise(resolve => setTimeout(resolve, 800));
-                  
-                  // Fetch chatflows with fresh settings
-                  const response = await fetch('/api/test/chatflows');
-                  if (!response.ok) {
-                      const errorText = await response.text();
-                      throw new Error(`HTTP error: ${response.status} - ${errorText}`);
-                  }
-                  
-                  const result = await response.json();
-                  console.log('Chatflows response:', result);
-                  
-                  if (result.success && result.data && result.data.length > 0) {
-                      let html = '<ul class="list-group" style="display: block;">';
-                      result.data.forEach(flow => {
-                          const date = new Date(flow.updatedAt || flow.createdAt).toLocaleDateString();
-                          html += `<li class="list-group-item d-flex justify-content-between align-items-center">
-                              ${flow.name}
-                              <div>
-                                  <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id}</span>
-                                  <small class="text-muted ms-2">${date}</small>
-                              </div>
-                          </li>`;
-                      });
-                      html += '</ul>';
-                      chatflowsContainer.innerHTML = html;
-                  } else {
-                      chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed.</div>';
-                  }
-              } catch (error) {
-                  chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>`;
-                  console.error('Error fetching chatflows:', error);
-              }
-          });
+document.getElementById('getChatflows').addEventListener('click', async function() {
+    const chatflowsContainer = document.getElementById('chatflowsList');
+    chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Loading chatflows...';
+    
+    try {
+        // First save current settings
+        const form = document.getElementById('flowiseApiForm');
+        const formData = new FormData(form);
+        
+        // Log values for debug
+        console.log('Saving API settings first...');
+        console.log('FlowiseApiUrl:', formData.get('FlowiseApiUrl'));
+        console.log('FlowiseApiKey present:', formData.get('FlowiseApiKey') ? 'Yes' : 'No');
+
+        const saveResponse = await fetch('/Settings/SaveApiSettings', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'RequestVerificationToken': form.querySelector('input[name="__RequestVerificationToken"]').value
+            }
+        });
+        
+        if (!saveResponse.ok) {
+            throw new Error(`Failed to save API settings: ${saveResponse.status}`);
+        }
+        
+        // Wait to ensure settings propagate
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Clear any previous data
+        chatflowsContainer.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Fetching chatflows...';
+        
+        // Add timestamp to prevent caching
+        const timestamp = new Date().getTime();
+        const response = await fetch(`/api/test/chatflows?_=${timestamp}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP error: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        console.log('Chatflows response:', result);
+        
+        if (result.success && result.data && result.data.length > 0) {
+            let html = '<ul class="list-group" style="display: block;">';
+            result.data.forEach(flow => {
+                const date = new Date(flow.updatedAt || flow.createdAt || Date.now()).toLocaleDateString();
+                html += `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${flow.name || 'Unnamed Flow'}
+                    <div>
+                        <span class="badge bg-primary rounded-pill" title="Flow ID">${flow.id || 'No ID'}</span>
+                        <small class="text-muted ms-2">${date}</small>
+                    </div>
+                </li>`;
+            });
+            html += '</ul>';
+            chatflowsContainer.innerHTML = html;
+        } else {
+            chatflowsContainer.innerHTML = '<div class="alert alert-warning">No chatflows found or API connection failed. Check console for details.</div>';
+        }
+    } catch (error) {
+        console.error('Error fetching chatflows:', error);
+        chatflowsContainer.innerHTML = `<div class="alert alert-danger">Error: ${error.message}</div>
+            <div class="small text-muted mt-2">Check browser console and server logs for details.</div>`;
+    }
+});
 
 document.querySelector('button.btn.btn-primary').addEventListener('click', async function(e) {
     e.preventDefault();
