@@ -32,7 +32,7 @@ public class FlowiseService : IFlowiseService
     private void ConfigureHttpClient()
     {
         try {
-            // Get latest settings from database instead of configuration
+            // Get latest settings from database
             var settings = _context.SystemSettings.FirstOrDefault();
             string apiUrl = settings?.FlowiseApiUrl ?? _configuration["Flowise:ApiUrl"] ?? "";
             string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
@@ -40,7 +40,7 @@ public class FlowiseService : IFlowiseService
             // Validate URL
             if (string.IsNullOrWhiteSpace(apiUrl))
             {
-                _logger.LogWarning("Flowise API URL is empty");
+                _logger.LogError("Flowise API URL is empty - API calls will fail");
                 apiUrl = "http://localhost:3000/api/";
             }
             
@@ -50,40 +50,28 @@ public class FlowiseService : IFlowiseService
                 apiUrl += "/";
             }
             
-            // Set base address if different
-            if (_httpClient.BaseAddress == null || _httpClient.BaseAddress.ToString() != apiUrl)
-            {
-                _httpClient.BaseAddress = new Uri(apiUrl);
-            }
+            // Set base address
+            _httpClient.BaseAddress = new Uri(apiUrl);
             
-            // Clear and set headers
+            // Clear all existing headers to prevent conflicts
+            _httpClient.DefaultRequestHeaders.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            // Clear existing auth headers
-            if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("Authorization");
-            }
             
-            if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
-            {
-                _httpClient.DefaultRequestHeaders.Remove("x-api-key");
-            }
-            
-            // Add API key if provided
+            // Add API key in ALL possible formats Flowise might expect
             if (!string.IsNullOrEmpty(apiKey))
             {
                 _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
                 _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
-                _logger.LogInformation("Added API key to HTTP client headers");
+                _httpClient.DefaultRequestHeaders.Add("apiKey", apiKey);
+                
+                _logger.LogInformation("Added API authentication headers with key: {KeyPrefix}", 
+                    apiKey.Length > 4 ? apiKey.Substring(0, 4) + "..." : "[empty]");
             }
             else
             {
-                _logger.LogWarning("No API key provided for Flowise");
+                _logger.LogWarning("No API key provided for Flowise - authentication will likely fail");
             }
-            
-            _logger.LogInformation("HTTP client configured with URL: {ApiUrl}", apiUrl);
         }
         catch (Exception ex) {
             _logger.LogError(ex, "Error configuring HTTP client");
@@ -121,6 +109,10 @@ public class FlowiseService : IFlowiseService
             if (string.IsNullOrEmpty(chatbot.FlowiseId))
                 return "Chatbot has no Flowise ID configured";
 
+            // Get API key for direct URL parameter use
+            var settings = _context.SystemSettings.FirstOrDefault();
+            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+            
             // Create request payload
             var payload = new
             {
@@ -138,7 +130,16 @@ public class FlowiseService : IFlowiseService
 
             // Send request to Flowise with timeout
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            var response = await _httpClient.PostAsJsonAsync("prediction", payload, cts.Token);
+            HttpResponseMessage response;
+            
+            // Try with headers first
+            response = await _httpClient.PostAsJsonAsync("prediction", payload, cts.Token);
+            
+            // If unauthorized, try with query parameter
+            if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
+            {
+                response = await _httpClient.PostAsJsonAsync($"prediction?apiKey={apiKey}", payload, cts.Token);
+            }
 
             if (!response.IsSuccessStatusCode)
             {
@@ -184,11 +185,21 @@ public class FlowiseService : IFlowiseService
             
             _logger.LogInformation("Testing Flowise connection to {BaseAddress}", _httpClient.BaseAddress);
             
+            // Get API key for URL parameter
+            var settings = _context.SystemSettings.FirstOrDefault();
+            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+            
             // Try the health endpoint first with timeout
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             
-            // Try the health endpoint
+            // Try the health endpoint with headers first
             var response = await _httpClient.GetAsync("health", cts.Token);
+            
+            // If that fails with auth error, try with query parameter
+            if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
+            {
+                response = await _httpClient.GetAsync($"health?apiKey={apiKey}", cts.Token);
+            }
             
             if (response.IsSuccessStatusCode)
             {
@@ -200,6 +211,12 @@ public class FlowiseService : IFlowiseService
             
             // Try the root endpoint as a fallback
             response = await _httpClient.GetAsync("", cts.Token);
+            
+            // If that fails with auth error, try with query parameter
+            if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
+            {
+                response = await _httpClient.GetAsync($"?apiKey={apiKey}", cts.Token);
+            }
             
             bool success = response.IsSuccessStatusCode;
             
@@ -240,12 +257,32 @@ public class FlowiseService : IFlowiseService
             // Always configure HTTP client before each request
             ConfigureHttpClient();
             
+            // Get API key for URL parameter
+            var settings = _context.SystemSettings.FirstOrDefault();
+            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+            
             // Log request before sending
             _logger.LogInformation("Requesting chatflows from: {BaseUrl}chatflows", _httpClient.BaseAddress);
             
             // Call the chatflows endpoint with timeout
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            
+            // Try with headers first
             var response = await _httpClient.GetAsync("chatflows", cts.Token);
+            
+            // If that fails with auth error, try with query parameter
+            if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
+            {
+                _logger.LogInformation("Auth failed with headers, trying with URL parameter");
+                response = await _httpClient.GetAsync($"chatflows?apiKey={apiKey}", cts.Token);
+            }
+            
+            // If that fails, try v1 endpoint with query param
+            if (!response.IsSuccessStatusCode && !string.IsNullOrEmpty(apiKey))
+            {
+                _logger.LogInformation("Trying v1 endpoint");
+                response = await _httpClient.GetAsync($"v1/chatflows?apiKey={apiKey}", cts.Token);
+            }
             
             // Detailed logging for debugging
             var content = await response.Content.ReadAsStringAsync();
@@ -276,6 +313,20 @@ public class FlowiseService : IFlowiseService
                 // Some Flowise versions return { data: [...] } format
                 using JsonDocument doc = JsonDocument.Parse(content);
                 if (doc.RootElement.TryGetProperty("data", out JsonElement dataElement) && 
+                    dataElement.ValueKind == JsonValueKind.Array)
+                {
+                    var chatflowsJson = dataElement.GetRawText();
+                    var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(chatflowsJson, options);
+                    return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+                }
+                else if (doc.RootElement.TryGetProperty("flows", out dataElement) && 
+                    dataElement.ValueKind == JsonValueKind.Array)
+                {
+                    var chatflowsJson = dataElement.GetRawText();
+                    var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(chatflowsJson, options);
+                    return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+                }
+                else if (doc.RootElement.TryGetProperty("chatflows", out dataElement) && 
                     dataElement.ValueKind == JsonValueKind.Array)
                 {
                     var chatflowsJson = dataElement.GetRawText();

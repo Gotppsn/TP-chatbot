@@ -134,44 +134,51 @@ namespace AIHelpdeskSupport.Controllers
           return RedirectToAction(nameof(Index));
       }
 
-      [HttpPost]
-      public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string FlowiseApiKey)
-      {
-          try
-          {
-              var settings = await _settingsService.GetSettingsAsync();
-              
-              settings.FlowiseApiUrl = !string.IsNullOrEmpty(FlowiseApiUrl) 
-                  ? FlowiseApiUrl.TrimEnd('/') + "/" 
-                  : "";
-              
-              settings.FlowiseApiKey = FlowiseApiKey ?? "";
-              
-              var userId = _userManager.GetUserId(User);
-              bool saveResult = await _settingsService.UpdateSettingsAsync(settings, userId);
-              
-              if (!saveResult)
-              {
-                  TempData["ErrorMessage"] = "Failed to save settings to database.";
-                  return RedirectToAction(nameof(Index));
-              }
-              
-              UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
-              UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
-
-              // Reset the HttpClient in FlowiseService to pick up new settings
-              await _flowiseService.TestFlowiseConnectionAsync();
-
-              TempData["SuccessMessage"] = "API settings saved successfully!";
-              return RedirectToAction(nameof(Index));
-          }
-          catch (Exception ex)
-          {
-              _logger.LogError(ex, "Error saving API settings");
-              TempData["ErrorMessage"] = $"Error: {ex.Message}";
-              return RedirectToAction(nameof(Index));
-          }
-      }
+[HttpPost]
+public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string FlowiseApiKey)
+{
+    try
+    {
+        var settings = await _settingsService.GetSettingsAsync();
+        
+        // Normalize API URL format
+        if (!string.IsNullOrEmpty(FlowiseApiUrl))
+        {
+            FlowiseApiUrl = FlowiseApiUrl.TrimEnd('/') + "/";
+        }
+        
+        settings.FlowiseApiUrl = FlowiseApiUrl;
+        settings.FlowiseApiKey = FlowiseApiKey ?? "";
+        
+        var userId = _userManager.GetUserId(User);
+        bool saveResult = await _settingsService.UpdateSettingsAsync(settings, userId);
+        
+        if (!saveResult)
+        {
+            return StatusCode(500, new { success = false, message = "Failed to save settings to database." });
+        }
+        
+        // Update runtime configuration
+        UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
+        UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
+        
+        // Reset the FlowiseService HTTP client
+        _flowiseService.TestFlowiseConnectionAsync().Wait();
+        
+        return Ok(new 
+        { 
+            success = true,
+            message = "API settings saved successfully.",
+            apiUrl = settings.FlowiseApiUrl,
+            hasApiKey = !string.IsNullOrEmpty(settings.FlowiseApiKey)
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error saving API settings");
+        return StatusCode(500, new { success = false, message = $"Error: {ex.Message}" });
+    }
+}
 
       // Simplified method to update configuration
       private void UpdateConfiguration(string key, string value)

@@ -194,6 +194,45 @@ namespace AIHelpdeskSupport.Controllers
                });
            }
        }
+       [HttpGet("test-url")]
+public async Task<IActionResult> TestUrl([FromQuery] string url)
+{
+    try
+    {
+        if (string.IsNullOrEmpty(url))
+            return BadRequest(new { success = false, message = "URL parameter is required" });
+
+        _logger.LogInformation("Testing direct URL: {Url}", url);
+        
+        using var httpClient = new HttpClient();
+        httpClient.Timeout = TimeSpan.FromSeconds(15);
+        
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        var response = await httpClient.GetAsync(url, cts.Token);
+        
+        var content = await response.Content.ReadAsStringAsync();
+        string truncatedContent = content.Length > 500 ? content.Substring(0, 500) + "..." : content;
+        
+        return Ok(new { 
+            success = response.IsSuccessStatusCode,
+            statusCode = (int)response.StatusCode,
+            statusMessage = response.StatusCode.ToString(),
+            contentLength = content.Length,
+            contentPreview = truncatedContent,
+            headers = response.Headers.ToDictionary(h => h.Key, h => h.Value)
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error testing URL {Url}", url);
+        return StatusCode(500, new { 
+            success = false, 
+            error = ex.Message,
+            errorType = ex.GetType().Name,
+            url = url
+        });
+    }
+}
    }
    
    public class FlowiseSettingsDto
