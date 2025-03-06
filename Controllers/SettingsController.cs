@@ -1,4 +1,3 @@
-// Controllers/SettingsController.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,71 +134,71 @@ namespace AIHelpdeskSupport.Controllers
           return RedirectToAction(nameof(Index));
       }
 
-[HttpPost]
-public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string FlowiseApiKey)
-{
-    try
-    {
-        var settings = await _settingsService.GetSettingsAsync();
-        
-        settings.FlowiseApiUrl = !string.IsNullOrEmpty(FlowiseApiUrl) 
-            ? FlowiseApiUrl.TrimEnd('/') + "/" 
-            : "";
-        
-        settings.FlowiseApiKey = FlowiseApiKey ?? "";
-        
-        var userId = _userManager.GetUserId(User);
-        bool saveResult = await _settingsService.UpdateSettingsAsync(settings, userId);
-        
-        if (!saveResult)
-        {
-            TempData["ErrorMessage"] = "Failed to save settings to database.";
-            return RedirectToAction(nameof(Index));
-        }
-        
-        UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
-        UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
+      [HttpPost]
+      public async Task<IActionResult> SaveApiSettings(string FlowiseApiUrl, string FlowiseApiKey)
+      {
+          try
+          {
+              var settings = await _settingsService.GetSettingsAsync();
+              
+              settings.FlowiseApiUrl = !string.IsNullOrEmpty(FlowiseApiUrl) 
+                  ? FlowiseApiUrl.TrimEnd('/') + "/" 
+                  : "";
+              
+              settings.FlowiseApiKey = FlowiseApiKey ?? "";
+              
+              var userId = _userManager.GetUserId(User);
+              bool saveResult = await _settingsService.UpdateSettingsAsync(settings, userId);
+              
+              if (!saveResult)
+              {
+                  TempData["ErrorMessage"] = "Failed to save settings to database.";
+                  return RedirectToAction(nameof(Index));
+              }
+              
+              UpdateConfiguration("Flowise:ApiUrl", settings.FlowiseApiUrl);
+              UpdateConfiguration("Flowise:ApiKey", settings.FlowiseApiKey);
 
-        TempData["SuccessMessage"] = "API settings saved successfully!";
-        return RedirectToAction(nameof(Index));
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error saving API settings");
-        TempData["ErrorMessage"] = $"Error: {ex.Message}";
-        return RedirectToAction(nameof(Index));
-    }
-}
+              TempData["SuccessMessage"] = "API settings saved successfully!";
+              return RedirectToAction(nameof(Index));
+          }
+          catch (Exception ex)
+          {
+              _logger.LogError(ex, "Error saving API settings");
+              TempData["ErrorMessage"] = $"Error: {ex.Message}";
+              return RedirectToAction(nameof(Index));
+          }
+      }
 
-// Simplified method to update configuration
-private void UpdateConfiguration(string key, string value)
-{
-   try
-   {
-       // Use reflection to update configuration
-       var configuration = (IConfigurationRoot)_configuration;
-       var memoryConfigProvider = configuration.Providers
-           .FirstOrDefault(p => p.GetType().Name == "MemoryConfigurationProvider");
-           
-       if (memoryConfigProvider != null)
-       {
-           Type providerType = memoryConfigProvider.GetType();
-           var data = providerType.GetProperty("Data", 
-               System.Reflection.BindingFlags.Instance | 
-               System.Reflection.BindingFlags.NonPublic)?.GetValue(memoryConfigProvider) as IDictionary<string, string>;
-               
-           if (data != null)
-           {
-               data[key] = value;
-               _logger.LogInformation("Updated runtime configuration for {Key}", key);
-           }
-       }
-   }
-   catch (Exception ex)
-   {
-       _logger.LogError(ex, "Failed to update runtime configuration for {Key}", key);
-   }
-}
+      // Simplified method to update configuration
+      private void UpdateConfiguration(string key, string value)
+      {
+         try
+         {
+             // Use reflection to update configuration
+             var configuration = (IConfigurationRoot)_configuration;
+             var memoryConfigProvider = configuration.Providers
+                 .FirstOrDefault(p => p.GetType().Name == "MemoryConfigurationProvider");
+                 
+             if (memoryConfigProvider != null)
+             {
+                 Type providerType = memoryConfigProvider.GetType();
+                 var data = providerType.GetProperty("Data", 
+                     System.Reflection.BindingFlags.Instance | 
+                     System.Reflection.BindingFlags.NonPublic)?.GetValue(memoryConfigProvider) as IDictionary<string, string>;
+                     
+                 if (data != null)
+                 {
+                     data[key] = value;
+                     _logger.LogInformation("Updated runtime configuration for {Key}", key);
+                 }
+             }
+         }
+         catch (Exception ex)
+         {
+             _logger.LogError(ex, "Failed to update runtime configuration for {Key}", key);
+         }
+      }
 
       [HttpPost]
       [ValidateAntiForgeryToken]

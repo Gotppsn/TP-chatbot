@@ -184,7 +184,7 @@ public class FlowiseService : IFlowiseService
             _logger.LogInformation("Testing Flowise connection to {BaseAddress}", _httpClient.BaseAddress);
             
             // Try the health endpoint first with timeout
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             
             // Try the health endpoint
             var response = await _httpClient.GetAsync("health", cts.Token);
@@ -243,7 +243,7 @@ public class FlowiseService : IFlowiseService
             _logger.LogInformation("Requesting chatflows from: {BaseUrl}chatflows", _httpClient.BaseAddress);
             
             // Call the chatflows endpoint with timeout
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             var response = await _httpClient.GetAsync("chatflows", cts.Token);
             
             // Detailed logging for debugging
@@ -307,6 +307,21 @@ public class FlowiseService : IFlowiseService
             return Enumerable.Empty<FlowiseChatflow>();
         }
     }
+
+    public async Task<bool> UpdateChatbotAsync(Chatbot chatbot)
+{
+    try
+    {
+        _context.Entry(chatbot).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error updating chatbot {ChatbotId}", chatbot.Id);
+        return false;
+    }
+}
 }
 
 public class FlowiseChatflow
