@@ -4,23 +4,53 @@ using AIHelpdeskSupport.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using System;
+using AIHelpdeskSupport.Data;
 
 namespace AIHelpdeskSupport.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ChatbotController : Controller
     {
         private readonly IFlowiseService _flowiseService;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<ChatbotController> _logger;
 
-        public ChatbotController(IFlowiseService flowiseService)
+        public ChatbotController(
+            IFlowiseService flowiseService,
+            ApplicationDbContext context,
+            ILogger<ChatbotController> logger)
         {
             _flowiseService = flowiseService;
+            _context = context;
+            _logger = logger;
         }
 
-        // Changed from async to sync since we're using sample data
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var sampleChatbots = GetSampleChatbots();
-            return View(sampleChatbots);
+            try
+            {
+                var chatbots = await _context.Chatbots
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+
+                if (!chatbots.Any())
+                {
+                    await SyncFlowiseChatbots();
+                    chatbots = await _context.Chatbots
+                        .OrderByDescending(c => c.CreatedAt)
+                        .ToListAsync();
+                }
+
+                return View(chatbots);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching chatbots for Index view");
+                return View(new List<Chatbot>());
+            }
         }
 
         public IActionResult Create()
@@ -34,75 +64,51 @@ namespace AIHelpdeskSupport.Controllers
         {
             if (ModelState.IsValid)
             {
-                // This is properly async because it actually uses await
-                await _flowiseService.CreateChatbotAsync(chatbot);
+                chatbot.CreatedAt = DateTime.UtcNow;
+                chatbot.CreatedBy = User.Identity.Name ?? "Admin";
+                
+                // Set default values if not provided
+                chatbot.Department ??= "General";
+                chatbot.AiModel ??= "gpt-3.5-turbo";
+                
+                _context.Chatbots.Add(chatbot);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = "Chatbot created successfully.";
                 return RedirectToAction(nameof(Index));
             }
             return View(chatbot);
         }
 
-        // Changed from async to sync since we're using sample data
-        public IActionResult Test(int id)
+        public async Task<IActionResult> Test(int id)
         {
-            var chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id) ?? new Chatbot
+            var chatbot = await _context.Chatbots.FindAsync(id);
+            
+            if (chatbot == null)
             {
-                Id = id,
-                Name = "Test Chatbot",
-                Department = "Customer Support",
-                AiModel = "GPT-4"
-            };
+                return NotFound();
+            }
 
             return View(chatbot);
         }
 
-        private List<Chatbot> GetSampleChatbots()
-        {
-            return new List<Chatbot>
-            {
-                new Chatbot { Id = 1, Name = "Customer Support Bot", Department = "Customer Service", AiModel = "GPT-4", IsActive = true, Description = "Handles general product inquiries and helps customers troubleshoot common issues." },
-                new Chatbot { Id = 2, Name = "IT Helper", Department = "IT Support", AiModel = "Claude 3 Opus", IsActive = true, Description = "Provides technical assistance for internal staff, with expertise in network and software issues." },
-                new Chatbot { Id = 3, Name = "Sales Assistant", Department = "Sales", AiModel = "GPT-3.5 Turbo", IsActive = true, Description = "Assists potential customers with product information and helps qualify leads for the sales team." },
-                new Chatbot { Id = 4, Name = "Billing Support", Department = "Billing", AiModel = "Claude 3 Sonnet", IsActive = true, Description = "Helps customers with invoice questions, payment processing, and account information." },
-                new Chatbot { Id = 5, Name = "Technical Support", Department = "Technical", AiModel = "GPT-4", IsActive = true, Description = "Provides detailed technical support for complex product issues and integration assistance." },
-                new Chatbot { Id = 6, Name = "Operations Bot", Department = "Operations", AiModel = "GPT-3.5 Turbo", IsActive = false, Description = "Assists internal team with operational tasks and process management (currently undergoing updates)." }
-            };
-        }
-
-        // Add this to your existing ChatbotController.cs
         public async Task<IActionResult> Edit(int id)
         {
             try
             {
-                // Try to get the chatbot from the service
-                var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
+                var chatbot = await _context.Chatbots.FindAsync(id);
 
-                // If not found, create an example chatbot for demonstration
                 if (chatbot == null)
                 {
-                    // Create a sample chatbot for front-end development
-                    chatbot = new Chatbot
-                    {
-                        Id = id,
-                        Name = "Customer Support Bot",
-                        Department = "Customer Service", // Ensure Department is not null
-                        AiModel = "GPT-4",
-                        Description = "Sample description for front-end development",
-                        IsActive = true,
-                        CreatedAt = DateTime.Now,
-                        CreatedBy = "Admin"
-                    };
+                    return NotFound();
                 }
 
                 return View(chatbot);
             }
             catch (Exception ex)
             {
-                // Log the exception
-                return View(new Chatbot
-                {
-                    Id = id,
-                    Department = "Customer Service" // Default Department to prevent null reference
-                });
+                _logger.LogError(ex, "Error getting chatbot {Id} for edit", id);
+                return RedirectToAction(nameof(Index));
             }
         }
 
@@ -119,35 +125,36 @@ namespace AIHelpdeskSupport.Controllers
             {
                 try
                 {
-                    // Update chatbot
-                    // Since we don't have a proper update method in the current service,
-                    // we'd normally update the chatbot here
-
-                    // For demonstration purposes, we'll update the chatbot in our sample data
-                    var chatbots = GetSampleChatbots().ToList();
-                    var existingChatbot = chatbots.FirstOrDefault(c => c.Id == id);
-
-                    if (existingChatbot != null)
+                    // Preserve original creation data
+                    var originalChatbot = await _context.Chatbots
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(c => c.Id == id);
+                        
+                    if (originalChatbot != null)
                     {
-                        // Update properties
-                        existingChatbot.Name = chatbot.Name;
-                        existingChatbot.Department = chatbot.Department;
-                        existingChatbot.AiModel = chatbot.AiModel;
-                        existingChatbot.Description = chatbot.Description;
-                        existingChatbot.SystemPrompt = chatbot.SystemPrompt;
-                        existingChatbot.IsActive = chatbot.IsActive;
-                        existingChatbot.FlowiseId = chatbot.FlowiseId;
-
-                        // In a real implementation, you would call a service method:
-                        // await _flowiseService.UpdateChatbotAsync(chatbot);
+                        chatbot.CreatedAt = originalChatbot.CreatedAt;
+                        chatbot.CreatedBy = originalChatbot.CreatedBy;
                     }
-
-                    // Redirect to index
+                    
+                    _context.Update(chatbot);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = "Chatbot updated successfully.";
                     return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
+                    if (!await ChatbotExists(id))
+                    {
+                        return NotFound();
+                    }
+                    
+                    ModelState.AddModelError("", "The record was modified by another user.");
                 }
                 catch (Exception ex)
                 {
-                    // Log the error
+                    _logger.LogError(ex, "Error updating chatbot {Id}", id);
                     ModelState.AddModelError("", "An error occurred while updating the chatbot.");
                 }
             }
@@ -161,19 +168,22 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-                // Delete chatbot
-                // Since we don't have a proper delete method in the current service,
-                // we'd normally delete the chatbot here
+                var chatbot = await _context.Chatbots.FindAsync(id);
+                if (chatbot == null)
+                {
+                    return NotFound();
+                }
 
-                // For demonstration purposes, we'll just redirect
-                // In a real implementation, you would call:
-                // await _flowiseService.DeleteChatbotAsync(id);
-
+                _context.Chatbots.Remove(chatbot);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = "Chatbot deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                // Log the error
+                _logger.LogError(ex, "Error deleting chatbot {Id}", id);
+                TempData["ErrorMessage"] = "Error deleting chatbot.";
                 return RedirectToAction(nameof(Index));
             }
         }
@@ -184,27 +194,114 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-                var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
-
+                var chatbot = await _context.Chatbots.FindAsync(id);
+                
                 if (chatbot == null)
                 {
                     return NotFound();
                 }
 
-                // Toggle status
                 chatbot.IsActive = !chatbot.IsActive;
-
-                // Update chatbot
-                // In a real implementation, you would call:
-                // await _flowiseService.UpdateChatbotAsync(chatbot);
-
+                _context.Update(chatbot);
+                await _context.SaveChangesAsync();
+                
+                TempData["SuccessMessage"] = $"Chatbot {(chatbot.IsActive ? "activated" : "deactivated")} successfully.";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                // Log the error
+                _logger.LogError(ex, "Error toggling status for chatbot {Id}", id);
+                TempData["ErrorMessage"] = "Error updating chatbot status.";
                 return RedirectToAction(nameof(Index));
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SyncWithFlowise()
+        {
+            try
+            {
+                await SyncFlowiseChatbots();
+                TempData["SuccessMessage"] = "Successfully synchronized chatbots with Flowise.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during manual Flowise sync");
+                TempData["ErrorMessage"] = "Error synchronizing with Flowise: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        private async Task SyncFlowiseChatbots()
+        {
+            try
+            {
+                var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+                if (flowiseChatflows == null || !flowiseChatflows.Any())
+                {
+                    _logger.LogWarning("No chatflows found in Flowise API");
+                    return;
+                }
+
+                _logger.LogInformation("Found {Count} chatflows in Flowise", flowiseChatflows.Count());
+                int newCount = 0;
+                int updatedCount = 0;
+                
+                foreach (var chatflow in flowiseChatflows)
+                {
+                    if (string.IsNullOrEmpty(chatflow.Id))
+                    {
+                        continue; // Skip invalid chatflows
+                    }
+                    
+                    var existingChatbot = await _context.Chatbots
+                        .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
+                    
+                    if (existingChatbot == null)
+                    {
+                        // Create new chatbot
+                        var newChatbot = new Chatbot
+                        {
+                            Name = chatflow.Name,
+                            Description = "Imported from Flowise",
+                            FlowiseId = chatflow.Id,
+                            Department = "General",
+                            AiModel = "gpt-3.5-turbo",
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = "System-Sync"
+                        };
+                        
+                        _context.Chatbots.Add(newChatbot);
+                        newCount++;
+                    }
+                    else
+                    {
+                        // Update existing chatbot if name changed
+                        if (existingChatbot.Name != chatflow.Name)
+                        {
+                            existingChatbot.Name = chatflow.Name;
+                            _context.Chatbots.Update(existingChatbot);
+                            updatedCount++;
+                        }
+                    }
+                }
+                
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Flowise sync completed: {New} new, {Updated} updated chatbots", 
+                    newCount, updatedCount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error synchronizing Flowise chatbots");
+                throw; // Re-throw to be handled by caller
+            }
+        }
+
+        private async Task<bool> ChatbotExists(int id)
+        {
+            return await _context.Chatbots.AnyAsync(c => c.Id == id);
         }
     }
 }

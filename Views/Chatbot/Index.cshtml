@@ -20,12 +20,35 @@
                 <a class="dropdown-item" href="#">Inactive Only</a>
             </div>
         </div>
+        <form asp-action="SyncWithFlowise" method="post" class="d-inline me-2">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-repeat"></i>
+                <span>Sync with Flowise</span>
+            </button>
+        </form>
         <a href="/Chatbot/Create" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i>
             <span>Create Chatbot</span>
         </a>
     </div>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 <div class="card main-card">
     <div class="card-header">
@@ -48,98 +71,110 @@
     <div class="card-body">
         <!-- Grid View (Default) -->
         <div class="chatbots-grid" id="chatbotsGridView">
-            @foreach (var chatbot in Model)
+            @if (Model != null && Model.Any())
             {
-                <!-- Set status to inactive if ID is empty -->
-                bool isActive = chatbot.IsActive;
-                if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                foreach (var chatbot in Model)
                 {
-                    isActive = false;
-                }
-                <div class="chatbot-card animate-card">
-                    <div class="chatbot-card-header">
-                        <div class="chatbot-avatar @(string.IsNullOrEmpty(chatbot.FlowiseId) ? "warning" : "primary")">
-                            <i class="bi bi-robot"></i>
-                        </div>
-                        <div class="chatbot-status @(isActive ? "active" : "inactive")">
-                            @(isActive ? "Active" : "Inactive")
-                        </div>
-                    </div>
-                    
-                    <div class="chatbot-card-body">
-                        <h3 class="chatbot-name">@chatbot.Name</h3>
-                        <div class="chatbot-id">
-                            @if (string.IsNullOrEmpty(chatbot.FlowiseId))
-                            {
-                                <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> No ID assigned</span>
-                            }
-                            else
-                            {
-                                <span>ID: @chatbot.FlowiseId</span>
-                            }
+                    bool isActive = chatbot.IsActive;
+                    if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                    {
+                        isActive = false;
+                    }
+                    <div class="chatbot-card animate-card">
+                        <div class="chatbot-card-header">
+                            <div class="chatbot-avatar @(string.IsNullOrEmpty(chatbot.FlowiseId) ? "warning" : "primary")">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="chatbot-status @(isActive ? "active" : "inactive")">
+                                @(isActive ? "Active" : "Inactive")
+                            </div>
                         </div>
                         
-                        <div class="chatbot-description">
-                            @if (string.IsNullOrEmpty(chatbot.Description))
-                            {
-                                <span class="text-muted">No description provided</span>
-                            }
-                            else
-                            {
-                                @chatbot.Description
-                            }
+                        <div class="chatbot-card-body">
+                            <h3 class="chatbot-name">@chatbot.Name</h3>
+                            <div class="chatbot-id">
+                                @if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                                {
+                                    <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> No ID assigned</span>
+                                }
+                                else
+                                {
+                                    <span>ID: @chatbot.FlowiseId</span>
+                                }
+                            </div>
+                            
+                            <div class="chatbot-description">
+                                @if (string.IsNullOrEmpty(chatbot.Description))
+                                {
+                                    <span class="text-muted">No description provided</span>
+                                }
+                                else
+                                {
+                                    @chatbot.Description
+                                }
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="chatbot-stats">
-                        <div class="chatbot-stat">
-                            <div class="stat-value">254</div>
-                            <div class="stat-label">Conversations</div>
+                        
+                        <div class="chatbot-stats">
+                            <div class="chatbot-stat">
+                                <div class="stat-value">@chatbot.Department</div>
+                                <div class="stat-label">Department</div>
+                            </div>
+                            <div class="chatbot-stat">
+                                <div class="stat-value">@chatbot.AiModel</div>
+                                <div class="stat-label">Model</div>
+                            </div>
+                            <div class="chatbot-stat">
+                                <div class="stat-value">@chatbot.CreatedAt.ToString("MM/dd/yyyy")</div>
+                                <div class="stat-label">Created</div>
+                            </div>
                         </div>
-                        <div class="chatbot-stat">
-                            <div class="stat-value">93%</div>
-                            <div class="stat-label">Success Rate</div>
-                        </div>
-                        <div class="chatbot-stat">
-                            <div class="stat-value">2.6s</div>
-                            <div class="stat-label">Avg. Response</div>
-                        </div>
-                    </div>
-                    
-                    <div class="chatbot-card-footer">
-                        <div class="card-actions">
-                            <button class="btn btn-sm btn-primary" onclick="location.href='/Chatbot/Edit/@chatbot.Id'">
-                                <i class="bi bi-pencil"></i>
-                                <span>Edit</span>
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary" onclick="location.href='/Chatbot/Test/@chatbot.Id'">
-                                <i class="bi bi-chat-dots"></i>
-                                <span>Test</span>
-                            </button>
-                        </div>
-                        <div class="dropdown ms-auto">
-                            <button class="btn btn-sm btn-icon dropdown-toggle">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item @(isActive ? "text-warning" : "text-success")">
-                                        <i class="bi @(isActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                        @(isActive ? "Deactivate" : "Activate")
-                                    </button>
-                                </form>
-                                <div class="dropdown-divider"></div>
-                                <form action="/Chatbot/Delete/@chatbot.Id" method="post" class="d-inline" 
-                                     onsubmit="return confirm('Are you sure you want to delete this chatbot?');">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="dropdown-item text-danger">
-                                        <i class="bi bi-trash me-2"></i> Delete
-                                    </button>
-                                </form>
+                        
+                        <div class="chatbot-card-footer">
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-primary" onclick="location.href='/Chatbot/Edit/@chatbot.Id'">
+                                    <i class="bi bi-pencil"></i>
+                                    <span>Edit</span>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="location.href='/Chatbot/Test/@chatbot.Id'">
+                                    <i class="bi bi-chat-dots"></i>
+                                    <span>Test</span>
+                                </button>
+                            </div>
+                            <div class="dropdown ms-auto">
+                                <button class="btn btn-sm btn-icon dropdown-toggle">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item @(isActive ? "text-warning" : "text-success")">
+                                            <i class="bi @(isActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                            @(isActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                    <div class="dropdown-divider"></div>
+                                    <form action="/Chatbot/Delete/@chatbot.Id" method="post" class="d-inline" 
+                                         onsubmit="return confirm('Are you sure you want to delete this chatbot?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger">
+                                            <i class="bi bi-trash me-2"></i> Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
+                }
+            }
+            else
+            {
+                <div class="no-data-message">
+                    <div class="no-data-icon">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <h3>No Chatbots Found</h3>
+                    <p>Create your first chatbot or sync with Flowise to get started.</p>
                 </div>
             }
             
@@ -161,81 +196,97 @@
                     <tr>
                         <th>Name</th>
                         <th>Flowise ID</th>
-                        <th>Conversations</th>
-                        <th>Success Rate</th>
-                        <th>Avg. Response</th>
+                        <th>Department</th>
+                        <th>AI Model</th>
+                        <th>Created</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var chatbot in Model)
+                    @if (Model != null && Model.Any())
                     {
-                        <!-- Set status to inactive if ID is empty -->
-                        bool isActive = chatbot.IsActive;
-                        if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                        foreach (var chatbot in Model)
                         {
-                            isActive = false;
-                        }
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="list-avatar @(string.IsNullOrEmpty(chatbot.FlowiseId) ? "warning" : "primary")">
-                                        <i class="bi bi-robot"></i>
+                            bool isActive = chatbot.IsActive;
+                            if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                            {
+                                isActive = false;
+                            }
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="list-avatar @(string.IsNullOrEmpty(chatbot.FlowiseId) ? "warning" : "primary")">
+                                            <i class="bi bi-robot"></i>
+                                        </div>
+                                        <div class="list-chatbot-name">@chatbot.Name</div>
                                     </div>
-                                    <div class="list-chatbot-name">@chatbot.Name</div>
-                                </div>
-                            </td>
-                            <td>
-                                @if (string.IsNullOrEmpty(chatbot.FlowiseId))
-                                {
-                                    <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> No ID assigned</span>
-                                }
-                                else
-                                {
-                                    <span class="text-monospace">@chatbot.FlowiseId</span>
-                                }
-                            </td>
-                            <td>254</td>
-                            <td>93%</td>
-                            <td>2.6s</td>
-                            <td>
-                                <span class="badge @(isActive ? "bg-success" : "bg-secondary")">
-                                    @(isActive ? "Active" : "Inactive")
-                                </span>
-                            </td>
-                            <td>
-                                <div class="list-actions">
-                                    <div class="action-buttons">
-                                        <button class="btn-icon" onclick="location.href='/Chatbot/Edit/@chatbot.Id'" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                        <button class="btn-icon" onclick="location.href='/Chatbot/Test/@chatbot.Id'" title="Test">
-                                            <i class="bi bi-chat-dots"></i>
-                                        </button>
-                                    </div>
-                                    <div class="dropdown">
-                                        <button class="btn-icon dropdown-toggle">
-                                            <i class="bi bi-three-dots-vertical"></i>
-                                        </button>
-                                        <div class="dropdown-menu dropdown-menu-end">
-                                            <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="dropdown-item @(isActive ? "text-warning" : "text-success")">
-                                                    <i class="bi @(isActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
-                                                    @(isActive ? "Deactivate" : "Activate")
-                                                </button>
-                                            </form>
-                                            <div class="dropdown-divider"></div>
-                                            <form action="/Chatbot/Delete/@chatbot.Id" method="post" class="d-inline"
-                                                  onsubmit="return confirm('Are you sure you want to delete this chatbot?');">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="dropdown-item text-danger">
-                                                    <i class="bi bi-trash me-2"></i> Delete
-                                                </button>
-                                            </form>
+                                </td>
+                                <td>
+                                    @if (string.IsNullOrEmpty(chatbot.FlowiseId))
+                                    {
+                                        <span class="text-warning"><i class="bi bi-exclamation-triangle"></i> Not assigned</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-monospace">@chatbot.FlowiseId</span>
+                                    }
+                                </td>
+                                <td>@chatbot.Department</td>
+                                <td>@chatbot.AiModel</td>
+                                <td>@chatbot.CreatedAt.ToString("MM/dd/yyyy")</td>
+                                <td>
+                                    <span class="badge @(isActive ? "bg-success" : "bg-secondary")">
+                                        @(isActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="list-actions">
+                                        <div class="action-buttons">
+                                            <button class="btn-icon" onclick="location.href='/Chatbot/Edit/@chatbot.Id'" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button class="btn-icon" onclick="location.href='/Chatbot/Test/@chatbot.Id'" title="Test">
+                                                <i class="bi bi-chat-dots"></i>
+                                            </button>
+                                        </div>
+                                        <div class="dropdown">
+                                            <button class="btn-icon dropdown-toggle">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end">
+                                                <form action="/Chatbot/ToggleStatus/@chatbot.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="dropdown-item @(isActive ? "text-warning" : "text-success")">
+                                                        <i class="bi @(isActive ? "bi-pause-circle" : "bi-play-circle") me-2"></i>
+                                                        @(isActive ? "Deactivate" : "Activate")
+                                                    </button>
+                                                </form>
+                                                <div class="dropdown-divider"></div>
+                                                <form action="/Chatbot/Delete/@chatbot.Id" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Are you sure you want to delete this chatbot?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="dropdown-item text-danger">
+                                                        <i class="bi bi-trash me-2"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="py-3">
+                                    <div class="no-data-icon mb-2">
+                                        <i class="bi bi-robot"></i>
+                                    </div>
+                                    <h3>No Chatbots Found</h3>
+                                    <p>Create your first chatbot or sync with Flowise to get started.</p>
                                 </div>
                             </td>
                         </tr>
@@ -281,8 +332,12 @@
                     const chatbotName = card.querySelector('.chatbot-name').textContent.toLowerCase();
                     const chatbotId = card.querySelector('.chatbot-id').textContent.toLowerCase();
                     const chatbotDesc = card.querySelector('.chatbot-description').textContent.toLowerCase();
+                    const department = card.querySelector('.chatbot-stat:nth-child(1) .stat-value').textContent.toLowerCase();
                     
-                    if (chatbotName.includes(searchTerm) || chatbotId.includes(searchTerm) || chatbotDesc.includes(searchTerm)) {
+                    if (chatbotName.includes(searchTerm) || 
+                        chatbotId.includes(searchTerm) || 
+                        chatbotDesc.includes(searchTerm) ||
+                        department.includes(searchTerm)) {
                         card.style.display = 'flex';
                     } else {
                         card.style.display = 'none';
@@ -292,14 +347,20 @@
                 // Search in list view
                 const chatbotRows = document.querySelectorAll('#chatbotsListView tbody tr');
                 chatbotRows.forEach(row => {
-                    const chatbotName = row.querySelector('.list-chatbot-name').textContent.toLowerCase();
-                    const chatbotIdCell = row.querySelectorAll('td')[1];
-                    const chatbotId = chatbotIdCell.textContent.toLowerCase();
-                    
-                    if (chatbotName.includes(searchTerm) || chatbotId.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+                    if (row.cells.length > 1) { // Skip empty state row
+                        const chatbotName = row.cells[0].textContent.toLowerCase();
+                        const chatbotId = row.cells[1].textContent.toLowerCase();
+                        const department = row.cells[2].textContent.toLowerCase();
+                        const model = row.cells[3].textContent.toLowerCase();
+                        
+                        if (chatbotName.includes(searchTerm) || 
+                            chatbotId.includes(searchTerm) || 
+                            department.includes(searchTerm) ||
+                            model.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
                     }
                 });
             });
@@ -351,12 +412,50 @@
                         // Update dropdown button text
                         const dropdownButton = this.closest('.dropdown').querySelector('.dropdown-toggle span');
                         dropdownButton.textContent = this.textContent;
+                        
+                        // Implement filtering
+                        const filter = this.textContent.trim();
+                        filterChatbots(filter);
                     }
                     
                     // Hide dropdown
                     this.closest('.dropdown-menu').classList.remove('show');
                 });
             });
+            
+            // Filter function
+            function filterChatbots(filter) {
+                const chatbotCards = document.querySelectorAll('.chatbot-card:not(.create-card)');
+                const chatbotRows = document.querySelectorAll('#chatbotsListView tbody tr');
+                
+                chatbotCards.forEach(card => {
+                    const statusElem = card.querySelector('.chatbot-status');
+                    const isActive = statusElem && statusElem.classList.contains('active');
+                    
+                    if (filter === 'All Chatbots' || 
+                        (filter === 'Active Only' && isActive) || 
+                        (filter === 'Inactive Only' && !isActive)) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                chatbotRows.forEach(row => {
+                    if (row.cells.length > 1) { // Skip empty state row
+                        const statusElem = row.querySelector('.badge');
+                        const isActive = statusElem && statusElem.classList.contains('bg-success');
+                        
+                        if (filter === 'All Chatbots' || 
+                            (filter === 'Active Only' && isActive) || 
+                            (filter === 'Inactive Only' && !isActive)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            }
             
             // Add staggered animation to cards
             document.querySelectorAll('.animate-card').forEach((card, index) => {
@@ -871,6 +970,18 @@
             border-color: var(--color-gray-400);
         }
         
+        .btn-outline-primary {
+            background-color: transparent;
+            color: var(--color-primary);
+            border: 1px solid var(--color-primary);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        
         /* Dropdown Menu */
         .dropdown {
             position: relative;
@@ -943,6 +1054,100 @@
             animation-delay: calc(var(--i, 0) * 0.1s);
         }
         
+        /* No data message */
+        .no-data-message {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            text-align: center;
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius-lg);
+            grid-column: 1 / -1;
+        }
+        
+        .no-data-icon {
+            font-size: 2.5rem;
+            color: var(--color-gray-400);
+            margin-bottom: 1rem;
+        }
+        
+        .no-data-message h3 {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .no-data-message p {
+            color: var(--color-gray-500);
+        }
+        
+        /* Alert styling */
+        .alert {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            border-radius: var(--border-radius);
+            border: 1px solid transparent;
+        }
+        
+        .alert-success {
+            background-color: rgba(32, 201, 151, 0.1);
+            border-color: rgba(32, 201, 151, 0.2);
+            color: var(--color-success);
+        }
+        
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.2);
+            color: var(--color-danger);
+        }
+        
+        .btn-close {
+            float: right;
+            font-size: 1.25rem;
+            font-weight: 700;
+            line-height: 1;
+            color: inherit;
+            background: transparent;
+            border: 0;
+            opacity: 0.5;
+            padding: 0;
+            cursor: pointer;
+        }
+        
+        /* Helper classes */
+        .d-flex {
+            display: flex;
+        }
+        
+        .align-items-center {
+            align-items: center;
+        }
+        
+        .ms-auto {
+            margin-left: auto;
+        }
+        
+        .me-2 {
+            margin-right: 0.5rem;
+        }
+        
+        .d-inline {
+            display: inline;
+        }
+        
+        .text-muted {
+            color: var(--color-gray-500);
+        }
+        
+        .text-danger {
+            color: var(--color-danger);
+        }
+        
+        .text-success {
+            color: var(--color-success);
+        }
+        
         /* Responsive Adjustments */
         @@media (max-width: 1200px) {
             .chatbots-grid {
@@ -991,43 +1196,6 @@
             .chatbots-grid {
                 grid-template-columns: 1fr;
             }
-        }
-        
-        /* Helper Classes */
-        .d-flex {
-            display: flex;
-        }
-        
-        .align-items-center {
-            align-items: center;
-        }
-        
-        .ms-auto {
-            margin-left: auto;
-        }
-        
-        .me-2 {
-            margin-right: 0.5rem;
-        }
-        
-        .d-inline {
-            display: inline;
-        }
-        
-        .text-muted {
-            color: var(--color-gray-500);
-        }
-        
-        .text-danger {
-            color: var(--color-danger);
-        }
-        
-        .text-success {
-            color: var(--color-success);
-        }
-        
-        .text-warning {
-            color: var(--color-warning);
         }
     </style>
 }
