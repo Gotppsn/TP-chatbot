@@ -23,66 +23,68 @@ namespace AIHelpdeskSupport.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<SettingsController> _logger;
+        private readonly IConfiguration _configuration;
 
         public SettingsController(
             ISettingsService settingsService, 
             UserManager<ApplicationUser> userManager,
             ApplicationDbContext context,
-            ILogger<SettingsController> logger)
+            ILogger<SettingsController> logger,
+            IConfiguration configuration)
         {
             _settingsService = settingsService;
             _userManager = userManager;
             _context = context;
             _logger = logger;
+            _configuration = configuration;
         }
 
-public async Task<IActionResult> Index()
-{
-    var userId = _userManager.GetUserId(User);
-    var settings = await _settingsService.GetSettingsAsync(userId);
-    
-    // Get users and chatbots for department data
-    var users = await _userManager.Users.ToListAsync();
-    var chatbots = await _context.Chatbots.ToListAsync();
-    
-    var departments = users
-        .Where(u => !string.IsNullOrEmpty(u.Department))
-        .GroupBy(u => u.Department)
-        .Select(group => new DepartmentViewModel
+        public async Task<IActionResult> Index()
         {
-            Name = group.Key,
-            UserCount = group.Count(),
-            ChatbotCount = chatbots.Count(c => c.Department == group.Key),
-            // Make sure we're treating CreatedAt as nullable
-            CreatedAt = chatbots.Where(c => c.Department == group.Key)
-                               .OrderBy(c => c.CreatedAt)
-                               .FirstOrDefault()?.CreatedAt,
-            CreatedBy = chatbots.Where(c => c.Department == group.Key)
-                               .OrderBy(c => c.CreatedAt)
-                               .FirstOrDefault()?.CreatedBy ?? "System"
-        })
-        .ToList();
-    
-    // Add departments that exist only in chatbots but not in users
-    var chatbotOnlyDepartments = chatbots
-        .Where(c => !string.IsNullOrEmpty(c.Department) && 
-                    !departments.Any(d => d.Name == c.Department))
-        .GroupBy(c => c.Department)
-        .Select(group => new DepartmentViewModel
-        {
-            Name = group.Key,
-            UserCount = 0,
-            ChatbotCount = group.Count(),
-            CreatedAt = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedAt,
-            CreatedBy = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedBy ?? "System"
-        });
-    
-    departments.AddRange(chatbotOnlyDepartments);
-    
-    ViewBag.Departments = departments.OrderBy(d => d.Name).ToList();
-    
-    return View(settings);
-}
+            var userId = _userManager.GetUserId(User);
+            var settings = await _settingsService.GetSettingsAsync(userId);
+            
+            // Get users and chatbots for department data
+            var users = await _userManager.Users.ToListAsync();
+            var chatbots = await _context.Chatbots.ToListAsync();
+            
+            var departments = users
+                .Where(u => !string.IsNullOrEmpty(u.Department))
+                .GroupBy(u => u.Department)
+                .Select(group => new DepartmentViewModel
+                {
+                    Name = group.Key,
+                    UserCount = group.Count(),
+                    ChatbotCount = chatbots.Count(c => c.Department == group.Key),
+                    CreatedAt = chatbots.Where(c => c.Department == group.Key)
+                                       .OrderBy(c => c.CreatedAt)
+                                       .FirstOrDefault()?.CreatedAt,
+                    CreatedBy = chatbots.Where(c => c.Department == group.Key)
+                                       .OrderBy(c => c.CreatedAt)
+                                       .FirstOrDefault()?.CreatedBy ?? "System"
+                })
+                .ToList();
+            
+            // Add departments that exist only in chatbots but not in users
+            var chatbotOnlyDepartments = chatbots
+                .Where(c => !string.IsNullOrEmpty(c.Department) && 
+                            !departments.Any(d => d.Name == c.Department))
+                .GroupBy(c => c.Department)
+                .Select(group => new DepartmentViewModel
+                {
+                    Name = group.Key,
+                    UserCount = 0,
+                    ChatbotCount = group.Count(),
+                    CreatedAt = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedAt,
+                    CreatedBy = group.OrderBy(c => c.CreatedAt).FirstOrDefault()?.CreatedBy ?? "System"
+                });
+            
+            departments.AddRange(chatbotOnlyDepartments);
+            
+            ViewBag.Departments = departments.OrderBy(d => d.Name).ToList();
+            
+            return View(settings);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,11 +138,16 @@ public async Task<IActionResult> Index()
 
             var settings = await _settingsService.GetSettingsAsync();
 
-            settings.FlowiseApiUrl = model.FlowiseApiUrl;
+            // Ensure consistent URL format with trailing slash
+            settings.FlowiseApiUrl = model.FlowiseApiUrl?.TrimEnd('/') + "/";
             settings.FlowiseApiKey = model.FlowiseApiKey;
 
             var userId = _userManager.GetUserId(User);
             await _settingsService.UpdateSettingsAsync(settings, userId);
+            
+            // Update runtime configuration for immediate effect
+            _configuration["Flowise:ApiUrl"] = settings.FlowiseApiUrl;
+            _configuration["Flowise:ApiKey"] = settings.FlowiseApiKey;
 
             TempData["SuccessMessage"] = "API settings saved successfully!";
             return RedirectToAction(nameof(Index));

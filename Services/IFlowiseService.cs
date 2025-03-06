@@ -9,5 +9,6 @@ public interface IFlowiseService
     Task<Chatbot> CreateChatbotAsync(Chatbot chatbot);
     Task<string> GenerateChatResponseAsync(int chatbotId, string message, string sessionId);
     Task GetChatbotByIdAsync(object chatbotId);
-
+    Task<bool> TestFlowiseConnectionAsync();
+    Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync();
 }

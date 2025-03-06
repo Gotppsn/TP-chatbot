@@ -25,7 +25,12 @@ public class FlowiseService : IFlowiseService
         _configuration = configuration;
         _logger = logger;
 
-        // Configure the HttpClient
+        ConfigureHttpClient();
+    }
+    
+    private void ConfigureHttpClient()
+    {
+        // Configure the HttpClient with current settings
         string apiUrl = _configuration["Flowise:ApiUrl"] ?? "http://localhost:3000/api/";
         _httpClient.BaseAddress = new Uri(apiUrl);
         _httpClient.DefaultRequestHeaders.Accept.Clear();
@@ -35,6 +40,19 @@ public class FlowiseService : IFlowiseService
         string? apiKey = _configuration["Flowise:ApiKey"];
         if (!string.IsNullOrEmpty(apiKey))
         {
+            // Remove any existing auth headers first
+            if (_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("Authorization");
+            }
+            
+            if (_httpClient.DefaultRequestHeaders.Contains("x-api-key"))
+            {
+                _httpClient.DefaultRequestHeaders.Remove("x-api-key");
+            }
+            
+            // Add both authentication headers for maximum compatibility
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
             _httpClient.DefaultRequestHeaders.Add("x-api-key", apiKey);
         }
     }
@@ -51,7 +69,6 @@ public class FlowiseService : IFlowiseService
 
     public async Task<Chatbot> CreateChatbotAsync(Chatbot chatbot)
     {
-        // For now, just save the chatbot without Flowise integration
         _context.Chatbots.Add(chatbot);
         await _context.SaveChangesAsync();
         return chatbot;
@@ -61,6 +78,9 @@ public class FlowiseService : IFlowiseService
     {
         try
         {
+            // Refresh HTTP client config to ensure latest settings
+            ConfigureHttpClient();
+            
             var chatbot = await _context.Chatbots.FindAsync(chatbotId);
             if (chatbot == null)
                 return "Chatbot not found";
@@ -79,6 +99,10 @@ public class FlowiseService : IFlowiseService
                 }
             };
 
+            // Log request for troubleshooting
+            _logger.LogInformation("Sending request to Flowise API: {Endpoint} with chatId: {ChatId}", 
+                _httpClient.BaseAddress + "prediction", chatbot.FlowiseId);
+
             // Send request to Flowise
             var response = await _httpClient.PostAsJsonAsync("prediction", payload);
 
@@ -87,7 +111,7 @@ public class FlowiseService : IFlowiseService
                 var errorContent = await response.Content.ReadAsStringAsync();
                 _logger.LogError("Flowise API error: {StatusCode} - {Error}",
                     response.StatusCode, errorContent);
-                return $"Error from Flowise API: {response.StatusCode}";
+                return $"Error from Flowise API: {response.StatusCode} - {errorContent}";
             }
 
             // Read response
@@ -97,13 +121,12 @@ public class FlowiseService : IFlowiseService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error generating chat response");
-            return "An error occurred while processing your request.";
+            return $"An error occurred while processing your request: {ex.Message}";
         }
     }
 
     public async Task GetChatbotByIdAsync(object chatbotId)
     {
-        // Convert the object to int if possible
         if (chatbotId is int id)
         {
             await GetChatbotByIdAsync(id);
@@ -117,4 +140,58 @@ public class FlowiseService : IFlowiseService
             throw new ArgumentException("chatbotId must be convertible to int", nameof(chatbotId));
         }
     }
+    
+    public async Task<bool> TestFlowiseConnectionAsync()
+    {
+        try
+        {
+            ConfigureHttpClient();
+            var response = await _httpClient.GetAsync("health");
+            
+            if (response.IsSuccessStatusCode)
+                return true;
+            
+            // Try root endpoint as fallback
+            response = await _httpClient.GetAsync("");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error testing Flowise connection");
+            return false;
+        }
+    }
+    
+    public async Task<IEnumerable<FlowiseChatflow>> GetFlowiseChatflowsAsync()
+    {
+        try
+        {
+            ConfigureHttpClient();
+            var response = await _httpClient.GetAsync("chatflows");
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                return Enumerable.Empty<FlowiseChatflow>();
+            }
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var chatflows = JsonSerializer.Deserialize<List<FlowiseChatflow>>(content, 
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            
+            return chatflows ?? Enumerable.Empty<FlowiseChatflow>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching Flowise chatflows");
+            return Enumerable.Empty<FlowiseChatflow>();
+        }
+    }
+}
+
+public class FlowiseChatflow
+{
+    public string Id { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

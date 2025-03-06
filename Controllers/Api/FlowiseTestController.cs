@@ -3,6 +3,7 @@ using AIHelpdeskSupport.Services;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
@@ -14,11 +15,13 @@ namespace AIHelpdeskSupport.Controllers.Api
     {
         private readonly IFlowiseService _flowiseService;
         private readonly IConfiguration _configuration;
+        private readonly ILogger<FlowiseTestController> _logger;
         
-        public FlowiseTestController(IFlowiseService flowiseService, IConfiguration configuration)
+        public FlowiseTestController(IFlowiseService flowiseService, IConfiguration configuration, ILogger<FlowiseTestController> logger)
         {
             _flowiseService = flowiseService;
             _configuration = configuration;
+            _logger = logger;
         }
         
         [HttpGet("flowise")]
@@ -38,6 +41,72 @@ namespace AIHelpdeskSupport.Controllers.Api
             });
         }
         
+        [HttpGet("flowise-connection")]
+        public async Task<IActionResult> TestFlowiseConnection()
+        {
+            try
+            {
+                var apiUrl = _configuration["Flowise:ApiUrl"];
+                var apiKey = _configuration["Flowise:ApiKey"];
+                
+                if (string.IsNullOrEmpty(apiUrl))
+                {
+                    return BadRequest(new { success = false, message = "Flowise API URL not configured" });
+                }
+                
+                using (var client = new HttpClient())
+                {
+                    // Set up the client
+                    client.BaseAddress = new Uri(apiUrl);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    
+                    // Add authentication header if API key is available
+                    if (!string.IsNullOrEmpty(apiKey))
+                    {
+                        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+                        client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+                    }
+                    
+                    // Try to access the health endpoint or any public endpoint
+                    var response = await client.GetAsync("health");
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return Ok(new { 
+                            success = true, 
+                            message = "Successfully connected to Flowise API",
+                            statusCode = (int)response.StatusCode
+                        });
+                    }
+                    
+                    // If that failed, try the root endpoint
+                    response = await client.GetAsync("");
+                    
+                    // Get response content for error details
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    
+                    return Ok(new { 
+                        success = response.IsSuccessStatusCode, 
+                        message = response.IsSuccessStatusCode ? 
+                            "Connected to Flowise API" : 
+                            $"Connection failed with status: {response.StatusCode}",
+                        statusCode = (int)response.StatusCode,
+                        details = responseContent
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error testing Flowise connection");
+                return BadRequest(new { 
+                    success = false, 
+                    message = $"Error testing Flowise connection: {ex.Message}",
+                    error = ex.ToString()
+                });
+            }
+        }
+        
         [HttpPost("chat")]
         public async Task<IActionResult> TestChat([FromBody] TestChatRequest request)
         {
@@ -52,88 +121,19 @@ namespace AIHelpdeskSupport.Controllers.Api
                 
             return Ok(new { response, sessionId });
         }
-
-        [HttpGet("ping")]
-        public async Task<IActionResult> PingFlowise()
-        {
-            try
-            {
-                HttpClient client = new HttpClient();
-                var apiUrl = _configuration["Flowise:ApiUrl"];
-                if (string.IsNullOrEmpty(apiUrl))
-                {
-                    return BadRequest(new { success = false, error = "Flowise API URL not configured" });
-                }
-                
-                var response = await client.GetAsync(apiUrl);
-                
-                return Ok(new { 
-                    success = response.IsSuccessStatusCode,
-                    statusCode = (int)response.StatusCode,
-                    reasonPhrase = response.ReasonPhrase
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { 
-                    success = false, 
-                    error = ex.Message,
-                    innerError = ex.InnerException?.Message
-                });
-            }
-        }
         
         [HttpGet("chatflows")]
-        public async Task<IActionResult> GetAllChatflows()
+        public async Task<IActionResult> GetChatflows()
         {
             try
             {
-                var apiUrl = _configuration["Flowise:ApiUrl"];
-                var apiKey = _configuration["Flowise:ApiKey"];
-                
-                using var client = new HttpClient();
-                
-                // Fix base URL formatting
-                var baseUrl = apiUrl.TrimEnd('/');
-                client.BaseAddress = new Uri(baseUrl + "/");
-                
-                // Add required authorization header
-                if (!string.IsNullOrEmpty(apiKey))
-                {
-                    client.DefaultRequestHeaders.Clear();
-                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                }
-                
-                // Request the chatflows
-                var response = await client.GetAsync("v1/chatflows");
-                string content = await response.Content.ReadAsStringAsync();
-                
-                return Ok(new { 
-                    success = response.IsSuccessStatusCode,
-                    statusCode = (int)response.StatusCode,
-                    data = content,
-                    headers = response.Headers.Select(h => new { h.Key, Value = string.Join(", ", h.Value) })
-                });
+                var chatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+                return Ok(new { success = true, data = chatflows });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { 
-                    success = false, 
-                    error = ex.Message
-                });
+                return StatusCode(500, new { success = false, error = ex.Message });
             }
-        }
-        
-        [HttpGet("auth-debug")]
-        public IActionResult DebugAuth()
-        {
-            var apiKey = _configuration["Flowise:ApiKey"];
-            
-            return Ok(new {
-                keyConfigured = !string.IsNullOrEmpty(apiKey),
-                keyFirstChars = !string.IsNullOrEmpty(apiKey) ? apiKey.Substring(0, Math.Min(5, apiKey.Length)) + "..." : null,
-                keyLength = apiKey?.Length ?? 0
-            });
         }
     }
 
