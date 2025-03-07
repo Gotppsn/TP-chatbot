@@ -75,7 +75,7 @@ namespace AIHelpdeskSupport.Controllers
                 chatbot.CreatedBy = User.Identity.Name ?? "Admin";
                 
                 // Set default values if not provided
-                chatbot.Department ??= "General";
+                chatbot.Department ??= "Development";
                 chatbot.AiModel ??= "gpt-3.5-turbo";
                 
                 _context.Chatbots.Add(chatbot);
@@ -295,7 +295,7 @@ namespace AIHelpdeskSupport.Controllers
                     {
                         // Get department settings
                         var settings = await _context.SystemSettings.FirstOrDefaultAsync();
-                        string defaultDepartment = "General";
+                        string defaultDepartment = "Development";
                         string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
                         
                         // Create new chatbot

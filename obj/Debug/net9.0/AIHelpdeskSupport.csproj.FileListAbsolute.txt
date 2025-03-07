@@ -1393,7 +1393,6 @@ C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\o4qqx6
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\3c6jw7z9mu-jjsuc0puko.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\b8fhnlje4l-9vr69e8ynj.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\225vl3oiqi-mlv21k5csn.gz
-C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5poun.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\System.Diagnostics.EventLog.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\System.DirectoryServices.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\System.DirectoryServices.AccountManagement.dll
@@ -1404,4 +1403,5 @@ C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\win\lib\
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\linux\lib\net9.0\System.DirectoryServices.Protocols.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\osx\lib\net9.0\System.DirectoryServices.Protocols.dll
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\bin\Debug\net9.0\runtimes\win\lib\net9.0\System.DirectoryServices.Protocols.dll
+C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\23cdt1o6pc-b0bnu5poun.gz
 C:\Users\panupol\Desktop\flowiseUI\TP-chatbot\obj\Debug\net9.0\compressed\zygnymujis-y4wvd8zkhn.gz
