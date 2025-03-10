@@ -1,17 +1,17 @@
 @model AIHelpdeskSupport.Models.Chatbot
 @{
     ViewData["Title"] = "Edit Chatbot";
-    
+
     // Get departments list from ViewBag
     var allDepartments = ViewBag.Departments as List<string> ?? new List<string>();
-    
+
     // Ensure we have the selected departments list from the model
     var selectedDepartments = Model.Departments ?? new List<string>();
-    if (!string.IsNullOrEmpty(Model.Department) && !selectedDepartments.Contains(Model.Department)) 
+    if (!string.IsNullOrEmpty(Model.Department) && !selectedDepartments.Contains(Model.Department))
     {
         selectedDepartments.Add(Model.Department);
     }
-    
+
     // Set up access control variables
     var allowSpecificUsers = Model.AccessType == "Specific";
     var allowedUsers = Model.AllowedUsers ?? new List<string>();
@@ -66,23 +66,25 @@
             </div>
         </div>
     </div>
-    
+
     <div class="card-body">
         <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
             <input type="hidden" asp-for="CreatedAt" />
             <input type="hidden" asp-for="CreatedBy" />
-            
+
             <div class="form-group mb-4">
-                <label asp-for="FlowiseId" class="form-label">Flowise Chatflow ID <span class="required">*</span></label>
-                <input type="text" asp-for="FlowiseId" class="form-control" placeholder="e.g. 275a8c78-fa28-494c-98a5" required />
+                <label asp-for="FlowiseId" class="form-label">Flowise Chatflow ID <span
+                        class="required">*</span></label>
+                <input type="text" asp-for="FlowiseId" class="form-control" placeholder="e.g. 275a8c78-fa28-494c-98a5"
+                    required />
                 <div class="form-text">
                     The Flowise Chatflow ID connects this chatbot to your AI workflow
                 </div>
                 <span asp-validation-for="FlowiseId" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group mb-4">
                 <label asp-for="Name" class="form-label">Chatbot Name <span class="required">*</span></label>
                 <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" required />
@@ -101,10 +103,9 @@
                         bool isSelected = selectedDepartments.Contains(department);
                         bool isPrimary = department == Model.Department;
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="Departments" 
-                                   id="dept-@department.Replace(" ", "-")" value="@department" 
-                                   @(isSelected ? "checked" : "")
-                                   @(isPrimary ? "data-primary=true" : "")>
+                            <input class="form-check-input" type="checkbox" name="Departments"
+                                id="dept-@department.Replace(" ", "-")" value="@department" @(isSelected ? "checked" : "")
+                                @(isPrimary ? "data-primary=true" : "")>
                             <label class="form-check-label" for="dept-@department.Replace(" ", "-")">
                                 @department
                             </label>
@@ -112,7 +113,8 @@
                     }
                 </div>
                 <div class="form-text">
-                    Select departments that can manage this chatbot. The first selected department will be the primary one.
+                    Select departments that can manage this chatbot. The first selected department will be the primary
+                    one.
                 </div>
                 <!-- Hidden input for the primary Department property -->
                 <input type="hidden" asp-for="Department" id="primaryDepartment" value="@Model.Department" />
@@ -138,7 +140,7 @@
                         Control which users can access this chatbot
                     </div>
                 </div>
-                
+
                 <div id="userAccessContainer" class="mt-3 @(Model.AccessType == "Specific" ? "" : "d-none")">
                     <div class="input-group mb-3">
                         <input type="text" id="userSearch" class="form-control" placeholder="Search users...">
@@ -146,7 +148,7 @@
                             <i class="bi bi-plus"></i> Add
                         </button>
                     </div>
-                    
+
                     <div class="selected-users-container">
                         <div class="selected-users" id="selectedUsers">
                             @foreach (var user in Model.AllowedUsers ?? new List<string>())
@@ -163,16 +165,17 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-group mb-4">
                 <label asp-for="Description" class="form-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe what this chatbot will help with..."></textarea>
+                <textarea asp-for="Description" class="form-control" rows="3"
+                    placeholder="Describe what this chatbot will help with..."></textarea>
                 <div class="form-text">
                     Detailed information about this chatbot's purpose and capabilities
                 </div>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group mb-4">
                 <div class="form-switch">
                     <input asp-for="IsActive" class="form-switch-input" />
@@ -180,7 +183,7 @@
                 </div>
                 <div class="form-text">Enable or disable this chatbot</div>
             </div>
-            
+
             <div class="form-info-box">
                 <div class="info-icon"><i class="bi bi-clock-history"></i></div>
                 <div class="info-content">
@@ -204,7 +207,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-buttons">
                 <button type="submit" class="btn btn-primary">
                     <i class="bi bi-check-lg"></i>
@@ -212,14 +215,15 @@
                 </button>
             </div>
         </form>
-        
+
         <div class="danger-zone mt-5">
             <h4 class="danger-zone-title">Danger Zone</h4>
             <div class="danger-zone-content">
                 <div class="danger-action">
                     <div class="danger-info">
                         <div class="danger-title">Delete this chatbot</div>
-                        <div class="danger-description">Once deleted, all conversations and configurations will be permanently removed.</div>
+                        <div class="danger-description">Once deleted, all conversations and configurations will be
+                            permanently removed.</div>
                     </div>
                     <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@Model.Id)">
                         Delete Chatbot
@@ -243,7 +247,8 @@
                     <i class="bi bi-exclamation-triangle"></i>
                     <strong>Warning:</strong> This action cannot be undone.
                 </div>
-                <p>Are you sure you want to delete this chatbot? All conversations and configurations will be permanently removed.</p>
+                <p>Are you sure you want to delete this chatbot? All conversations and configurations will be
+                    permanently removed.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
@@ -284,38 +289,38 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Fetch chatbot stats
             fetchChatbotStats(@Model.Id);
-            
+
             // Department selection handling
             const departmentCheckboxes = document.querySelectorAll('input[name="Departments"]');
             const primaryDepartmentInput = document.getElementById('primaryDepartment');
-            
+
             // Ensure at least one department is selected and update primary department
-            departmentCheckboxes.forEach(function(checkbox) {
-                checkbox.addEventListener('change', function() {
+            departmentCheckboxes.forEach(function (checkbox) {
+                checkbox.addEventListener('change', function () {
                     // Get all selected departments
                     const selectedDepts = Array.from(document.querySelectorAll('input[name="Departments"]:checked'));
-                    
+
                     // If none selected and this was unchecked, check it again
                     if (selectedDepts.length === 0) {
                         this.checked = true;
                         return;
                     }
-                    
+
                     // If this is the primary and it's unchecked, make the first selected one primary
                     if (this.getAttribute('data-primary') === 'true' && !this.checked) {
                         // Remove primary flag from this
                         this.removeAttribute('data-primary');
-                        
+
                         // Set the first checked one as primary
                         if (selectedDepts.length > 0) {
                             selectedDepts[0].setAttribute('data-primary', 'true');
                             primaryDepartmentInput.value = selectedDepts[0].value;
                         }
                     }
-                    
+
                     // If this is newly checked and no primary is set, make it primary
                     if (this.checked && !document.querySelector('input[name="Departments"][data-primary="true"]')) {
                         this.setAttribute('data-primary', 'true');
@@ -323,26 +328,26 @@
                     }
                 });
             });
-            
+
             // Delete modal functionality
-            window.confirmDelete = function(id) {
+            window.confirmDelete = function (id) {
                 const modal = document.getElementById('deleteConfirmModal');
                 modal.classList.add('show');
                 document.body.classList.add('modal-open');
             };
-            
+
             // Access type toggle
             const accessTypeSelect = document.getElementById('accessType');
             const userAccessContainer = document.getElementById('userAccessContainer');
-            
-            accessTypeSelect.addEventListener('change', function() {
+
+            accessTypeSelect.addEventListener('change', function () {
                 if (this.value === 'Specific') {
                     userAccessContainer.classList.remove('d-none');
                 } else {
                     userAccessContainer.classList.add('d-none');
                 }
             });
-            
+
             // User search and selection
             const userSearch = document.getElementById('userSearch');
             const modalUserSearch = document.getElementById('modalUserSearch');
@@ -350,81 +355,81 @@
             const userSearchModal = document.getElementById('userSearchModal');
             const userSearchResults = document.getElementById('userSearchResults');
             const selectedUsers = document.getElementById('selectedUsers');
-            
-            addUserBtn.addEventListener('click', function() {
+
+            addUserBtn.addEventListener('click', function () {
                 // Clear previous results
                 userSearchResults.innerHTML = '';
-                
+
                 // Clear modal search
                 if (modalUserSearch) modalUserSearch.value = '';
-                
+
                 // Get selected users
                 const selectedUserIds = Array.from(
                     document.querySelectorAll('.selected-user-item input[name="AllowedUsers"]')
                 ).map(input => input.value);
-                
+
                 // Show loading state
                 userSearchResults.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading users...</p></div>';
-                
+
                 // Fetch users from API
                 fetch('/api/Users/GetAll')
                     .then(response => response.json())
                     .then(users => {
                         userSearchResults.innerHTML = '';
-                        
+
                         // Filter out already selected users
                         const availableUsers = users.filter(u => !selectedUserIds.includes(u.userName));
-                        
+
                         if (availableUsers.length === 0) {
                             userSearchResults.innerHTML = `
-                                <div class="no-results-message">
-                                    <i class="bi bi-info-circle"></i>
-                                    <p>All users have been added or no users available.</p>
-                                </div>
-                            `;
+                                    <div class="no-results-message">
+                                        <i class="bi bi-info-circle"></i>
+                                        <p>All users have been added or no users available.</p>
+                                    </div>
+                                `;
                             return;
                         }
-                        
+
                         // Sort users by name
-                        availableUsers.sort((a, b) => 
+                        availableUsers.sort((a, b) =>
                             (a.firstName + ' ' + a.lastName).localeCompare(b.firstName + ' ' + b.lastName)
                         );
-                        
+
                         // Create user elements
-                        availableUsers.forEach(function(user) {
+                        availableUsers.forEach(function (user) {
                             const userEl = document.createElement('div');
                             userEl.className = 'user-search-item';
                             userEl.dataset.username = user.userName;
                             userEl.dataset.fullname = user.firstName + ' ' + user.lastName;
-                            
+
                             const userInfo = document.createElement('div');
                             userInfo.className = 'user-info';
-                            
+
                             const userName = document.createElement('div');
                             userName.className = 'user-name';
                             userName.textContent = user.firstName + ' ' + user.lastName;
-                            
+
                             const userUsername = document.createElement('div');
                             userUsername.className = 'user-username';
                             userUsername.textContent = '@@' + user.userName;
-                            
+
                             const addButton = document.createElement('button');
                             addButton.type = 'button';
                             addButton.className = 'btn btn-sm btn-outline-primary select-user';
                             addButton.setAttribute('data-username', user.userName);
                             addButton.textContent = 'Add';
-                            
+
                             userInfo.appendChild(userName);
                             userInfo.appendChild(userUsername);
                             userEl.appendChild(userInfo);
                             userEl.appendChild(addButton);
-                            
+
                             userSearchResults.appendChild(userEl);
                         });
-                        
+
                         // Add event listeners to select buttons
-                        document.querySelectorAll('.select-user').forEach(function(button) {
-                            button.addEventListener('click', function() {
+                        document.querySelectorAll('.select-user').forEach(function (button) {
+                            button.addEventListener('click', function () {
                                 const username = this.getAttribute('data-username');
                                 addSelectedUser(username);
                                 this.closest('.user-search-item').remove();
@@ -434,39 +439,39 @@
                     .catch(error => {
                         console.error('Error fetching users:', error);
                         userSearchResults.innerHTML = `
-                            <div class="no-results-message">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <p>Error loading users. Please try again.</p>
-                            </div>
-                        `;
+                                <div class="no-results-message">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                    <p>Error loading users. Please try again.</p>
+                                </div>
+                            `;
                     });
-                
+
                 // Show modal
                 userSearchModal.classList.add('show');
                 document.body.classList.add('modal-open');
             });
-            
+
             // Modal search filter functionality
             if (modalUserSearch) {
-                modalUserSearch.addEventListener('input', function() {
+                modalUserSearch.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
-                    
+
                     document.querySelectorAll('.user-search-item').forEach(item => {
                         const fullname = item.dataset.fullname.toLowerCase();
                         const username = item.dataset.username.toLowerCase();
-                        
+
                         if (fullname.includes(searchTerm) || username.includes(searchTerm)) {
                             item.style.display = '';
                         } else {
                             item.style.display = 'none';
                         }
                     });
-                    
+
                     // Check if any results are visible
                     const anyVisible = Array.from(
                         document.querySelectorAll('.user-search-item')
                     ).some(el => el.style.display !== 'none');
-                    
+
                     // Show no results message if needed
                     let noResults = document.querySelector('.no-results-message');
                     if (!anyVisible) {
@@ -474,9 +479,9 @@
                             noResults = document.createElement('div');
                             noResults.className = 'no-results-message';
                             noResults.innerHTML = `
-                                <i class="bi bi-search"></i>
-                                <p>No users match your search.</p>
-                            `;
+                                    <i class="bi bi-search"></i>
+                                    <p>No users match your search.</p>
+                                `;
                             userSearchResults.appendChild(noResults);
                         } else {
                             noResults.style.display = '';
@@ -486,86 +491,95 @@
                     }
                 });
             }
-            
+
             function addSelectedUser(username) {
                 // Check if user is already selected
                 const existingUsers = Array.from(document.querySelectorAll('.selected-user-item input[name="AllowedUsers"]'))
                     .map(input => input.value);
-                
+
                 if (existingUsers.includes(username)) {
                     return;
                 }
-                
+
                 const userItem = document.createElement('div');
                 userItem.className = 'selected-user-item';
-                
+
                 const span = document.createElement('span');
                 span.textContent = username;
-                
+
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = 'AllowedUsers';
                 input.value = username;
-                
+
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'btn-remove';
-                
+
                 const icon = document.createElement('i');
                 icon.className = 'bi bi-x';
-                
+
                 removeBtn.appendChild(icon);
                 userItem.appendChild(span);
                 userItem.appendChild(input);
                 userItem.appendChild(removeBtn);
-                
+
                 selectedUsers.appendChild(userItem);
-                
+
                 // Add remove event listener
-                removeBtn.addEventListener('click', function() {
+                removeBtn.addEventListener('click', function () {
                     userItem.remove();
                 });
             }
-            
+
             // Initialize remove buttons for existing users
-            document.querySelectorAll('.selected-user-item .btn-remove').forEach(function(button) {
-                button.addEventListener('click', function() {
+            document.querySelectorAll('.selected-user-item .btn-remove').forEach(function (button) {
+                button.addEventListener('click', function () {
                     this.closest('.selected-user-item').remove();
                 });
             });
-            
+
             // Close modal buttons
-            document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(function(button) {
-                button.addEventListener('click', function() {
+            document.querySelectorAll('.btn-close, [data-bs-dismiss="modal"]').forEach(function (button) {
+                button.addEventListener('click', function () {
                     const modal = this.closest('.modal');
                     modal.classList.remove('show');
                     document.body.classList.remove('modal-open');
                 });
             });
-            
+
             // Close modal on outside click
-            document.querySelectorAll('.modal').forEach(function(modal) {
-                modal.addEventListener('click', function(event) {
+            document.querySelectorAll('.modal').forEach(function (modal) {
+                modal.addEventListener('click', function (event) {
                     if (event.target === this) {
                         this.classList.remove('show');
                         document.body.classList.remove('modal-open');
                     }
                 });
             });
-            
+
             // Fetch chatbot stats
             function fetchChatbotStats(chatbotId) {
                 fetch(`/api/Chatbot/Stats/${chatbotId}`)
-                    .then(response => response.json())
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         document.getElementById('conversationsCount').textContent = data.conversations || '0';
-                        document.getElementById('avgResponseTime').textContent = 
+                        document.getElementById('avgResponseTime').textContent =
                             ((data.avgResponseTime || 0).toFixed(1)) + 's';
-                        document.getElementById('successRate').textContent = 
+                        document.getElementById('successRate').textContent =
                             (data.successRate || 0) + '%';
                     })
                     .catch(error => {
                         console.error('Error fetching chatbot stats:', error);
+                        // Set default values when error occurs
+                        document.getElementById('conversationsCount').textContent = '0';
+                        document.getElementById('avgResponseTime').textContent = '0.0s';
+                        document.getElementById('successRate').textContent = '0%';
                     });
             }
         });
@@ -580,7 +594,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .chatbot-icon {
             width: 48px;
             height: 48px;
@@ -590,62 +604,65 @@
             justify-content: center;
             font-size: 1.5rem;
         }
-        
-        .chatbot-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
-        
+
+        .chatbot-icon.primary {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+        }
+
         .chatbot-info {
             margin-left: 1rem;
         }
-        
+
         .chatbot-title {
             font-size: 1.25rem;
             font-weight: 600;
             margin: 0 0 0.375rem;
         }
-        
+
         .chatbot-meta {
             display: flex;
             gap: 0.5rem;
         }
-        
+
         .badge {
             padding: 0.35em 0.65em;
             font-size: 0.75rem;
             font-weight: 600;
             border-radius: 100px;
         }
-        
+
         .chatbot-stats {
             display: flex;
             gap: 1.5rem;
         }
-        
+
         .stat-item {
             text-align: center;
         }
-        
+
         .stat-value {
             font-size: 1.25rem;
             font-weight: 600;
             color: var(--color-gray-800);
         }
-        
+
         .stat-label {
             font-size: 0.75rem;
             color: var(--color-gray-500);
         }
-        
+
         /* Form Styling */
         .form-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .form-label {
             font-weight: 500;
             margin-bottom: 0.5rem;
             display: block;
         }
-        
+
         .form-control {
             padding: 0.625rem 0.875rem;
             border-radius: var(--border-radius);
@@ -653,19 +670,19 @@
             width: 100%;
             transition: all 0.2s ease;
         }
-        
+
         .form-control:focus {
             border-color: var(--color-primary);
             box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
             outline: none;
         }
-        
+
         .form-text {
             font-size: 0.75rem;
             color: var(--color-gray-500);
             margin-top: 0.5rem;
         }
-        
+
         /* Department checkbox styles */
         .departments-container {
             display: grid;
@@ -673,7 +690,7 @@
             gap: 0.5rem;
             max-width: 600px;
         }
-        
+
         .form-check {
             display: flex;
             align-items: center;
@@ -683,15 +700,15 @@
             background-color: var(--color-gray-50);
             margin: 0;
         }
-        
+
         .form-check:hover {
             background-color: var(--color-gray-100);
         }
-        
+
         .form-check-input {
             margin-right: 0.5rem;
         }
-        
+
         /* User access styles */
         .selected-users-container {
             border: 1px solid var(--color-gray-300);
@@ -702,13 +719,13 @@
             max-height: 200px;
             overflow-y: auto;
         }
-        
+
         .selected-users {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
         }
-        
+
         .selected-user-item {
             display: flex;
             align-items: center;
@@ -718,7 +735,7 @@
             border-radius: 100px;
             font-size: 0.875rem;
         }
-        
+
         .btn-remove {
             background: none;
             border: none;
@@ -728,11 +745,11 @@
             color: var(--color-gray-500);
             cursor: pointer;
         }
-        
+
         .btn-remove:hover {
             color: var(--color-danger);
         }
-        
+
         /* User search modal styles */
         .user-search-results {
             display: flex;
@@ -741,7 +758,7 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        
+
         .user-search-item {
             display: flex;
             justify-content: space-between;
@@ -753,38 +770,38 @@
             transition: all 0.2s ease;
             margin-bottom: 0.5rem;
         }
-        
+
         .user-search-item:hover {
             background-color: var(--color-gray-100);
             border-color: var(--color-gray-300);
         }
-        
+
         .no-results-message {
             text-align: center;
             padding: 2rem 0;
             color: var(--color-gray-500);
         }
-        
+
         .no-results-message i {
             font-size: 2rem;
             margin-bottom: 0.5rem;
             display: block;
         }
-        
+
         .user-info {
             display: flex;
             flex-direction: column;
         }
-        
+
         .user-name {
             font-weight: 500;
         }
-        
+
         .user-username {
             font-size: 0.75rem;
             color: var(--color-gray-500);
         }
-        
+
         /* Form Info Box */
         .form-info-box {
             display: flex;
@@ -795,7 +812,7 @@
             border-radius: var(--border-radius);
             border-left: 3px solid var(--color-primary);
         }
-        
+
         .info-icon {
             width: 36px;
             height: 36px;
@@ -808,41 +825,41 @@
             font-size: 1.25rem;
             margin-right: 1rem;
         }
-        
+
         .info-content {
             flex: 1;
         }
-        
+
         .info-title {
             font-weight: 600;
             margin-bottom: 0.5rem;
         }
-        
+
         .info-details {
             display: flex;
             flex-wrap: wrap;
             gap: 1rem;
         }
-        
+
         .info-item {
             font-size: 0.875rem;
         }
-        
+
         .info-label {
             color: var(--color-gray-600);
             margin-right: 0.25rem;
         }
-        
+
         .info-value {
             font-weight: 500;
         }
-        
+
         /* Form Switch */
         .form-switch {
             display: flex;
             align-items: center;
         }
-        
+
         .form-switch-input {
             appearance: none;
             width: 3.25rem;
@@ -853,11 +870,11 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        
+
         .form-switch-input:checked {
             background-color: var(--color-primary);
         }
-        
+
         .form-switch-input::before {
             content: '';
             position: absolute;
@@ -870,18 +887,18 @@
             transition: transform 0.3s ease;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
         }
-        
+
         .form-switch-input:checked::before {
             transform: translateX(1.5rem);
         }
-        
+
         .form-switch-label {
             margin-left: 0.75rem;
             font-weight: 500;
             font-size: 0.9375rem;
             cursor: pointer;
         }
-        
+
         /* Form Buttons */
         .form-buttons {
             margin-top: 2rem;
@@ -890,7 +907,7 @@
             display: flex;
             justify-content: flex-end;
         }
-        
+
         /* Danger Zone */
         .danger-zone {
             background-color: #fff5f5;
@@ -899,7 +916,7 @@
             overflow: hidden;
             margin-top: 3rem;
         }
-        
+
         .danger-zone-title {
             background-color: #ffe3e3;
             color: var(--color-danger);
@@ -908,32 +925,32 @@
             padding: 0.75rem 1.25rem;
             margin: 0;
         }
-        
+
         .danger-zone-content {
             padding: 1.25rem;
         }
-        
+
         .danger-action {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .danger-info {
             flex: 1;
             padding-right: 1.5rem;
         }
-        
+
         .danger-title {
             font-weight: 600;
             margin-bottom: 0.25rem;
         }
-        
+
         .danger-description {
             font-size: 0.75rem;
             color: var(--color-gray-600);
         }
-        
+
         /* Modal */
         .modal {
             display: none;
@@ -946,16 +963,16 @@
             z-index: 1050;
             overflow: auto;
         }
-        
+
         .modal.show {
             display: block;
         }
-        
+
         .modal-dialog {
             margin: 1.75rem auto;
             max-width: 600px;
         }
-        
+
         .modal-content {
             position: relative;
             background-color: white;
@@ -965,7 +982,7 @@
             flex-direction: column;
             outline: 0;
         }
-        
+
         .modal-header {
             display: flex;
             align-items: center;
@@ -973,13 +990,13 @@
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--color-gray-200);
         }
-        
+
         .modal-title {
             font-size: 1.125rem;
             font-weight: 600;
             margin: 0;
         }
-        
+
         .btn-close {
             padding: 0;
             background: transparent;
@@ -989,13 +1006,13 @@
             color: var(--color-gray-500);
             cursor: pointer;
         }
-        
+
         .modal-body {
             position: relative;
             flex: 1 1 auto;
             padding: 1.5rem;
         }
-        
+
         .modal-footer {
             display: flex;
             align-items: center;
@@ -1004,19 +1021,19 @@
             border-top: 1px solid var(--color-gray-200);
             gap: 0.75rem;
         }
-        
+
         /* Required Field */
         .required {
             color: var(--color-danger);
         }
-        
+
         /* Alert */
         .alert {
             padding: 1rem;
             margin-bottom: 1.5rem;
             border-radius: var(--border-radius);
         }
-        
+
         .alert-danger {
             background-color: rgba(220, 53, 69, 0.1);
             border: 1px solid rgba(220, 53, 69, 0.2);
@@ -1025,50 +1042,50 @@
             align-items: flex-start;
             gap: 0.75rem;
         }
-        
+
         .alert i {
             font-size: 1.25rem;
             margin-top: 0.125rem;
         }
-        
+
         /* Helper classes */
         .d-none {
             display: none !important;
         }
-        
+
         .d-flex {
             display: flex;
         }
-        
+
         .align-items-center {
             align-items: center;
         }
-        
+
         .text-center {
             text-align: center;
         }
-        
+
         .py-3 {
             padding-top: 1rem;
             padding-bottom: 1rem;
         }
-        
+
         .mt-2 {
             margin-top: 0.5rem;
         }
-        
+
         .mt-3 {
             margin-top: 1rem;
         }
-        
+
         .mb-3 {
             margin-bottom: 1rem;
         }
-        
+
         .mt-5 {
             margin-top: 3rem;
         }
-        
+
         .input-group {
             position: relative;
             display: flex;
@@ -1076,14 +1093,14 @@
             align-items: stretch;
             width: 100%;
         }
-        
-        .input-group > .form-control {
+
+        .input-group>.form-control {
             position: relative;
             flex: 1 1 auto;
             width: 1%;
             min-width: 0;
         }
-        
+
         .spinner-border {
             display: inline-block;
             width: 2rem;
@@ -1093,65 +1110,67 @@
             border-radius: 50%;
             animation: spinner-border .75s linear infinite;
         }
-        
+
         @@keyframes spinner-border {
-            to { transform: rotate(360deg); }
-        }
-        
-        .text-primary {
-            color: var(--color-primary) !important;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
-            line-height: 1.5;
-            text-align: center;
-            vertical-align: middle;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid transparent;
-            border-radius: var(--border-radius);
-            transition: all 0.15s ease-in-out;
-        }
-        
-        .btn-primary {
-            color: #fff;
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
-        }
-        
-        .btn-outline {
-            color: var(--color-gray-700);
-            border-color: var(--color-gray-300);
-            background-color: transparent;
-        }
-        
-        .btn-outline-primary {
-            color: var(--color-primary);
-            border-color: var(--color-primary);
-            background-color: transparent;
-        }
-        
-        .btn-outline-danger {
-            color: var(--color-danger);
-            border-color: var(--color-danger);
-            background-color: transparent;
-        }
-        
-        .btn-danger {
-            color: #fff;
-            background-color: var(--color-danger);
-            border-color: var(--color-danger);
-        }
-        
-        .btn-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-            border-radius: calc(var(--border-radius) - 1px);
-        }
-    </style>
-}
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .text-primary {
+                color: var(--color-primary) !important;
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 0.5rem 1rem;
+                font-weight: 500;
+                line-height: 1.5;
+                text-align: center;
+                vertical-align: middle;
+                cursor: pointer;
+                user-select: none;
+                border: 1px solid transparent;
+                border-radius: var(--border-radius);
+                transition: all 0.15s ease-in-out;
+            }
+
+            .btn-primary {
+                color: #fff;
+                background-color: var(--color-primary);
+                border-color: var(--color-primary);
+            }
+
+            .btn-outline {
+                color: var(--color-gray-700);
+                border-color: var(--color-gray-300);
+                background-color: transparent;
+            }
+
+            .btn-outline-primary {
+                color: var(--color-primary);
+                border-color: var(--color-primary);
+                background-color: transparent;
+            }
+
+            .btn-outline-danger {
+                color: var(--color-danger);
+                border-color: var(--color-danger);
+                background-color: transparent;
+            }
+
+            .btn-danger {
+                color: #fff;
+                background-color: var(--color-danger);
+                border-color: var(--color-danger);
+            }
+
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+                border-radius: calc(var(--border-radius) - 1px);
+            }
+        </style>
+    }

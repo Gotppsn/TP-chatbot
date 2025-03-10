@@ -61,7 +61,7 @@ namespace AIHelpdeskSupport.Controllers
             // Get all departments for dropdown
             var departments = await _settingsService.GetAllDepartmentsAsync();
             ViewBag.Departments = departments;
-            
+
             return View();
         }
 
@@ -73,48 +73,48 @@ namespace AIHelpdeskSupport.Controllers
             {
                 chatbot.CreatedAt = DateTime.UtcNow;
                 chatbot.CreatedBy = User.Identity.Name ?? "Admin";
-                
+
                 // Set default values if not provided
                 chatbot.Department ??= "Development";
                 chatbot.AiModel ??= "gpt-3.5-turbo";
-                
+
                 // Initialize collections if null
                 chatbot.Departments ??= new List<string>();
                 chatbot.AllowedUsers ??= new List<string>();
-                
+
                 // Make sure primary department is in the Departments list
                 if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
                 {
                     chatbot.Departments.Add(chatbot.Department);
                 }
-                
+
                 // Set default access type if not provided
                 chatbot.AccessType ??= "All";
-                
+
                 // Clear allowed users if access type is not Specific
                 if (chatbot.AccessType != "Specific")
                 {
                     chatbot.AllowedUsers.Clear();
                 }
-                
+
                 _context.Chatbots.Add(chatbot);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = "Chatbot created successfully.";
                 return RedirectToAction(nameof(Index));
             }
-            
+
             // Get departments again if validation fails
             var departments = await _settingsService.GetAllDepartmentsAsync();
             ViewBag.Departments = departments;
-            
+
             return View(chatbot);
         }
 
         public async Task<IActionResult> Test(int id)
         {
             var chatbot = await _context.Chatbots.FindAsync(id);
-            
+
             if (chatbot == null)
             {
                 return NotFound();
@@ -137,17 +137,17 @@ namespace AIHelpdeskSupport.Controllers
                 // Get all departments for dropdown
                 var departments = await _settingsService.GetAllDepartmentsAsync();
                 ViewBag.Departments = departments;
-                
+
                 // Initialize collections if null
                 chatbot.Departments ??= new List<string>();
                 chatbot.AllowedUsers ??= new List<string>();
-                
+
                 // Make sure primary department is in the Departments list
                 if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
                 {
                     chatbot.Departments.Add(chatbot.Department);
                 }
-                
+
                 // Set default access type if not provided
                 chatbot.AccessType ??= "All";
 
@@ -177,23 +177,23 @@ namespace AIHelpdeskSupport.Controllers
                     var originalChatbot = await _context.Chatbots
                         .AsNoTracking()
                         .FirstOrDefaultAsync(c => c.Id == id);
-                        
+
                     if (originalChatbot != null)
                     {
                         chatbot.CreatedAt = originalChatbot.CreatedAt;
                         chatbot.CreatedBy = originalChatbot.CreatedBy;
                     }
-                    
+
                     // Initialize collections if null
                     chatbot.Departments ??= new List<string>();
                     chatbot.AllowedUsers ??= new List<string>();
-                    
+
                     // Make sure Department is set from Departments list
                     if (chatbot.Departments.Any())
                     {
                         // If Department property isn't in the Departments list,
                         // set Department to first item in Departments list
-                        if (string.IsNullOrEmpty(chatbot.Department) || 
+                        if (string.IsNullOrEmpty(chatbot.Department) ||
                             !chatbot.Departments.Contains(chatbot.Department))
                         {
                             chatbot.Department = chatbot.Departments.First();
@@ -204,22 +204,22 @@ namespace AIHelpdeskSupport.Controllers
                         // If Departments is empty but Department is set, add it to Departments
                         chatbot.Departments.Add(chatbot.Department);
                     }
-                    
+
                     // Set default access type if not provided
                     chatbot.AccessType ??= "All";
-                    
+
                     // If AccessType is not Specific, clear the AllowedUsers list
                     if (chatbot.AccessType != "Specific")
                     {
                         chatbot.AllowedUsers.Clear();
                     }
-                    
+
                     // Set LastUpdatedAt
                     chatbot.LastUpdatedAt = DateTime.UtcNow;
-                    
+
                     _context.Update(chatbot);
                     await _context.SaveChangesAsync();
-                    
+
                     TempData["SuccessMessage"] = "Chatbot updated successfully.";
                     return RedirectToAction(nameof(Index));
                 }
@@ -230,7 +230,7 @@ namespace AIHelpdeskSupport.Controllers
                     {
                         return NotFound();
                     }
-                    
+
                     ModelState.AddModelError("", "The record was modified by another user.");
                 }
                 catch (Exception ex)
@@ -261,7 +261,7 @@ namespace AIHelpdeskSupport.Controllers
 
                 _context.Chatbots.Remove(chatbot);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = "Chatbot deleted successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -280,7 +280,7 @@ namespace AIHelpdeskSupport.Controllers
             try
             {
                 var chatbot = await _context.Chatbots.FindAsync(id);
-                
+
                 if (chatbot == null)
                 {
                     return NotFound();
@@ -289,7 +289,7 @@ namespace AIHelpdeskSupport.Controllers
                 chatbot.IsActive = !chatbot.IsActive;
                 _context.Update(chatbot);
                 await _context.SaveChangesAsync();
-                
+
                 TempData["SuccessMessage"] = $"Chatbot {(chatbot.IsActive ? "activated" : "deactivated")} successfully.";
                 return RedirectToAction(nameof(Index));
             }
@@ -307,7 +307,7 @@ namespace AIHelpdeskSupport.Controllers
             try
             {
                 var result = await SyncFlowiseChatbots();
-                
+
                 if (result.Success)
                 {
                     TempData["SuccessMessage"] = result.Message;
@@ -317,7 +317,7 @@ namespace AIHelpdeskSupport.Controllers
                 {
                     TempData["ErrorMessage"] = result.Message;
                 }
-                
+
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
@@ -328,14 +328,41 @@ namespace AIHelpdeskSupport.Controllers
             }
         }
 
+        // Add this to Controllers/Api/ChatbotController.cs
+        [HttpGet("Stats/{id}")]
+        public IActionResult GetStats(int id)
+        {
+            try
+            {
+                // For now, return dummy data to fix the immediate error
+                return Ok(new
+                {
+                    conversations = 0,
+                    avgResponseTime = 0.0,
+                    successRate = 0
+                });
+
+                // Later, implement actual stats retrieval:
+                // var chatbot = _context.Chatbots.Find(id);
+                // if (chatbot == null) return NotFound();
+                // var stats = _statsService.GetChatbotStats(id);
+                // return Ok(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving chatbot stats for ID {Id}", id);
+                return StatusCode(500, new { error = "Internal server error" });
+            }
+        }
+
         private async Task<SyncResult> SyncFlowiseChatbots()
         {
             var result = new SyncResult();
-            
+
             try
             {
                 var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
-                
+
                 if (flowiseChatflows == null || !flowiseChatflows.Any())
                 {
                     result.Message = "No chatflows found in Flowise API. Check API configuration.";
@@ -344,7 +371,7 @@ namespace AIHelpdeskSupport.Controllers
 
                 result.TotalFound = flowiseChatflows.Count();
                 _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
-                
+
                 foreach (var chatflow in flowiseChatflows)
                 {
                     if (string.IsNullOrEmpty(chatflow.Id))
@@ -352,17 +379,17 @@ namespace AIHelpdeskSupport.Controllers
                         result.SkippedCount++;
                         continue;
                     }
-                    
+
                     var existingChatbot = await _context.Chatbots
                         .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
-                    
+
                     if (existingChatbot == null)
                     {
                         // Get department settings
                         var settings = await _context.SystemSettings.FirstOrDefaultAsync();
                         string defaultDepartment = "Development";
                         string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
-                        
+
                         // Create new chatbot
                         var newChatbot = new Chatbot
                         {
@@ -378,7 +405,7 @@ namespace AIHelpdeskSupport.Controllers
                             AccessType = "All",
                             AllowedUsers = new List<string>()
                         };
-                        
+
                         _context.Chatbots.Add(newChatbot);
                         result.NewCount++;
                     }
@@ -386,13 +413,13 @@ namespace AIHelpdeskSupport.Controllers
                     {
                         // Check if any properties need updating
                         bool updated = false;
-                        
+
                         if (existingChatbot.Name != chatflow.Name)
                         {
                             existingChatbot.Name = chatflow.Name;
                             updated = true;
                         }
-                        
+
                         // Initialize collections if null
                         if (existingChatbot.Departments == null)
                         {
@@ -403,22 +430,22 @@ namespace AIHelpdeskSupport.Controllers
                             }
                             updated = true;
                         }
-                        
+
                         if (existingChatbot.AllowedUsers == null)
                         {
                             existingChatbot.AllowedUsers = new List<string>();
                             updated = true;
                         }
-                        
+
                         if (string.IsNullOrEmpty(existingChatbot.AccessType))
                         {
                             existingChatbot.AccessType = "All";
                             updated = true;
                         }
-                        
+
                         // Update last sync timestamp
                         existingChatbot.LastUpdatedAt = DateTime.UtcNow;
-                        
+
                         if (updated)
                         {
                             _context.Chatbots.Update(existingChatbot);
@@ -430,9 +457,9 @@ namespace AIHelpdeskSupport.Controllers
                         }
                     }
                 }
-                
+
                 await _context.SaveChangesAsync();
-                
+
                 result.Success = true;
                 result.Message = $"Sync completed: {result.NewCount} new, {result.UpdatedCount} updated, {result.SkippedCount} skipped chatbots";
                 _logger.LogInformation(result.Message);
@@ -444,7 +471,7 @@ namespace AIHelpdeskSupport.Controllers
                 result.Exception = ex;
                 _logger.LogError(ex, "Error synchronizing Flowise chatbots");
             }
-            
+
             return result;
         }
 
