@@ -81,6 +81,7 @@
         <input type="hidden" asp-for="CreatedAt" />
         <input type="hidden" asp-for="LastLogin" />
         <input type="hidden" asp-for="Department" />
+        <input type="hidden" name="ResetPasswordOption" value="no" />
 
         <div class="tab-container">
             <!-- Tab navigation -->
@@ -147,14 +148,14 @@
 
                     <div class="form-grid">
                         <div class="form-group">
-    <label for="Department" class="form-label">Department</label>
-    <div class="input-wrapper">
-        <i class="bi bi-building input-icon"></i>
-        <input id="DepartmentDisplay" class="form-control" value="@Model.Department" readonly />
-        <input type="hidden" asp-for="Department" />
-        <small class="form-text text-muted">Department is set by LDAP and cannot be changed</small>
-    </div>
-</div>
+                            <label for="Department" class="form-label">Department</label>
+                            <div class="input-wrapper">
+                                <i class="bi bi-building input-icon"></i>
+                                <input id="DepartmentDisplay" class="form-control" value="@Model.Department" readonly />
+                                <input type="hidden" asp-for="Department" />
+                                <small class="form-text text-muted">Department is set by LDAP and cannot be changed</small>
+                            </div>
+                        </div>
 
                         <div class="form-group">
                             <label asp-for="Role" class="form-label">Role <span class="required">*</span></label>
@@ -188,77 +189,6 @@
                             <p class="status-description">
                                 @(Model.IsActive ? "User can currently access the system" : "User account is currently disabled")
                             </p>
-                        </div>
-                    </div>
-
-                    <div class="password-section">
-                        <div class="section-header">
-                            <h3>Password Management</h3>
-                            <p class="text-secondary">Reset or change user password</p>
-                        </div>
-
-                        <div class="password-options">
-    <!-- No password reset option -->
-    <div class="password-option-item">
-        <div class="form-check">
-            <input type="radio" id="resetPassword-no" name="ResetPasswordOption" value="no" 
-                   checked class="form-check-input" />
-            <label for="resetPassword-no" class="form-check-label">
-                <div class="option-title">No password reset</div>
-                <p class="option-desc">Keep the current password unchanged</p>
-            </label>
-        </div>
-    </div>
-
-    <!-- Set password manually option -->
-    <div class="password-option-item">
-        <div class="form-check">
-            <input type="radio" id="resetPassword-manual" name="ResetPasswordOption" value="manual" 
-                   class="form-check-input" />
-            <label for="resetPassword-manual" class="form-check-label">
-                <div class="option-title">Set password manually</div>
-                <p class="option-desc">Directly enter a new password for this user</p>
-            </label>
-        </div>
-    </div>
-</div>
-
-                        <div id="manualPasswordFields" class="password-fields">
-                            <div class="form-group">
-                                <label for="newPassword" class="form-label">New Password</label>
-                                <div class="input-wrapper password-input">
-                                    <i class="bi bi-key input-icon"></i>
-                                    <input type="password" id="newPassword" name="NewPassword" class="form-control" />
-                                    <button type="button" class="btn password-toggle" tabindex="-1">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="password-strength">
-                                    <div class="progress">
-                                        <div class="progress-bar" id="passwordStrength" role="progressbar" style="width: 0%"></div>
-                                    </div>
-                                    <div class="strength-label">
-                                        <span id="strengthLabel">Weak</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                <div class="input-wrapper password-input">
-                                    <i class="bi bi-key input-icon"></i>
-                                    <input type="password" id="confirmPassword" name="ConfirmPassword" class="form-control" />
-                                    <button type="button" class="btn password-toggle" tabindex="-1">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
-                                <div id="passwordMatch" class="password-match">
-                                    <i class="bi bi-check-circle"></i> Passwords match
-                                </div>
-                                <div id="passwordMismatch" class="password-mismatch">
-                                    <i class="bi bi-exclamation-circle"></i> Passwords do not match
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -806,113 +736,6 @@
             margin: 0;
         }
 
-        /* Password section */
-        .password-options {
-            margin-bottom: 2rem;
-        }
-
-        .password-option-item {
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border: 1px solid var(--gray-200);
-            border-radius: var(--border-radius-sm);
-            transition: var(--transition);
-        }
-
-        .password-option-item:hover {
-            border-color: rgba(var(--primary-rgb), 0.3);
-            background-color: rgba(var(--primary-rgb), 0.02);
-        }
-
-        .option-title {
-            font-weight: 500;
-            color: var(--gray-800);
-            margin-bottom: 0.25rem;
-        }
-
-        .option-desc {
-            font-size: 0.85rem;
-            color: var(--gray-600);
-            margin: 0;
-        }
-
-        .password-fields {
-            display: none;
-            animation: fadeIn 0.3s;
-            padding: 1.5rem;
-            background-color: var(--gray-100);
-            border-radius: var(--border-radius-sm);
-            margin-bottom: 1.5rem;
-        }
-
-        .password-input {
-            display: flex;
-        }
-
-        .password-input .form-control {
-            border-right: none;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-
-        .password-toggle {
-            background-color: white;
-            border: 1px solid var(--gray-300);
-            border-left: none;
-            border-top-right-radius: var(--border-radius-sm);
-            border-bottom-right-radius: var(--border-radius-sm);
-            color: var(--gray-600);
-            padding: 0 0.75rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .password-toggle:hover {
-            color: var(--gray-800);
-        }
-
-        .password-strength {
-            margin-top: 0.75rem;
-        }
-
-        .progress {
-            height: 5px;
-            background-color: var(--gray-200);
-            border-radius: 50rem;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--danger);
-            transition: var(--transition);
-        }
-
-        .strength-label {
-            display: flex;
-            justify-content: flex-end;
-            font-size: 0.75rem;
-            color: var(--gray-600);
-            margin-top: 0.25rem;
-        }
-
-        .password-match, .password-mismatch {
-            display: none;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .password-match {
-            color: var(--success);
-        }
-
-        .password-mismatch {
-            color: var(--danger);
-        }
-
         /* Form actions */
         .form-actions {
             display: flex;
@@ -1078,105 +901,6 @@
                 });
             }
             
-            // Password reset options
-            const resetOptions = document.querySelectorAll('input[name="ResetPasswordOption"]');
-            const manualPasswordFields = document.getElementById('manualPasswordFields');
-            
-            resetOptions.forEach(option => {
-                option.addEventListener('change', function() {
-                    if (this.value === 'manual') {
-                        manualPasswordFields.style.display = 'block';
-                    } else {
-                        manualPasswordFields.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Password toggle visibility
-            const passwordToggles = document.querySelectorAll('.password-toggle');
-            passwordToggles.forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const input = this.closest('.password-input').querySelector('input');
-                    const icon = this.querySelector('i');
-                    
-                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                    input.setAttribute('type', type);
-                    
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
-            });
-            
-            // Password strength and match validation
-            const newPassword = document.getElementById('newPassword');
-            const confirmPassword = document.getElementById('confirmPassword');
-            const passwordStrength = document.getElementById('passwordStrength');
-            const strengthLabel = document.getElementById('strengthLabel');
-            const passwordMatch = document.getElementById('passwordMatch');
-            const passwordMismatch = document.getElementById('passwordMismatch');
-            
-            if (newPassword) {
-                newPassword.addEventListener('input', function() {
-                    updatePasswordStrength(this.value);
-                    checkPasswordMatch();
-                });
-            }
-            
-            if (confirmPassword) {
-                confirmPassword.addEventListener('input', checkPasswordMatch);
-            }
-            
-            function updatePasswordStrength(password) {
-                if (!password) {
-                    passwordStrength.style.width = '0%';
-                    passwordStrength.style.backgroundColor = 'var(--danger)';
-                    strengthLabel.textContent = 'Weak';
-                    return;
-                }
-                
-                // Calculate strength (simplified)
-                let strength = 0;
-                if (password.length > 6) strength += 1;
-                if (password.length > 10) strength += 1;
-                if (/[A-Z]/.test(password)) strength += 1;
-                if (/[0-9]/.test(password)) strength += 1;
-                if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-                
-                // Map to 0-4 scale
-                const percentage = (strength / 4) * 100;
-                const labels = ['Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-                const colors = [
-                    'var(--danger)', 
-                    'var(--warning)', 
-                    'var(--info)', 
-                    'var(--primary)', 
-                    'var(--success)'
-                ];
-                
-                passwordStrength.style.width = `${percentage}%`;
-                passwordStrength.style.backgroundColor = colors[strength];
-                strengthLabel.textContent = labels[strength];
-            }
-            
-            function checkPasswordMatch() {
-                const pwd = newPassword.value;
-                const confirm = confirmPassword.value;
-                
-                if (!pwd || !confirm) {
-                    passwordMatch.style.display = 'none';
-                    passwordMismatch.style.display = 'none';
-                    return;
-                }
-                
-                if (pwd === confirm) {
-                    passwordMatch.style.display = 'flex';
-                    passwordMismatch.style.display = 'none';
-                } else {
-                    passwordMatch.style.display = 'none';
-                    passwordMismatch.style.display = 'flex';
-                }
-            }
-            
             // Delete confirmation
             const deleteConfirmInput = document.getElementById('deleteConfirmInput');
             const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
@@ -1225,19 +949,6 @@
                         }
                     });
                     
-                    // Check if passwords match when manual reset is selected
-                    const resetOption = document.querySelector('input[name="ResetPasswordOption"]:checked');
-                    if (resetOption && resetOption.value === 'manual') {
-                        const pwd = newPassword.value;
-                        const confirm = confirmPassword.value;
-                        
-                        if (pwd !== confirm) {
-                            event.preventDefault();
-                            passwordMismatch.style.display = 'flex';
-                            return false;
-                        }
-                    }
-                    
                     if (hasEmptyRequired) {
                         event.preventDefault();
                         return false;
@@ -1251,69 +962,5 @@
                 });
             }
         });
-
-
-        // Password field requirement handling
-const resetOptions = document.querySelectorAll('input[name="ResetPasswordOption"]');
-const manualPasswordFields = document.getElementById('manualPasswordFields');
-const newPasswordField = document.getElementById('newPassword');
-const confirmPasswordField = document.getElementById('confirmPassword');
-
-// Update on page load
-updatePasswordFieldsRequirement();
-
-// Update when option changes
-resetOptions.forEach(option => {
-    option.addEventListener('change', function() {
-        updatePasswordFieldsRequirement();
-    });
-});
-
-// Function to check current selection and update fields requirement
-function updatePasswordFieldsRequirement() {
-    const selectedOption = document.querySelector('input[name="ResetPasswordOption"]:checked');
-    if (selectedOption && selectedOption.value === 'manual') {
-        manualPasswordFields.style.display = 'block';
-        if (newPasswordField) newPasswordField.setAttribute('required', 'required');
-        if (confirmPasswordField) confirmPasswordField.setAttribute('required', 'required');
-    } else {
-        manualPasswordFields.style.display = 'none';
-        if (newPasswordField) {
-            newPasswordField.removeAttribute('required');
-            newPasswordField.value = '';
-        }
-        if (confirmPasswordField) {
-            confirmPasswordField.removeAttribute('required');
-            confirmPasswordField.value = '';
-        }
-    }
-}
-
-// Form submission validation
-const userEditForm = document.getElementById('userEditForm');
-if (userEditForm) {
-    userEditForm.addEventListener('submit', function(event) {
-        const selectedOption = document.querySelector('input[name="ResetPasswordOption"]:checked');
-        
-        // Only validate password fields if manual reset is selected
-        if (selectedOption && selectedOption.value === 'manual') {
-            if (newPasswordField && confirmPasswordField) {
-                const pwd = newPasswordField.value;
-                const confirm = confirmPasswordField.value;
-                
-                if (!pwd || !confirm) {
-                    event.preventDefault();
-                    return false;
-                }
-                
-                if (pwd !== confirm) {
-                    event.preventDefault();
-                    if (passwordMismatch) passwordMismatch.style.display = 'flex';
-                    return false;
-                }
-            }
-        }
-    });
-}
     </script>
 }
