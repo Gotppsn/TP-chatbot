@@ -17,6 +17,7 @@ namespace AIHelpdeskSupport.Data
         public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
         public DbSet<SystemSettings> SystemSettings { get; set; } = null!;
+        public DbSet<ChatbotUpdate> ChatbotUpdates { get; set; } = null!;
 
         public DbSet<ChatbotKnowledgeBase> ChatbotKnowledgeBases { get; set; } = null!;
         
@@ -45,6 +46,10 @@ namespace AIHelpdeskSupport.Data
                 .HasOne(up => up.User)
                 .WithMany()
                 .HasForeignKey(up => up.UserId);
+            builder.Entity<ChatbotUpdate>()
+                .HasOne(cu => cu.Chatbot)
+                .WithMany(c => c.UpdateHistory)
+                .HasForeignKey(cu => cu.ChatbotId);
         }
     }
 }

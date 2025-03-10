@@ -82,6 +82,9 @@ namespace AIHelpdeskSupport.Controllers
                 chatbot.Departments ??= new List<string>();
                 chatbot.AllowedUsers ??= new List<string>();
 
+                // Set LastUpdatedAt
+                chatbot.LastUpdatedAt = DateTime.UtcNow;
+
                 // Make sure primary department is in the Departments list
                 if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
                 {
@@ -90,6 +93,20 @@ namespace AIHelpdeskSupport.Controllers
 
                 // Set default access type if not provided
                 chatbot.AccessType ??= "All";
+
+                var updateEntry = new ChatbotUpdate
+                {
+                    ChatbotId = chatbot.Id,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = User.Identity?.Name ?? "System",
+                    ChangeDescription = "Chatbot settings updated by user"
+                };
+
+                // Add to context directly
+                _context.Add(updateEntry);
+
+                _context.Update(chatbot);
+                await _context.SaveChangesAsync();
 
                 // Clear allowed users if access type is not Specific
                 if (chatbot.AccessType != "Specific")
