@@ -78,6 +78,25 @@ namespace AIHelpdeskSupport.Controllers
                 chatbot.Department ??= "Development";
                 chatbot.AiModel ??= "gpt-3.5-turbo";
                 
+                // Initialize collections if null
+                chatbot.Departments ??= new List<string>();
+                chatbot.AllowedUsers ??= new List<string>();
+                
+                // Make sure primary department is in the Departments list
+                if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
+                {
+                    chatbot.Departments.Add(chatbot.Department);
+                }
+                
+                // Set default access type if not provided
+                chatbot.AccessType ??= "All";
+                
+                // Clear allowed users if access type is not Specific
+                if (chatbot.AccessType != "Specific")
+                {
+                    chatbot.AllowedUsers.Clear();
+                }
+                
                 _context.Chatbots.Add(chatbot);
                 await _context.SaveChangesAsync();
                 
@@ -104,118 +123,129 @@ namespace AIHelpdeskSupport.Controllers
             return View(chatbot);
         }
 
-public async Task<IActionResult> Edit(int id)
-{
-    try
-    {
-        var chatbot = await _context.Chatbots.FindAsync(id);
-
-        if (chatbot == null)
+        public async Task<IActionResult> Edit(int id)
         {
-            return NotFound();
+            try
+            {
+                var chatbot = await _context.Chatbots.FindAsync(id);
+
+                if (chatbot == null)
+                {
+                    return NotFound();
+                }
+
+                // Get all departments for dropdown
+                var departments = await _settingsService.GetAllDepartmentsAsync();
+                ViewBag.Departments = departments;
+                
+                // Initialize collections if null
+                chatbot.Departments ??= new List<string>();
+                chatbot.AllowedUsers ??= new List<string>();
+                
+                // Make sure primary department is in the Departments list
+                if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
+                {
+                    chatbot.Departments.Add(chatbot.Department);
+                }
+                
+                // Set default access type if not provided
+                chatbot.AccessType ??= "All";
+
+                return View(chatbot);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting chatbot {Id} for edit", id);
+                return RedirectToAction(nameof(Index));
+            }
         }
 
-        // Get all departments for dropdown
-        var departments = await _settingsService.GetAllDepartmentsAsync();
-        ViewBag.Departments = departments;
-        
-        // In a real implementation, you would load these from your database
-        // Here we're just using TempData or providing defaults
-        ViewBag.SelectedDepartments = TempData["SelectedDepartments"] as List<string> ?? new List<string> { chatbot.Department };
-        ViewBag.AllowUserAccess = TempData["AllowUserAccess"] ?? false;
-        ViewBag.AllowedUsers = TempData["AllowedUsers"] as List<string> ?? new List<string>();
-
-        return View(chatbot);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error getting chatbot {Id} for edit", id);
-        return RedirectToAction(nameof(Index));
-    }
-}
-
-// POST: Chatbot/Edit/5
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(int id, Chatbot chatbot, 
-    List<string> SelectedDepartments, bool AllowUserAccess, List<string> AllowedUsers)
-{
-    if (id != chatbot.Id)
-    {
-        return NotFound();
-    }
-
-    if (ModelState.IsValid)
-    {
-        try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Chatbot chatbot)
         {
-            // Preserve original creation data
-            var originalChatbot = await _context.Chatbots
-                .AsNoTracking()
-                .FirstOrDefaultAsync(c => c.Id == id);
-                
-            if (originalChatbot != null)
-            {
-                chatbot.CreatedAt = originalChatbot.CreatedAt;
-                chatbot.CreatedBy = originalChatbot.CreatedBy;
-            }
-            
-            // Make sure Department is set if SelectedDepartments has items
-            if (SelectedDepartments != null && SelectedDepartments.Any())
-            {
-                // Primary department is already set in the form via hidden input
-                
-                // Store the selected departments in TempData for now
-                TempData["SelectedDepartments"] = SelectedDepartments;
-                
-                // TODO: In a real implementation, store in ChatbotDepartment table
-                // await _chatbotDepartmentService.UpdateDepartmentsAsync(chatbot.Id, SelectedDepartments);
-            }
-            
-            // Store user access settings
-            TempData["AllowUserAccess"] = AllowUserAccess;
-            if (AllowUserAccess && AllowedUsers != null && AllowedUsers.Any())
-            {
-                TempData["AllowedUsers"] = AllowedUsers;
-                
-                // TODO: In a real implementation, store in ChatbotUser table
-                // await _chatbotUserService.UpdateAllowedUsersAsync(chatbot.Id, AllowedUsers);
-            }
-            
-            _context.Update(chatbot);
-            await _context.SaveChangesAsync();
-            
-            TempData["SuccessMessage"] = "Chatbot updated successfully.";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateConcurrencyException ex)
-        {
-            _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
-            if (!await ChatbotExists(id))
+            if (id != chatbot.Id)
             {
                 return NotFound();
             }
-            
-            ModelState.AddModelError("", "The record was modified by another user.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
-            ModelState.AddModelError("", "An error occurred while updating the chatbot.");
-        }
-    }
 
-    // Get departments again for the view
-    var departments = await _settingsService.GetAllDepartmentsAsync();
-    ViewBag.Departments = departments;
-    
-    // Pass back the selected departments and users for redisplay
-    ViewBag.SelectedDepartments = SelectedDepartments;
-    ViewBag.AllowUserAccess = AllowUserAccess;
-    ViewBag.AllowedUsers = AllowedUsers;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // Preserve original creation data
+                    var originalChatbot = await _context.Chatbots
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync(c => c.Id == id);
+                        
+                    if (originalChatbot != null)
+                    {
+                        chatbot.CreatedAt = originalChatbot.CreatedAt;
+                        chatbot.CreatedBy = originalChatbot.CreatedBy;
+                    }
+                    
+                    // Initialize collections if null
+                    chatbot.Departments ??= new List<string>();
+                    chatbot.AllowedUsers ??= new List<string>();
+                    
+                    // Make sure Department is set from Departments list
+                    if (chatbot.Departments.Any())
+                    {
+                        // If Department property isn't in the Departments list,
+                        // set Department to first item in Departments list
+                        if (string.IsNullOrEmpty(chatbot.Department) || 
+                            !chatbot.Departments.Contains(chatbot.Department))
+                        {
+                            chatbot.Department = chatbot.Departments.First();
+                        }
+                    }
+                    else if (!string.IsNullOrEmpty(chatbot.Department))
+                    {
+                        // If Departments is empty but Department is set, add it to Departments
+                        chatbot.Departments.Add(chatbot.Department);
+                    }
+                    
+                    // Set default access type if not provided
+                    chatbot.AccessType ??= "All";
+                    
+                    // If AccessType is not Specific, clear the AllowedUsers list
+                    if (chatbot.AccessType != "Specific")
+                    {
+                        chatbot.AllowedUsers.Clear();
+                    }
+                    
+                    // Set LastUpdatedAt
+                    chatbot.LastUpdatedAt = DateTime.UtcNow;
+                    
+                    _context.Update(chatbot);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = "Chatbot updated successfully.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
+                    if (!await ChatbotExists(id))
+                    {
+                        return NotFound();
+                    }
+                    
+                    ModelState.AddModelError("", "The record was modified by another user.");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
+                    ModelState.AddModelError("", "An error occurred while updating the chatbot.");
+                }
+            }
 
-    return View(chatbot);
-}
+            // Get departments again for the view
+            var departments = await _settingsService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+
+            return View(chatbot);
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -343,7 +373,10 @@ public async Task<IActionResult> Edit(int id, Chatbot chatbot,
                             AiModel = defaultModel,
                             IsActive = true,
                             CreatedAt = DateTime.UtcNow,
-                            CreatedBy = "System-Sync"
+                            CreatedBy = "System-Sync",
+                            Departments = new List<string> { defaultDepartment },
+                            AccessType = "All",
+                            AllowedUsers = new List<string>()
                         };
                         
                         _context.Chatbots.Add(newChatbot);
@@ -357,6 +390,29 @@ public async Task<IActionResult> Edit(int id, Chatbot chatbot,
                         if (existingChatbot.Name != chatflow.Name)
                         {
                             existingChatbot.Name = chatflow.Name;
+                            updated = true;
+                        }
+                        
+                        // Initialize collections if null
+                        if (existingChatbot.Departments == null)
+                        {
+                            existingChatbot.Departments = new List<string>();
+                            if (!string.IsNullOrEmpty(existingChatbot.Department))
+                            {
+                                existingChatbot.Departments.Add(existingChatbot.Department);
+                            }
+                            updated = true;
+                        }
+                        
+                        if (existingChatbot.AllowedUsers == null)
+                        {
+                            existingChatbot.AllowedUsers = new List<string>();
+                            updated = true;
+                        }
+                        
+                        if (string.IsNullOrEmpty(existingChatbot.AccessType))
+                        {
+                            existingChatbot.AccessType = "All";
                             updated = true;
                         }
                         

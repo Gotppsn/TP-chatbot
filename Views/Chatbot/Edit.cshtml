@@ -2,34 +2,19 @@
 @{
     ViewData["Title"] = "Edit Chatbot";
     
-    // Setup fallback data in controller via ViewBag if needed
-    if (ViewBag.ExampleChatbot == null && Model == null)
+    // Get departments list from ViewBag
+    var allDepartments = ViewBag.Departments as List<string> ?? new List<string>();
+    
+    // Ensure we have the selected departments list from the model
+    var selectedDepartments = Model.Departments ?? new List<string>();
+    if (!string.IsNullOrEmpty(Model.Department) && !selectedDepartments.Contains(Model.Department)) 
     {
-        ViewBag.ExampleChatbot = new Chatbot 
-        { 
-            Id = 1, 
-            Name = "Customer Support Bot", 
-            Description = "Handles general product inquiries and helps customers troubleshoot common issues.", 
-            IsActive = true,
-            CreatedAt = DateTime.Now.AddMonths(-3),
-            CreatedBy = "Admin",
-            FlowiseId = "flow-123456"
-        };
+        selectedDepartments.Add(Model.Department);
     }
     
-    // Use either the model passed from controller or the example data
-    var chatbot = Model ?? ViewBag.ExampleChatbot;
-    
-    // Get selected department and allowed users lists
-    var selectedDepartment = chatbot.Department;
-    var selectedDepartments = (ViewBag.SelectedDepartments as List<string>) ?? new List<string>();
-    if (!string.IsNullOrEmpty(selectedDepartment) && !selectedDepartments.Contains(selectedDepartment)) 
-    {
-        selectedDepartments.Add(selectedDepartment);
-    }
-    
-    var allowUserAccess = ViewBag.AllowUserAccess != null && (bool)ViewBag.AllowUserAccess;
-    var allowedUsers = (ViewBag.AllowedUsers as List<string>) ?? new List<string>();
+    // Set up access control variables
+    var allowSpecificUsers = Model.AccessType == "Specific";
+    var allowedUsers = Model.AllowedUsers ?? new List<string>();
 }
 
 <div class="page-header">
@@ -42,7 +27,7 @@
             <i class="bi bi-arrow-left"></i>
             <span>Back to List</span>
         </a>
-        <a href="/Chatbot/Test/@chatbot.Id" class="btn btn-primary">
+        <a href="/Chatbot/Test/@Model.Id" class="btn btn-primary">
             <i class="bi bi-chat-dots"></i>
             <span>Test Chatbot</span>
         </a>
@@ -57,10 +42,10 @@
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="chatbot-info">
-                    <h2 class="chatbot-title">@chatbot.Name</h2>
+                    <h2 class="chatbot-title">@Model.Name</h2>
                     <div class="chatbot-meta">
-                        <span class="badge bg-@(chatbot.IsActive ? "success" : "secondary")">
-                            @(chatbot.IsActive ? "Active" : "Inactive")
+                        <span class="badge bg-@(Model.IsActive ? "success" : "secondary")">
+                            @(Model.IsActive ? "Active" : "Inactive")
                         </span>
                     </div>
                 </div>
@@ -86,15 +71,12 @@
         <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
             <input type="hidden" asp-for="Id" />
-            @if (Model != null)
-            {
-                <input type="hidden" asp-for="CreatedAt" />
-                <input type="hidden" asp-for="CreatedBy" />
-            }
+            <input type="hidden" asp-for="CreatedAt" />
+            <input type="hidden" asp-for="CreatedBy" />
             
             <div class="form-group mb-4">
                 <label asp-for="FlowiseId" class="form-label">Flowise Chatflow ID <span class="required">*</span></label>
-                <input type="text" asp-for="FlowiseId" class="form-control" value="@chatbot.FlowiseId" placeholder="e.g. 275a8c78-fa28-494c-98a5" required />
+                <input type="text" asp-for="FlowiseId" class="form-control" placeholder="e.g. 275a8c78-fa28-494c-98a5" required />
                 <div class="form-text">
                     The Flowise Chatflow ID connects this chatbot to your AI workflow
                 </div>
@@ -103,7 +85,7 @@
             
             <div class="form-group mb-4">
                 <label asp-for="Name" class="form-label">Chatbot Name <span class="required">*</span></label>
-                <input asp-for="Name" class="form-control" value="@chatbot.Name" placeholder="e.g. Customer Support Bot" required />
+                <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" required />
                 <div class="form-text">
                     The name displayed to users and administrators
                 </div>
@@ -114,80 +96,77 @@
             <div class="form-group mb-4">
                 <label class="form-label">Departments</label>
                 <div class="departments-container">
-                    @if (ViewBag.Departments != null)
+                    @foreach (var department in allDepartments)
                     {
-                        foreach (var department in ViewBag.Departments)
-                        {
-                            bool isSelected = selectedDepartments.Contains(department);
-                            bool isPrimary = department == selectedDepartment;
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="SelectedDepartments" 
-                                       id="dept-@department.Replace(" ", "-")" value="@department" 
-                                       @(isSelected ? "checked" : "")
-                                       @(isPrimary ? "data-primary=true" : "")>
-                                <label class="form-check-label" for="dept-@department.Replace(" ", "-")">
-                                    @department
-                                </label>
-                            </div>
-                        }
+                        bool isSelected = selectedDepartments.Contains(department);
+                        bool isPrimary = department == Model.Department;
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="Departments" 
+                                   id="dept-@department.Replace(" ", "-")" value="@department" 
+                                   @(isSelected ? "checked" : "")
+                                   @(isPrimary ? "data-primary=true" : "")>
+                            <label class="form-check-label" for="dept-@department.Replace(" ", "-")">
+                                @department
+                            </label>
+                        </div>
                     }
                 </div>
                 <div class="form-text">
                     Select departments that can manage this chatbot. The first selected department will be the primary one.
                 </div>
                 <!-- Hidden input for the primary Department property -->
-                <input type="hidden" asp-for="Department" id="primaryDepartment" value="@selectedDepartment" />
+                <input type="hidden" asp-for="Department" id="primaryDepartment" value="@Model.Department" />
             </div>
 
-            <!-- User Access Control -->
-            <div class="form-group mb-4">
-                <label class="form-label">User Access</label>
-                <div class="mb-3">
-                    <select id="accessType" class="form-control" name="AllowUserAccess" style="max-width: 300px;">
-                        @if (allowUserAccess)
-                        {
-                            <option value="false">All Users</option>
-                            <option value="true" selected>Specific Users</option>
-                        }
-                        else
-                        {
-                            <option value="false" selected>All Users</option>
-                            <option value="true">Specific Users</option>
-                        }
-                    </select>
-                    <div class="form-text">
-                        Control which users can access this chatbot
-                    </div>
-                </div>
-                
-                <div id="userAccessContainer" class="mt-3 @(allowUserAccess ? "" : "d-none")">
-                    <div class="input-group mb-3">
-                        <input type="text" id="userSearch" class="form-control" placeholder="Search users...">
-                        <button type="button" id="addUserBtn" class="btn btn-outline-primary">
-                            <i class="bi bi-plus"></i> Add
+ <!-- User Access Control -->
+<div class="form-group mb-4">
+    <label class="form-label">User Access</label>
+    <div class="mb-3">
+        <select id="accessType" class="form-control" name="AccessType" style="max-width: 300px;">
+            @if (Model.AccessType == "Specific")
+            {
+                <option value="All">All Users</option>
+                <option value="Specific" selected>Specific Users</option>
+            }
+            else
+            {
+                <option value="All" selected>All Users</option>
+                <option value="Specific">Specific Users</option>
+            }
+        </select>
+        <div class="form-text">
+            Control which users can access this chatbot
+        </div>
+    </div>
+    
+    <div id="userAccessContainer" class="mt-3 @(Model.AccessType == "Specific" ? "" : "d-none")">
+        <div class="input-group mb-3">
+            <input type="text" id="userSearch" class="form-control" placeholder="Search users...">
+            <button type="button" id="addUserBtn" class="btn btn-outline-primary">
+                <i class="bi bi-plus"></i> Add
+            </button>
+        </div>
+        
+        <div class="selected-users-container">
+            <div class="selected-users" id="selectedUsers">
+                @foreach (var user in Model.AllowedUsers ?? new List<string>())
+                {
+                    <div class="selected-user-item">
+                        <span>@user</span>
+                        <input type="hidden" name="AllowedUsers" value="@user">
+                        <button type="button" class="btn-remove">
+                            <i class="bi bi-x"></i>
                         </button>
                     </div>
-                    
-                    <div class="selected-users-container">
-                        <div class="selected-users" id="selectedUsers">
-                            @foreach (var user in allowedUsers)
-                            {
-                                <div class="selected-user-item">
-                                    <span>@user</span>
-                                    <input type="hidden" name="AllowedUsers" value="@user">
-                                    <button type="button" class="btn-remove">
-                                        <i class="bi bi-x"></i>
-                                    </button>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
+        </div>
+    </div>
+</div>
             
             <div class="form-group mb-4">
                 <label asp-for="Description" class="form-label">Description</label>
-                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe what this chatbot will help with...">@chatbot.Description</textarea>
+                <textarea asp-for="Description" class="form-control" rows="3" placeholder="Describe what this chatbot will help with..."></textarea>
                 <div class="form-text">
                     Detailed information about this chatbot's purpose and capabilities
                 </div>
@@ -196,7 +175,7 @@
             
             <div class="form-group mb-4">
                 <div class="form-switch">
-                    <input asp-for="IsActive" class="form-switch-input" checked="@chatbot.IsActive" />
+                    <input asp-for="IsActive" class="form-switch-input" />
                     <label asp-for="IsActive" class="form-switch-label">Active</label>
                 </div>
                 <div class="form-text">Enable or disable this chatbot</div>
@@ -209,11 +188,11 @@
                     <div class="info-details">
                         <div class="info-item">
                             <span class="info-label">Created by:</span>
-                            <span class="info-value">@chatbot.CreatedBy</span>
+                            <span class="info-value">@Model.CreatedBy</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Created on:</span>
-                            <span class="info-value">@chatbot.CreatedAt.ToString("MMM d, yyyy")</span>
+                            <span class="info-value">@Model.CreatedAt.ToString("MMM d, yyyy")</span>
                         </div>
                     </div>
                 </div>
@@ -235,7 +214,7 @@
                         <div class="danger-title">Delete this chatbot</div>
                         <div class="danger-description">Once deleted, all conversations and configurations will be permanently removed.</div>
                     </div>
-                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@chatbot.Id)">
+                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete(@Model.Id)">
                         Delete Chatbot
                     </button>
                 </div>
@@ -261,7 +240,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" action="/Chatbot/Delete/@chatbot.Id">
+                <form method="post" action="/Chatbot/Delete/@Model.Id">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-danger">Delete Permanently</button>
                 </form>
@@ -297,14 +276,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Department selection handling
-            const departmentCheckboxes = document.querySelectorAll('input[name="SelectedDepartments"]');
+            const departmentCheckboxes = document.querySelectorAll('input[name="Departments"]');
             const primaryDepartmentInput = document.getElementById('primaryDepartment');
             
             // Ensure at least one department is selected and update primary department
             departmentCheckboxes.forEach(function(checkbox) {
                 checkbox.addEventListener('change', function() {
                     // Get all selected departments
-                    const selectedDepts = Array.from(document.querySelectorAll('input[name="SelectedDepartments"]:checked'));
+                    const selectedDepts = Array.from(document.querySelectorAll('input[name="Departments"]:checked'));
                     
                     // If none selected and this was unchecked, check it again
                     if (selectedDepts.length === 0) {
@@ -325,7 +304,7 @@
                     }
                     
                     // If this is newly checked and no primary is set, make it primary
-                    if (this.checked && !document.querySelector('input[name="SelectedDepartments"][data-primary="true"]')) {
+                    if (this.checked && !document.querySelector('input[name="Departments"][data-primary="true"]')) {
                         this.setAttribute('data-primary', 'true');
                         primaryDepartmentInput.value = this.value;
                     }
@@ -344,7 +323,7 @@
             const userAccessContainer = document.getElementById('userAccessContainer');
             
             accessTypeSelect.addEventListener('change', function() {
-                if (this.value === 'true') {
+                if (this.value === 'Specific') {
                     userAccessContainer.classList.remove('d-none');
                 } else {
                     userAccessContainer.classList.add('d-none');
@@ -939,12 +918,91 @@
             display: none !important;
         }
         
+        .d-flex {
+            display: flex;
+        }
+        
+        .align-items-center {
+            align-items: center;
+        }
+        
         .mt-3 {
             margin-top: 1rem;
         }
         
         .mb-3 {
             margin-bottom: 1rem;
+        }
+        
+        .mt-5 {
+            margin-top: 3rem;
+        }
+        
+        .input-group {
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: stretch;
+            width: 100%;
+        }
+        
+        .input-group > .form-control {
+            position: relative;
+            flex: 1 1 auto;
+            width: 1%;
+            min-width: 0;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            line-height: 1.5;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            border-radius: var(--border-radius);
+            transition: all 0.15s ease-in-out;
+        }
+        
+        .btn-primary {
+            color: #fff;
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        
+        .btn-outline {
+            color: var(--color-gray-700);
+            border-color: var(--color-gray-300);
+            background-color: transparent;
+        }
+        
+        .btn-outline-primary {
+            color: var(--color-primary);
+            border-color: var(--color-primary);
+            background-color: transparent;
+        }
+        
+        .btn-outline-danger {
+            color: var(--color-danger);
+            border-color: var(--color-danger);
+            background-color: transparent;
+        }
+        
+        .btn-danger {
+            color: #fff;
+            background-color: var(--color-danger);
+            border-color: var(--color-danger);
+        }
+        
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            border-radius: calc(var(--border-radius) - 1px);
         }
     </style>
 }

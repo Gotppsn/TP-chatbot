@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AIHelpdeskSupport.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250306081350_Addlastdaychatbot")]
-    partial class Addlastdaychatbot
+    [Migration("20250310033423_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -188,7 +188,15 @@ namespace AIHelpdeskSupport.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AccessType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("AiModel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.PrimitiveCollection<string>("AllowedUsers")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -200,6 +208,10 @@ namespace AIHelpdeskSupport.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.PrimitiveCollection<string>("Departments")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

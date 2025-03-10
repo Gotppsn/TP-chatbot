@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace AIHelpdeskSupport.Migrations
 {
     /// <inheritdoc />
-    public partial class settingconfig : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -71,6 +71,10 @@ namespace AIHelpdeskSupport.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Departments = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccessType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AllowedUsers = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FlowiseId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -121,13 +125,7 @@ namespace AIHelpdeskSupport.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SqlServerHost = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SqlServerDatabase = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SqlServerUsername = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SqlServerPassword = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    SqlServerTrustServerCertificate = table.Column<bool>(type: "bit", nullable: false),
-                    SqlServerMultipleActiveResultSets = table.Column<bool>(type: "bit", nullable: false)
+                    LastUpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
