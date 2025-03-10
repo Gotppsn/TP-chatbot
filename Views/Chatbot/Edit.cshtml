@@ -52,15 +52,15 @@
             </div>
             <div class="chatbot-stats">
                 <div class="stat-item">
-                    <div class="stat-value">427</div>
+                    <div class="stat-value" id="conversationsCount">0</div>
                     <div class="stat-label">Conversations</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">2.3s</div>
+                    <div class="stat-value" id="avgResponseTime">0.0s</div>
                     <div class="stat-label">Avg. Response</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value">92%</div>
+                    <div class="stat-value" id="successRate">0%</div>
                     <div class="stat-label">Success Rate</div>
                 </div>
             </div>
@@ -118,51 +118,51 @@
                 <input type="hidden" asp-for="Department" id="primaryDepartment" value="@Model.Department" />
             </div>
 
- <!-- User Access Control -->
-<div class="form-group mb-4">
-    <label class="form-label">User Access</label>
-    <div class="mb-3">
-        <select id="accessType" class="form-control" name="AccessType" style="max-width: 300px;">
-            @if (Model.AccessType == "Specific")
-            {
-                <option value="All">All Users</option>
-                <option value="Specific" selected>Specific Users</option>
-            }
-            else
-            {
-                <option value="All" selected>All Users</option>
-                <option value="Specific">Specific Users</option>
-            }
-        </select>
-        <div class="form-text">
-            Control which users can access this chatbot
-        </div>
-    </div>
-    
-    <div id="userAccessContainer" class="mt-3 @(Model.AccessType == "Specific" ? "" : "d-none")">
-        <div class="input-group mb-3">
-            <input type="text" id="userSearch" class="form-control" placeholder="Search users...">
-            <button type="button" id="addUserBtn" class="btn btn-outline-primary">
-                <i class="bi bi-plus"></i> Add
-            </button>
-        </div>
-        
-        <div class="selected-users-container">
-            <div class="selected-users" id="selectedUsers">
-                @foreach (var user in Model.AllowedUsers ?? new List<string>())
-                {
-                    <div class="selected-user-item">
-                        <span>@user</span>
-                        <input type="hidden" name="AllowedUsers" value="@user">
-                        <button type="button" class="btn-remove">
-                            <i class="bi bi-x"></i>
+            <!-- User Access Control -->
+            <div class="form-group mb-4">
+                <label class="form-label">User Access</label>
+                <div class="mb-3">
+                    <select id="accessType" class="form-control" name="AccessType" style="max-width: 300px;">
+                        @if (Model.AccessType == "Specific")
+                        {
+                            <option value="All">All Users</option>
+                            <option value="Specific" selected>Specific Users</option>
+                        }
+                        else
+                        {
+                            <option value="All" selected>All Users</option>
+                            <option value="Specific">Specific Users</option>
+                        }
+                    </select>
+                    <div class="form-text">
+                        Control which users can access this chatbot
+                    </div>
+                </div>
+                
+                <div id="userAccessContainer" class="mt-3 @(Model.AccessType == "Specific" ? "" : "d-none")">
+                    <div class="input-group mb-3">
+                        <input type="text" id="userSearch" class="form-control" placeholder="Search users...">
+                        <button type="button" id="addUserBtn" class="btn btn-outline-primary">
+                            <i class="bi bi-plus"></i> Add
                         </button>
                     </div>
-                }
+                    
+                    <div class="selected-users-container">
+                        <div class="selected-users" id="selectedUsers">
+                            @foreach (var user in Model.AllowedUsers ?? new List<string>())
+                            {
+                                <div class="selected-user-item">
+                                    <span>@user</span>
+                                    <input type="hidden" name="AllowedUsers" value="@user">
+                                    <button type="button" class="btn-remove">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
             
             <div class="form-group mb-4">
                 <label asp-for="Description" class="form-label">Description</label>
@@ -194,6 +194,13 @@
                             <span class="info-label">Created on:</span>
                             <span class="info-value">@Model.CreatedAt.ToString("MMM d, yyyy")</span>
                         </div>
+                        @if (Model.LastUpdatedAt.HasValue)
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Last updated:</span>
+                                <span class="info-value">@Model.LastUpdatedAt.Value.ToString("MMM d, yyyy HH:mm")</span>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -258,6 +265,9 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="search-input-container mb-3">
+                    <input type="text" id="modalUserSearch" class="form-control" placeholder="Filter users...">
+                </div>
                 <div class="search-results-container">
                     <div id="userSearchResults" class="user-search-results">
                         <!-- Results will be populated by JS -->
@@ -275,6 +285,9 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Fetch chatbot stats
+            fetchChatbotStats(@Model.Id);
+            
             // Department selection handling
             const departmentCheckboxes = document.querySelectorAll('input[name="Departments"]');
             const primaryDepartmentInput = document.getElementById('primaryDepartment');
@@ -332,6 +345,7 @@
             
             // User search and selection
             const userSearch = document.getElementById('userSearch');
+            const modalUserSearch = document.getElementById('modalUserSearch');
             const addUserBtn = document.getElementById('addUserBtn');
             const userSearchModal = document.getElementById('userSearchModal');
             const userSearchResults = document.getElementById('userSearchResults');
@@ -341,74 +355,147 @@
                 // Clear previous results
                 userSearchResults.innerHTML = '';
                 
-                // Demo users data
-                const demoUsers = [
-                    { id: 1, username: 'john.doe', fullName: 'John Doe', email: 'john.doe@example.com' },
-                    { id: 2, username: 'jane.smith', fullName: 'Jane Smith', email: 'jane.smith@example.com' },
-                    { id: 3, username: 'bob.johnson', fullName: 'Bob Johnson', email: 'bob.johnson@example.com' }
-                ];
+                // Clear modal search
+                if (modalUserSearch) modalUserSearch.value = '';
                 
-                // Create user elements safely without string interpolation
-                demoUsers.forEach(function(user) {
-                    const userEl = document.createElement('div');
-                    userEl.className = 'user-search-item';
-                    
-                    // Create user info div
-                    const userInfo = document.createElement('div');
-                    userInfo.className = 'user-info';
-                    
-                    // Create user name div
-                    const userName = document.createElement('div');
-                    userName.className = 'user-name';
-                    userName.textContent = user.fullName;
-                    
-                    // Create user username div
-                    const userUsername = document.createElement('div');
-                    userUsername.className = 'user-username';
-                    userUsername.textContent = '@@' + user.username;
-                    
-                    // Create add button
-                    const addButton = document.createElement('button');
-                    addButton.type = 'button';
-                    addButton.className = 'btn btn-sm btn-outline-primary select-user';
-                    addButton.setAttribute('data-username', user.username);
-                    addButton.textContent = 'Add';
-                    
-                    // Assemble the elements
-                    userInfo.appendChild(userName);
-                    userInfo.appendChild(userUsername);
-                    userEl.appendChild(userInfo);
-                    userEl.appendChild(addButton);
-                    
-                    userSearchResults.appendChild(userEl);
-                });
+                // Get selected users
+                const selectedUserIds = Array.from(
+                    document.querySelectorAll('.selected-user-item input[name="AllowedUsers"]')
+                ).map(input => input.value);
+                
+                // Show loading state
+                userSearchResults.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading users...</p></div>';
+                
+                // Fetch users from API
+                fetch('/api/Users/GetAll')
+                    .then(response => response.json())
+                    .then(users => {
+                        userSearchResults.innerHTML = '';
+                        
+                        // Filter out already selected users
+                        const availableUsers = users.filter(u => !selectedUserIds.includes(u.userName));
+                        
+                        if (availableUsers.length === 0) {
+                            userSearchResults.innerHTML = `
+                                <div class="no-results-message">
+                                    <i class="bi bi-info-circle"></i>
+                                    <p>All users have been added or no users available.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+                        
+                        // Sort users by name
+                        availableUsers.sort((a, b) => 
+                            (a.firstName + ' ' + a.lastName).localeCompare(b.firstName + ' ' + b.lastName)
+                        );
+                        
+                        // Create user elements
+                        availableUsers.forEach(function(user) {
+                            const userEl = document.createElement('div');
+                            userEl.className = 'user-search-item';
+                            userEl.dataset.username = user.userName;
+                            userEl.dataset.fullname = user.firstName + ' ' + user.lastName;
+                            
+                            const userInfo = document.createElement('div');
+                            userInfo.className = 'user-info';
+                            
+                            const userName = document.createElement('div');
+                            userName.className = 'user-name';
+                            userName.textContent = user.firstName + ' ' + user.lastName;
+                            
+                            const userUsername = document.createElement('div');
+                            userUsername.className = 'user-username';
+                            userUsername.textContent = '@@' + user.userName;
+                            
+                            const addButton = document.createElement('button');
+                            addButton.type = 'button';
+                            addButton.className = 'btn btn-sm btn-outline-primary select-user';
+                            addButton.setAttribute('data-username', user.userName);
+                            addButton.textContent = 'Add';
+                            
+                            userInfo.appendChild(userName);
+                            userInfo.appendChild(userUsername);
+                            userEl.appendChild(userInfo);
+                            userEl.appendChild(addButton);
+                            
+                            userSearchResults.appendChild(userEl);
+                        });
+                        
+                        // Add event listeners to select buttons
+                        document.querySelectorAll('.select-user').forEach(function(button) {
+                            button.addEventListener('click', function() {
+                                const username = this.getAttribute('data-username');
+                                addSelectedUser(username);
+                                this.closest('.user-search-item').remove();
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching users:', error);
+                        userSearchResults.innerHTML = `
+                            <div class="no-results-message">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <p>Error loading users. Please try again.</p>
+                            </div>
+                        `;
+                    });
                 
                 // Show modal
                 userSearchModal.classList.add('show');
                 document.body.classList.add('modal-open');
-                
-                // Add event listeners to select buttons
-                document.querySelectorAll('.select-user').forEach(function(button) {
-                    button.addEventListener('click', function() {
-                        const username = this.getAttribute('data-username');
-                        addSelectedUser(username);
-                        userSearchModal.classList.remove('show');
-                        document.body.classList.remove('modal-open');
-                    });
-                });
             });
             
-            // Add selected user to the list
+            // Modal search filter functionality
+            if (modalUserSearch) {
+                modalUserSearch.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    
+                    document.querySelectorAll('.user-search-item').forEach(item => {
+                        const fullname = item.dataset.fullname.toLowerCase();
+                        const username = item.dataset.username.toLowerCase();
+                        
+                        if (fullname.includes(searchTerm) || username.includes(searchTerm)) {
+                            item.style.display = '';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                    
+                    // Check if any results are visible
+                    const anyVisible = Array.from(
+                        document.querySelectorAll('.user-search-item')
+                    ).some(el => el.style.display !== 'none');
+                    
+                    // Show no results message if needed
+                    let noResults = document.querySelector('.no-results-message');
+                    if (!anyVisible) {
+                        if (!noResults) {
+                            noResults = document.createElement('div');
+                            noResults.className = 'no-results-message';
+                            noResults.innerHTML = `
+                                <i class="bi bi-search"></i>
+                                <p>No users match your search.</p>
+                            `;
+                            userSearchResults.appendChild(noResults);
+                        } else {
+                            noResults.style.display = '';
+                        }
+                    } else if (noResults) {
+                        noResults.style.display = 'none';
+                    }
+                });
+            }
+            
             function addSelectedUser(username) {
                 // Check if user is already selected
                 const existingUsers = Array.from(document.querySelectorAll('.selected-user-item input[name="AllowedUsers"]'))
-                    .map(function(input) { return input.value; });
+                    .map(input => input.value);
                 
                 if (existingUsers.includes(username)) {
                     return;
                 }
                 
-                // Create elements by DOM API rather than string interpolation
                 const userItem = document.createElement('div');
                 userItem.className = 'selected-user-item';
                 
@@ -465,6 +552,22 @@
                     }
                 });
             });
+            
+            // Fetch chatbot stats
+            function fetchChatbotStats(chatbotId) {
+                fetch(`/api/Chatbot/Stats/${chatbotId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('conversationsCount').textContent = data.conversations || '0';
+                        document.getElementById('avgResponseTime').textContent = 
+                            ((data.avgResponseTime || 0).toFixed(1)) + 's';
+                        document.getElementById('successRate').textContent = 
+                            (data.successRate || 0) + '%';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chatbot stats:', error);
+                    });
+            }
         });
     </script>
 }
@@ -647,10 +750,25 @@
             border-radius: var(--border-radius);
             border: 1px solid var(--color-gray-200);
             background-color: var(--color-gray-50);
+            transition: all 0.2s ease;
+            margin-bottom: 0.5rem;
         }
         
         .user-search-item:hover {
             background-color: var(--color-gray-100);
+            border-color: var(--color-gray-300);
+        }
+        
+        .no-results-message {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--color-gray-500);
+        }
+        
+        .no-results-message i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
         
         .user-info {
@@ -926,6 +1044,19 @@
             align-items: center;
         }
         
+        .text-center {
+            text-align: center;
+        }
+        
+        .py-3 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+        
         .mt-3 {
             margin-top: 1rem;
         }
@@ -951,6 +1082,24 @@
             flex: 1 1 auto;
             width: 1%;
             min-width: 0;
+        }
+        
+        .spinner-border {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+        
+        @@keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        .text-primary {
+            color: var(--color-primary) !important;
         }
         
         .btn {

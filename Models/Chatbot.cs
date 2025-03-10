@@ -28,8 +28,10 @@ public class Chatbot
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastUpdatedAt { get; set; }
     public List<string> Departments { get; set; } = new List<string>();
-    public string AccessType { get; set; }
+    public string AccessType { get; set; } = "public";
     public List<string> AllowedUsers { get; set; } = new List<string>();
+    
+    
     public virtual ICollection<ChatbotKnowledgeBase> KnowledgeBases { get; set; } = new List<ChatbotKnowledgeBase>();
     
     // Flowise specific configuration
