@@ -127,34 +127,41 @@ namespace AIHelpdeskSupport.Services
                    await _context.Chatbots.AnyAsync(c => c.Department == departmentName);
         }
 
-        public async Task<bool> CreateDepartmentAsync(string name, string userId)
+public async Task<bool> CreateDepartmentAsync(string name, string userId)
+{
+    try
+    {
+        // Create a default chatbot for this department
+        var chatbot = new Chatbot
         {
-            try
-            {
-                // Create a default chatbot for this department
-                var chatbot = new Chatbot
-                {
-                    Name = $"{name} Bot",
-                    Department = name,
-                    AiModel = "gpt-3.5-turbo",
-                    Description = $"Default chatbot for {name} department",
-                    CreatedBy = userId,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
+            Name = $"{name} Bot",
+            Department = name,
+            AiModel = "gpt-3.5-turbo",
+            Description = $"Default chatbot for {name} department",
+            CreatedBy = userId,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            // Initialize the Departments collection with the current department
+            Departments = new List<string> { name },
+            // Set default values for other collection properties
+            AllowedUsers = new List<string>(),
+            AccessType = "All"
+        };
 
-                _context.Chatbots.Add(chatbot);
-                await _context.SaveChangesAsync();
+        _context.Chatbots.Add(chatbot);
+        await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Created new department {Department} with default chatbot", name);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating department {Department}", name);
-                return false;
-            }
-        }
+        _logger.LogInformation("Created new department {Department} with default chatbot", name);
+        return true;
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error creating department {Department}", name);
+        // Log more details about the exception for debugging
+        _logger.LogError(ex.InnerException?.Message ?? ex.Message);
+        return false;
+    }
+}
 
         public async Task<bool> UpdateDepartmentAsync(string oldName, string newName)
         {

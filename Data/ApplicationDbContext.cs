@@ -50,6 +50,16 @@ namespace AIHelpdeskSupport.Data
                 .HasOne(cu => cu.Chatbot)
                 .WithMany(c => c.UpdateHistory)
                 .HasForeignKey(cu => cu.ChatbotId);
-        }
+            builder.Entity<Chatbot>()
+                .Property(c => c.Departments)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+            builder.Entity<Chatbot>()
+                .Property(c => c.AllowedUsers)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+                }
     }
 }

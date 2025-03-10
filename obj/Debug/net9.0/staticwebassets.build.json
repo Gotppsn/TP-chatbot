@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "9zTPoRy/k2xwjOlPxIFRwA74ZE8LfUYxFvh651aVelY=",
+  "Hash": "xwmab19Z7U+IFUUH1MzG0lCdVRhRZIKIIexy+vc8r8E=",
   "Source": "AIHelpdeskSupport",
   "BasePath": "_content/AIHelpdeskSupport",
   "Mode": "Default",
@@ -101,12 +101,12 @@
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\lib\\jquery\\LICENSE.txt"
     },
     {
-      "Identity": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
+      "Identity": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-kw6h31mpg2.gz",
       "SourceId": "AIHelpdeskSupport",
       "SourceType": "Discovered",
       "ContentRoot": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\",
       "BasePath": "_content/AIHelpdeskSupport",
-      "RelativePath": "css/site#[.{fingerprint=b0bnu5poun}]?.css.gz",
+      "RelativePath": "css/site#[.{fingerprint=kw6h31mpg2}]?.css.gz",
       "AssetKind": "All",
       "AssetMode": "All",
       "AssetRole": "Alternative",
@@ -115,8 +115,8 @@
       "RelatedAsset": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
-      "Fingerprint": "j9js5w721k",
-      "Integrity": "h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=",
+      "Fingerprint": "tw2950ru4a",
+      "Integrity": "AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css"
@@ -1543,8 +1543,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "b0bnu5poun",
-      "Integrity": "ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=",
+      "Fingerprint": "kw6h31mpg2",
+      "Integrity": "NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -4070,7 +4070,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4123,7 +4123,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4160,7 +4160,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4207,7 +4207,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4268,7 +4268,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4313,7 +4313,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 07:06:07 GMT"
+          "Value": "Mon, 10 Mar 2025 09:42:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4344,13 +4344,13 @@
       ]
     },
     {
-      "Route": "css/site.b0bnu5poun.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
+      "Route": "css/site.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-kw6h31mpg2.gz",
       "Selectors": [
         {
           "Name": "Content-Encoding",
           "Value": "gzip",
-          "Quality": "0.000272628135"
+          "Quality": "0.000265392781"
         }
       ],
       "ResponseHeaders": [
@@ -4360,19 +4360,19 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3667"
+          "Value": "3767"
         },
         {
           "Name": "ETag",
-          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
+          "Value": "\"AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
         },
         {
           "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
+          "Value": "no-cache"
         },
         {
           "Name": "Content-Encoding",
@@ -4388,26 +4388,18 @@
         },
         {
           "Name": "ETag",
-          "Value": "W/\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
+          "Value": "W/\"NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE=\""
         }
       ],
       "EndpointProperties": [
         {
-          "Name": "fingerprint",
-          "Value": "b0bnu5poun"
-        },
-        {
-          "Name": "label",
-          "Value": "css/site.css"
-        },
-        {
           "Name": "integrity",
-          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
+          "Value": "sha256-NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE="
         }
       ]
     },
     {
-      "Route": "css/site.b0bnu5poun.css",
+      "Route": "css/site.css",
       "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
       "Selectors": [],
       "ResponseHeaders": [
@@ -4417,7 +4409,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "19905"
+          "Value": "20340"
         },
         {
           "Name": "Content-Type",
@@ -4425,11 +4417,156 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
+          "Value": "\"NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-kw6h31mpg2.gz",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3767"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "no-cache"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.kw6h31mpg2.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-kw6h31mpg2.gz",
+      "Selectors": [
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip",
+          "Quality": "0.000265392781"
+        }
+      ],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "3767"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Encoding",
+          "Value": "gzip"
+        },
+        {
+          "Name": "Vary",
+          "Value": "Content-Encoding"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "W/\"NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE=\""
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "kw6h31mpg2"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.kw6h31mpg2.css",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "20340"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4439,7 +4576,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "b0bnu5poun"
+          "Value": "kw6h31mpg2"
         },
         {
           "Name": "label",
@@ -4447,13 +4584,13 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
+          "Value": "sha256-NGRLog9xCTlSefxcmp+IyD+HYceastjrNCqz03rCzcE="
         }
       ]
     },
     {
-      "Route": "css/site.b0bnu5poun.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
+      "Route": "css/site.kw6h31mpg2.css.gz",
+      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-kw6h31mpg2.gz",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -4462,7 +4599,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "3667"
+          "Value": "3767"
         },
         {
           "Name": "Content-Type",
@@ -4470,11 +4607,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
+          "Value": "\"AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
+          "Value": "Mon, 10 Mar 2025 09:54:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -4492,7 +4629,7 @@
       "EndpointProperties": [
         {
           "Name": "fingerprint",
-          "Value": "b0bnu5poun"
+          "Value": "kw6h31mpg2"
         },
         {
           "Name": "label",
@@ -4500,144 +4637,7 @@
         },
         {
           "Name": "integrity",
-          "Value": "sha256-h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
-      "Selectors": [
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip",
-          "Quality": "0.000272628135"
-        }
-      ],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3667"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "W/\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.css",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\wwwroot\\css\\site.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "19905"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-ezm/MyL050p343wnEusXian0lXW368KYeWv5Ly2FJ7k="
-        }
-      ]
-    },
-    {
-      "Route": "css/site.css.gz",
-      "AssetFile": "C:\\Users\\panupol\\Desktop\\TP-chatbot\\obj\\Debug\\net9.0\\compressed\\23cdt1o6pc-b0bnu5poun.gz",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "3667"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Mon, 10 Mar 2025 03:32:03 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "no-cache"
-        },
-        {
-          "Name": "Content-Encoding",
-          "Value": "gzip"
-        },
-        {
-          "Name": "Vary",
-          "Value": "Content-Encoding"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "integrity",
-          "Value": "sha256-h+UP14eSbLMq99L/iaWP5aB3+i92qtyhLIGBqCzfMUI="
+          "Value": "sha256-AzTLceFlYraNzAHlZPw/9FzvY6eRNwt1r/OopH4X840="
         }
       ]
     },

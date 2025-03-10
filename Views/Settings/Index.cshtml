@@ -1,96 +1,104 @@
 @model AIHelpdeskSupport.Models.SystemSettings
 @{
- ViewData["Title"] = "Settings";
+    ViewData["Title"] = "Settings";
 }
 
 <div class="page-header">
- <div>
-     <h1 class="page-title">Settings</h1>
-     <p class="text-muted">Configure your AI Helpdesk platform</p>
- </div>
- <div class="page-actions">
-     <button id="saveSettings" class="btn btn-primary">
-         <i class="bi bi-check-lg"></i>
-         Save Changes
-     </button>
- </div>
+    <div>
+        <h1 class="page-title">Settings</h1>
+        <p class="text-muted">Configure your AI Helpdesk platform</p>
+    </div>
+    <div class="page-actions">
+        <button id="saveSettings" class="btn btn-primary">
+            <i class="bi bi-check-lg me-2"></i>
+            Save Changes
+        </button>
+    </div>
 </div>
 
 <div class="settings-layout">
- <!-- Settings Navigation -->
- <div class="settings-nav">
-     <div class="nav-section">
-         <div class="nav-section-title">AI CONFIGURATION</div>
-         <ul class="nav-tabs" role="tablist">
-             <li class="nav-item" role="presentation">
-                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button"
-                     role="tab">
-                     <i class="bi bi-cpu"></i>
-                     <span>Flowise API Setting</span>
-                 </button>
-             </li>
-             <li class="nav-item" role="presentation">
-                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button"
-                     role="tab">
-                     <i class="bi bi-building"></i>
-                     <span>Departments</span>
-                 </button>
-             </li>
-         </ul>
-     </div>
- </div>
+    <!-- Settings Navigation -->
+    <div class="settings-nav">
+        <div class="nav-section">
+            <div class="nav-section-title">AI CONFIGURATION</div>
+            <ul class="nav-tabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#flowise-api" type="button"
+                        role="tab">
+                        <i class="bi bi-cpu me-2"></i>
+                        <span>Flowise API Setting</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#departments" type="button"
+                        role="tab">
+                        <i class="bi bi-building me-2"></i>
+                        <span>Departments</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
 
- <!-- Settings Content -->
- <div class="settings-content">
-     <div class="tab-content">
-         <!-- Flowise API Settings -->
-         <div class="tab-pane fade show active" id="flowise-api" role="tabpanel">
-             <div class="settings-panel">
-                 <div class="panel-header">
-                     <h2>Flowise API Settings</h2>
-                     <p>Configure your Flowise API connection</p>
-                 </div>
+    <!-- Settings Content -->
+    <div class="settings-content">
+        <div class="tab-content">
+            <!-- Flowise API Settings -->
+            <div class="tab-pane fade show active" id="flowise-api" role="tabpanel">
+                <div class="settings-panel">
+                    <div class="panel-header">
+                        <h2>Flowise API Settings</h2>
+                        <p>Configure your Flowise API connection</p>
+                    </div>
 
-                 <div class="panel-body">
-                     <div class="settings-section">
-                         <form asp-action="SaveApiSettings" method="post" id="flowiseApiForm">
-                             @Html.AntiForgeryToken()
-                             <div class="form-group mb-3">
-                                 <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
-                                 <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control"
-                                     value="@Model.FlowiseApiUrl" placeholder="http://localhost:3000/api/">
-                                 <div class="form-text">The URL of your Flowise API endpoint (Example: http://localhost:3000/api/)</div>
-                             </div>
+                    <div class="panel-body">
+                        <div class="settings-section">
+                            <form asp-action="SaveApiSettings" method="post" id="flowiseApiForm">
+                                @Html.AntiForgeryToken()
+                                <div class="form-group mb-3">
+                                    <label for="FlowiseApiUrl" class="form-label">Flowise API URL</label>
+                                    <div class="input-wrapper">
+                                        <i class="input-icon bi bi-link-45deg"></i>
+                                        <input type="text" id="FlowiseApiUrl" name="FlowiseApiUrl" class="form-control with-icon"
+                                            value="@Model.FlowiseApiUrl" placeholder="http://localhost:3000/api/">
+                                    </div>
+                                    <div class="form-text">The URL of your Flowise API endpoint (Example: http://localhost:3000/api/)</div>
+                                </div>
 
-                             <div class="form-group mb-3">
-                                 <label for="FlowiseApiKey" class="form-label">API Key</label>
-                                 <div class="input-group">
-                                     <input type="password" id="FlowiseApiKey" name="FlowiseApiKey"
-                                         class="form-control" value="@Model.FlowiseApiKey">
-                                     <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
-                                         <i class="bi bi-eye"></i>
-                                     </button>
-                                 </div>
-                                 <div class="form-text">Your Flowise API key for authentication</div>
-                             </div>
+                                <div class="form-group mb-3">
+                                    <label for="FlowiseApiKey" class="form-label">API Key</label>
+                                    <div class="input-group">
+                                        <div class="input-wrapper w-100">
+                                            <i class="input-icon bi bi-key"></i>
+                                            <input type="password" id="FlowiseApiKey" name="FlowiseApiKey"
+                                                class="form-control with-icon" value="@Model.FlowiseApiKey">
+                                        </div>
+                                        <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Your Flowise API key for authentication</div>
+                                </div>
 
-                             <div class="form-group mb-3">
-                                 <button type="button" id="testApiConnection" class="btn btn-outline-primary">
-                                     <i class="bi bi-plug"></i> Test Connection
-                                 </button>
-                                 <div id="apiConnectionStatus" class="mt-2"></div>
-                             </div>
+                                <div class="form-group mb-3">
+                                    <button type="button" id="testApiConnection" class="btn btn-outline-primary">
+                                        <i class="bi bi-plug-fill me-2"></i> Test Connection
+                                    </button>
+                                    <div id="apiConnectionStatus" class="mt-2"></div>
+                                </div>
 
-                             <div class="form-group mb-3">
-                                 <button type="button" id="getChatflows" class="btn btn-outline-secondary">
-                                     <i class="bi bi-list-check"></i> List Chatflows
-                                 </button>
-                             </div>
+                                <div class="form-group mb-3">
+                                    <button type="button" id="getChatflows" class="btn btn-outline-secondary">
+                                        <i class="bi bi-list-check me-2"></i> List Chatflows
+                                    </button>
+                                </div>
 
-                             <div class="form-group">
-                                 <button type="submit" class="btn btn-primary" id="saveApiSettings">Save API Settings</button>
-                             </div>
-                         </form>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" id="saveApiSettings">
+                                        <i class="bi bi-save me-2"></i> Save API Settings
+                                    </button>
+                                </div>
+                            </form>
 
                          <!-- Chatflows List Container with Modern Design -->
    <div id="chatflowsContainer" class="mt-4">

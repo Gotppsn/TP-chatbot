@@ -8,7 +8,7 @@
     <div class="login-card" style="max-width: 400px;">
         <div class="login-header">
             <div class="login-logo">
-                <i class="bi bi-robot"></i>
+                <i class="bi bi-robot fs-1"></i>
             </div>
             <h2 class="login-title">AI Helpdesk Support</h2>
             <p class="login-subtitle">Sign in to your account</p>
@@ -19,16 +19,27 @@
                 
                 <div class="form-group">
                     <label asp-for="Email" class="form-label">Username or Email</label>
-                    <input asp-for="Email" class="form-control" placeholder="admin or user" autocomplete="username" />
+                    <div class="input-wrapper">
+                        <i class="input-icon bi bi-person"></i>
+                        <input asp-for="Email" class="form-control with-icon" placeholder="admin or user" autocomplete="username" />
+                    </div>
                     <span asp-validation-for="Email" class="text-danger"></span>
                     <small class="form-text text-muted">Try: admin or user (both with password: admin or user)</small>
                 </div>
                 
-                <div class="form-group">
-                    <label asp-for="Password" class="form-label">Password</label>
-                    <input asp-for="Password" class="form-control" placeholder="••••••••" autocomplete="current-password" />
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
+ <div class="form-group">
+    <label asp-for="Password" class="form-label">Password</label>
+    <div class="password-input-container">
+        <span class="password-icon">
+            <i class="bi bi-lock"></i>
+        </span>
+        <input asp-for="Password" class="form-control with-icon" placeholder="••••••••" autocomplete="current-password" />
+        <button type="button" id="togglePassword" class="password-toggle-btn">
+            <i class="bi bi-eye"></i>
+        </button>
+    </div>
+    <span asp-validation-for="Password" class="text-danger"></span>
+</div>
                 
                 <div class="form-check">
                     <input asp-for="RememberMe" class="form-check-input" />
@@ -36,12 +47,34 @@
                 </div>
                 
                 <button type="submit" class="btn btn-primary btn-block mt-3">
-                    Sign In
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                 </button>
             </form>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password visibility toggle
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            const passwordInput = document.querySelector('input[type="password"]');
+            
+            if (togglePasswordBtn && passwordInput) {
+                togglePasswordBtn.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    
+                    const icon = togglePasswordBtn.querySelector('i');
+                    icon.classList.toggle('bi-eye');
+                    icon.classList.toggle('bi-eye-slash');
+                });
+            }
+        });
+    </script>
+}
 
 @section Styles {
     <style>
@@ -241,27 +274,43 @@
                 padding: 1.5rem;
             }
         }
-    </style>
+        /* Password Field Specific Styles */
+.password-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Password visibility toggle
-            const passwordToggle = document.querySelector('.password-toggle');
-            const passwordInput = document.querySelector('input[type="password"]');
-            
-            if (passwordToggle && passwordInput) {
-                passwordToggle.addEventListener('click', function() {
-                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                    passwordInput.setAttribute('type', type);
-                    
-                    const icon = passwordToggle.querySelector('i');
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
-            }
-        });
-    </script>
+.password-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    z-index: 1;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding: 0 12px;
+    background: #6c757d;
+    border: none;
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Adjust the padding on the password input to accommodate both icons */
+input[type="password"].with-icon {
+    padding-left: 36px;
+    padding-right: 48px;
+}
+    </style>
 }

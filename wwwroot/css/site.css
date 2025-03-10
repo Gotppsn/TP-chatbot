@@ -991,3 +991,32 @@ button {
   font-style: italic;
   line-height: 1.5;
 }
+
+
+/* Add to your site.css or modern.css file if not already present */
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gray-500);
+  font-size: 1rem;
+  z-index: 1;
+}
+
+.form-control.with-icon {
+  padding-left: 2.5rem;
+}
+
+.me-2 {
+  margin-right: 0.5rem;
+}
+
+.w-100 {
+  width: 100%;
+}
