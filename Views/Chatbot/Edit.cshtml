@@ -192,20 +192,20 @@
                             <div class="history-user">by: @Model.CreatedBy</div>
                         </div>
                         
-                        @if (Model.UpdateHistory != null && Model.UpdateHistory.Any())
-                        {
-                            @foreach (var update in Model.UpdateHistory.OrderByDescending(u => u.UpdatedAt))
-                            {
-                                <div class="history-item">
-                                    <div class="history-date">Updated on: @update.UpdatedAt.ToString("MMM d, yyyy HH:mm")</div>
-                                    <div class="history-user">by: @update.UpdatedBy</div>
-                                    @if (!string.IsNullOrEmpty(update.ChangeDescription))
-                                    {
-                                        <div class="history-changes">@update.ChangeDescription</div>
-                                    }
-                                </div>
-                            }
-                        }
+@if (Model.UpdateHistory != null && Model.UpdateHistory.Any())
+{
+    @foreach (var update in Model.UpdateHistory.OrderByDescending(u => u.UpdatedAt))
+    {
+        <div class="history-item">
+            <div class="history-date">Updated on: @update.UpdatedAt.ToLocalTime().ToString("MMM d, yyyy HH:mm:ss")</div>
+            <div class="history-user">by: @update.UpdatedBy</div>
+            @if (!string.IsNullOrEmpty(update.ChangeDescription))
+            {
+                <div class="history-changes">@update.ChangeDescription</div>
+            }
+        </div>
+    }
+}
                         else if (Model.LastUpdatedAt.HasValue)
                         {
                             <div class="history-item">

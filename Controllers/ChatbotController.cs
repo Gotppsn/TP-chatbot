@@ -144,9 +144,9 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-                var chatbot = await _context.Chatbots
-                    .Include(c => c.UpdateHistory)
-                    .FirstOrDefaultAsync(c => c.Id == id);
+var chatbot = await _context.Chatbots
+    .Include(c => c.UpdateHistory)
+    .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (chatbot == null)
                 {
@@ -179,92 +179,61 @@ namespace AIHelpdeskSupport.Controllers
             }
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Chatbot chatbot)
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Chatbot chatbot)
+{
+    if (id != chatbot.Id) return NotFound();
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != chatbot.Id)
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                return NotFound();
+                // Preserve original data
+                var originalChatbot = await _context.Chatbots.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                if (originalChatbot != null)
+                {
+                    chatbot.CreatedAt = originalChatbot.CreatedAt;
+                    chatbot.CreatedBy = originalChatbot.CreatedBy;
+                }
+                
+                // Set update timestamp
+                chatbot.LastUpdatedAt = DateTime.UtcNow;
+                
+                // Create history entry
+                _context.ChatbotUpdates.Add(new ChatbotUpdate
+                {
+                    ChatbotId = chatbot.Id,
+                    UpdatedAt = DateTime.UtcNow,
+                    UpdatedBy = User.Identity?.Name ?? "Anonymous",
+                    ChangeDescription = $"Settings updated by {User.Identity?.Name ?? "Anonymous"}"
+                });
+                
+                // Update entity state
+                _context.Entry(chatbot).State = EntityState.Modified;
+                
+                // Save all changes
+                await _context.SaveChangesAsync();
+                transaction.Commit();
             }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // Preserve original creation data
-                    var originalChatbot = await _context.Chatbots
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(c => c.Id == id);
-
-                    if (originalChatbot != null)
-                    {
-                        chatbot.CreatedAt = originalChatbot.CreatedAt;
-                        chatbot.CreatedBy = originalChatbot.CreatedBy;
-                    }
-
-                    // Initialize collections if null
-                    chatbot.Departments ??= new List<string>();
-                    chatbot.AllowedUsers ??= new List<string>();
-
-                    // Make sure Department is set from Departments list
-                    if (chatbot.Departments.Any())
-                    {
-                        // If Department property isn't in the Departments list,
-                        // set Department to first item in Departments list
-                        if (string.IsNullOrEmpty(chatbot.Department) ||
-                            !chatbot.Departments.Contains(chatbot.Department))
-                        {
-                            chatbot.Department = chatbot.Departments.First();
-                        }
-                    }
-                    else if (!string.IsNullOrEmpty(chatbot.Department))
-                    {
-                        // If Departments is empty but Department is set, add it to Departments
-                        chatbot.Departments.Add(chatbot.Department);
-                    }
-
-                    // Set default access type if not provided
-                    chatbot.AccessType ??= "All";
-
-                    // If AccessType is not Specific, clear the AllowedUsers list
-                    if (chatbot.AccessType != "Specific")
-                    {
-                        chatbot.AllowedUsers.Clear();
-                    }
-
-                    // Set LastUpdatedAt
-                    chatbot.LastUpdatedAt = DateTime.UtcNow;
-
-                    _context.Update(chatbot);
-                    await _context.SaveChangesAsync();
-
-                    TempData["SuccessMessage"] = "Chatbot updated successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
-                    if (!await ChatbotExists(id))
-                    {
-                        return NotFound();
-                    }
-
-                    ModelState.AddModelError("", "The record was modified by another user.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
-                    ModelState.AddModelError("", "An error occurred while updating the chatbot.");
-                }
-            }
-
-            // Get departments again for the view
-            var departments = await _settingsService.GetAllDepartmentsAsync();
-            ViewBag.Departments = departments;
-
-            return View(chatbot);
+            
+            TempData["SuccessMessage"] = "Chatbot updated successfully.";
+            return RedirectToAction(nameof(Index));
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
+            ModelState.AddModelError("", $"Database error: {ex.Message}");
+        }
+    }
+    
+    // Return to edit view with departments if validation fails
+    var departments = await _settingsService.GetAllDepartmentsAsync();
+    ViewBag.Departments = departments;
+    return View(chatbot);
+}
 
         [HttpPost]
         [ValidateAntiForgeryToken]

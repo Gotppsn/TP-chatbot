@@ -1,0 +1,17 @@
+@functions {
+    string GetRelativeTime(DateTime dateTime)
+    {
+        var span = DateTime.Now - dateTime;
+        
+        if (span.TotalMinutes < 1)
+            return "just now";
+        if (span.TotalMinutes < 60)
+            return $"{(int)span.TotalMinutes} minute{((int)span.TotalMinutes != 1 ? "s" : "")} ago";
+        if (span.TotalHours < 24)
+            return $"{(int)span.TotalHours} hour{((int)span.TotalHours != 1 ? "s" : "")} ago";
+        if (span.TotalDays < 30)
+            return $"{(int)span.TotalDays} day{((int)span.TotalDays != 1 ? "s" : "")} ago";
+            
+        return dateTime.ToString("MMM d, yyyy");
+    }
+}

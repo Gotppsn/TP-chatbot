@@ -100,6 +100,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[C:/Users/panupol/Desktop/TP-chatbot/Views/Shared/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WaWV3SW1wb3J0cy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/panupol/Desktop/TP-chatbot/Views/UserChat/Chat.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVXNlckNoYXRcQ2hhdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 

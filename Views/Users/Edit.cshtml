@@ -89,7 +89,7 @@
                 </button>
                 <button type="button" class="tab-btn" data-tab="permissions">
                     <i class="bi bi-shield-lock"></i>
-                    <span>Permissions</span>
+                    <span>Role & Department</span>
                 </button>
                 <button type="button" class="tab-btn" data-tab="account">
                     <i class="bi bi-gear"></i>
@@ -148,16 +148,8 @@
                             <label asp-for="Department" class="form-label">Department <span class="required">*</span></label>
                             <div class="input-wrapper">
                                 <i class="bi bi-building input-icon"></i>
-                                <select asp-for="Department" class="form-select" required>
-                                    <option value="">Select Department</option>
-                                    <option value="Administration">Administration</option>
-                                    <option value="Customer Service">Customer Service</option>
-                                    <option value="IT Support">IT Support</option>
-                                    <option value="Sales">Sales</option>
-                                    <option value="Billing">Billing</option>
-                                    <option value="Technical">Technical</option>
-                                    <option value="Operations">Operations</option>
-                                </select>
+                                <input asp-for="Department" class="form-control" readonly />
+                                <small class="form-text text-muted">Department is set by LDAP and cannot be changed</small>
                             </div>
                             <span asp-validation-for="Department" class="text-danger"></span>
                         </div>
@@ -169,122 +161,11 @@
                                 <select asp-for="Role" class="form-select" id="roleSelect" required>
                                     <option value="">Select Role</option>
                                     <option value="Admin">Administrator</option>
-                                    <option value="Department Manager">Department Manager</option>
-                                    <option value="Support Agent">Support Agent</option>
-                                    <option value="User">Regular User</option>
+                                    <option value="User">User</option>
                                 </select>
                             </div>
                             <span asp-validation-for="Role" class="text-danger"></span>
                             <small class="form-text">Role determines the default permission set</small>
-                        </div>
-                    </div>
-
-                    <div class="permissions-section">
-                        <div class="section-header">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h3>Access Permissions</h3>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-sm btn-link" id="selectAllPermissions">Select All</button>
-                                    <span class="text-muted px-2">|</span>
-                                    <button type="button" class="btn btn-sm btn-link" id="clearAllPermissions">Clear All</button>
-                                </div>
-                            </div>
-                            <p class="text-secondary">Configure specific permissions for this user</p>
-                        </div>
-
-                        <div class="permissions-grid">
-                            <!-- Dashboard & Analytics -->
-                            <div class="permission-card">
-                                <div class="permission-card-header">
-                                    <h4><i class="bi bi-speedometer2"></i> Dashboard & Analytics</h4>
-                                </div>
-                                <div class="permission-card-body">
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-dashboard" name="Permissions[0].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" checked />
-                                            <input type="hidden" name="Permissions[0].Name" value="ViewDashboard" />
-                                            <label for="perm-dashboard" class="permission-label">
-                                                <div class="permission-name">View Dashboard</div>
-                                                <small class="permission-desc">Access to main dashboard and statistics</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-analytics" name="Permissions[1].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" checked />
-                                            <input type="hidden" name="Permissions[1].Name" value="ViewAnalytics" />
-                                            <label for="perm-analytics" class="permission-label">
-                                                <div class="permission-name">View Analytics</div>
-                                                <small class="permission-desc">Access to advanced analytics and reports</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Chatbots -->
-                            <div class="permission-card">
-                                <div class="permission-card-header">
-                                    <h4><i class="bi bi-robot"></i> Chatbot Management</h4>
-                                </div>
-                                <div class="permission-card-body">
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-view-chatbots" name="Permissions[2].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" checked />
-                                            <input type="hidden" name="Permissions[2].Name" value="ViewChatbots" />
-                                            <label for="perm-view-chatbots" class="permission-label">
-                                                <div class="permission-name">View Chatbots</div>
-                                                <small class="permission-desc">View configuration of all chatbots</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-manage-chatbots" name="Permissions[3].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" />
-                                            <input type="hidden" name="Permissions[3].Name" value="ManageChatbots" />
-                                            <label for="perm-manage-chatbots" class="permission-label">
-                                                <div class="permission-name">Manage Chatbots</div>
-                                                <small class="permission-desc">Create, edit and delete chatbots</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Knowledge Base -->
-                            <div class="permission-card">
-                                <div class="permission-card-header">
-                                    <h4><i class="bi bi-journal-text"></i> Knowledge Base</h4>
-                                </div>
-                                <div class="permission-card-body">
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-view-kb" name="Permissions[4].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" checked />
-                                            <input type="hidden" name="Permissions[4].Name" value="ViewKnowledgeBases" />
-                                            <label for="perm-view-kb" class="permission-label">
-                                                <div class="permission-name">View Knowledge Bases</div>
-                                                <small class="permission-desc">Access knowledge base content</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="permission-item">
-                                        <div class="form-check permission-check">
-                                            <input type="checkbox" id="perm-manage-kb" name="Permissions[5].IsGranted" value="true" 
-                                                   class="form-check-input permission-input" />
-                                            <input type="hidden" name="Permissions[5].Name" value="ManageKnowledgeBases" />
-                                            <label for="perm-manage-kb" class="permission-label">
-                                                <div class="permission-name">Manage Knowledge Bases</div>
-                                                <small class="permission-desc">Create, edit, and delete knowledge bases</small>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -868,80 +749,6 @@
             margin-top: 0.375rem;
         }
 
-        /* Permissions grid */
-        .permissions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.25rem;
-            margin-bottom: 2rem;
-        }
-
-        .permission-card {
-            border: 1px solid var(--gray-200);
-            border-radius: var(--border-radius-sm);
-            transition: var(--transition);
-            overflow: hidden;
-        }
-
-        .permission-card:hover {
-            border-color: rgba(var(--primary-rgb), 0.3);
-            box-shadow: 0 0 0 1px rgba(var(--primary-rgb), 0.1);
-        }
-
-        .permission-card-header {
-            padding: 1rem;
-            background-color: rgba(var(--primary-rgb), 0.05);
-            border-bottom: 1px solid var(--gray-200);
-        }
-
-        .permission-card-header h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--gray-800);
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .permission-card-header h4 i {
-            color: var(--primary);
-        }
-
-        .permission-card-body {
-            padding: 1rem;
-        }
-
-        .permission-item {
-            margin-bottom: 1rem;
-        }
-
-        .permission-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .permission-check {
-            margin: 0;
-        }
-
-        .permission-label {
-            font-weight: normal;
-            cursor: pointer;
-            padding-left: 0.5rem;
-        }
-
-        .permission-name {
-            font-weight: 500;
-            color: var(--gray-800);
-            margin-bottom: 0.25rem;
-        }
-
-        .permission-desc {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--gray-600);
-        }
-
         /* Form check styling */
         .form-check {
             display: flex;
@@ -1192,10 +999,6 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .permissions-grid {
-                grid-template-columns: 1fr;
-            }
         }
 
         @@media (max-width: 768px) {
@@ -1379,65 +1182,6 @@
                     passwordMatch.style.display = 'none';
                     passwordMismatch.style.display = 'flex';
                 }
-            }
-            
-            // Select/clear all permissions
-            const selectAllBtn = document.getElementById('selectAllPermissions');
-            const clearAllBtn = document.getElementById('clearAllPermissions');
-            const permissionInputs = document.querySelectorAll('.permission-input');
-            
-            if (selectAllBtn) {
-                selectAllBtn.addEventListener('click', function() {
-                    permissionInputs.forEach(input => {
-                        input.checked = true;
-                    });
-                });
-            }
-            
-            if (clearAllBtn) {
-                clearAllBtn.addEventListener('click', function() {
-                    permissionInputs.forEach(input => {
-                        input.checked = false;
-                    });
-                });
-            }
-            
-            // Role-based permission presets
-            const roleSelect = document.getElementById('roleSelect');
-            if (roleSelect) {
-                roleSelect.addEventListener('change', function() {
-                    const role = this.value;
-                    
-                    // Reset all permissions
-                    permissionInputs.forEach(input => {
-                        input.checked = false;
-                    });
-                    
-                    // Apply role-based permissions
-                    if (role === 'Admin') {
-                        // Admins get all permissions
-                        permissionInputs.forEach(input => {
-                            input.checked = true;
-                        });
-                    } else if (role === 'Department Manager') {
-                        // Managers get view permissions + some management
-                        const viewPermissions = ['ViewDashboard', 'ViewAnalytics', 'ViewChatbots', 'ViewKnowledgeBases'];
-                        const managerPerms = ['ManageKnowledgeBases'];
-                        
-                        permissionInputs.forEach(input => {
-                            const permName = input.nextElementSibling.value;
-                            input.checked = viewPermissions.includes(permName) || managerPerms.includes(permName);
-                        });
-                    } else if (role === 'Support Agent' || role === 'User') {
-                        // Basic users get minimal permissions
-                        const basicPermissions = ['ViewDashboard', 'ViewChatbots', 'ViewKnowledgeBases'];
-                        
-                        permissionInputs.forEach(input => {
-                            const permName = input.nextElementSibling.value;
-                            input.checked = basicPermissions.includes(permName);
-                        });
-                    }
-                });
             }
             
             // Delete confirmation
