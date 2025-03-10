@@ -104,83 +104,118 @@ namespace AIHelpdeskSupport.Controllers
             return View(chatbot);
         }
 
-        public async Task<IActionResult> Edit(int id)
+public async Task<IActionResult> Edit(int id)
+{
+    try
+    {
+        var chatbot = await _context.Chatbots.FindAsync(id);
+
+        if (chatbot == null)
         {
-            try
-            {
-                var chatbot = await _context.Chatbots.FindAsync(id);
-
-                if (chatbot == null)
-                {
-                    return NotFound();
-                }
-
-                // Get all departments for dropdown
-                var departments = await _settingsService.GetAllDepartmentsAsync();
-                ViewBag.Departments = departments;
-
-                return View(chatbot);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting chatbot {Id} for edit", id);
-                return RedirectToAction(nameof(Index));
-            }
+            return NotFound();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Chatbot chatbot)
+        // Get all departments for dropdown
+        var departments = await _settingsService.GetAllDepartmentsAsync();
+        ViewBag.Departments = departments;
+        
+        // In a real implementation, you would load these from your database
+        // Here we're just using TempData or providing defaults
+        ViewBag.SelectedDepartments = TempData["SelectedDepartments"] as List<string> ?? new List<string> { chatbot.Department };
+        ViewBag.AllowUserAccess = TempData["AllowUserAccess"] ?? false;
+        ViewBag.AllowedUsers = TempData["AllowedUsers"] as List<string> ?? new List<string>();
+
+        return View(chatbot);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error getting chatbot {Id} for edit", id);
+        return RedirectToAction(nameof(Index));
+    }
+}
+
+// POST: Chatbot/Edit/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Chatbot chatbot, 
+    List<string> SelectedDepartments, bool AllowUserAccess, List<string> AllowedUsers)
+{
+    if (id != chatbot.Id)
+    {
+        return NotFound();
+    }
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != chatbot.Id)
+            // Preserve original creation data
+            var originalChatbot = await _context.Chatbots
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == id);
+                
+            if (originalChatbot != null)
+            {
+                chatbot.CreatedAt = originalChatbot.CreatedAt;
+                chatbot.CreatedBy = originalChatbot.CreatedBy;
+            }
+            
+            // Make sure Department is set if SelectedDepartments has items
+            if (SelectedDepartments != null && SelectedDepartments.Any())
+            {
+                // Primary department is already set in the form via hidden input
+                
+                // Store the selected departments in TempData for now
+                TempData["SelectedDepartments"] = SelectedDepartments;
+                
+                // TODO: In a real implementation, store in ChatbotDepartment table
+                // await _chatbotDepartmentService.UpdateDepartmentsAsync(chatbot.Id, SelectedDepartments);
+            }
+            
+            // Store user access settings
+            TempData["AllowUserAccess"] = AllowUserAccess;
+            if (AllowUserAccess && AllowedUsers != null && AllowedUsers.Any())
+            {
+                TempData["AllowedUsers"] = AllowedUsers;
+                
+                // TODO: In a real implementation, store in ChatbotUser table
+                // await _chatbotUserService.UpdateAllowedUsersAsync(chatbot.Id, AllowedUsers);
+            }
+            
+            _context.Update(chatbot);
+            await _context.SaveChangesAsync();
+            
+            TempData["SuccessMessage"] = "Chatbot updated successfully.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
+            if (!await ChatbotExists(id))
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    // Preserve original creation data
-                    var originalChatbot = await _context.Chatbots
-                        .AsNoTracking()
-                        .FirstOrDefaultAsync(c => c.Id == id);
-                        
-                    if (originalChatbot != null)
-                    {
-                        chatbot.CreatedAt = originalChatbot.CreatedAt;
-                        chatbot.CreatedBy = originalChatbot.CreatedBy;
-                    }
-                    
-                    _context.Update(chatbot);
-                    await _context.SaveChangesAsync();
-                    
-                    TempData["SuccessMessage"] = "Chatbot updated successfully.";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException ex)
-                {
-                    _logger.LogError(ex, "Concurrency error updating chatbot {Id}", id);
-                    if (!await ChatbotExists(id))
-                    {
-                        return NotFound();
-                    }
-                    
-                    ModelState.AddModelError("", "The record was modified by another user.");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error updating chatbot {Id}", id);
-                    ModelState.AddModelError("", "An error occurred while updating the chatbot.");
-                }
-            }
-
-            // Get departments again if we need to redisplay the form
-            var departments = await _settingsService.GetAllDepartmentsAsync();
-            ViewBag.Departments = departments;
-
-            return View(chatbot);
+            
+            ModelState.AddModelError("", "The record was modified by another user.");
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
+            ModelState.AddModelError("", "An error occurred while updating the chatbot.");
+        }
+    }
+
+    // Get departments again for the view
+    var departments = await _settingsService.GetAllDepartmentsAsync();
+    ViewBag.Departments = departments;
+    
+    // Pass back the selected departments and users for redisplay
+    ViewBag.SelectedDepartments = SelectedDepartments;
+    ViewBag.AllowUserAccess = AllowUserAccess;
+    ViewBag.AllowedUsers = AllowedUsers;
+
+    return View(chatbot);
+}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
