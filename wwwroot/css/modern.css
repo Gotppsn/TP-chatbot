@@ -2419,3 +2419,63 @@ img {
   
   .row-actions { flex-direction: column; }
 }
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gray-500);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Ensure form field with icon has proper padding */
+.form-control.with-icon {
+  padding-left: 2.5rem;
+}
+
+.form-field-container {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.form-control-readonly {
+  background-color: var(--color-gray-50);
+  cursor: not-allowed;
+}
+
+.field-help-text {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin-top: 0.25rem;
+  margin-left: 0;
+  line-height: 1.2;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-gray-500);
+  font-size: 1rem;
+  z-index: 1;
+}
+
+.form-control {
+  padding-left: 2.5rem;
+}
