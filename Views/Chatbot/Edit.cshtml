@@ -640,22 +640,27 @@
             });
 
             // Fetch chatbot stats
-            function fetchChatbotStats(chatbotId) {
-                fetch(`/api/chatbot/stats/${chatbotId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('conversationsCount').textContent = data.conversations || '0';
-                        document.getElementById('avgResponseTime').textContent = (data.avgResponseTime || '0.0') + 's';
-                        document.getElementById('successRate').textContent = (data.successRate || '0') + '%';
-                    })
-                    .catch(error => {
-                        console.error('Error fetching chatbot stats:', error);
-                        // Use default values on error
-                        document.getElementById('conversationsCount').textContent = '0';
-                        document.getElementById('avgResponseTime').textContent = '0.0s';
-                        document.getElementById('successRate').textContent = '0%';
-                    });
+function fetchChatbotStats(chatbotId) {
+    fetch(`/api/chatbot/stats/${chatbotId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
             }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('conversationsCount').textContent = data.conversations || '0';
+            document.getElementById('avgResponseTime').textContent = (data.avgResponseTime || '0.0') + 's';
+            document.getElementById('successRate').textContent = (data.successRate || '0') + '%';
+        })
+        .catch(error => {
+            console.error('Error fetching chatbot stats:', error);
+            // Use default values on error
+            document.getElementById('conversationsCount').textContent = '0';
+            document.getElementById('avgResponseTime').textContent = '0.0s';
+            document.getElementById('successRate').textContent = '0%';
+        });
+}
         });
     </script>
 }

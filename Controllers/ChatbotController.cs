@@ -316,25 +316,25 @@ public async Task<IActionResult> Edit(int id, Chatbot chatbot)
             }
         }
 
-        [HttpGet("Stats/{id}")]
-        public IActionResult GetStats(int id)
+ [HttpGet("api/chatbot/stats/{id}")]
+public IActionResult GetStats(int id)
+{
+    try
+    {
+        // Return example data for now
+        return Ok(new
         {
-            try
-            {
-                // Return example data for now
-                return Ok(new
-                {
-                    conversations = 10,
-                    avgResponseTime = 1.5,
-                    successRate = 85
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving chatbot stats for ID {Id}", id);
-                return StatusCode(500, new { error = "Internal server error" });
-            }
-        }
+            conversations = 10,
+            avgResponseTime = 1.5,
+            successRate = 85
+        });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error retrieving chatbot stats for ID {Id}", id);
+        return StatusCode(500, new { error = "Internal server error" });
+    }
+}
         private async Task<SyncResult> SyncFlowiseChatbots()
         {
             var result = new SyncResult();
