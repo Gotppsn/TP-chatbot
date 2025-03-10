@@ -36,5 +36,18 @@ public class Chatbot
     
     // Flowise specific configuration
     public string? FlowiseId { get; set; }
+    public ICollection<ChatbotUpdate> UpdateHistory { get; set; } = new List<ChatbotUpdate>();
     
+}
+
+public class ChatbotUpdate
+{
+    public int Id { get; set; }
+    public int ChatbotId { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public string UpdatedBy { get; set; }
+    public string ChangeDescription { get; set; }
+    
+    // Navigation property
+    public virtual Chatbot Chatbot { get; set; }
 }

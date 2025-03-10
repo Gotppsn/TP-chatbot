@@ -127,7 +127,9 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-                var chatbot = await _context.Chatbots.FindAsync(id);
+                var chatbot = await _context.Chatbots
+                    .Include(c => c.UpdateHistory)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (chatbot == null)
                 {
