@@ -378,61 +378,71 @@
                 // Show loading state
                 userSearchResults.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Loading users...</p></div>';
 
-                // Just show some hardcoded users for now since the API isn't working
-                setTimeout(() => {
-                    const users = [
-                        { userName: 'admin', firstName: 'Admin', lastName: 'User' },
-                        { userName: 'user', firstName: 'Regular', lastName: 'User' },
-                        { userName: 'panupol', firstName: 'Panupol', lastName: 'Sornuam' }
-                    ];
-                    
-                    userSearchResults.innerHTML = '';
-                    
-                    // Filter out already selected users
-                    const availableUsers = users.filter(u => !selectedUserIds.includes(u.userName));
-                    
-                    if (availableUsers.length === 0) {
+                // Fetch users from API endpoint
+                fetch('/api/users/getall')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        userSearchResults.innerHTML = '';
+                        
+                        // Filter out already selected users
+                        const availableUsers = data.filter(u => !selectedUserIds.includes(u.userName));
+                        
+                        if (availableUsers.length === 0) {
+                            userSearchResults.innerHTML = `
+                                <div class="no-results-message">
+                                    <i class="bi bi-info-circle"></i>
+                                    <p>All users have been added or no users available.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        // Create user elements
+                        availableUsers.forEach(function (user) {
+                            const userEl = document.createElement('div');
+                            userEl.className = 'user-search-item';
+                            userEl.dataset.username = user.userName;
+                            userEl.dataset.fullname = user.firstName + ' ' + user.lastName;
+
+                            const userInfo = document.createElement('div');
+                            userInfo.className = 'user-info';
+
+                            const userName = document.createElement('div');
+                            userName.className = 'user-name';
+                            userName.textContent = user.firstName + ' ' + user.lastName;
+
+                            const userUsername = document.createElement('div');
+                            userUsername.className = 'user-username';
+                            userUsername.textContent = '@@' + user.userName;
+
+                            const addButton = document.createElement('button');
+                            addButton.type = 'button';
+                            addButton.className = 'btn btn-sm btn-outline-primary Add';
+                            addButton.setAttribute('data-username', user.userName);
+                            addButton.textContent = 'Add';
+
+                            userInfo.appendChild(userName);
+                            userInfo.appendChild(userUsername);
+                            userEl.appendChild(userInfo);
+                            userEl.appendChild(addButton);
+
+                            userSearchResults.appendChild(userEl);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error fetching users:', error);
                         userSearchResults.innerHTML = `
                             <div class="no-results-message">
-                                <i class="bi bi-info-circle"></i>
-                                <p>All users have been added or no users available.</p>
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <p>Error loading users: ${error.message}</p>
                             </div>
                         `;
-                        return;
-                    }
-
-                    // Create user elements
-                    availableUsers.forEach(function (user) {
-                        const userEl = document.createElement('div');
-                        userEl.className = 'user-search-item';
-                        userEl.dataset.username = user.userName;
-                        userEl.dataset.fullname = user.firstName + ' ' + user.lastName;
-
-                        const userInfo = document.createElement('div');
-                        userInfo.className = 'user-info';
-
-                        const userName = document.createElement('div');
-                        userName.className = 'user-name';
-                        userName.textContent = user.firstName + ' ' + user.lastName;
-
-                        const userUsername = document.createElement('div');
-                        userUsername.className = 'user-username';
-                        userUsername.textContent = '@@' + user.userName;
-
-                        const addButton = document.createElement('button');
-                        addButton.type = 'button';
-                        addButton.className = 'btn btn-sm btn-outline-primary Add';
-                        addButton.setAttribute('data-username', user.userName);
-                        addButton.textContent = 'Add';
-
-                        userInfo.appendChild(userName);
-                        userInfo.appendChild(userUsername);
-                        userEl.appendChild(userInfo);
-                        userEl.appendChild(addButton);
-
-                        userSearchResults.appendChild(userEl);
                     });
-                }, 500);
 
                 // Show modal
                 userSearchModal.classList.add('show');
@@ -455,39 +465,110 @@
             if (modalUserSearch) {
                 modalUserSearch.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
+                    
+                    // If search term is 3 characters or more, fetch from server
+                    if (searchTerm.length >= 3) {
+                        userSearchResults.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Searching...</p></div>';
+                        
+                        fetch(`/api/users/getall?search=${encodeURIComponent(searchTerm)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                userSearchResults.innerHTML = '';
+                                
+                                // Get selected users
+                                const selectedUserIds = Array.from(
+                                    document.querySelectorAll('.selected-user-item input[name="AllowedUsers"]')
+                                ).map(input => input.value);
+                                
+                                // Filter out already selected users
+                                const availableUsers = data.filter(u => !selectedUserIds.includes(u.userName));
+                                
+                                if (availableUsers.length === 0) {
+                                    userSearchResults.innerHTML = `
+                                        <div class="no-results-message">
+                                            <i class="bi bi-search"></i>
+                                            <p>No users match your search.</p>
+                                        </div>
+                                    `;
+                                    return;
+                                }
+                                
+                                // Create user elements
+                                availableUsers.forEach(function (user) {
+                                    const userEl = document.createElement('div');
+                                    userEl.className = 'user-search-item';
+                                    userEl.dataset.username = user.userName;
+                                    userEl.dataset.fullname = user.firstName + ' ' + user.lastName;
 
-                    document.querySelectorAll('.user-search-item').forEach(item => {
-                        const fullname = item.dataset.fullname.toLowerCase();
-                        const username = item.dataset.username.toLowerCase();
+                                    const userInfo = document.createElement('div');
+                                    userInfo.className = 'user-info';
 
-                        if (fullname.includes(searchTerm) || username.includes(searchTerm)) {
-                            item.style.display = '';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
+                                    const userName = document.createElement('div');
+                                    userName.className = 'user-name';
+                                    userName.textContent = user.firstName + ' ' + user.lastName;
 
-                    // Check if any results are visible
-                    const anyVisible = Array.from(
-                        document.querySelectorAll('.user-search-item')
-                    ).some(el => el.style.display !== 'none');
+                                    const userUsername = document.createElement('div');
+                                    userUsername.className = 'user-username';
+                                    userUsername.textContent = '@@' + user.userName;
 
-                    // Show no results message if needed
-                    let noResults = document.querySelector('.no-results-message');
-                    if (!anyVisible) {
-                        if (!noResults) {
-                            noResults = document.createElement('div');
-                            noResults.className = 'no-results-message';
-                            noResults.innerHTML = `
+                                    const addButton = document.createElement('button');
+                                    addButton.type = 'button';
+                                    addButton.className = 'btn btn-sm btn-outline-primary Add';
+                                    addButton.setAttribute('data-username', user.userName);
+                                    addButton.textContent = 'Add';
+
+                                    userInfo.appendChild(userName);
+                                    userInfo.appendChild(userUsername);
+                                    userEl.appendChild(userInfo);
+                                    userEl.appendChild(addButton);
+
+                                    userSearchResults.appendChild(userEl);
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Error searching users:', error);
+                                userSearchResults.innerHTML = `
+                                    <div class="no-results-message">
+                                        <i class="bi bi-exclamation-triangle"></i>
+                                        <p>Error searching users.</p>
+                                    </div>
+                                `;
+                            });
+                    } else {
+                        // Client-side filtering for already loaded results
+                        document.querySelectorAll('.user-search-item').forEach(item => {
+                            const fullname = item.dataset.fullname.toLowerCase();
+                            const username = item.dataset.username.toLowerCase();
+
+                            if (fullname.includes(searchTerm) || username.includes(searchTerm)) {
+                                item.style.display = '';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+
+                        // Check if any results are visible
+                        const anyVisible = Array.from(
+                            document.querySelectorAll('.user-search-item')
+                        ).some(el => el.style.display !== 'none');
+
+                        // Show no results message if needed
+                        let noResults = document.querySelector('.no-results-message');
+                        if (!anyVisible) {
+                            if (!noResults) {
+                                noResults = document.createElement('div');
+                                noResults.className = 'no-results-message';
+                                noResults.innerHTML = `
                                     <i class="bi bi-search"></i>
                                     <p>No users match your search.</p>
                                 `;
-                            userSearchResults.appendChild(noResults);
-                        } else {
-                            noResults.style.display = '';
+                                userSearchResults.appendChild(noResults);
+                            } else {
+                                noResults.style.display = '';
+                            }
+                        } else if (noResults) {
+                            noResults.style.display = 'none';
                         }
-                    } else if (noResults) {
-                        noResults.style.display = 'none';
                     }
                 });
             }
@@ -560,14 +641,25 @@
 
             // Fetch chatbot stats
             function fetchChatbotStats(chatbotId) {
-                // Simulated stats since the API is not working
-                document.getElementById('conversationsCount').textContent = '25';
-                document.getElementById('avgResponseTime').textContent = '1.8s';
-                document.getElementById('successRate').textContent = '92%';
+                fetch(`/api/chatbot/stats/${chatbotId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('conversationsCount').textContent = data.conversations || '0';
+                        document.getElementById('avgResponseTime').textContent = (data.avgResponseTime || '0.0') + 's';
+                        document.getElementById('successRate').textContent = (data.successRate || '0') + '%';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chatbot stats:', error);
+                        // Use default values on error
+                        document.getElementById('conversationsCount').textContent = '0';
+                        document.getElementById('avgResponseTime').textContent = '0.0s';
+                        document.getElementById('successRate').textContent = '0%';
+                    });
             }
         });
     </script>
 }
+
 
 @section Styles {
     <style>

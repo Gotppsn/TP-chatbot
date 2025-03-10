@@ -102,6 +102,13 @@ namespace AIHelpdeskSupport.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(UserViewModel model)
         {
+            // Remove password validation if fields are empty
+            if (string.IsNullOrEmpty(model.NewPassword) && string.IsNullOrEmpty(model.ConfirmPassword))
+            {
+                ModelState.Remove("NewPassword");
+                ModelState.Remove("ConfirmPassword");
+            }
+            
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -145,7 +152,7 @@ namespace AIHelpdeskSupport.Controllers
                     await _permissionService.SetPermissionsAsync(user.Id, grantedPermissions);
                 }
                 
-                // Handle password reset if requested
+                // Handle password reset if requested and password is provided
                 if (!string.IsNullOrEmpty(model.NewPassword))
                 {
                     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -297,6 +304,27 @@ namespace AIHelpdeskSupport.Controllers
                 return StatusCode(500, new { success = false, message = "An unexpected error occurred" });
             }
         }
+
+        [HttpGet]
+[Authorize(Roles = "Admin")]
+public async Task<IActionResult> GetAllUsers(string search = "")
+{
+    var users = await _userManager.Users
+        .Where(u => string.IsNullOrEmpty(search) || 
+                    u.UserName.Contains(search) || 
+                    u.Email.Contains(search) || 
+                    u.FirstName.Contains(search) || 
+                    u.LastName.Contains(search))
+        .Select(u => new { 
+            userName = u.UserName, 
+            firstName = u.FirstName, 
+            lastName = u.LastName,
+            email = u.Email
+        })
+        .ToListAsync();
+        
+    return Json(users);
+}
         
         private string GenerateRandomPassword()
         {
