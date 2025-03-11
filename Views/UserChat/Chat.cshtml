@@ -193,86 +193,106 @@
     const chatInfo = document.getElementById('chatInfo');
     const sidebar = document.getElementById('chatSidebar');
 
-    // Improved Flowise API integration
-    async function callFlowiseAPI(message) {
-        try {
-            showLoadingIndicator();
-            
-            // Get the Flowise ID 
-            const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
-            
-            if (!activeFlowiseId) {
-                console.warn("No Flowise ID available - falling back to regular API");
-                return callRegularAPI(message);
-            }
-            
-            // Get API URL and key from settings
-            const settings = await fetchSettings();
-            const flowiseApiUrl = settings.flowiseApiUrl;
-            const flowiseApiKey = settings.flowiseApiKey;
-            
-            if (!flowiseApiUrl) {
-                console.warn("No Flowise API URL configured - falling back to regular API");
-                return callRegularAPI(message);
-            }
-            
-            console.log("Connecting to Flowise using ID:", activeFlowiseId);
-            
-            // Construct the full API URL
-            const apiUrl = `${flowiseApiUrl}prediction/${activeFlowiseId}`;
-            
-            // Set up headers with authentication
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            
-            if (flowiseApiKey) {
-                headers['Authorization'] = `Bearer ${flowiseApiKey}`;
-                headers['x-api-key'] = flowiseApiKey;
-            }
-            
-            // Make the API request
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                    question: message,
-                    sessionId: sessionId,
-                    overrideConfig: {
-                        chatId: activeFlowiseId
-                    }
-                })
-            });
-            
-            if (!response.ok) {
-                console.error(`Flowise API error: ${response.status}`);
-                // Fallback to regular API if Flowise fails
-                return callRegularAPI(message);
-            }
-            
-            // Handle different response formats
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                if (typeof data === 'object') {
-                    // Handle different response formats
-                    if (data.text) return data.text;
-                    if (data.response) return data.response;
-                    if (data.answer) return data.answer;
-                    return JSON.stringify(data);
-                }
-                return data;
-            } else {
-                return await response.text();
-            }
-        } catch (error) {
-            console.error('Flowise API call failed:', error);
-            // Fallback to regular API if Flowise throws an error
+   // Improved Flowise API integration for Chat.cshtml
+async function callFlowiseAPI(message) {
+    try {
+        showLoadingIndicator();
+        
+        // Get the Flowise ID 
+        const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
+        
+        if (!activeFlowiseId) {
+            console.warn("No Flowise ID available - falling back to regular API");
             return callRegularAPI(message);
-        } finally {
-            hideLoadingIndicator();
         }
+        
+        // Get API URL and key from settings
+        const settings = await fetchSettings();
+        const flowiseApiUrl = settings.flowiseApiUrl;
+        const flowiseApiKey = settings.flowiseApiKey;
+        
+        if (!flowiseApiUrl) {
+            console.warn("No Flowise API URL configured - falling back to regular API");
+            return callRegularAPI(message);
+        }
+        
+        console.log("Connecting to Flowise using ID:", activeFlowiseId);
+        
+        // Construct the full API URL
+        const apiUrl = `${flowiseApiUrl}prediction/${activeFlowiseId}`;
+        
+        // Set up headers with authentication
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (flowiseApiKey) {
+            headers['Authorization'] = `Bearer ${flowiseApiKey}`;
+            headers['x-api-key'] = flowiseApiKey;
+        }
+        
+        // Make the API request
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                question: message,
+                sessionId: sessionId,
+                overrideConfig: {
+                    chatId: activeFlowiseId
+                }
+            })
+        });
+        
+        if (!response.ok) {
+            console.error(`Flowise API error: ${response.status}`);
+            // Fallback to regular API if Flowise fails
+            return callRegularAPI(message);
+        }
+        
+        // Handle different response formats
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            const data = await response.json();
+            if (typeof data === 'object') {
+                // Handle different response formats
+                if (data.text) return data.text;
+                if (data.response) return data.response;
+                if (data.answer) return data.answer;
+                return JSON.stringify(data);
+            }
+            return data;
+        } else {
+            return await response.text();
+        }
+    } catch (error) {
+        console.error('Flowise API call failed:', error);
+        // Fallback to regular API if Flowise throws an error
+        return callRegularAPI(message);
+    } finally {
+        hideLoadingIndicator();
     }
+}
+
+// Helper function to fetch settings
+async function fetchSettings() {
+    try {
+        const response = await fetch('/api/settings/flowise');
+        if (!response.ok) {
+            return {
+                flowiseApiUrl: '',
+                flowiseApiKey: ''
+            };
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching settings:', error);
+        return {
+            flowiseApiUrl: '',
+            flowiseApiKey: ''
+        };
+    }
+}
     
     // Fallback to regular API
     async function callRegularAPI(message) {
@@ -304,26 +324,6 @@
         } catch (error) {
             console.error('API call failed:', error);
             return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
-        }
-    }
-    
-    // Helper function to fetch Flowise settings
-    async function fetchSettings() {
-        try {
-            const response = await fetch('/api/settings/flowise');
-            if (!response.ok) {
-                return {
-                    flowiseApiUrl: '',
-                    flowiseApiKey: ''
-                };
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching settings:', error);
-            return {
-                flowiseApiUrl: '',
-                flowiseApiKey: ''
-            };
         }
     }
 
