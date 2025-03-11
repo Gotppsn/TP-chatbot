@@ -335,70 +335,82 @@ public IActionResult GetStats(int id)
         return StatusCode(500, new { error = "Internal server error" });
     }
 }
-        private async Task<SyncResult> SyncFlowiseChatbots()
+private async Task<SyncResult> SyncFlowiseChatbots()
+{
+    var result = new SyncResult();
+
+    try
+    {
+        var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+
+        if (flowiseChatflows == null || !flowiseChatflows.Any())
         {
-            var result = new SyncResult();
+            result.Message = "No chatflows found in Flowise API. Check API configuration.";
+            return result;
+        }
 
-            try
+        result.TotalFound = flowiseChatflows.Count();
+        _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
+
+        foreach (var chatflow in flowiseChatflows)
+        {
+            if (string.IsNullOrEmpty(chatflow.Id))
             {
-                var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
+                result.SkippedCount++;
+                continue;
+            }
 
-                if (flowiseChatflows == null || !flowiseChatflows.Any())
+            var existingChatbot = await _context.Chatbots
+                .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
+
+            if (existingChatbot == null)
+            {
+                // Get department settings
+                var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+                string defaultDepartment = "Development";
+                string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
+
+                // Create new chatbot
+                var newChatbot = new Chatbot
                 {
-                    result.Message = "No chatflows found in Flowise API. Check API configuration.";
-                    return result;
+                    Name = chatflow.Name,
+                    Description = "Imported from Flowise - " + DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                    FlowiseId = chatflow.Id,
+                    Department = defaultDepartment,
+                    AiModel = defaultModel,
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = "System-Sync",
+                    Departments = new List<string> { defaultDepartment },
+                    AccessType = "All",
+                    AllowedUsers = new List<string>()
+                };
+
+                _context.Chatbots.Add(newChatbot);
+                result.NewCount++;
+            }
+            else
+            {
+                // Check if any properties need updating
+                bool updated = false;
+
+                // IMPORTANT: Comment out this section to preserve custom names
+                // if (existingChatbot.Name != chatflow.Name)
+                // {
+                //     existingChatbot.Name = chatflow.Name;
+                //     updated = true;
+                // }
+
+                // Initialize collections if null
+                if (existingChatbot.Departments == null)
+                {
+                    existingChatbot.Departments = new List<string>();
+                    if (!string.IsNullOrEmpty(existingChatbot.Department))
+                    {
+                        existingChatbot.Departments.Add(existingChatbot.Department);
+                    }
+                    updated = true;
                 }
-
-                result.TotalFound = flowiseChatflows.Count();
-                _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
-
-                foreach (var chatflow in flowiseChatflows)
-                {
-                    if (string.IsNullOrEmpty(chatflow.Id))
-                    {
-                        result.SkippedCount++;
-                        continue;
-                    }
-
-                    var existingChatbot = await _context.Chatbots
-                        .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
-
-                    if (existingChatbot == null)
-                    {
-                        // Get department settings
-                        var settings = await _context.SystemSettings.FirstOrDefaultAsync();
-                        string defaultDepartment = "Development";
-                        string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
-
-                        // Create new chatbot
-                        var newChatbot = new Chatbot
-                        {
-                            Name = chatflow.Name,
-                            Description = "Imported from Flowise - " + DateTime.UtcNow.ToString("yyyy-MM-dd"),
-                            FlowiseId = chatflow.Id,
-                            Department = defaultDepartment,
-                            AiModel = defaultModel,
-                            IsActive = true,
-                            CreatedAt = DateTime.UtcNow,
-                            CreatedBy = "System-Sync",
-                            Departments = new List<string> { defaultDepartment },
-                            AccessType = "All",
-                            AllowedUsers = new List<string>()
-                        };
-
-                        _context.Chatbots.Add(newChatbot);
-                        result.NewCount++;
-                    }
-                    else
-                    {
-                        // Check if any properties need updating
-                        bool updated = false;
-
-                        if (existingChatbot.Name != chatflow.Name)
-                        {
-                            existingChatbot.Name = chatflow.Name;
-                            updated = true;
-                        }
 
                         // Initialize collections if null
                         if (existingChatbot.Departments == null)
