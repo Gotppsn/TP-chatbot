@@ -193,261 +193,166 @@
     const chatInfo = document.getElementById('chatInfo');
     const sidebar = document.getElementById('chatSidebar');
 
-   // Improved Flowise API integration for Chat.cshtml
-async function callFlowiseAPI(message) {
-    try {
-        showLoadingIndicator();
-        
-        // Get the Flowise ID - using optional chaining to prevent errors
-        const activeFlowiseId = flowiseId || document.getElementById('flowiseId')?.value || '';
-        
-        if (!activeFlowiseId) {
-            console.warn("No Flowise ID available - falling back to regular API");
-            return await callRegularAPI(message);
-        }
-        
-        // Get API URL and key from settings
-        const settings = await fetchSettings();
-        const flowiseApiUrl = settings.flowiseApiUrl || '';
-        const flowiseApiKey = settings.flowiseApiKey || '';
-        
-        if (!flowiseApiUrl) {
-            console.warn("No Flowise API URL configured - falling back to regular API");
-            return await callRegularAPI(message);
-        }
-        
-        console.log("Connecting to Flowise using ID:", activeFlowiseId);
-        
-        // Construct the full API URL - avoiding string concatenation issues
-        const apiUrl = `${flowiseApiUrl.replace(/\/$/, '')}/prediction/${activeFlowiseId}`;
-        
-        // Set up headers with authentication
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        
-        if (flowiseApiKey) {
-            headers['Authorization'] = `Bearer ${flowiseApiKey}`;
-            headers['x-api-key'] = flowiseApiKey;
-        }
-        
-        // Make the API request
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-                question: message,
-                sessionId: sessionId,
-                overrideConfig: {
-                    chatId: activeFlowiseId
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            console.error(`Flowise API error: ${response.status}`);
-            // Fallback to regular API if Flowise fails
-            return await callRegularAPI(message);
-        }
-        
-        // Handle different response formats
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            if (typeof data === 'object') {
-                // Handle different response formats
-                if (data.text) return data.text;
-                if (data.response) return data.response;
-                if (data.answer) return data.answer;
-                return JSON.stringify(data);
+    // Improved Flowise API integration
+    async function callFlowiseAPI(message) {
+        try {
+            showLoadingIndicator();
+            
+            // Get the Flowise ID and verify it exists
+            const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
+            
+            if (!activeFlowiseId) {
+                console.warn("No Flowise ID available - falling back to regular API");
+                return await callRegularAPI(message);
             }
-            return data;
-        } else {
-            return await response.text();
-        }
-    } catch (error) {
-        console.error('Flowise API call failed:', error);
-        // Fallback to regular API if Flowise throws an error
-        return await callRegularAPI(message);
-    } finally {
-        hideLoadingIndicator();
-    }
-}
-
-// Helper function to fetch settings
-Fixing the Chatbot Integration in UserChat/Chat.cshtml
-After analyzing the code, I've identified why your chatbot isn't working in the UserChat/Chat.cshtml view while it functions correctly in the Chatbot/Test.cshtml view. The issue is primarily with the API communication flow and error handling.
-The Main Issues
-
-API Communication Flow: The Chat.cshtml implementation doesn't properly handle the Flowise API connection and fallback mechanism
-Error Handling: Current error states aren't being properly managed
-Session Management: Session IDs aren't being correctly utilized
-
-Solution: Updating the API Communication Functions
-The key is to implement proper API integration similar to the working Test.cshtml. Here's the code you need to update in your UserChat/Chat.cshtml file:
-javascriptCopy// Improved Flowise API integration for Chat.cshtml
-async function callFlowiseAPI(message) {
-    try {
-        showLoadingIndicator();
-        
-        // Get the Flowise ID 
-        const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
-        
-        if (!activeFlowiseId) {
-            console.warn("No Flowise ID available - falling back to regular API");
-            return callRegularAPI(message);
-        }
-        
-        // Get API URL and key from settings
-        const settings = await fetchSettings();
-        const flowiseApiUrl = settings.flowiseApiUrl;
-        const flowiseApiKey = settings.flowiseApiKey;
-        
-        if (!flowiseApiUrl) {
-            console.warn("No Flowise API URL configured - falling back to regular API");
-            return callRegularAPI(message);
-        }
-        
-        console.log("Connecting to Flowise using ID:", activeFlowiseId);
-        
-        // Construct the full API URL
-        const apiUrl = `${flowiseApiUrl}prediction/${activeFlowiseId}`;
-        
-        // Set up headers with authentication
-        const headers = {
-            'Content-Type': 'application/json'
-        };
-        
-        if (flowiseApiKey) {
-            headers['Authorization'] = `Bearer ${flowiseApiKey}`;
-            headers['x-api-key'] = flowiseApiKey;
-        }
-        
-        // Make the API request
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify({
-                question: message,
-                sessionId: sessionId,
-                overrideConfig: {
-                    chatId: activeFlowiseId
-                }
-            })
-        });
-        
-        if (!response.ok) {
-            console.error(`Flowise API error: ${response.status}`);
-            // Fallback to regular API if Flowise fails
-            return callRegularAPI(message);
-        }
-        
-        // Handle different response formats
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            const data = await response.json();
-            if (typeof data === 'object') {
-                // Handle different response formats
-                if (data.text) return data.text;
-                if (data.response) return data.response;
-                if (data.answer) return data.answer;
-                return JSON.stringify(data);
+            
+            // Get API URL and key from settings
+            const settings = await fetchSettings();
+            const flowiseApiUrl = settings.flowiseApiUrl;
+            const flowiseApiKey = settings.flowiseApiKey;
+            
+            if (!flowiseApiUrl) {
+                console.warn("No Flowise API URL configured - falling back to regular API");
+                return await callRegularAPI(message);
             }
-            return data;
-        } else {
-            return await response.text();
+            
+            console.log("Connecting to Flowise using ID:", activeFlowiseId);
+            
+            // Construct the full API URL
+            const apiUrl = `${flowiseApiUrl}prediction/${activeFlowiseId}`;
+            
+            // Set up headers with authentication
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+            
+            if (flowiseApiKey) {
+                headers['Authorization'] = `Bearer ${flowiseApiKey}`;
+                headers['x-api-key'] = flowiseApiKey;
+            }
+            
+            // Make the API request
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({
+                    question: message,
+                    sessionId: sessionId,
+                    overrideConfig: {
+                        chatId: activeFlowiseId
+                    }
+                })
+            });
+            
+            if (!response.ok) {
+                console.error(`Flowise API error: ${response.status}`);
+                // Fallback to regular API if Flowise fails
+                return await callRegularAPI(message);
+            }
+            
+            // Handle different response formats
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                if (typeof data === 'object') {
+                    // Handle different response formats
+                    if (data.text) return data.text;
+                    if (data.response) return data.response;
+                    if (data.answer) return data.answer;
+                    return JSON.stringify(data);
+                }
+                return data;
+            } else {
+                return await response.text();
+            }
+        } catch (error) {
+            console.error('Flowise API call failed:', error);
+            // Fallback to regular API if Flowise throws an error
+            return await callRegularAPI(message);
+        } finally {
+            hideLoadingIndicator();
         }
-    } catch (error) {
-        console.error('Flowise API call failed:', error);
-        // Fallback to regular API if Flowise throws an error
-        return callRegularAPI(message);
-    } finally {
-        hideLoadingIndicator();
     }
-}
 
-// Helper function to fetch settings
-async function fetchSettings() {
-    try {
-        const response = await fetch('/api/settings/flowise');
-        if (!response.ok) {
+    // Helper function to fetch settings
+    async function fetchSettings() {
+        try {
+            const response = await fetch('/api/settings/flowise');
+            if (!response.ok) {
+                return {
+                    flowiseApiUrl: '',
+                    flowiseApiKey: ''
+                };
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching settings:', error);
             return {
                 flowiseApiUrl: '',
                 flowiseApiKey: ''
             };
         }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching settings:', error);
-        return {
-            flowiseApiUrl: '',
-            flowiseApiKey: ''
-        };
     }
-}
     
     // Fallback to regular API
-async function callRegularAPI(message) {
-    try {
-        // Use the chatbotId from model
-        const activeChatbotId = chatbotId || 0;
-        
-        console.log("Falling back to regular API with chatbot ID:", activeChatbotId);
-        
-        // Get CSRF token safely
-        const token = document.querySelector('input[name="__RequestVerificationToken"]');
-        const csrfToken = token ? token.value : '';
-        
-        // API endpoint and settings
-        const response = await fetch(`/api/chat/${activeChatbotId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': csrfToken
-            },
-            body: JSON.stringify({
-                message: message,
-                sessionId: sessionId || ''
-            })
-        });
+    async function callRegularAPI(message) {
+        try {
+            // Use the chatbotId from model
+            const activeChatbotId = chatbotId || 0;
+            
+            console.log("Falling back to regular API with chatbot ID:", activeChatbotId);
+            
+            // Get CSRF token safely
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            const csrfToken = token ? token.value : '';
+            
+            // API endpoint and settings
+            const response = await fetch(`/api/chat/${activeChatbotId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': csrfToken
+                },
+                body: JSON.stringify({
+                    message: message,
+                    sessionId: sessionId || ''
+                })
+            });
 
-        if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.response || "Sorry, I received an empty response.";
+        } catch (error) {
+            console.error('API call failed:', error);
+            return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
         }
-
-        const data = await response.json();
-        return data.response || "Sorry, I received an empty response.";
-    } catch (error) {
-        console.error('API call failed:', error);
-        return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
     }
-}
-// Loading indicator functions
-function showLoadingIndicator() {
-    const loadingEl = document.createElement('div');
-    loadingEl.className = 'chat-loading';
-    loadingEl.id = 'chatLoading';
-    loadingEl.innerHTML = `
-        <div class="loading-spinner"></div>
-        <span>Connecting to AI...</span>
-    `;
-    document.body.appendChild(loadingEl);
-}
-
-function hideLoadingIndicator() {
-    const loadingEl = document.getElementById('chatLoading');
-    if (loadingEl) {
-        loadingEl.remove();
+    
+    // Loading indicator functions
+    function showLoadingIndicator() {
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'chat-loading';
+        loadingEl.id = 'chatLoading';
+        loadingEl.innerHTML = `
+            <div class="loading-spinner"></div>
+            <span>Connecting to AI...</span>
+        `;
+        document.body.appendChild(loadingEl);
     }
-}
 
-// Ensure these functions are only defined once
-if (typeof retrieveChatbotFromSession === 'undefined') {
+    function hideLoadingIndicator() {
+        const loadingEl = document.getElementById('chatLoading');
+        if (loadingEl) {
+            loadingEl.remove();
+        }
+    }
+
     function retrieveChatbotFromSession() {
         // Get session ID from URL or hidden input
-        const pathSegments = window.location.pathname.split('/');
-        const sessionIdFromUrl = pathSegments[pathSegments.length - 1];
-        
+        const sessionIdFromUrl = window.location.pathname.split('/').pop();
         if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
             sessionId = sessionIdFromUrl;
             
@@ -456,7 +361,7 @@ if (typeof retrieveChatbotFromSession === 'undefined') {
             if (chatDataJson) {
                 try {
                     const chatData = JSON.parse(chatDataJson);
-                    if (chatData && chatData.chatbotId) {
+                    if (chatData.chatbotId) {
                         // Update the chatbotId to use in API calls
                         chatbotId = chatData.chatbotId;
                         console.log("Retrieved chatbot ID:", chatbotId);
@@ -469,31 +374,6 @@ if (typeof retrieveChatbotFromSession === 'undefined') {
         }
         return false;
     }
-}
- function retrieveChatbotFromSession() {
-    // Get session ID from URL or hidden input
-    const sessionIdFromUrl = window.location.pathname.split('/').pop();
-    if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
-        sessionId = sessionIdFromUrl;
-        
-        // Get chatbot info from localStorage
-        const chatDataJson = localStorage.getItem(sessionId);
-        if (chatDataJson) {
-            try {
-                const chatData = JSON.parse(chatDataJson);
-                if (chatData.chatbotId) {
-                    // Update the chatbotId to use in API calls
-                    chatbotId = chatData.chatbotId;
-                    console.log("Retrieved chatbot ID:", chatbotId);
-                    return true;
-                }
-            } catch (error) {
-                console.error("Error parsing chat data:", error);
-            }
-        }
-    }
-    return false;
-}
     
     document.addEventListener('DOMContentLoaded', function() {
         if (!retrieveChatbotFromSession()) {
@@ -1342,25 +1222,6 @@ if (typeof retrieveChatbotFromSession === 'undefined') {
             console.error('Error submitting feedback:', error);
             alert('Failed to submit feedback. Please try again.');
         });
-    }
-    
-    // Loading indicator
-    function showLoadingIndicator() {
-        const loadingEl = document.createElement('div');
-        loadingEl.className = 'chat-loading';
-        loadingEl.id = 'chatLoading';
-        loadingEl.innerHTML = `
-            <div class="loading-spinner"></div>
-            <span>Connecting to AI...</span>
-        `;
-        document.body.appendChild(loadingEl);
-    }
-
-    function hideLoadingIndicator() {
-        const loadingEl = document.getElementById('chatLoading');
-        if (loadingEl) {
-            loadingEl.remove();
-        }
     }
 </script>
 }
