@@ -129,51 +129,51 @@
         </div>
     </div>
     
- <!-- Info panel -->
-<div class="chat-info" id="chatInfo">
-    <div class="info-header">
-        <h3>Conversation Details</h3>
-        <button class="btn-icon info-close" id="infoClose">
-            <i class="bi bi-x"></i>
-        </button>
-    </div>
-    
-    <div class="info-section">
-        <h4 class="section-title">AI ASSISTANT</h4>
-        <div class="assistant-info">
-            <div class="assistant-avatar">
-                <i class="bi bi-robot"></i>
-            </div>
-            <div class="assistant-details">
-                <div class="assistant-name">@Model.Chatbot.Name</div>
-                <div class="assistant-department">@Model.Chatbot.Department</div>
-                <div class="assistant-model">@Model.Chatbot.AiModel</div>
-            </div>
+    <!-- Info panel -->
+    <div class="chat-info" id="chatInfo">
+        <div class="info-header">
+            <h3>Conversation Details</h3>
+            <button class="btn-icon info-close" id="infoClose">
+                <i class="bi bi-x"></i>
+            </button>
         </div>
         
-        <!-- Add new chatbot capabilities section -->
-        <div class="assistant-capabilities">
-            <div class="capability-item">
-                <div class="capability-icon">
-                    <i class="bi bi-translate"></i>
+        <div class="info-section">
+            <h4 class="section-title">AI ASSISTANT</h4>
+            <div class="assistant-info">
+                <div class="assistant-avatar">
+                    <i class="bi bi-robot"></i>
                 </div>
-                <div class="capability-text">Multilingual</div>
+                <div class="assistant-details">
+                    <div class="assistant-name">@Model.Chatbot.Name</div>
+                    <div class="assistant-department">@Model.Chatbot.Department</div>
+                    <div class="assistant-model">@Model.Chatbot.AiModel</div>
+                </div>
             </div>
-            <div class="capability-item">
-                <div class="capability-icon">
-                    <i class="bi bi-cpu"></i>
+            
+            <!-- Add new chatbot capabilities section -->
+            <div class="assistant-capabilities">
+                <div class="capability-item">
+                    <div class="capability-icon">
+                        <i class="bi bi-translate"></i>
+                    </div>
+                    <div class="capability-text">Multilingual</div>
                 </div>
-                <div class="capability-text">Flowise ID: @(String.IsNullOrEmpty(Model.FlowiseId) ? "Not configured" : Model.FlowiseId.Substring(0, Math.Min(8, Model.FlowiseId.Length)) + "...")</div>
-            </div>
-            <div class="capability-item">
-                <div class="capability-icon">
-                    <i class="bi bi-card-text"></i>
+                <div class="capability-item">
+                    <div class="capability-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <div class="capability-text">Flowise ID: @(String.IsNullOrEmpty(Model.FlowiseId) ? "Not configured" : Model.FlowiseId.Substring(0, Math.Min(8, Model.FlowiseId.Length)) + "...")</div>
                 </div>
-                <div class="capability-text">@(String.IsNullOrEmpty(Model.Chatbot.Description) ? "General assistance" : Model.Chatbot.Description)</div>
+                <div class="capability-item">
+                    <div class="capability-icon">
+                        <i class="bi bi-card-text"></i>
+                    </div>
+                    <div class="capability-text">@(String.IsNullOrEmpty(Model.Chatbot.Description) ? "General assistance" : Model.Chatbot.Description)</div>
+                </div>
             </div>
         </div>
-    </div>
-        
+            
         <div class="info-section">
             <h4 class="section-title">CONVERSATION STATS</h4>
             <div class="stats-grid">
@@ -294,29 +294,29 @@
     });
     
     // Validate Flowise configuration before starting
-async function validateFlowiseConfiguration() {
-    try {
-        // Check if we have a valid Flowise ID
-        if (flowiseId && flowiseId !== "") {
-            console.log("Flowwise ID found:", flowiseId);
+    async function validateFlowiseConfiguration() {
+        try {
+            // Check if we have a valid Flowise ID
+            if (flowiseId && flowiseId !== "") {
+                console.log("Flowwise ID found:", flowiseId);
+                return true;
+            }
+            
+            // Try to get settings from API
+            const settings = await fetchSettings();
+            
+            if (!settings.flowiseApiUrl) {
+                console.warn("No Flowise API URL configured.");
+                return false;
+            }
+            
+            console.log("Validated Flowise API URL:", settings.flowiseApiUrl);
             return true;
-        }
-        
-        // Try to get settings from API
-        const settings = await fetchSettings();
-        
-        if (!settings.flowiseApiUrl) {
-            console.warn("No Flowise API URL configured.");
+        } catch (error) {
+            console.error("Error validating Flowise configuration:", error);
             return false;
         }
-        
-        console.log("Validated Flowise API URL:", settings.flowiseApiUrl);
-        return true;
-    } catch (error) {
-        console.error("Error validating Flowise configuration:", error);
-        return false;
     }
-}
     
     function retrieveChatbotFromSession() {
         try {
@@ -472,181 +472,200 @@ async function validateFlowiseConfiguration() {
     }
     
     // UPDATED: Improved fetchSettings function with better error handling and URL formatting
-async function fetchSettings() {
-    try {
-        const response = await fetch('/api/settings/flowise');
-        if (!response.ok) {
-            console.warn("Could not fetch Flowise settings - using defaults");
+    async function fetchSettings() {
+        try {
+            const response = await fetch('/api/settings/flowise');
+            if (!response.ok) {
+                console.warn("Could not fetch Flowise settings - using defaults");
+                return {
+                    flowiseApiUrl: 'http://localhost:3000/api/',
+                    flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
+                };
+            }
+            
+            const settings = await response.json();
+            console.log("Fetched API settings:", settings.flowiseApiUrl);
+            
+            // Ensure URL has correct format
+            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.endsWith('/')) {
+                settings.flowiseApiUrl += '/';
+            }
+            
+            // Ensure URL has protocol
+            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.startsWith('http://') && !settings.flowiseApiUrl.startsWith('https://')) {
+                settings.flowiseApiUrl = 'http://' + settings.flowiseApiUrl;
+            }
+            
+            return settings;
+        } catch (error) {
+            console.error('Error fetching settings:', error);
             return {
                 flowiseApiUrl: 'http://localhost:3000/api/',
                 flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
             };
         }
-        
-        const settings = await response.json();
-        console.log("Fetched API settings:", settings.flowiseApiUrl);
-        
-        // Ensure URL has correct format
-        if (settings.flowiseApiUrl && !settings.flowiseApiUrl.endsWith('/')) {
-            settings.flowiseApiUrl += '/';
-        }
-        
-        // Ensure URL has protocol
-        if (settings.flowiseApiUrl && !settings.flowiseApiUrl.startsWith('http://') && !settings.flowiseApiUrl.startsWith('https://')) {
-            settings.flowiseApiUrl = 'http://' + settings.flowiseApiUrl;
-        }
-        
-        return settings;
-    } catch (error) {
-        console.error('Error fetching settings:', error);
-        return {
-            flowiseApiUrl: 'http://localhost:3000/api/',
-            flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
-        };
     }
-}
     
     // UPDATED: Core function to send messages to Flowise API
-async function callFlowiseAPI(message) {
-    try {
-        // Show loading indicator
-        showLoadingIndicator();
-        
-        // Get the active Flowise ID
-        const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
-        
-        if (!activeFlowiseId) {
-            console.warn("No Flowise ID available - falling back to regular API");
-            return await callRegularAPI(message);
-        }
-        
-        // Get API URL and key from settings
-        const settings = await fetchSettings();
-        let flowiseApiUrl = settings.flowiseApiUrl;
-        const flowiseApiKey = settings.flowiseApiKey;
-        
-        if (!flowiseApiUrl) {
-            console.warn("No Flowise API URL configured - falling back to regular API");
-            return await callRegularAPI(message);
-        }
-        
-        // Normalize URL
-        if (!flowiseApiUrl.endsWith('/')) {
-            flowiseApiUrl += '/';
-        }
-        
-        // Ensure URL has protocol
-        if (!flowiseApiUrl.startsWith('http://') && !flowiseApiUrl.startsWith('https://')) {
-            flowiseApiUrl = 'http://' + flowiseApiUrl;
-        }
-        
-        // Simplify URL construction - directly build prediction endpoint
-        const apiUrl = `${flowiseApiUrl}v1/prediction/${activeFlowiseId}`;
-        console.log("Connecting to Flowise using URL:", apiUrl);
-        
-        // Prepare the bot name for context
-        const botName = document.querySelector('.bot-name').textContent || '@Model.Chatbot.Name';
-        
-        // Send request to Flowise with proper headers
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${flowiseApiKey}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'x-api-key': flowiseApiKey
-            },
-            body: JSON.stringify({
-                question: message,
-                sessionId: sessionId,
-                overrideConfig: {
-                    language: currentLanguage,
-                    botName: botName
-                }
-            })
-        });
-        
-        // Check for HTML response which indicates wrong API endpoint
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('text/html')) {
-            console.error("Received HTML instead of JSON. API URL might be pointing to UI instead of API endpoint.");
-            console.log("Attempting fallback to regular API");
-            return await callRegularAPI(message);
-        }
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`API error: ${response.status} - ${errorText}`);
-            return await callRegularAPI(message);
-        }
-        
-        // Parse response with improved error handling
+    async function callFlowiseAPI(message) {
         try {
-            const data = await response.json();
+            // Show loading indicator
+            showLoadingIndicator();
             
-            // Handle various response formats
-            if (typeof data === 'object' && data !== null) {
-                if (data.text !== undefined) return data.text;
-                if (data.response !== undefined) return data.response;
-                if (data.answer !== undefined) return data.answer;
-                if (data.message !== undefined) return data.message;
-                return JSON.stringify(data);
+            // Get the active Flowise ID
+            const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
+            
+            if (!activeFlowiseId) {
+                console.warn("No Flowise ID available - falling back to regular API");
+                return await callRegularAPI(message);
             }
             
-            return data || "No response received";
-        } catch (parseError) {
-            console.error("Error parsing JSON response:", parseError);
-            // Try to get text response as fallback
-            const textResponse = await response.text();
-            if (textResponse && !textResponse.includes('<!DOCTYPE')) {
-                return textResponse;
+            // Get API URL and key from settings
+            const settings = await fetchSettings();
+            let flowiseApiUrl = settings.flowiseApiUrl;
+            const flowiseApiKey = settings.flowiseApiKey;
+            
+            if (!flowiseApiUrl) {
+                console.warn("No Flowise API URL configured - falling back to regular API");
+                return await callRegularAPI(message);
             }
+            
+            // Normalize URL
+            if (!flowiseApiUrl.endsWith('/')) {
+                flowiseApiUrl += '/';
+            }
+            
+            // Ensure URL has protocol
+            if (!flowiseApiUrl.startsWith('http://') && !flowiseApiUrl.startsWith('https://')) {
+                flowiseApiUrl = 'http://' + flowiseApiUrl;
+            }
+            
+            // Simplify URL construction - directly build prediction endpoint
+            const apiUrl = `${flowiseApiUrl}v1/prediction/${activeFlowiseId}`;
+            console.log("Connecting to Flowise using URL:", apiUrl);
+            
+            // Prepare the bot name for context
+            const botName = document.querySelector('.bot-name').textContent || '@Model.Chatbot.Name';
+            
+            // Send request to Flowise with proper headers
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${flowiseApiKey}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'x-api-key': flowiseApiKey
+                },
+                body: JSON.stringify({
+                    question: message,
+                    sessionId: sessionId,
+                    overrideConfig: {
+                        language: currentLanguage,
+                        botName: botName
+                    }
+                })
+            });
+            
+            // Check for HTML response which indicates wrong API endpoint
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/html')) {
+                console.error("Received HTML instead of JSON. API URL might be pointing to UI instead of API endpoint.");
+                console.log("Attempting fallback to regular API");
+                return await callRegularAPI(message);
+            }
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`API error: ${response.status} - ${errorText}`);
+                return await callRegularAPI(message);
+            }
+            
+            // Parse response with improved error handling
+            try {
+                const data = await response.json();
+                
+                // Handle various response formats
+                if (typeof data === 'object' && data !== null) {
+                    if (data.text !== undefined) return data.text;
+                    if (data.response !== undefined) return data.response;
+                    if (data.answer !== undefined) return data.answer;
+                    if (data.message !== undefined) return data.message;
+                    return JSON.stringify(data);
+                }
+                
+                return data || "No response received";
+            } catch (parseError) {
+                console.error("Error parsing JSON response:", parseError);
+                // Try to get text response as fallback
+                const textResponse = await response.text();
+                if (textResponse && !textResponse.includes('<!DOCTYPE')) {
+                    return textResponse;
+                }
+                return await callRegularAPI(message);
+            }
+        } catch (error) {
+            console.error('API call failed:', error);
+            // Fallback to regular API
             return await callRegularAPI(message);
+        } finally {
+            // Hide loading indicator
+            hideLoadingIndicator();
         }
-    } catch (error) {
-        console.error('API call failed:', error);
-        // Fallback to regular API
-        return await callRegularAPI(message);
-    } finally {
-        // Hide loading indicator
-        hideLoadingIndicator();
     }
-}
-
+    
     // Fallback API call
-async function callRegularAPI(message) {
-    try {
-        console.log("Falling back to regular API with chatbot ID:", chatbotId);
-        
-        // Get CSRF token
-        const token = document.querySelector('input[name="__RequestVerificationToken"]');
-        const csrfToken = token ? token.value : '';
-        
-        // Send to the local API endpoint
-        const response = await fetch(`/api/chat/${chatbotId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': csrfToken
-            },
-            body: JSON.stringify({
-                message: message,
-                sessionId: sessionId,
-                chatbotId: chatbotId
-            })
-        });
+    async function callRegularAPI(message) {
+        try {
+            console.log("Falling back to regular API with chatbot ID:", chatbotId);
+            
+            // Get CSRF token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            const csrfToken = token ? token.value : '';
+            
+            // Send to the local API endpoint
+            const response = await fetch(`/api/chat/${chatbotId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': csrfToken
+                },
+                body: JSON.stringify({
+                    message: message,
+                    sessionId: sessionId,
+                    chatbotId: chatbotId
+                })
+            });
 
-        if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`Server responded with status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.response || "Sorry, I received an empty response.";
+        } catch (error) {
+            console.error('Regular API call failed:', error);
+            return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
         }
-
-        const data = await response.json();
-        return data.response || "Sorry, I received an empty response.";
-    } catch (error) {
-        console.error('Regular API call failed:', error);
-        return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
     }
-}
+    
+    // Loading indicator functions
+    function showLoadingIndicator() {
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'chat-loading';
+        loadingEl.id = 'chatLoading';
+        loadingEl.innerHTML = `
+            <div class="loading-spinner"></div>
+            <span>Connecting to AI...</span>
+        `;
+        document.body.appendChild(loadingEl);
+    }
+
+    function hideLoadingIndicator() {
+        const loadingEl = document.getElementById('chatLoading');
+        if (loadingEl) {
+            loadingEl.remove();
+        }
+    }
     
     function updateLanguage() {
         // Update placeholder
@@ -764,25 +783,6 @@ async function callRegularAPI(message) {
                 scrollToBottom();
             });
     }
-    
-    // Loading indicator functions
-function showLoadingIndicator() {
-    const loadingEl = document.createElement('div');
-    loadingEl.className = 'chat-loading';
-    loadingEl.id = 'chatLoading';
-    loadingEl.innerHTML = `
-        <div class="loading-spinner"></div>
-        <span>Connecting to AI...</span>
-    `;
-    document.body.appendChild(loadingEl);
-}
-
-function hideLoadingIndicator() {
-    const loadingEl = document.getElementById('chatLoading');
-    if (loadingEl) {
-        loadingEl.remove();
-    }
-}
     
     function showErrorMessage(text) {
         const errorEl = document.createElement('div');
@@ -2220,6 +2220,102 @@ function hideLoadingIndicator() {
         animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
     }
     
+    /* Assistant Capabilities */
+    .assistant-capabilities {
+        margin-top: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        background-color: var(--color-gray-50);
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .capability-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .capability-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .capability-text {
+        font-size: 13px;
+        color: var(--color-gray-700);
+        line-height: 1.4;
+    }
+
+    /* Enhanced styling for existing elements */
+    .assistant-info {
+        background-color: white;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .assistant-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+        font-size: 20px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .assistant-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--color-gray-900);
+        font-size: 15px;
+    }
+
+    .assistant-department {
+        font-size: 13px;
+        color: var(--color-gray-600);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .assistant-department::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--color-success);
+    }
+
+    .assistant-model {
+        display: inline-block;
+        font-size: 11px;
+        background-color: var(--color-gray-100);
+        color: var(--color-gray-600);
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+    
     /* Responsive Adjustments */
     @@media (max-width: 1200px) {
         .chat-container {
@@ -2268,100 +2364,5 @@ function hideLoadingIndicator() {
             display: block;
         }
     }
-    /* Add these styles to the Styles section */
-.assistant-capabilities {
-    margin-top: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    background-color: var(--color-gray-50);
-    border-radius: 8px;
-    padding: 12px;
-}
-
-.capability-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.capability-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 6px;
-    background-color: var(--color-primary-light);
-    color: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-}
-
-.capability-text {
-    font-size: 13px;
-    color: var(--color-gray-700);
-    line-height: 1.4;
-}
-
-/* Enhanced styling for existing elements */
-.assistant-info {
-    background-color: white;
-    border-radius: 8px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.assistant-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-    font-size: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.assistant-name {
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--color-gray-900);
-    font-size: 15px;
-}
-
-.assistant-department {
-    font-size: 13px;
-    color: var(--color-gray-600);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.assistant-department::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--color-success);
-}
-
-.assistant-model {
-    display: inline-block;
-    font-size: 11px;
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-600);
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-}
 </style>
 }
