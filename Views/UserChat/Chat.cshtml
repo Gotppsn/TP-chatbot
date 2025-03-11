@@ -220,7 +220,7 @@
         ja: "メッセージを入力してください..."
     };
     
-    // Elements
+    // Cache key DOM elements
     const chatMessages = document.getElementById('chatMessages');
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendMessage');
@@ -229,37 +229,72 @@
 
     // Initialize when document is ready
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("Initial Flowise ID:", flowiseId);
+        console.log("Initializing chat interface...");
         
-        // Get chatbot info from session if available
-        retrieveChatbotFromSession();
-        
-        // Initialize chat
-        initializeChat();
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-        // Load recent conversations
-        loadRecentConversations();
-        
-        // Start chat duration timer
-        startChatDurationTimer();
-        
-        // Add welcome message if no existing messages
-        if (@Model.Messages.Count > 0) {
-            messageCount = @Model.Messages.Count;
-            updateMessageCount();
-        } else {
-            addWelcomeMessage();
-        }
-        
-        // Display session ID
-        document.getElementById('sessionIdDisplay').textContent = sessionId;
-        
-        // Focus input field
-        messageInput.focus();
+        // First, ensure we have a valid Flowise ID before proceeding
+        validateFlowiseConfiguration()
+            .then(valid => {
+                console.log("Flowise validation result:", valid);
+                
+                // Get chatbot info from session if available
+                retrieveChatbotFromSession();
+                
+                // Initialize chat
+                initializeChat();
+                
+                // Set up event listeners
+                setupEventListeners();
+                
+                // Load recent conversations
+                loadRecentConversations();
+                
+                // Start chat duration timer
+                startChatDurationTimer();
+                
+                // Add welcome message if no existing messages
+                if (@Model.Messages.Count > 0) {
+                    messageCount = @Model.Messages.Count;
+                    updateMessageCount();
+                } else {
+                    addWelcomeMessage();
+                }
+                
+                // Display session ID
+                document.getElementById('sessionIdDisplay').textContent = sessionId;
+                
+                // Focus input field
+                messageInput.focus();
+            })
+            .catch(error => {
+                console.error("Initialization error:", error);
+                showErrorMessage("Chat initialization failed. Please try refreshing the page.");
+            });
     });
+    
+    // Validate Flowise configuration before starting
+    async function validateFlowiseConfiguration() {
+        try {
+            // Check if we have a valid Flowise ID
+            if (flowiseId && flowiseId !== "") {
+                console.log("Flowwise ID found:", flowiseId);
+                return true;
+            }
+            
+            // Try to get settings from API
+            const settings = await fetchSettings();
+            
+            if (!settings.flowiseApiUrl) {
+                console.warn("No Flowise API URL configured.");
+                return false;
+            }
+            
+            console.log("Validated Flowise API URL:", settings.flowiseApiUrl);
+            return true;
+        } catch (error) {
+            console.error("Error validating Flowise configuration:", error);
+            return false;
+        }
+    }
     
     function retrieveChatbotFromSession() {
         try {
@@ -281,6 +316,22 @@
                             if (chatData.flowiseId) {
                                 flowiseId = chatData.flowiseId;
                                 console.log("Retrieved Flowise ID:", flowiseId);
+                                
+                                // Update hidden field if it exists
+                                const flowiseIdField = document.getElementById('flowiseId');
+                                if (flowiseIdField) {
+                                    flowiseIdField.value = flowiseId;
+                                }
+                            } else {
+                                // Try to get Flowise ID from hidden field
+                                const flowiseIdField = document.getElementById('flowiseId');
+                                if (flowiseIdField && flowiseIdField.value) {
+                                    flowiseId = flowiseIdField.value;
+                                    
+                                    // Store for future reference
+                                    chatData.flowiseId = flowiseId;
+                                    localStorage.setItem(sessionId, JSON.stringify(chatData));
+                                }
                             }
                             
                             console.log("Retrieved chatbot ID:", chatbotId);
@@ -385,15 +436,26 @@
             userScrolled = true;
             checkScrollPosition();
         });
+        
+        // Add wheel event listener for precise mouse wheel detection
+        chatMessages.addEventListener('wheel', function(e) {
+            if (e.deltaY < 0) { // Scrolling up
+                userScrolled = true;
+            } else if (isScrolledToBottom) { // Scrolling down and already at bottom
+                userScrolled = false;
+            }
+            // Small delay to check position after scrolling
+            setTimeout(checkScrollPosition, 50);
+        });
     }
     
-    // Call Flowise API directly
+    // Core function to send messages to Flowise API
     async function callFlowiseAPI(message) {
         try {
             // Show loading indicator
             showLoadingIndicator();
             
-            // Get the active Flowise ID - very important!
+            // Get the active Flowise ID
             const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
             
             if (!activeFlowiseId) {
@@ -416,17 +478,19 @@
                 flowiseApiUrl += '/';
             }
             
-            // Ensure prediction endpoint is used
+            // Build the correct prediction endpoint URL
             let apiUrl;
             if (flowiseApiUrl.includes('/prediction/')) {
                 apiUrl = flowiseApiUrl + activeFlowiseId;
-            } else {
+            } else if (flowiseApiUrl.includes('/api/v1/')) {
                 apiUrl = flowiseApiUrl + 'prediction/' + activeFlowiseId;
+            } else {
+                apiUrl = flowiseApiUrl + 'v1/prediction/' + activeFlowiseId;
             }
             
             console.log("Connecting to Flowise using URL:", apiUrl);
             
-            // Configure headers
+            // Configure headers with proper auth
             const headers = {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -437,6 +501,9 @@
                 headers['x-api-key'] = flowiseApiKey;
             }
             
+            // Prepare the bot name for context
+            const botName = document.querySelector('.bot-name').textContent || '@Model.Chatbot.Name';
+            
             // Send request to Flowise
             const response = await fetch(apiUrl, {
                 method: 'POST',
@@ -446,7 +513,8 @@
                     sessionId: sessionId,
                     overrideConfig: {
                         chatId: activeFlowiseId,
-                        language: currentLanguage
+                        language: currentLanguage,
+                        botName: botName
                     }
                 })
             });
@@ -557,7 +625,7 @@
     
     function updateLanguage() {
         // Update placeholder
-        messageInput.placeholder = placeholders[currentLanguage];
+        messageInput.placeholder = placeholders[currentLanguage] || placeholders['en'];
         
         // Clear previous chat
         clearChat(false);
@@ -567,20 +635,32 @@
     }
     
     function addWelcomeMessage() {
-        const message = welcomeMessages[currentLanguage];
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        appendMessage(message, 'bot', time);
-        messageCount++;
-        updateMessageCount();
-        
-        // Save welcome message
-        saveMessage(message, false, time);
+        try {
+            const message = welcomeMessages[currentLanguage] || welcomeMessages['en'];
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            appendMessage(message, 'bot', time);
+            messageCount++;
+            updateMessageCount();
+            
+            // Save welcome message
+            saveMessage(message, false, time);
+        } catch (error) {
+            console.error("Error adding welcome message:", error);
+            const fallbackMessage = "Hello! How can I help you today?";
+            appendMessage(fallbackMessage, 'bot', new Date().toLocaleTimeString([], 
+                { hour: '2-digit', minute: '2-digit' }));
+        }
     }
     
     function sendMessage() {
         const message = messageInput.value.trim();
-        if (!message) return;
+        if (!message) {
+            // Provide visual feedback for empty message
+            messageInput.classList.add('shake-animation');
+            setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
+            return;
+        }
         
         // Get current time
         const now = new Date();
@@ -677,6 +757,22 @@
         if (loadingEl) {
             loadingEl.remove();
         }
+    }
+    
+    function showErrorMessage(text) {
+        const errorEl = document.createElement('div');
+        errorEl.className = 'error-toast';
+        errorEl.textContent = text;
+        document.body.appendChild(errorEl);
+        
+        setTimeout(() => {
+            errorEl.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            errorEl.classList.remove('show');
+            setTimeout(() => errorEl.remove(), 300);
+        }, 4000);
     }
     
     function appendMessage(text, sender, time) {
@@ -799,7 +895,7 @@
     }
     
     // Copy message to clipboard
-    function copyToClipboard(button) {
+    window.copyToClipboard = function(button) {
         const messageBubble = button.closest('.message-content').querySelector('.message-bubble p');
         const text = messageBubble.textContent;
         
@@ -810,6 +906,9 @@
             setTimeout(() => {
                 button.innerHTML = originalIcon;
             }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            showErrorMessage('Failed to copy text to clipboard');
         });
     }
     
@@ -1034,6 +1133,7 @@
     
     function startChatDurationTimer() {
         const chatDurationEl = document.getElementById('chatDuration');
+        if (!chatDurationEl) return;
         
         setInterval(() => {
             const now = new Date();
@@ -2060,6 +2160,39 @@
 
     @@keyframes spin {
         to { transform: rotate(360deg); }
+    }
+    
+    /* Error Toast */
+    .error-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 1050;
+        max-width: 350px;
+        transform: translateY(-20px);
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+    
+    .error-toast.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    /* Shake animation for empty input */
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake-animation {
+        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
     }
     
     /* Responsive Adjustments */
