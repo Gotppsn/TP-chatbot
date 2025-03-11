@@ -937,23 +937,18 @@
             });
         }
         
-        function startChat(chatbotId) {
-            // Generate session ID
-            const randomPart1 = Math.floor(1000 + Math.random() * 9000);
-            const randomPart2 = Array.from({length: 4}, () => 
-                'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]
-            ).join('');
-            const sessionId = `session-${randomPart1}-${randomPart2}`;
-            
-            // Store chat info in localStorage
-            const chatData = {
-                chatbotId: chatbotId,
-                createdAt: new Date().toISOString()
-            };
-            localStorage.setItem(sessionId, JSON.stringify(chatData));
-            
-            // Navigate to chat page
-            window.location.href = `/UserChat/Chat/${sessionId}`;
-        }
+function startChat(chatbotId) {
+    // Generate session ID
+    const sessionId = `session-${randomPart1}-${randomPart2}`;
+    
+    // Store chat info in localStorage
+    localStorage.setItem(sessionId, JSON.stringify({
+        chatbotId: chatbotId,
+        createdAt: new Date().toISOString()
+    }));
+    
+    // Navigate to chat page
+    window.location.href = `/UserChat/Chat/${sessionId}`;
+}
     </script>
 }

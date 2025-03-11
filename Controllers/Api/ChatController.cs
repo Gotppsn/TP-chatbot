@@ -18,7 +18,6 @@ public class ChatController : ControllerBase
 [HttpPost("{chatbotId}")]
 public async Task<IActionResult> SendMessage(int chatbotId, [FromBody] ChatRequest request)
 {
-    // Generate a session ID if not provided
     string sessionId = request.SessionId ?? Guid.NewGuid().ToString();
     
     string response = await _flowiseService.GenerateChatResponseAsync(

@@ -1,3 +1,4 @@
+@Html.AntiForgeryToken()
 @model AIHelpdeskSupport.ViewModels.UserChatViewModel
 @{
     ViewData["Title"] = "Chat Support";
@@ -171,20 +172,19 @@
 @section Scripts {
 <script>
 
-    async function callFlowiseAPI(message) {
+async function callFlowiseAPI(message) {
     try {
-        // Get chatbot's Flowise ID from model
-        const flowiseId = "@Model.FlowiseId";
+        // Use the chatbotId from localStorage or fall back to model
+        const activeChatbotId = chatbotId || @Model.Chatbot.Id;
         
-        if (!flowiseId) {
-            return "This chatbot doesn't have a Flowise ID configured. Please contact support.";
-        }
-
+        console.log("Sending message to chatbot ID:", activeChatbotId);
+        
         // API endpoint and settings
-        const response = await fetch('/api/chat/' + chatbotId, {
+        const response = await fetch(`/api/chat/${activeChatbotId}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
             },
             body: JSON.stringify({
                 message: message,
@@ -223,8 +223,37 @@
     const sendButton = document.getElementById('sendMessage');
     const chatInfo = document.getElementById('chatInfo');
     const sidebar = document.getElementById('chatSidebar');
+
+    function retrieveChatbotFromSession() {
+    // Get session ID from URL or hidden input
+    const sessionIdFromUrl = window.location.pathname.split('/').pop();
+    if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
+        sessionId = sessionIdFromUrl;
+        
+        // Get chatbot info from localStorage
+        const chatDataJson = localStorage.getItem(sessionId);
+        if (chatDataJson) {
+            try {
+                const chatData = JSON.parse(chatDataJson);
+                if (chatData.chatbotId) {
+                    // Update the chatbotId to use in API calls
+                    chatbotId = chatData.chatbotId;
+                    console.log("Retrieved chatbot ID:", chatbotId);
+                    return true;
+                }
+            } catch (error) {
+                console.error("Error parsing chat data:", error);
+            }
+        }
+    }
+    return false;
+}
     
     document.addEventListener('DOMContentLoaded', function() {
+            if (!retrieveChatbotFromSession()) {
+        console.warn("Could not retrieve chatbot ID from session - using default from model");
+        // Continue with default model values
+    }
         // Initialize chat
         initializeChat();
         
@@ -1059,6 +1088,31 @@ function rateBotResponse(responseId, rating) {
             alert('Failed to submit feedback. Please try again.');
         });
     }
+    // Add to your JavaScript
+function showLoadingIndicator() {
+    const loadingEl = document.createElement('div');
+    loadingEl.className = 'chat-loading';
+    loadingEl.id = 'chatLoading';
+    loadingEl.innerHTML = `
+        <div class="loading-spinner"></div>
+        <span>Connecting to AI...</span>
+    `;
+    document.body.appendChild(loadingEl);
+}
+
+function hideLoadingIndicator() {
+    const loadingEl = document.getElementById('chatLoading');
+    if (loadingEl) {
+        loadingEl.remove();
+    }
+}
+
+// Then update your sendMessage function to use these
+// At the beginning of API call:
+showLoadingIndicator();
+
+// In both success and error handlers:
+hideLoadingIndicator();
 </script>
 }
 
@@ -1919,6 +1973,34 @@ function rateBotResponse(responseId, rating) {
 
 .reconnect-button:hover {
     background-color: var(--color-gray-200);
+}
+/* Add to your CSS section */
+.chat-loading {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1000;
+    font-size: 14px;
+}
+
+.loading-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-primary);
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 </style>
 }
