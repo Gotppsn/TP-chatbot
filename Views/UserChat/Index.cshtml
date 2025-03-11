@@ -6,9 +6,6 @@
     var departments = Model.Where(c => c.IsActive)
                           .GroupBy(c => c.Department)
                           .OrderBy(g => g.Key);
-                          
-    // Get unique models for filter
-    var aiModels = Model.Select(c => c.AiModel).Distinct().OrderBy(m => m);
 }
 
 <div class="assistants-container">
@@ -28,19 +25,6 @@
                         @foreach(var dept in Model.Select(c => c.Department).Distinct().OrderBy(d => d))
                         {
                             <option value="@dept">@dept</option>
-                        }
-                    </select>
-                </div>
-            </div>
-            
-            <div class="filter-item">
-                <label>AI Model:</label>
-                <div class="select-container">
-                    <select id="modelFilter" class="filter-select">
-                        <option value="all">All Models</option>
-                        @foreach(var model in aiModels)
-                        {
-                            <option value="@@model">@@model</option>
                         }
                     </select>
                 </div>
@@ -83,28 +67,26 @@
                     <i class="bi bi-chevron-down toggle-icon"></i>
                 </div>
                 
-                <div class="assistant-list">
+                <div class="assistant-grid">
                     @foreach (var chatbot in dept)
                     {
                         <div class="assistant-card" 
                              data-id="@chatbot.Id"
                              data-name="@chatbot.Name"
-                             data-department="@chatbot.Department"
-                             data-model="@chatbot.AiModel">
-                            <div class="assistant-content">
+                             data-department="@chatbot.Department">
+                            <div class="assistant-header">
                                 <div class="assistant-icon">
                                     <i class="bi bi-robot"></i>
                                 </div>
-                                <div class="assistant-details">
-                                    <h3>@chatbot.Name</h3>
-                                    <div class="assistant-meta">
-                                        <span>@chatbot.Department</span>
-                                        <span>@chatbot.AiModel</span>
-                                    </div>
-                                    <p class="assistant-description">
-                                        @(chatbot.Description ?? $"Imported from Flowise - {chatbot.CreatedAt:yyyy-MM-dd}")
-                                    </p>
-                                </div>
+                                <h3>@chatbot.Name</h3>
+                            </div>
+                            <div class="assistant-description">
+                                <p>@(string.IsNullOrEmpty(chatbot.Description) 
+                                    ? "Helps with " + chatbot.Department + " related questions and tasks."
+                                    : chatbot.Description)</p>
+                            </div>
+                            <div class="assistant-meta">
+                                <span class="department-tag">@chatbot.Department</span>
                             </div>
                             <div class="assistant-actions">
                                 <button class="start-chat-btn" onclick="startChat(@chatbot.Id)">
@@ -146,6 +128,7 @@
         </div>
     }
 </div>
+
 @section Styles {
     <style>
         /* Main container */
@@ -270,7 +253,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 12px 0;
+            padding: 12px 16px;
             border-bottom: 1px solid #eee;
             margin-bottom: 12px;
         }
@@ -300,7 +283,7 @@
         /* Quick access section */
         .quick-access {
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
@@ -331,7 +314,7 @@
             min-width: 200px;
             padding: 12px;
             border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -347,7 +330,7 @@
         /* Department sections */
         .department-section {
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 0;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow: hidden;
@@ -368,36 +351,41 @@
             transform: rotate(-90deg);
         }
         
-        .department-section.collapsed .assistant-list {
+        .department-section.collapsed .assistant-grid {
             display: none;
         }
         
-        .assistant-list {
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
+        /* Assistant grid layout */
+        .assistant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 16px;
+            padding: 16px;
         }
         
         /* Assistant cards */
         .assistant-card {
             border: 1px solid #e0e0e0;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 16px;
-            transition: all 0.2s;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            height: 100%;
+            transition: all 0.2s;
+            background: white;
         }
         
         .assistant-card:hover {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
             border-color: #d1d1d1;
+            transform: translateY(-2px);
         }
         
-        .assistant-content {
+        .assistant-header {
             display: flex;
-            gap: 16px;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
         }
         
         .assistant-icon {
@@ -413,35 +401,43 @@
             flex-shrink: 0;
         }
         
-        .assistant-details {
-            flex-grow: 1;
-        }
-        
-        .assistant-details h3 {
-            margin: 0 0 8px 0;
+        .assistant-header h3 {
+            margin: 0;
             font-size: 16px;
             font-weight: 600;
+            color: #333;
+        }
+        
+        .assistant-description {
+            flex-grow: 1;
+            margin-bottom: 16px;
+        }
+        
+        .assistant-description p {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         
         .assistant-meta {
             display: flex;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
         }
         
-        .assistant-meta span {
+        .department-tag {
             font-size: 12px;
             color: #6c757d;
             background-color: #f8f9fa;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 30px;
-        }
-        
-        .assistant-description {
-            font-size: 14px;
-            color: #6c757d;
-            margin: 0;
-            line-height: 1.4;
+            display: inline-flex;
         }
         
         .assistant-actions {
@@ -460,8 +456,8 @@
             background-color: #0d6efd;
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
+            border-radius: 6px;
+            padding: 10px 16px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -472,31 +468,56 @@
             background-color: #0b5ed7;
         }
         
-        .favorite-btn {
-            width: 36px;
-            height: 36px;
-            background-color: transparent;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .favorite-btn:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .favorite-btn.active i {
-            color: #ffc107;
-        }
+.favorite-btn {
+    width: 36px;
+    height: 36px;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6c757d;
+    position: relative;
+    z-index: 10;
+}
+
+.favorite-btn:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.favorite-btn:active {
+    transform: translateY(1px);
+}
+
+.favorite-btn.active {
+    background-color: #fff8e1;
+    border-color: #ffc107;
+}
+
+.favorite-btn.active i {
+    color: #ffc107;
+}
+
+/* Animation for click feedback */
+@@keyframes favorite-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.favorite-btn.clicked {
+    animation: favorite-pulse 0.3s ease;
+}
         
         /* Empty state */
         .empty-state {
             background: white;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 40px 20px;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -530,8 +551,8 @@
             background-color: #0d6efd;
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 8px 16px;
+            border-radius: 6px;
+            padding: 10px 16px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -542,6 +563,10 @@
         
         /* Responsive adjustments */
         @@media (max-width: 768px) {
+            .assistant-grid {
+                grid-template-columns: 1fr;
+            }
+            
             .search-filters {
                 flex-direction: column;
                 align-items: flex-start;
@@ -563,20 +588,28 @@
                 align-items: flex-start;
                 gap: 4px;
             }
-            
-            .assistant-list {
-                padding: 12px;
+        }
+        
+        @@media (min-width: 768px) and (max-width: 992px) {
+            .assistant-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @@media (min-width: 1200px) {
+            .assistant-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
 }
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // DOM elements
             const searchInput = document.getElementById('assistantSearch');
             const departmentFilter = document.getElementById('departmentFilter');
-            const modelFilter = document.getElementById('modelFilter');
             const resetButton = document.getElementById('resetFilters');
             const clearAllFiltersBtn = document.getElementById('clearAllFilters');
             const quickAccessSection = document.getElementById('quickAccessSection');
@@ -586,8 +619,35 @@
             // Initialize
             setupEventListeners();
             restoreCollapsedState();
+            initializeFavorites();
             initializeQuickAccess();
             applyFilters();
+
+            function initializeFavorites() {
+    // Load favorites from localStorage
+    let favorites = [];
+    try {
+        favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+    } catch (e) {
+        console.error('Error parsing favorites from localStorage', e);
+        favorites = [];
+    }
+    
+    // Set active state for favorite buttons
+    favorites.forEach(id => {
+        const buttons = document.querySelectorAll(`.favorite-btn[onclick*="${id}"]`);
+        buttons.forEach(button => {
+            button.classList.add('active');
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+            }
+        });
+    });
+    
+    console.log('Favorites initialized:', favorites);
+}
             
             function setupEventListeners() {
                 // Search functionality
@@ -595,7 +655,6 @@
                 
                 // Filters
                 departmentFilter.addEventListener('change', applyFilters);
-                modelFilter.addEventListener('change', applyFilters);
                 
                 // Reset buttons
                 resetButton.addEventListener('click', resetFilters);
@@ -613,7 +672,6 @@
             function applyFilters() {
                 const searchTerm = searchInput.value.toLowerCase().trim();
                 const selectedDepartment = departmentFilter.value;
-                const selectedModel = modelFilter.value;
                 
                 // Process all assistant cards
                 const cards = document.querySelectorAll('.assistant-card');
@@ -622,8 +680,7 @@
                 cards.forEach(card => {
                     const cardName = card.getAttribute('data-name').toLowerCase();
                     const cardDepartment = card.getAttribute('data-department');
-                    const cardModel = card.getAttribute('data-model');
-                    const cardDescription = card.querySelector('.assistant-description').textContent.toLowerCase();
+                    const cardDescription = card.querySelector('.assistant-description p').textContent.toLowerCase();
                     
                     // Check if card matches all filters
                     const matchesSearch = !searchTerm || 
@@ -631,11 +688,9 @@
                                          cardDescription.includes(searchTerm);
                     const matchesDepartment = selectedDepartment === 'all' || 
                                              cardDepartment === selectedDepartment;
-                    const matchesModel = selectedModel === 'all' || 
-                                        cardModel === selectedModel;
                     
                     // Show/hide card based on filters
-                    if (matchesSearch && matchesDepartment && matchesModel) {
+                    if (matchesSearch && matchesDepartment) {
                         card.style.display = 'flex';
                         visibleCount++;
                     } else {
@@ -662,7 +717,6 @@
             function resetFilters() {
                 searchInput.value = '';
                 departmentFilter.value = 'all';
-                modelFilter.value = 'all';
                 
                 // Reset card visibility
                 document.querySelectorAll('.assistant-card').forEach(card => {
@@ -710,42 +764,72 @@
                 });
             }
             
-            function toggleFavorite(event, chatbotId) {
-                // Prevent the card click event
-                event.stopPropagation();
-                
-                const button = event.currentTarget;
-                button.classList.toggle('active');
-                
-                // Update icon
-                const icon = button.querySelector('i');
-                if (button.classList.contains('active')) {
-                    icon.classList.remove('bi-star');
-                    icon.classList.add('bi-star-fill');
-                } else {
-                    icon.classList.remove('bi-star-fill');
-                    icon.classList.add('bi-star');
-                }
-                
-                // Update favorites in localStorage
-                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-                
-                if (button.classList.contains('active')) {
-                    if (!favorites.includes(chatbotId)) {
-                        favorites.push(chatbotId);
-                    }
-                } else {
-                    const index = favorites.indexOf(chatbotId);
-                    if (index > -1) {
-                        favorites.splice(index, 1);
-                    }
-                }
-                
-                localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
-                
-                // Update quick access section
-                updateQuickAccess();
-            }
+function toggleFavorite(event, chatbotId) {
+    // Prevent the click from bubbling up to parent elements
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Get the button element
+    const button = event.currentTarget;
+    
+    // Toggle active class on the button
+    button.classList.toggle('active');
+    
+    // Find and update the icon
+    const icon = button.querySelector('i');
+    if (button.classList.contains('active')) {
+        icon.classList.remove('bi-star');
+        icon.classList.add('bi-star-fill');
+    } else {
+        icon.classList.remove('bi-star-fill');
+        icon.classList.add('bi-star');
+    }
+    
+    // Update favorites in localStorage
+    let favorites = [];
+    try {
+        // Try to parse existing favorites
+        favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+    } catch (e) {
+        console.error('Error parsing favorites from localStorage', e);
+        favorites = [];
+    }
+    
+    // Integer conversion to ensure proper comparison
+    const chatbotIdInt = parseInt(chatbotId, 10);
+    
+    if (button.classList.contains('active')) {
+        // Add to favorites if not already there
+        if (!favorites.includes(chatbotIdInt)) {
+            favorites.push(chatbotIdInt);
+        }
+    } else {
+        // Remove from favorites
+        const index = favorites.indexOf(chatbotIdInt);
+        if (index > -1) {
+            favorites.splice(index, 1);
+        }
+    }
+    
+    // Save updated favorites
+    localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
+    
+    // Visual feedback for the user
+    button.style.transform = 'scale(1.2)';
+    setTimeout(() => {
+        button.style.transform = 'scale(1)';
+    }, 200);
+    
+    // Log for debugging
+    console.log('Favorites updated:', favorites);
+    
+    // Update quick access section if it exists
+    if (typeof updateQuickAccess === 'function') {
+        updateQuickAccess();
+    }
+    
+    return false; // Prevent default behavior
+}
             
             function initializeQuickAccess() {
                 const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
