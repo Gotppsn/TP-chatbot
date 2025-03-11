@@ -30,6 +30,7 @@ public class Chatbot
     public List<string> Departments { get; set; } = new List<string>();
     public string AccessType { get; set; } = "public";
     public List<string> AllowedUsers { get; set; } = new List<string>();
+    public string? LocalizedNamesJson { get; set; }
     
     
     public virtual ICollection<ChatbotKnowledgeBase> KnowledgeBases { get; set; } = new List<ChatbotKnowledgeBase>();

@@ -241,18 +241,18 @@
         const FLOWISE_API_KEY = "0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY";
 
         // Localized chatbot names
-        const chatbotNames = {
-            en: "@Model.Name", // Default English name
-            th: "@(localizedNames.ContainsKey("th") ? localizedNames["th"] : Model.Name)",
-            ja: "@(localizedNames.ContainsKey("ja") ? localizedNames["ja"] : Model.Name)"
-        };
+const chatbotNames = {
+    en: "@Html.Raw(Model.Name)", // Default English name
+    th: "@Html.Raw(localizedNames.ContainsKey("th") ? localizedNames["th"] : Model.Name)",
+    ja: "@Html.Raw(localizedNames.ContainsKey("ja") ? localizedNames["ja"] : Model.Name)"
+};
 
         // Welcome messages in different languages
-        const welcomeMessages = {
-            en: `Hello! I'm the ${chatbotNames.en} assistant. How can I help you today?`,
-            th: `สวัสดีครับ/ค่ะ! ฉัน ${chatbotNames.th} ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
-            ja: `こんにちは！私は${chatbotNames.ja} アシスタントです。今日はどのようにお手伝いできますか？`
-        };
+const welcomeMessages = {
+    en: `Hello! I'm the ${chatbotNames.en} assistant. How can I help you today?`,
+    th: `สวัสดีครับ/ค่ะ! ฉัน ${chatbotNames.th} ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
+    ja: `こんにちは！私は${chatbotNames.ja} アシスタントです。今日はどのようにお手伝いできますか？`
+};
 
         // Input placeholder texts in different languages
         const placeholders = {
@@ -317,7 +317,7 @@
             chatMessages.innerHTML = '';
             
             // Update chatbot name display based on current language
-            document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage];
+            document.getElementById('chatbotNameDisplay').innerHTML = chatbotNames[currentLanguage];
             
             // Add welcome message based on current language
             const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
