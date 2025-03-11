@@ -71,54 +71,48 @@ namespace AIHelpdeskSupport.Controllers
         {
             if (ModelState.IsValid)
             {
-                chatbot.CreatedAt = DateTime.UtcNow;
-                chatbot.CreatedBy = User.Identity.Name ?? "Admin";
-
-                // Set default values if not provided
-                chatbot.Department ??= "Development";
-                chatbot.AiModel ??= "gpt-3.5-turbo";
-
-                // Initialize collections if null
-                chatbot.Departments ??= new List<string>();
-                chatbot.AllowedUsers ??= new List<string>();
-
-                // Set LastUpdatedAt
-                chatbot.LastUpdatedAt = DateTime.UtcNow;
-
-                // Make sure primary department is in the Departments list
-                if (!string.IsNullOrEmpty(chatbot.Department) && !chatbot.Departments.Contains(chatbot.Department))
+                try
                 {
-                    chatbot.Departments.Add(chatbot.Department);
+                    // Set creation metadata
+                    chatbot.CreatedAt = DateTime.UtcNow;
+                    chatbot.CreatedBy = User.Identity?.Name ?? "Admin";
+                    chatbot.LastUpdatedAt = DateTime.UtcNow;
+                    
+                    // Set default values if not provided
+                    chatbot.Department ??= "Development";
+                    chatbot.AiModel ??= "gpt-3.5-turbo";
+                    
+                    // Initialize collections
+                    chatbot.Departments = new List<string> { chatbot.Department };
+                    chatbot.AllowedUsers = new List<string>();
+                    
+                    // Set default access type if not provided
+                    chatbot.AccessType ??= "All";
+                    
+                    // Create and add the chatbot (NOT update first - that was the key issue)
+                    _context.Chatbots.Add(chatbot);
+                    await _context.SaveChangesAsync();
+                    
+                    // Now we can create the history entry with the valid chatbot ID
+                    var updateEntry = new ChatbotUpdate
+                    {
+                        ChatbotId = chatbot.Id,
+                        UpdatedAt = DateTime.UtcNow,
+                        UpdatedBy = User.Identity?.Name ?? "System",
+                        ChangeDescription = "Chatbot created"
+                    };
+                    
+                    _context.ChatbotUpdates.Add(updateEntry);
+                    await _context.SaveChangesAsync();
+                    
+                    TempData["SuccessMessage"] = "Chatbot created successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                // Set default access type if not provided
-                chatbot.AccessType ??= "All";
-
-                var updateEntry = new ChatbotUpdate
+                catch (Exception ex)
                 {
-                    ChatbotId = chatbot.Id,
-                    UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = User.Identity?.Name ?? "System",
-                    ChangeDescription = "Chatbot settings updated by user"
-                };
-
-                // Add to context directly
-                _context.Add(updateEntry);
-
-                _context.Update(chatbot);
-                await _context.SaveChangesAsync();
-
-                // Clear allowed users if access type is not Specific
-                if (chatbot.AccessType != "Specific")
-                {
-                    chatbot.AllowedUsers.Clear();
+                    ModelState.AddModelError("", $"Error creating chatbot: {ex.Message}");
+                    _logger.LogError(ex, "Error creating chatbot");
                 }
-
-                _context.Chatbots.Add(chatbot);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Chatbot created successfully.";
-                return RedirectToAction(nameof(Index));
             }
 
             // Get departments again if validation fails
@@ -144,9 +138,9 @@ namespace AIHelpdeskSupport.Controllers
         {
             try
             {
-var chatbot = await _context.Chatbots
-    .Include(c => c.UpdateHistory)
-    .FirstOrDefaultAsync(c => c.Id == id);
+                var chatbot = await _context.Chatbots
+                    .Include(c => c.UpdateHistory)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
                 if (chatbot == null)
                 {
@@ -179,61 +173,61 @@ var chatbot = await _context.Chatbots
             }
         }
 
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Edit(int id, Chatbot chatbot)
-{
-    if (id != chatbot.Id) return NotFound();
-
-    if (ModelState.IsValid)
-    {
-        try
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Chatbot chatbot)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            if (id != chatbot.Id) return NotFound();
+
+            if (ModelState.IsValid)
             {
-                // Preserve original data
-                var originalChatbot = await _context.Chatbots.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-                if (originalChatbot != null)
+                try
                 {
-                    chatbot.CreatedAt = originalChatbot.CreatedAt;
-                    chatbot.CreatedBy = originalChatbot.CreatedBy;
+                    using (var transaction = _context.Database.BeginTransaction())
+                    {
+                        // Preserve original data
+                        var originalChatbot = await _context.Chatbots.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                        if (originalChatbot != null)
+                        {
+                            chatbot.CreatedAt = originalChatbot.CreatedAt;
+                            chatbot.CreatedBy = originalChatbot.CreatedBy;
+                        }
+                        
+                        // Set update timestamp
+                        chatbot.LastUpdatedAt = DateTime.UtcNow;
+                        
+                        // Create history entry
+                        _context.ChatbotUpdates.Add(new ChatbotUpdate
+                        {
+                            ChatbotId = chatbot.Id,
+                            UpdatedAt = DateTime.UtcNow,
+                            UpdatedBy = User.Identity?.Name ?? "Anonymous",
+                            ChangeDescription = $"Settings updated by {User.Identity?.Name ?? "Anonymous"}"
+                        });
+                        
+                        // Update entity state
+                        _context.Entry(chatbot).State = EntityState.Modified;
+                        
+                        // Save all changes
+                        await _context.SaveChangesAsync();
+                        transaction.Commit();
+                    }
+                    
+                    TempData["SuccessMessage"] = "Chatbot updated successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
-                
-                // Set update timestamp
-                chatbot.LastUpdatedAt = DateTime.UtcNow;
-                
-                // Create history entry
-                _context.ChatbotUpdates.Add(new ChatbotUpdate
+                catch (Exception ex)
                 {
-                    ChatbotId = chatbot.Id,
-                    UpdatedAt = DateTime.UtcNow,
-                    UpdatedBy = User.Identity?.Name ?? "Anonymous",
-                    ChangeDescription = $"Settings updated by {User.Identity?.Name ?? "Anonymous"}"
-                });
-                
-                // Update entity state
-                _context.Entry(chatbot).State = EntityState.Modified;
-                
-                // Save all changes
-                await _context.SaveChangesAsync();
-                transaction.Commit();
+                    _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
+                    ModelState.AddModelError("", $"Database error: {ex.Message}");
+                }
             }
             
-            TempData["SuccessMessage"] = "Chatbot updated successfully.";
-            return RedirectToAction(nameof(Index));
+            // Return to edit view with departments if validation fails
+            var departments = await _settingsService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
+            return View(chatbot);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating chatbot {Id}: {Message}", id, ex.Message);
-            ModelState.AddModelError("", $"Database error: {ex.Message}");
-        }
-    }
-    
-    // Return to edit view with departments if validation fails
-    var departments = await _settingsService.GetAllDepartmentsAsync();
-    ViewBag.Departments = departments;
-    return View(chatbot);
-}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -316,101 +310,101 @@ public async Task<IActionResult> Edit(int id, Chatbot chatbot)
             }
         }
 
- [HttpGet("api/chatbot/stats/{id}")]
-public IActionResult GetStats(int id)
-{
-    try
-    {
-        // Return example data for now
-        return Ok(new
+        [HttpGet("api/chatbot/stats/{id}")]
+        public IActionResult GetStats(int id)
         {
-            conversations = 10,
-            avgResponseTime = 1.5,
-            successRate = 85
-        });
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error retrieving chatbot stats for ID {Id}", id);
-        return StatusCode(500, new { error = "Internal server error" });
-    }
-}
-private async Task<SyncResult> SyncFlowiseChatbots()
-{
-    var result = new SyncResult();
-
-    try
-    {
-        var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
-
-        if (flowiseChatflows == null || !flowiseChatflows.Any())
-        {
-            result.Message = "No chatflows found in Flowise API. Check API configuration.";
-            return result;
+            try
+            {
+                // Return example data for now
+                return Ok(new
+                {
+                    conversations = 10,
+                    avgResponseTime = 1.5,
+                    successRate = 85
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving chatbot stats for ID {Id}", id);
+                return StatusCode(500, new { error = "Internal server error" });
+            }
         }
-
-        result.TotalFound = flowiseChatflows.Count();
-        _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
-
-        foreach (var chatflow in flowiseChatflows)
+        private async Task<SyncResult> SyncFlowiseChatbots()
         {
-            if (string.IsNullOrEmpty(chatflow.Id))
+            var result = new SyncResult();
+
+            try
             {
-                result.SkippedCount++;
-                continue;
-            }
+                var flowiseChatflows = await _flowiseService.GetFlowiseChatflowsAsync();
 
-            var existingChatbot = await _context.Chatbots
-                .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
-
-            if (existingChatbot == null)
-            {
-                // Get department settings
-                var settings = await _context.SystemSettings.FirstOrDefaultAsync();
-                string defaultDepartment = "Development";
-                string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
-
-                // Create new chatbot
-                var newChatbot = new Chatbot
+                if (flowiseChatflows == null || !flowiseChatflows.Any())
                 {
-                    Name = chatflow.Name,
-                    Description = "Imported from Flowise - " + DateTime.UtcNow.ToString("yyyy-MM-dd"),
-                    FlowiseId = chatflow.Id,
-                    Department = defaultDepartment,
-                    AiModel = defaultModel,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    CreatedBy = "System-Sync",
-                    Departments = new List<string> { defaultDepartment },
-                    AccessType = "All",
-                    AllowedUsers = new List<string>()
-                };
-
-                _context.Chatbots.Add(newChatbot);
-                result.NewCount++;
-            }
-            else
-            {
-                // Check if any properties need updating
-                bool updated = false;
-
-                // IMPORTANT: Comment out this section to preserve custom names
-                // if (existingChatbot.Name != chatflow.Name)
-                // {
-                //     existingChatbot.Name = chatflow.Name;
-                //     updated = true;
-                // }
-
-                // Initialize collections if null
-                if (existingChatbot.Departments == null)
-                {
-                    existingChatbot.Departments = new List<string>();
-                    if (!string.IsNullOrEmpty(existingChatbot.Department))
-                    {
-                        existingChatbot.Departments.Add(existingChatbot.Department);
-                    }
-                    updated = true;
+                    result.Message = "No chatflows found in Flowise API. Check API configuration.";
+                    return result;
                 }
+
+                result.TotalFound = flowiseChatflows.Count();
+                _logger.LogInformation("Found {Count} chatflows in Flowise", result.TotalFound);
+
+                foreach (var chatflow in flowiseChatflows)
+                {
+                    if (string.IsNullOrEmpty(chatflow.Id))
+                    {
+                        result.SkippedCount++;
+                        continue;
+                    }
+
+                    var existingChatbot = await _context.Chatbots
+                        .FirstOrDefaultAsync(c => c.FlowiseId == chatflow.Id);
+
+                    if (existingChatbot == null)
+                    {
+                        // Get department settings
+                        var settings = await _context.SystemSettings.FirstOrDefaultAsync();
+                        string defaultDepartment = "Development";
+                        string defaultModel = settings?.DefaultAiModel ?? "gpt-3.5-turbo";
+
+                        // Create new chatbot
+                        var newChatbot = new Chatbot
+                        {
+                            Name = chatflow.Name,
+                            Description = "Imported from Flowise - " + DateTime.UtcNow.ToString("yyyy-MM-dd"),
+                            FlowiseId = chatflow.Id,
+                            Department = defaultDepartment,
+                            AiModel = defaultModel,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            CreatedBy = "System-Sync",
+                            Departments = new List<string> { defaultDepartment },
+                            AccessType = "All",
+                            AllowedUsers = new List<string>()
+                        };
+
+                        _context.Chatbots.Add(newChatbot);
+                        result.NewCount++;
+                    }
+                    else
+                    {
+                        // Check if any properties need updating
+                        bool updated = false;
+
+                        // IMPORTANT: Comment out this section to preserve custom names
+                        // if (existingChatbot.Name != chatflow.Name)
+                        // {
+                        //     existingChatbot.Name = chatflow.Name;
+                        //     updated = true;
+                        // }
+
+                        // Initialize collections if null
+                        if (existingChatbot.Departments == null)
+                        {
+                            existingChatbot.Departments = new List<string>();
+                            if (!string.IsNullOrEmpty(existingChatbot.Department))
+                            {
+                                existingChatbot.Departments.Add(existingChatbot.Department);
+                            }
+                            updated = true;
+                        }
 
                         // Initialize collections if null
                         if (existingChatbot.Departments == null)
