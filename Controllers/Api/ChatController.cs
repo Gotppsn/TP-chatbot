@@ -15,19 +15,19 @@ public class ChatController : ControllerBase
         _flowiseService = flowiseService;
     }
     
-    [HttpPost("{chatbotId}")]
-    public async Task<IActionResult> SendMessage(int chatbotId, [FromBody] ChatRequest request)
-    {
-        // Generate a session ID if not provided
-        string sessionId = request.SessionId ?? Guid.NewGuid().ToString();
+[HttpPost("{chatbotId}")]
+public async Task<IActionResult> SendMessage(int chatbotId, [FromBody] ChatRequest request)
+{
+    // Generate a session ID if not provided
+    string sessionId = request.SessionId ?? Guid.NewGuid().ToString();
+    
+    string response = await _flowiseService.GenerateChatResponseAsync(
+        chatbotId, 
+        request.Message, 
+        sessionId);
         
-        string response = await _flowiseService.GenerateChatResponseAsync(
-            chatbotId, 
-            request.Message, 
-            sessionId);
-            
-        return Ok(new { response, sessionId });
-    }
+    return Ok(new { response, sessionId });
+}
 }
 
 public class ChatRequest

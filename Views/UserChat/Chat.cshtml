@@ -170,6 +170,40 @@
 
 @section Scripts {
 <script>
+
+    async function callFlowiseAPI(message) {
+    try {
+        // Get chatbot's Flowise ID from model
+        const flowiseId = "@Model.FlowiseId";
+        
+        if (!flowiseId) {
+            return "This chatbot doesn't have a Flowise ID configured. Please contact support.";
+        }
+
+        // API endpoint and settings
+        const response = await fetch('/api/chat/' + chatbotId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                message: message,
+                sessionId: sessionId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.response;
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+}
+
     // Global variables
     let sessionId = "@Model.SessionId";
     let chatbotId = @Model.Chatbot.Id;
@@ -340,14 +374,11 @@ function sendMessage() {
     // Show typing indicator
     showTypingIndicator();
     
-    // Get Flowise configuration
-    const flowiseId = '@Model.Chatbot.FlowiseId'; // Get FlowiseId from model
-    
     // Start timing for response
     const startTime = performance.now();
     
     // Call Flowise API
-    callFlowiseAPI(message, flowiseId)
+    callFlowiseAPI(message)
         .then(response => {
             // Calculate response time
             const endTime = performance.now();
@@ -394,6 +425,88 @@ function sendMessage() {
             // Scroll to bottom
             scrollToBottom();
         });
+}
+
+function addMessageFeedback(messageElement, responseId) {
+    const feedbackEl = document.createElement('div');
+    feedbackEl.className = 'message-feedback';
+    feedbackEl.innerHTML = `
+        <button class="feedback-btn" onclick="rateBotResponse('${responseId}', 'helpful')">
+            <i class="bi bi-hand-thumbs-up"></i>
+        </button>
+        <button class="feedback-btn" onclick="rateBotResponse('${responseId}', 'unhelpful')">
+            <i class="bi bi-hand-thumbs-down"></i>
+        </button>
+    `;
+    
+    messageElement.querySelector('.message-content').appendChild(feedbackEl);
+}
+
+function checkConnectionStatus() {
+    if (!navigator.onLine) {
+        setConnectionStatus(false, "You're offline. Please check your internet connection.");
+        return false;
+    }
+    
+    // Try a simple ping to the API
+    fetch('/api/chat/ping', { method: 'GET' })
+        .then(response => {
+            setConnectionStatus(response.ok, response.ok ? "Connected" : "Connection issues detected");
+            return response.ok;
+        })
+        .catch(() => {
+            setConnectionStatus(false, "Cannot reach server");
+            return false;
+        });
+}
+
+function setConnectionStatus(isConnected, message) {
+    const statusElement = document.getElementById('connectionStatus');
+    if (statusElement) {
+        statusElement.textContent = message;
+        statusElement.className = isConnected ? 'connected' : 'disconnected';
+    }
+    
+    isConnected = isConnected;
+    
+    // Add a reconnection button if disconnected
+    if (!isConnected && document.getElementById('reconnectBtn') === null) {
+        const reconnectBtn = document.createElement('button');
+        reconnectBtn.id = 'reconnectBtn';
+        reconnectBtn.className = 'reconnect-button';
+        reconnectBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Reconnect';
+        reconnectBtn.onclick = checkConnectionStatus;
+        
+        statusElement.parentNode.appendChild(reconnectBtn);
+    } else if (isConnected) {
+        const reconnectBtn = document.getElementById('reconnectBtn');
+        if (reconnectBtn) reconnectBtn.remove();
+    }
+}
+
+function rateBotResponse(responseId, rating) {
+    // Send rating to server
+    fetch('/api/chat/feedback', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            responseId,
+            rating,
+            sessionId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Show thank you message
+            const feedbackElements = document.querySelectorAll(`.message-feedback[data-response-id="${responseId}"]`);
+            feedbackElements.forEach(el => {
+                el.innerHTML = '<span class="feedback-thanks">Thanks for your feedback!</span>';
+            });
+        }
+    })
+    .catch(error => console.error('Error sending feedback:', error));
 }
     
     function appendMessage(text, sender, time) {
@@ -1740,5 +1853,72 @@ function sendMessage() {
             display: block;
         }
     }
+    /* Feedback buttons */
+.message-feedback {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.message:hover .message-feedback {
+    opacity: 1;
+}
+
+.feedback-btn {
+    background: none;
+    border: none;
+    color: var(--color-gray-500);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.feedback-btn:hover {
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-700);
+}
+
+.feedback-thanks {
+    font-size: 12px;
+    color: var(--color-success);
+    font-style: italic;
+}
+
+/* Connection status */
+.connection-status {
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    gap: 4px;
+}
+
+.connection-status.connected {
+    color: var(--color-success);
+}
+
+.connection-status.disconnected {
+    color: var(--color-danger);
+}
+
+.reconnect-button {
+    background-color: var(--color-gray-100);
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-left: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.reconnect-button:hover {
+    background-color: var(--color-gray-200);
+}
 </style>
 }
