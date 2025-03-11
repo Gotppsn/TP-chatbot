@@ -1,331 +1,830 @@
 @model IEnumerable<AIHelpdeskSupport.Models.Chatbot>
 @{
     ViewData["Title"] = "Available Assistants";
+    
+    // Group chatbots by department for organization
+    var departments = Model.Where(c => c.IsActive)
+                          .GroupBy(c => c.Department)
+                          .OrderBy(g => g.Key);
+                          
+    // Get unique models for filter
+    var aiModels = Model.Select(c => c.AiModel).Distinct().OrderBy(m => m);
 }
 
-<div class="user-dashboard">
-    <div class="page-header">
-        <div>
-            <h1 class="page-title">AI Support Assistants</h1>
-            <p class="text-muted">Select an assistant to start a conversation</p>
+<div class="assistants-container">
+    <!-- Search and filters bar -->
+    <div class="search-filters">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" id="assistantSearch" placeholder="Search assistants..." class="search-input">
+        </div>
+        
+        <div class="filter-controls">
+            <div class="filter-item">
+                <label>Department:</label>
+                <div class="select-container">
+                    <select id="departmentFilter" class="filter-select">
+                        <option value="all">All Departments</option>
+                        @foreach(var dept in Model.Select(c => c.Department).Distinct().OrderBy(d => d))
+                        {
+                            <option value="@dept">@dept</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <div class="filter-item">
+                <label>AI Model:</label>
+                <div class="select-container">
+                    <select id="modelFilter" class="filter-select">
+                        <option value="all">All Models</option>
+                        @foreach(var model in aiModels)
+                        {
+                            <option value="@@model">@@model</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            
+            <button id="resetFilters" class="reset-button">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </button>
         </div>
     </div>
 
-    <div class="assistants-grid">
-        @if (Model.Any())
+    <!-- Quick access section -->
+    <div class="quick-access" id="quickAccessSection">
+        <div class="section-header">
+            <h2><i class="bi bi-lightning"></i> Quick Access <span class="badge">Most Used</span></h2>
+        </div>
+        <div class="quick-items" id="quickAccessItems">
+            <!-- Will be populated dynamically by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Department sections -->
+    <div id="departmentsList">
+        @foreach (var dept in departments)
         {
-            foreach (var chatbot in Model.Where(c => c.IsActive))
-            {
-<div class="assistant-card animate-card" 
-     onclick="startNewChat(@chatbot.Id)">
-                    @{
-                        string iconClass = chatbot.Department switch
-                        {
-                            "Customer Service" => "bi-headset",
-                            "IT Support" => "bi-pc-display",
-                            "Sales" => "bi-currency-dollar",
-                            "Billing" => "bi-credit-card",
-                            "Technical" => "bi-wrench",
-                            _ => "bi-robot"
-                        };
-                        
-                        string colorClass = chatbot.Department switch
-                        {
-                            "Customer Service" => "primary",
-                            "IT Support" => "info",
-                            "Sales" => "warning",
-                            "Billing" => "danger",
-                            "Technical" => "success",
-                            _ => "secondary"
-                        };
-                    }
-                    
-                    <div class="assistant-icon @colorClass">
-                        <i class="bi @iconClass"></i>
-                    </div>
-                    <div class="assistant-info">
-                        <h3 class="assistant-name">@chatbot.Name</h3>
-                        <div class="assistant-meta">
-                            <span class="assistant-department">@chatbot.Department</span>
-                            <span class="assistant-model">@chatbot.AiModel</span>
+            <div class="department-section" data-department="@dept.Key">
+                <div class="section-header collapsible" onclick="toggleDepartment('@dept.Key')">
+                    <h2>
+                        @{
+                            string deptIcon = dept.Key switch
+                            {
+                                "Customer Service" => "bi-headset",
+                                "IT Support" => "bi-pc-display",
+                                "General" => "bi-grid",
+                                _ => "bi-briefcase"
+                            };
+                        }
+                        <i class="bi @deptIcon"></i> @dept.Key <span class="badge">@dept.Count()</span>
+                    </h2>
+                    <i class="bi bi-chevron-down toggle-icon"></i>
+                </div>
+                
+                <div class="assistant-list">
+                    @foreach (var chatbot in dept)
+                    {
+                        <div class="assistant-card" 
+                             data-id="@chatbot.Id"
+                             data-name="@chatbot.Name"
+                             data-department="@chatbot.Department"
+                             data-model="@chatbot.AiModel">
+                            <div class="assistant-content">
+                                <div class="assistant-icon">
+                                    <i class="bi bi-robot"></i>
+                                </div>
+                                <div class="assistant-details">
+                                    <h3>@chatbot.Name</h3>
+                                    <div class="assistant-meta">
+                                        <span>@chatbot.Department</span>
+                                        <span>@chatbot.AiModel</span>
+                                    </div>
+                                    <p class="assistant-description">
+                                        @(chatbot.Description ?? $"Imported from Flowise - {chatbot.CreatedAt:yyyy-MM-dd}")
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="assistant-actions">
+                                <button class="start-chat-btn" onclick="startChat(@chatbot.Id)">
+                                    <i class="bi bi-chat"></i>
+                                    Start Chat
+                                </button>
+                                <button class="favorite-btn" onclick="toggleFavorite(event, @chatbot.Id)" title="Add to favorites">
+                                    <i class="bi bi-star"></i>
+                                </button>
+                            </div>
                         </div>
-                        <p class="assistant-description">
-                            @(string.IsNullOrEmpty(chatbot.Description) 
-                                ? $"AI assistant specialized in {chatbot.Department} support." 
-                                : chatbot.Description)
-                        </p>
-                    </div>
-                    <div class="assistant-action">
-                        <button class="btn btn-sm btn-primary">
-                            <i class="bi bi-chat-dots"></i>
-                            <span>Start Chat</span>
-                        </button>
-                    </div>
+                    }
                 </div>
-            }
-        }
-        else
-        {
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <h3>No AI Assistants Available</h3>
-                <p>There are currently no AI assistants configured for your department. Please contact support for assistance.</p>
             </div>
         }
     </div>
     
-    <div class="recent-chats-section">
-        <h2 class="section-title">Recent Conversations</h2>
-        <div class="recent-chats">
-            <div class="chat-history-empty">
-                <i class="bi bi-chat-left-text"></i>
-                <p>No recent conversations found. Start a new chat with one of our AI assistants above.</p>
-            </div>
-            <!-- Recent chats will be populated dynamically -->
+    <!-- Empty state when no assistants found -->
+    <div id="noResults" class="empty-state" style="display: none;">
+        <div class="empty-icon">
+            <i class="bi bi-search"></i>
         </div>
+        <h3>No Assistants Found</h3>
+        <p>Try adjusting your search or filters to find assistants.</p>
+        <button id="clearAllFilters" class="primary-button">
+            <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+        </button>
     </div>
+    
+    <!-- Empty state when no assistants available -->
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-robot"></i>
+            </div>
+            <h3>No AI Assistants Available</h3>
+            <p>There are currently no AI assistants configured for your department.</p>
+        </div>
+    }
 </div>
-
 @section Styles {
     <style>
-        .user-dashboard {
+        /* Main container */
+        .assistants-container {
             display: flex;
             flex-direction: column;
-            gap: 2rem;
-        }
-        
-        .assistants-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1.5rem;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
-        .assistant-card {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Search and filters bar */
+        .search-filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #e0e0e0;
+            border-radius: 50px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+        }
+        
+        /* Filter controls */
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-item label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+        
+        .select-container {
+            position: relative;
+        }
+        
+        .filter-select {
+            padding: 7px 36px 7px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 14px;
+            appearance: none;
+            background: white;
+            min-width: 150px;
+        }
+        
+        .select-container::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #6c757d;
+            pointer-events: none;
+        }
+        
+        .reset-button {
+            background-color: transparent;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 7px 12px;
+            font-size: 14px;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reset-button:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Section headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 12px;
+        }
+        
+        .section-header h2 {
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            gap: 8px;
+        }
+        
+        .section-header i {
+            color: #0d6efd;
+        }
+        
+        .badge {
+            background-color: #0d6efd;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        
+        /* Quick access section */
+        .quick-access {
+            background: white;
+            border-radius: 6px;
+            padding: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .quick-items {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: thin;
+        }
+        
+        .quick-items::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        .quick-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .quick-items::-webkit-scrollbar-thumb {
+            background: #d1d1d1;
+            border-radius: 3px;
+        }
+        
+        .quick-item {
+            min-width: 200px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-item:hover {
+            border-color: #0d6efd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Department sections */
+        .department-section {
+            background: white;
+            border-radius: 6px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        
+        .collapsible {
+            cursor: pointer;
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .toggle-icon {
+            transition: transform 0.3s;
+        }
+        
+        .department-section.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+        
+        .department-section.collapsed .assistant-list {
+            display: none;
+        }
+        
+        .assistant-list {
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            animation: fadeInUp 0.5s ease forwards;
-            opacity: 0;
+            gap: 16px;
         }
         
-        @@keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Assistant cards */
+        .assistant-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 16px;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
         
         .assistant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-color: #d1d1d1;
+        }
+        
+        .assistant-content {
+            display: flex;
+            gap: 16px;
         }
         
         .assistant-icon {
-            width: 64px;
-            height: 64px;
-            border-radius: var(--border-radius);
+            width: 40px;
+            height: 40px;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2rem;
-            margin-bottom: 1.25rem;
+            font-size: 20px;
+            flex-shrink: 0;
         }
         
-        .assistant-icon.primary { background-color: rgba(13, 110, 253, 0.1); color: var(--color-primary); }
-        .assistant-icon.info { background-color: rgba(13, 202, 240, 0.1); color: var(--color-info); }
-        .assistant-icon.warning { background-color: rgba(255, 193, 7, 0.1); color: var(--color-warning); }
-        .assistant-icon.danger { background-color: rgba(220, 53, 69, 0.1); color: var(--color-danger); }
-        .assistant-icon.success { background-color: rgba(32, 201, 151, 0.1); color: var(--color-success); }
-        .assistant-icon.secondary { background-color: rgba(108, 117, 125, 0.1); color: var(--color-secondary); }
-        
-        .assistant-info {
-            flex: 1;
+        .assistant-details {
+            flex-grow: 1;
         }
         
-        .assistant-name {
-            font-size: 1.25rem;
+        .assistant-details h3 {
+            margin: 0 0 8px 0;
+            font-size: 16px;
             font-weight: 600;
-            margin: 0 0 0.5rem;
         }
         
         .assistant-meta {
             display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
-        .assistant-department,
-        .assistant-model {
-            font-size: 0.75rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 100px;
-        }
-        
-        .assistant-department {
-            background-color: var(--color-gray-100);
-            color: var(--color-gray-700);
-        }
-        
-        .assistant-model {
-            background-color: rgba(13, 110, 253, 0.1);
-            color: var(--color-primary);
+        .assistant-meta span {
+            font-size: 12px;
+            color: #6c757d;
+            background-color: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 30px;
         }
         
         .assistant-description {
-            font-size: 0.875rem;
-            color: var(--color-gray-600);
-            margin-bottom: 1.5rem;
-            line-height: 1.5;
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0;
+            line-height: 1.4;
         }
         
-        .assistant-action {
+        .assistant-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-top: auto;
+        }
+        
+        .start-chat-btn {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .start-chat-btn:hover {
+            background-color: #0b5ed7;
+        }
+        
+        .favorite-btn {
+            width: 36px;
+            height: 36px;
+            background-color: transparent;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .favorite-btn:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .favorite-btn.active i {
+            color: #ffc107;
         }
         
         /* Empty state */
         .empty-state {
+            background: white;
+            border-radius: 6px;
+            padding: 40px 20px;
             text-align: center;
-            padding: 3rem;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            grid-column: 1 / -1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
         .empty-icon {
-            font-size: 3rem;
-            color: var(--color-gray-400);
-            margin-bottom: 1rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
         }
         
         .empty-state h3 {
-            font-size: 1.5rem;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 0.75rem;
+            margin: 0 0 8px 0;
         }
         
         .empty-state p {
-            color: var(--color-gray-600);
-            max-width: 500px;
-            margin: 0 auto;
+            color: #6c757d;
+            margin: 0 0 20px 0;
         }
         
-        /* Recent chats section */
-        .recent-chats-section {
-            margin-top: 1rem;
-        }
-        
-        .section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        .recent-chats {
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-        }
-        
-        .chat-history-empty {
-            text-align: center;
-            padding: 2rem;
-            color: var(--color-gray-500);
-        }
-        
-        .chat-history-empty i {
-            font-size: 2rem;
-            margin-bottom: 0.75rem;
-            display: block;
+        .primary-button {
+            background-color: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
         
         /* Responsive adjustments */
         @@media (max-width: 768px) {
-            .assistants-grid {
-                grid-template-columns: 1fr;
+            .search-filters {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                width: 100%;
+                max-width: none;
+            }
+            
+            .filter-controls {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: space-between;
+            }
+            
+            .filter-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            
+            .assistant-list {
+                padding: 12px;
             }
         }
     </style>
 }
-
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Add animation delay to cards for staggered effect
-            const cards = document.querySelectorAll('.animate-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
+            // DOM elements
+            const searchInput = document.getElementById('assistantSearch');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const modelFilter = document.getElementById('modelFilter');
+            const resetButton = document.getElementById('resetFilters');
+            const clearAllFiltersBtn = document.getElementById('clearAllFilters');
+            const quickAccessSection = document.getElementById('quickAccessSection');
+            const quickAccessItems = document.getElementById('quickAccessItems');
+            const noResults = document.getElementById('noResults');
             
-            // Load recent chats (example implementation)
-            loadRecentChats();
-        });
-        
-        function loadRecentChats() {
-            // This would fetch from an API in a real implementation
-            // For now, we'll just check if there are any recent chats in local storage
-            const recentChatsEl = document.querySelector('.recent-chats');
-            const recentChats = JSON.parse(localStorage.getItem('recentChats')) || [];
+            // Initialize
+            setupEventListeners();
+            restoreCollapsedState();
+            initializeQuickAccess();
+            applyFilters();
             
-            if (recentChats.length > 0) {
-                // Clear empty state
-                recentChatsEl.innerHTML = '';
+            function setupEventListeners() {
+                // Search functionality
+                searchInput.addEventListener('input', applyFilters);
                 
-                // Create chat history list
-                const chatList = document.createElement('div');
-                chatList.className = 'chat-history-list';
+                // Filters
+                departmentFilter.addEventListener('change', applyFilters);
+                modelFilter.addEventListener('change', applyFilters);
                 
-                recentChats.forEach(chat => {
-                    const chatItem = document.createElement('div');
-                    chatItem.className = 'chat-history-item';
-                    chatItem.innerHTML = `
-                        <div class="chat-history-icon ${chat.colorClass}">
-                            <i class="bi ${chat.iconClass}"></i>
-                        </div>
-                        <div class="chat-history-info">
-                            <div class="chat-history-name">${chat.name}</div>
-                            <div class="chat-history-time">${chat.time}</div>
-                        </div>
-                        <button class="btn btn-sm btn-outline" onclick="location.href='/UserChat/Chat/${chat.id}'">
-                            <i class="bi bi-arrow-right"></i>
-                        </button>
-                    `;
-                    chatList.appendChild(chatItem);
+                // Reset buttons
+                resetButton.addEventListener('click', resetFilters);
+                clearAllFiltersBtn.addEventListener('click', resetFilters);
+                
+                // Keyboard shortcut for search
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === '/' && document.activeElement !== searchInput) {
+                        e.preventDefault();
+                        searchInput.focus();
+                    }
+                });
+            }
+            
+            function applyFilters() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                const selectedDepartment = departmentFilter.value;
+                const selectedModel = modelFilter.value;
+                
+                // Process all assistant cards
+                const cards = document.querySelectorAll('.assistant-card');
+                let visibleCount = 0;
+                
+                cards.forEach(card => {
+                    const cardName = card.getAttribute('data-name').toLowerCase();
+                    const cardDepartment = card.getAttribute('data-department');
+                    const cardModel = card.getAttribute('data-model');
+                    const cardDescription = card.querySelector('.assistant-description').textContent.toLowerCase();
+                    
+                    // Check if card matches all filters
+                    const matchesSearch = !searchTerm || 
+                                         cardName.includes(searchTerm) || 
+                                         cardDescription.includes(searchTerm);
+                    const matchesDepartment = selectedDepartment === 'all' || 
+                                             cardDepartment === selectedDepartment;
+                    const matchesModel = selectedModel === 'all' || 
+                                        cardModel === selectedModel;
+                    
+                    // Show/hide card based on filters
+                    if (matchesSearch && matchesDepartment && matchesModel) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
                 });
                 
-                recentChatsEl.appendChild(chatList);
+                // Update department visibility based on visible cards
+                updateDepartmentVisibility();
+                
+                // Show/hide no results message
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
             }
+            
+            function updateDepartmentVisibility() {
+                const departments = document.querySelectorAll('.department-section');
+                
+                departments.forEach(dept => {
+                    const visibleCards = dept.querySelectorAll('.assistant-card[style="display: flex;"]');
+                    dept.style.display = visibleCards.length > 0 ? 'block' : 'none';
+                });
+            }
+            
+            function resetFilters() {
+                searchInput.value = '';
+                departmentFilter.value = 'all';
+                modelFilter.value = 'all';
+                
+                // Reset card visibility
+                document.querySelectorAll('.assistant-card').forEach(card => {
+                    card.style.display = 'flex';
+                });
+                
+                // Reset department visibility
+                document.querySelectorAll('.department-section').forEach(dept => {
+                    dept.style.display = 'block';
+                });
+                
+                // Hide no results message
+                noResults.style.display = 'none';
+            }
+            
+            function toggleDepartment(departmentName) {
+                const section = document.querySelector(`.department-section[data-department="${departmentName}"]`);
+                section.classList.toggle('collapsed');
+                
+                // Save collapsed state
+                const collapsedDepts = JSON.parse(localStorage.getItem('collapsedDepartments') || '[]');
+                
+                if (section.classList.contains('collapsed')) {
+                    if (!collapsedDepts.includes(departmentName)) {
+                        collapsedDepts.push(departmentName);
+                    }
+                } else {
+                    const index = collapsedDepts.indexOf(departmentName);
+                    if (index > -1) {
+                        collapsedDepts.splice(index, 1);
+                    }
+                }
+                
+                localStorage.setItem('collapsedDepartments', JSON.stringify(collapsedDepts));
+            }
+            
+            function restoreCollapsedState() {
+                const collapsedDepts = JSON.parse(localStorage.getItem('collapsedDepartments') || '[]');
+                
+                collapsedDepts.forEach(dept => {
+                    const section = document.querySelector(`.department-section[data-department="${dept}"]`);
+                    if (section) {
+                        section.classList.add('collapsed');
+                    }
+                });
+            }
+            
+            function toggleFavorite(event, chatbotId) {
+                // Prevent the card click event
+                event.stopPropagation();
+                
+                const button = event.currentTarget;
+                button.classList.toggle('active');
+                
+                // Update icon
+                const icon = button.querySelector('i');
+                if (button.classList.contains('active')) {
+                    icon.classList.remove('bi-star');
+                    icon.classList.add('bi-star-fill');
+                } else {
+                    icon.classList.remove('bi-star-fill');
+                    icon.classList.add('bi-star');
+                }
+                
+                // Update favorites in localStorage
+                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                
+                if (button.classList.contains('active')) {
+                    if (!favorites.includes(chatbotId)) {
+                        favorites.push(chatbotId);
+                    }
+                } else {
+                    const index = favorites.indexOf(chatbotId);
+                    if (index > -1) {
+                        favorites.splice(index, 1);
+                    }
+                }
+                
+                localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
+                
+                // Update quick access section
+                updateQuickAccess();
+            }
+            
+            function initializeQuickAccess() {
+                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                
+                // Set favorite buttons to active state
+                favorites.forEach(id => {
+                    const button = document.querySelector(`.assistant-card[data-id="${id}"] .favorite-btn`);
+                    if (button) {
+                        button.classList.add('active');
+                        const icon = button.querySelector('i');
+                        icon.classList.remove('bi-star');
+                        icon.classList.add('bi-star-fill');
+                    }
+                });
+                
+                // Update quick access items
+                updateQuickAccess();
+            }
+            
+            function updateQuickAccess() {
+                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                
+                // Clear container
+                quickAccessItems.innerHTML = '';
+                
+                // Hide section if no favorites
+                if (favorites.length === 0) {
+                    quickAccessSection.style.display = 'none';
+                    return;
+                }
+                
+                // Show section
+                quickAccessSection.style.display = 'block';
+                
+                // Add favorites to quick access
+                favorites.forEach(id => {
+                    const card = document.querySelector(`.assistant-card[data-id="${id}"]`);
+                    if (card) {
+                        const name = card.querySelector('h3').textContent;
+                        const department = card.getAttribute('data-department');
+                        const iconClass = card.querySelector('.assistant-icon i').classList[1];
+                        
+                        const quickItem = document.createElement('div');
+                        quickItem.className = 'quick-item';
+                        quickItem.onclick = function() { startChat(id); };
+                        
+                        quickItem.innerHTML = `
+                            <div class="assistant-icon">
+                                <i class="bi ${iconClass}"></i>
+                            </div>
+                            <div class="quick-info">
+                                <div class="quick-name">${name}</div>
+                                <div class="quick-department">${department}</div>
+                            </div>
+                        `;
+                        
+                        quickAccessItems.appendChild(quickItem);
+                    }
+                });
+            }
+        });
+        
+        function startChat(chatbotId) {
+            // Generate session ID
+            const randomPart1 = Math.floor(1000 + Math.random() * 9000);
+            const randomPart2 = Array.from({length: 4}, () => 
+                'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]
+            ).join('');
+            const sessionId = `session-${randomPart1}-${randomPart2}`;
+            
+            // Store chat info in localStorage
+            const chatData = {
+                chatbotId: chatbotId,
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem(sessionId, JSON.stringify(chatData));
+            
+            // Navigate to chat page
+            window.location.href = `/UserChat/Chat/${sessionId}`;
         }
-
-        function startNewChat(chatbotId) {
-    // Generate a session ID in the same format as History
-    const randomPart1 = Math.floor(1000 + Math.random() * 9000);
-    const randomPart2 = Array.from({length: 4}, () => 
-        'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)]
-    ).join('');
-    const sessionId = `session-${randomPart1}-${randomPart2}`;
-    
-    // Store in localStorage for potential recovery
-    const chatData = {
-        chatbotId: chatbotId,
-        createdAt: new Date().toISOString()
-    };
-    localStorage.setItem(sessionId, JSON.stringify(chatData));
-    
-    // Navigate to chat with session ID
-    location.href = `/UserChat/Chat/${sessionId}`;
-}
     </script>
 }
