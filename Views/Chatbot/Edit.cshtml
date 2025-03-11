@@ -15,6 +15,20 @@
     // Set up access control variables
     var allowSpecificUsers = Model.AccessType == "Specific";
     var allowedUsers = Model.AllowedUsers ?? new List<string>();
+    
+    // Initialize localized names dictionary
+    var localizedNames = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Model.LocalizedNamesJson))
+    {
+        try
+        {
+            localizedNames = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.LocalizedNamesJson);
+        }
+        catch
+        {
+            // Use empty dictionary if parsing fails
+        }
+    }
 }
 
 <div class="page-header">
@@ -83,13 +97,53 @@
                 <span asp-validation-for="FlowiseId" class="text-danger"></span>
             </div>
 
+            <!-- Multi-language Name Section -->
             <div class="form-group mb-4">
-                <label asp-for="Name" class="form-label">Chatbot Name <span class="required">*</span></label>
-                <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" required />
-                <div class="form-text">
-                    The name displayed to users and administrators
+                <label class="form-label">Chatbot Names <span class="required">*</span></label>
+                
+                <div class="language-name-tabs">
+                    <div class="language-tab active" data-tab="en">
+                        <span class="language-icon">🇺🇸</span> English
+                    </div>
+                    <div class="language-tab" data-tab="th">
+                        <span class="language-icon">🇹🇭</span> Thai
+                    </div>
+                    <div class="language-tab" data-tab="ja">
+                        <span class="language-icon">🇯🇵</span> Japanese
+                    </div>
                 </div>
-                <span asp-validation-for="Name" class="text-danger"></span>
+                
+                <div class="language-name-content">
+                    <!-- English Name (Default) -->
+                    <div class="language-pane active" id="lang-pane-en">
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Customer Support Bot" required />
+                        <div class="form-text">
+                            Enter the primary English name for your chatbot (required)
+                        </div>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Thai Name -->
+                    <div class="language-pane" id="lang-pane-th">
+                        <input name="NameTh" id="NameTh" value="@(localizedNames.ContainsKey("th") ? localizedNames["th"] : "")" 
+                               class="form-control" placeholder="ชื่อบอทภาษาไทย" />
+                        <div class="form-text">
+                            ใส่ชื่อบอทภาษาไทย (ถ้าไม่ระบุจะใช้ภาษาอังกฤษแทน)
+                        </div>
+                    </div>
+                    
+                    <!-- Japanese Name -->
+                    <div class="language-pane" id="lang-pane-ja">
+                        <input name="NameJa" id="NameJa" value="@(localizedNames.ContainsKey("ja") ? localizedNames["ja"] : "")" 
+                               class="form-control" placeholder="日本語のボット名" />
+                        <div class="form-text">
+                            日本語でチャットボットの名前を入力してください (空白の場合は英語の名前が使用されます)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden field to store JSON of all localized names -->
+                <input type="hidden" id="LocalizedNamesJson" name="LocalizedNamesJson" value="@(Model.LocalizedNamesJson ?? "{}")" />
             </div>
 
             <!-- Multiple Department Selection -->
@@ -192,20 +246,20 @@
                             <div class="history-user">by: @Model.CreatedBy</div>
                         </div>
                         
-@if (Model.UpdateHistory != null && Model.UpdateHistory.Any())
-{
-    @foreach (var update in Model.UpdateHistory.OrderByDescending(u => u.UpdatedAt))
-    {
-        <div class="history-item">
-            <div class="history-date">Updated on: @update.UpdatedAt.ToLocalTime().ToString("MMM d, yyyy HH:mm:ss")</div>
-            <div class="history-user">by: @update.UpdatedBy</div>
-            @if (!string.IsNullOrEmpty(update.ChangeDescription))
-            {
-                <div class="history-changes">@update.ChangeDescription</div>
-            }
-        </div>
-    }
-}
+                        @if (Model.UpdateHistory != null && Model.UpdateHistory.Any())
+                        {
+                            @foreach (var update in Model.UpdateHistory.OrderByDescending(u => u.UpdatedAt))
+                            {
+                                <div class="history-item">
+                                    <div class="history-date">Updated on: @update.UpdatedAt.ToLocalTime().ToString("MMM d, yyyy HH:mm:ss")</div>
+                                    <div class="history-user">by: @update.UpdatedBy</div>
+                                    @if (!string.IsNullOrEmpty(update.ChangeDescription))
+                                    {
+                                        <div class="history-changes">@update.ChangeDescription</div>
+                                    }
+                                </div>
+                            }
+                        }
                         else if (Model.LastUpdatedAt.HasValue)
                         {
                             <div class="history-item">
@@ -639,32 +693,73 @@
                 });
             });
 
-            // Fetch chatbot stats
-function fetchChatbotStats(chatbotId) {
-    fetch(`/api/chatbot/stats/${chatbotId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Server returned ${response.status}`);
+            // Language tab switching
+            const languageTabs = document.querySelectorAll('.language-tab');
+            languageTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and panes
+                    document.querySelectorAll('.language-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.language-pane').forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`lang-pane-${tabId}`).classList.add('active');
+                });
+            });
+            
+            // Update the localized names JSON when form is submitted
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function() {
+                updateLocalizedNames();
+            });
+            
+            function updateLocalizedNames() {
+                const localizedNames = {};
+                
+                // Get the Thai name if provided
+                const nameTh = document.getElementById('NameTh').value.trim();
+                if (nameTh) {
+                    localizedNames.th = nameTh;
+                }
+                
+                // Get the Japanese name if provided
+                const nameJa = document.getElementById('NameJa').value.trim();
+                if (nameJa) {
+                    localizedNames.ja = nameJa;
+                }
+                
+                // Store in the hidden field as JSON
+                document.getElementById('LocalizedNamesJson').value = JSON.stringify(localizedNames);
             }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('conversationsCount').textContent = data.conversations || '0';
-            document.getElementById('avgResponseTime').textContent = (data.avgResponseTime || '0.0') + 's';
-            document.getElementById('successRate').textContent = (data.successRate || '0') + '%';
-        })
-        .catch(error => {
-            console.error('Error fetching chatbot stats:', error);
-            // Use default values on error
-            document.getElementById('conversationsCount').textContent = '0';
-            document.getElementById('avgResponseTime').textContent = '0.0s';
-            document.getElementById('successRate').textContent = '0%';
-        });
-}
+
+            // Fetch chatbot stats
+            function fetchChatbotStats(chatbotId) {
+                fetch(`/api/chatbot/stats/${chatbotId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Server returned ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        document.getElementById('conversationsCount').textContent = data.conversations || '0';
+                        document.getElementById('avgResponseTime').textContent = (data.avgResponseTime || '0.0') + 's';
+                        document.getElementById('successRate').textContent = (data.successRate || '0') + '%';
+                    })
+                    .catch(error => {
+                        console.error('Error fetching chatbot stats:', error);
+                        // Use default values on error
+                        document.getElementById('conversationsCount').textContent = '0';
+                        document.getElementById('avgResponseTime').textContent = '0.0s';
+                        document.getElementById('successRate').textContent = '0%';
+                    });
+            }
         });
     </script>
 }
-
 
 @section Styles {
     <style>
@@ -1299,5 +1394,57 @@ function fetchChatbotStats(chatbotId) {
             font-size: 0.875rem;
             border-radius: calc(var(--border-radius) - 1px);
         }
-    </style>
-}
+        
+        /* Language Tabs */
+        .language-name-tabs {
+            display: flex;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-bottom: -1px;
+        }
+        
+        .language-tab {
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .language-tab:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .language-tab.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        
+        .language-icon {
+            font-size: 16px;
+        }
+        
+        .language-name-content {
+            border: 1px solid #e5e7eb;
+            border-top-right-radius: 8px;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .language-pane {
+            padding: 16px;
+            display: none;
+            background-color: #ffffff;
+        }
+        
+        .language-pane.active {
+            display: block;
+        }
+    </style

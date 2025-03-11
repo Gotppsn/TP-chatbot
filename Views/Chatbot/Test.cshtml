@@ -1,6 +1,17 @@
 @model AIHelpdeskSupport.Models.Chatbot
 @{
     ViewData["Title"] = "Test Chatbot";
+    
+    // Parse the localized names JSON if available
+    var localizedNames = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Model.LocalizedNamesJson))
+    {
+        try
+        {
+            localizedNames = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.LocalizedNamesJson);
+        }
+        catch { /* Use empty dictionary if parsing fails */ }
+    }
 }
 
 <div class="chatbot-test-container">
@@ -32,13 +43,21 @@
                     <div class="bot-avatar">
                         <i class="bi bi-robot"></i>
                     </div>
-                    <div class="bot-name">@Model.Name</div>
+                    <div class="bot-name" id="chatbotNameDisplay">@Model.Name</div>
                     <div class="connection-status connected">
                         <span class="status-dot"></span>
                         <span id="connectionStatus">Connected</span>
                     </div>
                 </div>
                 <div class="chat-actions">
+                    <!-- Language Selector -->
+                    <div class="language-selector">
+                        <select id="languageSelect" class="language-select">
+                            <option value="en">English</option>
+                            <option value="th">ไทย</option>
+                            <option value="ja">日本語</option>
+                        </select>
+                    </div>
                     <button type="button" id="clearChat" class="btn-icon">
                         <i class="bi bi-trash"></i>
                     </button>
@@ -47,35 +66,7 @@
             
             <!-- Chat Messages -->
             <div class="chat-messages" id="chatMessages">
-                <!-- Bot initial message -->
-                <div class="message bot">
-                    <div class="message-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <p>Hello! I'm the @Model.Name assistant. How can I help you today?</p>
-                        <div class="message-time">03:24 PM</div>
-                    </div>
-                </div>
-                
-                <!-- Sample user message -->
-                <div class="message user">
-                    <div class="message-content">
-                        <p id="userSampleMessage">ถามอะไรได้บ้าง</p>
-                        <div class="message-time">03:24 PM</div>
-                    </div>
-                </div>
-                
-                <!-- Sample bot response -->
-                <div class="message bot">
-                    <div class="message-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <p id="botSampleResponse">คุณสามารถถามเกี่ยวกับข้อมูลที่เกี่ยวข้องกับประกันสังคม เช่น คุณสมบัติในการรับประกันสังคม, การตรวจสอบสิทธิ์นายจ้างกรม, ค่ารักษาทางการแพทย์ และข้อมูลอื่น ๆ ที่เกี่ยวข้องกับประกันสังคมได้ค่ะ</p>
-                        <div class="message-time">03:24 PM</div>
-                    </div>
-                </div>
+                <!-- Bot initial message - will be generated dynamically based on language -->
             </div>
             
             <!-- Chat Footer -->
@@ -220,15 +211,15 @@
                 <h3 class="section-title">Test Metrics</h3>
                 <div class="info-content metrics-content">
                     <div class="metric-item">
-                        <div class="metric-value" id="messageCount">2</div>
+                        <div class="metric-value" id="messageCount">0</div>
                         <div class="metric-label">Messages</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="avgResponseTime">2.2s</div>
+                        <div class="metric-value" id="avgResponseTime">0.0s</div>
                         <div class="metric-label">Avg. Response</div>
                     </div>
                     <div class="metric-item">
-                        <div class="metric-value" id="maxResponseTime">2.2s</div>
+                        <div class="metric-value" id="maxResponseTime">0.0s</div>
                         <div class="metric-label">Max Response</div>
                     </div>
                 </div>
@@ -241,16 +232,39 @@
     <script>
         let sessionId = null;
         let isConnected = false;
-        let lastResponseTimes = [2.18];
-        let messageCount = 2;
+        let lastResponseTimes = [];
+        let messageCount = 0;
+        let currentLanguage = 'en';
         
         // Flowise API configuration
         const FLOWISE_API_URL = "http://localhost:3000/api/v1/prediction/@Model.FlowiseId";
         const FLOWISE_API_KEY = "0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY";
 
+        // Localized chatbot names
+        const chatbotNames = {
+            en: "@Model.Name", // Default English name
+            th: "@(localizedNames.ContainsKey("th") ? localizedNames["th"] : Model.Name)",
+            ja: "@(localizedNames.ContainsKey("ja") ? localizedNames["ja"] : Model.Name)"
+        };
+
+        // Welcome messages in different languages
+        const welcomeMessages = {
+            en: `Hello! I'm the ${chatbotNames.en} assistant. How can I help you today?`,
+            th: `สวัสดีครับ/ค่ะ! ฉัน ${chatbotNames.th} ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
+            ja: `こんにちは！私は${chatbotNames.ja} アシスタントです。今日はどのようにお手伝いできますか？`
+        };
+
+        // Input placeholder texts in different languages
+        const placeholders = {
+            en: "Type your message here...",
+            th: "พิมพ์ข้อความของคุณที่นี่...",
+            ja: "メッセージを入力してください..."
+        };
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize session
-            sessionId = document.getElementById('sessionId').textContent;
+            // Initialize session ID
+            sessionId = generateSessionId();
+            document.getElementById('sessionId').textContent = sessionId;
             
             // Set up event listeners
             document.getElementById('sendMessage').addEventListener('click', sendMessage);
@@ -265,7 +279,13 @@
             document.getElementById('debugInfo').addEventListener('change', toggleDebugInfo);
             document.getElementById('showSystemPrompt').addEventListener('change', toggleSystemPrompt);
             
-            // Add scroll event listeners
+            // Language selector event listener
+            document.getElementById('languageSelect').addEventListener('change', function() {
+                currentLanguage = this.value;
+                updateLanguage();
+            });
+            
+            // Add scroll event listeners for chat
             const chatMessages = document.getElementById('chatMessages');
             chatMessages.addEventListener('scroll', function() {
                 userScrolled = true;
@@ -283,15 +303,64 @@
                 setTimeout(checkScrollPosition, 50);
             });
             
+            // Initialize chat with welcome message
+            initializeChat();
+            
             // Focus input field
             document.getElementById('messageInput').focus();
+        });
+
+        function initializeChat() {
+            const chatMessages = document.getElementById('chatMessages');
             
-            // Initialize metrics
+            // Clear any existing messages
+            chatMessages.innerHTML = '';
+            
+            // Update chatbot name display based on current language
+            document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage];
+            
+            // Add welcome message based on current language
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const welcomeMessage = document.createElement('div');
+            welcomeMessage.className = 'message bot';
+            welcomeMessage.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <p>${welcomeMessages[currentLanguage]}</p>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(welcomeMessage);
+            
+            // Update placeholder text based on language
+            document.getElementById('messageInput').placeholder = placeholders[currentLanguage];
+            
+            // Reset counter
+            messageCount = 1;
             updateMetrics();
             
-            // Initial scroll to bottom
+            // Scroll to bottom
             scrollToBottom();
-        });
+        }
+        
+        function updateLanguage() {
+            // Update placeholder
+            document.getElementById('messageInput').placeholder = placeholders[currentLanguage];
+            
+            // Update chatbot name display
+            document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage];
+            
+            // Reinitialize chat with new language
+            initializeChat();
+        }
+
+        function generateSessionId() {
+            return `session-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+        }
 
         function sendMessage() {
             const input = document.getElementById('messageInput');
@@ -358,7 +427,10 @@
                     body: JSON.stringify({
                         question: message,
                         sessionId: sessionId,
-                        overrideConfig: {}
+                        overrideConfig: {
+                            language: currentLanguage,
+                            botName: chatbotNames[currentLanguage]
+                        }
                     })
                 });
 
@@ -478,36 +550,29 @@
             const chatMessages = document.getElementById('chatMessages');
             const scrollPosition = chatMessages.scrollTop + chatMessages.clientHeight;
             isScrolledToBottom = scrollPosition >= chatMessages.scrollHeight - 30; // 30px threshold
+            
+            // If scrolled to bottom, reset userScrolled flag
+            if (isScrolledToBottom) {
+                userScrolled = false;
+            }
         }
 
         function clearChat() {
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = `
-                <div class="message bot">
-                    <div class="message-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <p>Hello! I'm the @Model.Name assistant. How can I help you today?</p>
-                        <div class="message-time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                    </div>
-                </div>
-            `;
-            
             // Reset session
-            sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+            sessionId = generateSessionId();
             document.getElementById('sessionId').textContent = sessionId;
             document.getElementById('responseTime').textContent = '-';
             
             // Reset metrics
             lastResponseTimes = [];
-            messageCount = 1;
-            updateMetrics();
+            messageCount = 0;
+            
+            // Initialize chat with welcome message
+            initializeChat();
             
             // Reset scroll state
             userScrolled = false;
             isScrolledToBottom = true;
-            scrollToBottom();
         }
 
         function toggleDebugInfo() {
@@ -532,6 +597,9 @@
                 
                 document.getElementById('avgResponseTime').textContent = `${avg.toFixed(1)}s`;
                 document.getElementById('maxResponseTime').textContent = `${max.toFixed(1)}s`;
+            } else {
+                document.getElementById('avgResponseTime').textContent = '0.0s';
+                document.getElementById('maxResponseTime').textContent = '0.0s';
             }
         }
 
@@ -740,6 +808,28 @@
         .chat-actions {
             display: flex;
             gap: 8px;
+            align-items: center;
+        }
+        
+        /* Language selector */
+        .language-selector {
+            margin-right: 8px;
+        }
+        
+        .language-select {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            background-color: #ffffff;
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .language-select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
         }
         
         .btn-icon {
