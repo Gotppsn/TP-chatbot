@@ -129,28 +129,50 @@
         </div>
     </div>
     
-    <!-- Info panel -->
-    <div class="chat-info" id="chatInfo">
-        <div class="info-header">
-            <h3>Conversation Details</h3>
-            <button class="btn-icon info-close" id="infoClose">
-                <i class="bi bi-x"></i>
-            </button>
-        </div>
-        
-        <div class="info-section">
-            <h4 class="section-title">AI ASSISTANT</h4>
-            <div class="assistant-info">
-                <div class="assistant-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="assistant-details">
-                    <div class="assistant-name">@Model.Chatbot.Name</div>
-                    <div class="assistant-department">@Model.Chatbot.Department</div>
-                    <div class="assistant-model">@Model.Chatbot.AiModel</div>
-                </div>
+ <!-- Info panel -->
+<div class="chat-info" id="chatInfo">
+    <div class="info-header">
+        <h3>Conversation Details</h3>
+        <button class="btn-icon info-close" id="infoClose">
+            <i class="bi bi-x"></i>
+        </button>
+    </div>
+    
+    <div class="info-section">
+        <h4 class="section-title">AI ASSISTANT</h4>
+        <div class="assistant-info">
+            <div class="assistant-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="assistant-details">
+                <div class="assistant-name">@Model.Chatbot.Name</div>
+                <div class="assistant-department">@Model.Chatbot.Department</div>
+                <div class="assistant-model">@Model.Chatbot.AiModel</div>
             </div>
         </div>
+        
+        <!-- Add new chatbot capabilities section -->
+        <div class="assistant-capabilities">
+            <div class="capability-item">
+                <div class="capability-icon">
+                    <i class="bi bi-translate"></i>
+                </div>
+                <div class="capability-text">Multilingual</div>
+            </div>
+            <div class="capability-item">
+                <div class="capability-icon">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <div class="capability-text">Flowise ID: @(String.IsNullOrEmpty(Model.FlowiseId) ? "Not configured" : Model.FlowiseId.Substring(0, Math.Min(8, Model.FlowiseId.Length)) + "...")</div>
+            </div>
+            <div class="capability-item">
+                <div class="capability-icon">
+                    <i class="bi bi-card-text"></i>
+                </div>
+                <div class="capability-text">@(String.IsNullOrEmpty(Model.Chatbot.Description) ? "General assistance" : Model.Chatbot.Description)</div>
+            </div>
+        </div>
+    </div>
         
         <div class="info-section">
             <h4 class="section-title">CONVERSATION STATS</h4>
@@ -2243,5 +2265,100 @@
             display: block;
         }
     }
+    /* Add these styles to the Styles section */
+.assistant-capabilities {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: var(--color-gray-50);
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.capability-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.capability-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.capability-text {
+    font-size: 13px;
+    color: var(--color-gray-700);
+    line-height: 1.4;
+}
+
+/* Enhanced styling for existing elements */
+.assistant-info {
+    background-color: white;
+    border-radius: 8px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.assistant-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.assistant-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--color-gray-900);
+    font-size: 15px;
+}
+
+.assistant-department {
+    font-size: 13px;
+    color: var(--color-gray-600);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.assistant-department::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--color-success);
+}
+
+.assistant-model {
+    display: inline-block;
+    font-size: 11px;
+    background-color: var(--color-gray-100);
+    color: var(--color-gray-600);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
 </style>
 }
