@@ -471,7 +471,42 @@
         });
     }
     
-    // Core function to send messages to Flowise API
+    // UPDATED: Improved fetchSettings function with better error handling and URL formatting
+    async function fetchSettings() {
+        try {
+            const response = await fetch('/api/settings/flowise');
+            if (!response.ok) {
+                console.warn("Could not fetch Flowise settings - using defaults");
+                return {
+                    flowiseApiUrl: 'http://localhost:3000/api/',
+                    flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
+                };
+            }
+            
+            const settings = await response.json();
+            console.log("Fetched API settings:", settings.flowiseApiUrl);
+            
+            // Ensure URL has correct format
+            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.endsWith('/')) {
+                settings.flowiseApiUrl += '/';
+            }
+            
+            // Ensure URL has protocol
+            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.startsWith('http://') && !settings.flowiseApiUrl.startsWith('https://')) {
+                settings.flowiseApiUrl = 'http://' + settings.flowiseApiUrl;
+            }
+            
+            return settings;
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+            return {
+                flowiseApiUrl: 'http://localhost:3000/api/',
+                flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
+            };
+        }
+    }
+    
+    // UPDATED: Core function to send messages to Flowise API
     async function callFlowiseAPI(message) {
         try {
             // Show loading indicator
@@ -500,51 +535,42 @@
                 flowiseApiUrl += '/';
             }
             
-            // Build the correct prediction endpoint URL
-            let apiUrl;
-            if (flowiseApiUrl.includes('/prediction/')) {
-                apiUrl = flowiseApiUrl + activeFlowiseId;
-            } else if (flowiseApiUrl.includes('/api/v1/')) {
-                apiUrl = flowiseApiUrl + 'prediction/' + activeFlowiseId;
-            } else {
-                apiUrl = flowiseApiUrl + 'v1/prediction/' + activeFlowiseId;
+            // Ensure URL has protocol
+            if (!flowiseApiUrl.startsWith('http://') && !flowiseApiUrl.startsWith('https://')) {
+                flowiseApiUrl = 'http://' + flowiseApiUrl;
             }
             
+            // Simplify URL construction - directly build prediction endpoint
+            const apiUrl = `${flowiseApiUrl}v1/prediction/${activeFlowiseId}`;
             console.log("Connecting to Flowise using URL:", apiUrl);
-            
-            // Configure headers with proper auth
-            const headers = {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            };
-            
-            if (flowiseApiKey) {
-                headers['Authorization'] = `Bearer ${flowiseApiKey}`;
-                headers['x-api-key'] = flowiseApiKey;
-            }
             
             // Prepare the bot name for context
             const botName = document.querySelector('.bot-name').textContent || '@Model.Chatbot.Name';
             
-            // Send request to Flowise
+            // Send request to Flowise with proper headers
             const response = await fetch(apiUrl, {
                 method: 'POST',
-                headers: headers,
+                headers: {
+                    'Authorization': `Bearer ${flowiseApiKey}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'x-api-key': flowiseApiKey
+                },
                 body: JSON.stringify({
                     question: message,
                     sessionId: sessionId,
                     overrideConfig: {
-                        chatId: activeFlowiseId,
                         language: currentLanguage,
                         botName: botName
                     }
                 })
             });
             
-            // Check if we got HTML response instead of JSON
+            // Check for HTML response which indicates wrong API endpoint
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('text/html')) {
                 console.error("Received HTML instead of JSON. API URL might be pointing to UI instead of API endpoint.");
+                console.log("Attempting fallback to regular API");
                 return await callRegularAPI(message);
             }
             
@@ -554,10 +580,11 @@
                 return await callRegularAPI(message);
             }
             
-            // Parse response - handle different formats and catch parse errors
+            // Parse response with improved error handling
             try {
                 const data = await response.json();
                 
+                // Handle various response formats
                 if (typeof data === 'object' && data !== null) {
                     if (data.text !== undefined) return data.text;
                     if (data.response !== undefined) return data.response;
@@ -618,30 +645,6 @@
         } catch (error) {
             console.error('Regular API call failed:', error);
             return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
-        }
-    }
-    
-    // Helper function to fetch settings
-    async function fetchSettings() {
-        try {
-            const response = await fetch('/api/settings/flowise');
-            if (!response.ok) {
-                console.warn("Could not fetch Flowise settings - using defaults");
-                return {
-                    flowiseApiUrl: 'http://localhost:3000/api/',
-                    flowiseApiKey: ''
-                };
-            }
-            
-            const settings = await response.json();
-            console.log("Fetched API settings:", settings.flowiseApiUrl);
-            return settings;
-        } catch (error) {
-            console.error('Error fetching settings:', error);
-            return {
-                flowiseApiUrl: 'http://localhost:3000/api/',
-                flowiseApiKey: ''
-            };
         }
     }
     
