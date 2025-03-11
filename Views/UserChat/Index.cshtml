@@ -37,9 +37,9 @@
     </div>
 
     <!-- Quick access section -->
-    <div class="quick-access" id="quickAccessSection">
+    <div class="quick-access" id="quickAccessSection" style="display: none;">
         <div class="section-header">
-            <h2><i class="bi bi-lightning"></i> Quick Access <span class="badge">Most Used</span></h2>
+            <h2><i class="bi bi-lightning"></i> Quick Access <span class="badge">Favorites</span></h2>
         </div>
         <div class="quick-items" id="quickAccessItems">
             <!-- Will be populated dynamically by JavaScript -->
@@ -327,6 +327,24 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         
+        .quick-item .quick-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .quick-item .quick-name {
+            font-weight: 500;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .quick-item .quick-department {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
         /* Department sections */
         .department-section {
             background: white;
@@ -468,51 +486,51 @@
             background-color: #0b5ed7;
         }
         
-.favorite-btn {
-    width: 36px;
-    height: 36px;
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    color: #6c757d;
-    position: relative;
-    z-index: 10;
-}
+        .favorite-btn {
+            width: 36px;
+            height: 36px;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #6c757d;
+            position: relative;
+            z-index: 10;
+        }
 
-.favorite-btn:hover {
-    background-color: #f8f9fa;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+        .favorite-btn:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
 
-.favorite-btn:active {
-    transform: translateY(1px);
-}
+        .favorite-btn:active {
+            transform: translateY(1px);
+        }
 
-.favorite-btn.active {
-    background-color: #fff8e1;
-    border-color: #ffc107;
-}
+        .favorite-btn.active {
+            background-color: #fff8e1;
+            border-color: #ffc107;
+        }
 
-.favorite-btn.active i {
-    color: #ffc107;
-}
+        .favorite-btn.active i {
+            color: #ffc107;
+        }
 
-/* Animation for click feedback */
-@@keyframes favorite-pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-    100% { transform: scale(1); }
-}
+        /* Animation for click feedback */
+        @@keyframes favorite-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
 
-.favorite-btn.clicked {
-    animation: favorite-pulse 0.3s ease;
-}
+        .favorite-btn.clicked {
+            animation: favorite-pulse 0.3s ease;
+        }
         
         /* Empty state */
         .empty-state {
@@ -619,36 +637,10 @@
             // Initialize
             setupEventListeners();
             restoreCollapsedState();
-            initializeFavorites();
-            initializeQuickAccess();
+            loadFavorites();
+            updateQuickAccess();
             applyFilters();
 
-            function initializeFavorites() {
-    // Load favorites from localStorage
-    let favorites = [];
-    try {
-        favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-    } catch (e) {
-        console.error('Error parsing favorites from localStorage', e);
-        favorites = [];
-    }
-    
-    // Set active state for favorite buttons
-    favorites.forEach(id => {
-        const buttons = document.querySelectorAll(`.favorite-btn[onclick*="${id}"]`);
-        buttons.forEach(button => {
-            button.classList.add('active');
-            const icon = button.querySelector('i');
-            if (icon) {
-                icon.classList.remove('bi-star');
-                icon.classList.add('bi-star-fill');
-            }
-        });
-    });
-    
-    console.log('Favorites initialized:', favorites);
-}
-            
             function setupEventListeners() {
                 // Search functionality
                 searchInput.addEventListener('input', applyFilters);
@@ -764,95 +756,37 @@
                 });
             }
             
-function toggleFavorite(event, chatbotId) {
-    // Prevent the click from bubbling up to parent elements
-    event.preventDefault();
-    event.stopPropagation();
-    
-    // Get the button element
-    const button = event.currentTarget;
-    
-    // Toggle active class on the button
-    button.classList.toggle('active');
-    
-    // Find and update the icon
-    const icon = button.querySelector('i');
-    if (button.classList.contains('active')) {
-        icon.classList.remove('bi-star');
-        icon.classList.add('bi-star-fill');
-    } else {
-        icon.classList.remove('bi-star-fill');
-        icon.classList.add('bi-star');
-    }
-    
-    // Update favorites in localStorage
-    let favorites = [];
-    try {
-        // Try to parse existing favorites
-        favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-    } catch (e) {
-        console.error('Error parsing favorites from localStorage', e);
-        favorites = [];
-    }
-    
-    // Integer conversion to ensure proper comparison
-    const chatbotIdInt = parseInt(chatbotId, 10);
-    
-    if (button.classList.contains('active')) {
-        // Add to favorites if not already there
-        if (!favorites.includes(chatbotIdInt)) {
-            favorites.push(chatbotIdInt);
-        }
-    } else {
-        // Remove from favorites
-        const index = favorites.indexOf(chatbotIdInt);
-        if (index > -1) {
-            favorites.splice(index, 1);
-        }
-    }
-    
-    // Save updated favorites
-    localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
-    
-    // Visual feedback for the user
-    button.style.transform = 'scale(1.2)';
-    setTimeout(() => {
-        button.style.transform = 'scale(1)';
-    }, 200);
-    
-    // Log for debugging
-    console.log('Favorites updated:', favorites);
-    
-    // Update quick access section if it exists
-    if (typeof updateQuickAccess === 'function') {
-        updateQuickAccess();
-    }
-    
-    return false; // Prevent default behavior
-}
-            
-            function initializeQuickAccess() {
-                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-                
-                // Set favorite buttons to active state
+            // Load favorites from localStorage
+            function loadFavorites() {
+                let favorites = [];
+                try {
+                    favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                } catch (error) {
+                    console.error('Error parsing favorites:', error);
+                    favorites = [];
+                }
+
+                // Update UI for each favorite
                 favorites.forEach(id => {
-                    const button = document.querySelector(`.assistant-card[data-id="${id}"] .favorite-btn`);
-                    if (button) {
+                    const buttons = document.querySelectorAll(`.assistant-card[data-id="${id}"] .favorite-btn`);
+                    buttons.forEach(button => {
                         button.classList.add('active');
                         const icon = button.querySelector('i');
-                        icon.classList.remove('bi-star');
-                        icon.classList.add('bi-star-fill');
-                    }
+                        if (icon) {
+                            icon.classList.remove('bi-star');
+                            icon.classList.add('bi-star-fill');
+                        }
+                    });
                 });
-                
-                // Update quick access items
-                updateQuickAccess();
+
+                return favorites;
             }
-            
+
+            // Update quick access section based on favorites
             function updateQuickAccess() {
-                const favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                const favorites = loadFavorites();
                 
-                // Clear container
+                // Clear quick access items
                 quickAccessItems.innerHTML = '';
                 
                 // Hide section if no favorites
@@ -861,16 +795,14 @@ function toggleFavorite(event, chatbotId) {
                     return;
                 }
                 
-                // Show section
+                // Show section and add favorite items
                 quickAccessSection.style.display = 'block';
                 
-                // Add favorites to quick access
                 favorites.forEach(id => {
                     const card = document.querySelector(`.assistant-card[data-id="${id}"]`);
                     if (card) {
                         const name = card.querySelector('h3').textContent;
                         const department = card.getAttribute('data-department');
-                        const iconClass = card.querySelector('.assistant-icon i').classList[1];
                         
                         const quickItem = document.createElement('div');
                         quickItem.className = 'quick-item';
@@ -878,7 +810,7 @@ function toggleFavorite(event, chatbotId) {
                         
                         quickItem.innerHTML = `
                             <div class="assistant-icon">
-                                <i class="bi ${iconClass}"></i>
+                                <i class="bi bi-robot"></i>
                             </div>
                             <div class="quick-info">
                                 <div class="quick-name">${name}</div>
@@ -891,6 +823,119 @@ function toggleFavorite(event, chatbotId) {
                 });
             }
         });
+        
+        // Toggle favorite status
+        function toggleFavorite(event, chatbotId) {
+            // Prevent event bubbling
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const button = event.currentTarget;
+            const icon = button.querySelector('i');
+            
+            // Toggle active class
+            button.classList.toggle('active');
+            button.classList.add('clicked');
+            
+            // After animation completes, remove clicked class
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 300);
+            
+            // Toggle icon
+            if (button.classList.contains('active')) {
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+            } else {
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
+            }
+            
+            // Update favorites in localStorage
+            let favorites = [];
+            try {
+                favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+            } catch (error) {
+                console.error('Error parsing favorites:', error);
+                favorites = [];
+            }
+            
+            // Convert chatbotId to number to ensure consistent type comparison
+            const chatbotIdNumber = parseInt(chatbotId, 10);
+            
+            if (button.classList.contains('active')) {
+                // Add to favorites if not already there
+                if (!favorites.includes(chatbotIdNumber)) {
+                    favorites.push(chatbotIdNumber);
+                }
+            } else {
+                // Remove from favorites
+                const index = favorites.indexOf(chatbotIdNumber);
+                if (index > -1) {
+                    favorites.splice(index, 1);
+                }
+            }
+            
+            // Save updated favorites
+            localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
+            
+            // Update quick access section
+            updateQuickAccess();
+            
+            return false;
+        }
+        
+        // Update all UI elements based on favorites
+        function updateQuickAccess() {
+            const quickAccessSection = document.getElementById('quickAccessSection');
+            const quickAccessItems = document.getElementById('quickAccessItems');
+            
+            // Load favorites
+            let favorites = [];
+            try {
+                favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+            } catch (error) {
+                console.error('Error parsing favorites:', error);
+                favorites = [];
+            }
+            
+            // Clear current items
+            quickAccessItems.innerHTML = '';
+            
+            // Hide section if no favorites
+            if (favorites.length === 0) {
+                quickAccessSection.style.display = 'none';
+                return;
+            }
+            
+            // Show section
+            quickAccessSection.style.display = 'block';
+            
+            // Add favorite items
+            favorites.forEach(id => {
+                const card = document.querySelector(`.assistant-card[data-id="${id}"]`);
+                if (card) {
+                    const name = card.querySelector('h3').textContent;
+                    const department = card.getAttribute('data-department');
+                    
+                    const quickItem = document.createElement('div');
+                    quickItem.className = 'quick-item';
+                    quickItem.onclick = function() { startChat(id); };
+                    
+                    quickItem.innerHTML = `
+                        <div class="assistant-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="quick-info">
+                            <div class="quick-name">${name}</div>
+                            <div class="quick-department">${department}</div>
+                        </div>
+                    `;
+                    
+                    quickAccessItems.appendChild(quickItem);
+                }
+            });
+        }
         
         function startChat(chatbotId) {
             // Generate session ID
