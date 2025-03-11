@@ -67,45 +67,39 @@ namespace AIHelpdeskSupport.Controllers
             };
         }
 
-        public async Task<IActionResult> Chat(int id)
+public async Task<IActionResult> Chat(int id)
+{
+    // Try to get chatbot from service with Flowise ID
+    var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
+
+    // If not found, create sample data
+    if (chatbot == null)
+    {
+        chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id);
+        if (chatbot == null)
         {
-            // Try to get chatbot from service
-            var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
-
-            // If not found, create sample data
-            if (chatbot == null)
-            {
-                chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id);
-                if (chatbot == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            // Create view model with sample chat messages
-            var viewModel = new UserChatViewModel
-            {
-                Chatbot = chatbot,
-                SessionId = Guid.NewGuid().ToString(),
-                Messages = new List<ViewModelMessage>
-                {
-                    new ViewModelMessage
-                    {
-                        IsUser = false,
-                        Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I assist you today?",
-                        Timestamp = DateTime.Now.AddMinutes(-5)
-                    },
-                    new ViewModelMessage
-                    {
-                        IsUser = false,
-                        Content = $"I can help with common questions about our products, technical issues, account questions, and more. Just type your question below to get started!",
-                        Timestamp = DateTime.Now.AddMinutes(-5)
-                    }
-                }
-            };
-
-            return View(viewModel);
+            return NotFound();
         }
+    }
+
+    // Create view model with sample chat messages
+    var viewModel = new UserChatViewModel
+    {
+        Chatbot = chatbot,
+        SessionId = Guid.NewGuid().ToString(),
+        Messages = new List<ViewModelMessage>
+        {
+            new ViewModelMessage
+            {
+                IsUser = false,
+                Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I help you today?",
+                Timestamp = DateTime.Now.AddMinutes(-5)
+            }
+        }
+    };
+
+    return View(viewModel);
+}
 
         public IActionResult History()
         {

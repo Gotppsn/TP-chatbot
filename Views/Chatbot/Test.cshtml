@@ -410,50 +410,72 @@ const welcomeMessages = {
                 });
         }
 
-        async function callFlowiseAPI(message) {
-            try {
-                const flowiseId = '@Model.FlowiseId';
-                
-                if (!flowiseId) {
-                    return "This chatbot doesn't have a Flowise ID configured. Please set it up in the Edit page.";
-                }
-
-                const response = await fetch(FLOWISE_API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${FLOWISE_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        question: message,
-                        sessionId: sessionId,
-                        overrideConfig: {
-                            language: currentLanguage,
-                            botName: chatbotNames[currentLanguage]
-                        }
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`API error: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                
-                if (typeof data === 'object' && data !== null) {
-                    if (data.text !== undefined) {
-                        return data.text;
-                    }
-                    return JSON.stringify(data);
-                }
-                
-                return data || "No response received";
-            } catch (error) {
-                console.error('API call failed:', error);
-                throw error;
-            }
+async function callFlowiseAPI(message, flowiseId) {
+    try {
+        if (!flowiseId) {
+            return "This chatbot doesn't have a Flowise ID configured. Please set it up in the Edit page.";
         }
+
+        // Get API URL and key from settings
+        const settings = await fetchSettings();
+        const FLOWISE_API_URL = settings.flowiseApiUrl + "prediction/" + flowiseId;
+        const FLOWISE_API_KEY = settings.flowiseApiKey;
+        
+        const response = await fetch(FLOWISE_API_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${FLOWISE_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                question: message,
+                sessionId: sessionId,
+                overrideConfig: {
+                    chatId: flowiseId
+                }
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API error: ${response.status} - ${errorText}`);
+        }
+
+        const data = await response.json();
+        
+        if (typeof data === 'object' && data !== null) {
+            if (data.text !== undefined) {
+                return data.text;
+            }
+            return JSON.stringify(data);
+        }
+        
+        return data || "No response received";
+    } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+    }
+}
+
+// Helper function to fetch settings
+async function fetchSettings() {
+    try {
+        const response = await fetch('/api/settings/flowise');
+        if (!response.ok) {
+            return {
+                flowiseApiUrl: 'http://localhost:3000/api/v1/',
+                flowiseApiKey: ''
+            };
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching settings:', error);
+        return {
+            flowiseApiUrl: 'http://localhost:3000/api/v1/',
+            flowiseApiKey: ''
+        };
+    }
+}
 
         function addUserMessage(text) {
             const chatMessages = document.getElementById('chatMessages');

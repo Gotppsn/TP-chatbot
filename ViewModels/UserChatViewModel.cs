@@ -8,6 +8,7 @@ namespace AIHelpdeskSupport.ViewModels
         public Chatbot Chatbot { get; set; } = new Chatbot();
         public string SessionId { get; set; } = string.Empty;
         public List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
+        public string FlowiseId => Chatbot?.FlowiseId ?? string.Empty;
     }
 
     public class ChatMessage

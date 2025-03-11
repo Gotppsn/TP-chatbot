@@ -314,52 +314,41 @@
         saveMessage(welcomeMessage, false, time);
     }
     
-    function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message) return;
-        
-        // Get current time
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        lastMessageTime = now;
-        
-        // Add user message to chat
-        appendMessage(message, 'user', timeString);
-        
-        // Save message to history
-        saveMessage(message, true, timeString);
-        
-        // Clear input and reset height
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        sendButton.disabled = true;
-        
-        // Scroll to bottom
-        scrollToBottom();
-        
-        // Show typing indicator
-        showTypingIndicator();
-        
-        // API call to get bot response
-        const startTime = performance.now();
-        
-        fetch('/api/chat/' + chatbotId, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                message: message,
-                sessionId: sessionId
-            })
-        })
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Get current time
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    lastMessageTime = now;
+    
+    // Add user message to chat
+    appendMessage(message, 'user', timeString);
+    
+    // Save message to history
+    saveMessage(message, true, timeString);
+    
+    // Clear input and reset height
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    sendButton.disabled = true;
+    
+    // Scroll to bottom
+    scrollToBottom();
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Get Flowise configuration
+    const flowiseId = '@Model.Chatbot.FlowiseId'; // Get FlowiseId from model
+    
+    // Start timing for response
+    const startTime = performance.now();
+    
+    // Call Flowise API
+    callFlowiseAPI(message, flowiseId)
         .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
             // Calculate response time
             const endTime = performance.now();
             const responseTime = ((endTime - startTime) / 1000).toFixed(2);
@@ -369,11 +358,10 @@
             removeTypingIndicator();
             
             // Add bot response
-            const botResponse = data.response || "I'm sorry, I couldn't process that request.";
             const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
-            appendMessage(botResponse, 'bot', botTime);
-            saveMessage(botResponse, false, botTime);
+            appendMessage(response, 'bot', botTime);
+            saveMessage(response, false, botTime);
             
             // Update UI
             messageCount += 2; // User message + bot response
@@ -406,7 +394,7 @@
             // Scroll to bottom
             scrollToBottom();
         });
-    }
+}
     
     function appendMessage(text, sender, time) {
         const messageEl = document.createElement('div');
