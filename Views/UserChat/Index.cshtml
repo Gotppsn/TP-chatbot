@@ -937,18 +937,21 @@
             });
         }
         
-function startChat(chatbotId) {
-    // Generate session ID
-    const sessionId = `session-${randomPart1}-${randomPart2}`;
-    
-    // Store chat info in localStorage
-    localStorage.setItem(sessionId, JSON.stringify({
-        chatbotId: chatbotId,
-        createdAt: new Date().toISOString()
-    }));
-    
-    // Navigate to chat page
-    window.location.href = `/UserChat/Chat/${sessionId}`;
-}
+        // Start a chat with the selected chatbot
+        function startChat(chatbotId) {
+            // Generate unique session ID using timestamp and random string
+            const timestamp = Date.now();
+            const randomString = Math.random().toString(36).substring(2, 10);
+            const sessionId = `session-${timestamp}-${randomString}`;
+            
+            // Store chat info in localStorage
+            localStorage.setItem(sessionId, JSON.stringify({
+                chatbotId: chatbotId,
+                createdAt: new Date().toISOString()
+            }));
+            
+            // Navigate to chat page
+            window.location.href = `/UserChat/Chat/${sessionId}`;
+        }
     </script>
 }
