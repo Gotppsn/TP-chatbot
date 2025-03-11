@@ -46,6 +46,16 @@
         </div>
     </div>
 
+    <!-- Recent conversations section (new) -->
+    <div class="recent-conversations" id="recentConversationsSection" style="display: none;">
+        <div class="section-header">
+            <h2><i class="bi bi-clock-history"></i> Recent Conversations <span class="badge recent-badge">New</span></h2>
+        </div>
+        <div class="recent-items" id="recentItems">
+            <!-- Will be populated dynamically by JavaScript -->
+        </div>
+    </div>
+
     <!-- Department sections -->
     <div id="departmentsList">
         @foreach (var dept in departments)
@@ -71,32 +81,33 @@
                     @foreach (var chatbot in dept)
                     {
                         <div class="assistant-card" 
-         data-id="@chatbot.Id"
-         data-name="@chatbot.Name"
-         data-flowise-id="@chatbot.FlowiseId"
-         data-department="@chatbot.Department">
+                             data-id="@chatbot.Id"
+                             data-name="@chatbot.Name"
+                             data-flowise-id="@chatbot.FlowiseId"
+                             data-department="@chatbot.Department">
                             <div class="assistant-header">
                                 <div class="assistant-icon">
                                     <i class="bi bi-robot"></i>
                                 </div>
                                 <h3>@chatbot.Name</h3>
+                                <!-- Indicator for recent conversations will be added here dynamically -->
                             </div>
                             <div class="assistant-description">
-    <p>@(string.IsNullOrEmpty(chatbot.Description) 
-        ? "Helps with " + chatbot.Department + " related questions and tasks."
-        : chatbot.Description)</p>
-</div>
-<div class="assistant-capabilities">
-    @if (!string.IsNullOrEmpty(chatbot.FlowiseId))
-    {
-        <span class="capability-tag">
-            <i class="bi bi-cpu"></i> AI Powered
-        </span>
-    }
-    <span class="capability-tag">
-        <i class="bi bi-translate"></i> Multilingual
-    </span>
-</div>
+                                <p>@(string.IsNullOrEmpty(chatbot.Description) 
+                                    ? "Helps with " + chatbot.Department + " related questions and tasks."
+                                    : chatbot.Description)</p>
+                            </div>
+                            <div class="assistant-capabilities">
+                                @if (!string.IsNullOrEmpty(chatbot.FlowiseId))
+                                {
+                                    <span class="capability-tag">
+                                        <i class="bi bi-cpu"></i> AI Powered
+                                    </span>
+                                }
+                                <span class="capability-tag">
+                                    <i class="bi bi-translate"></i> Multilingual
+                                </span>
+                            </div>
                             <div class="assistant-meta">
                                 <span class="department-tag">@chatbot.Department</span>
                             </div>
@@ -143,33 +154,6 @@
 
 @section Styles {
     <style>
-        /* Add to your CSS styles */
-.assistant-capabilities {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.capability-tag {
-    display: inline-flex;
-    align-items: center;
-    padding: 4px 8px;
-    border-radius: 30px;
-    font-size: 11px;
-    background-color: rgba(13, 110, 253, 0.1);
-    color: var(--color-primary);
-    gap: 4px;
-}
-
-.capability-tag i {
-    font-size: 10px;
-}
-
-/* Special styling for cards with Flowise integration */
-.assistant-card[data-flowise-id]:not([data-flowise-id=""]) {
-    border-left: 3px solid var(--color-primary);
-}
         /* Main container */
         .assistants-container {
             display: flex;
@@ -319,15 +303,19 @@
             font-weight: 500;
         }
         
+        .badge.recent-badge {
+            background-color: #dc3545;
+        }
+        
         /* Quick access section */
-        .quick-access {
+        .quick-access, .recent-conversations {
             background: white;
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         
-        .quick-items {
+        .quick-items, .recent-items {
             display: flex;
             gap: 12px;
             overflow-x: auto;
@@ -335,21 +323,21 @@
             scrollbar-width: thin;
         }
         
-        .quick-items::-webkit-scrollbar {
+        .quick-items::-webkit-scrollbar, .recent-items::-webkit-scrollbar {
             height: 6px;
         }
         
-        .quick-items::-webkit-scrollbar-track {
+        .quick-items::-webkit-scrollbar-track, .recent-items::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 3px;
         }
         
-        .quick-items::-webkit-scrollbar-thumb {
+        .quick-items::-webkit-scrollbar-thumb, .recent-items::-webkit-scrollbar-thumb {
             background: #d1d1d1;
             border-radius: 3px;
         }
         
-        .quick-item {
+        .quick-item, .recent-item {
             min-width: 200px;
             padding: 12px;
             border: 1px solid #e0e0e0;
@@ -361,17 +349,18 @@
             transition: all 0.2s;
         }
         
-        .quick-item:hover {
+        .quick-item:hover, .recent-item:hover {
             border-color: #0d6efd;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
         }
         
-        .quick-item .quick-info {
+        .quick-item .quick-info, .recent-item .recent-info {
             flex: 1;
             min-width: 0;
         }
         
-        .quick-item .quick-name {
+        .quick-item .quick-name, .recent-item .recent-name {
             font-weight: 500;
             font-size: 14px;
             white-space: nowrap;
@@ -379,9 +368,15 @@
             text-overflow: ellipsis;
         }
         
-        .quick-item .quick-department {
+        .quick-item .quick-department, .recent-item .recent-department {
             font-size: 12px;
             color: #6c757d;
+        }
+        
+        .recent-item .recent-time {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 4px;
         }
         
         /* Department sections */
@@ -430,6 +425,7 @@
             height: 100%;
             transition: all 0.2s;
             background: white;
+            position: relative;
         }
         
         .assistant-card:hover {
@@ -443,6 +439,7 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 12px;
+            position: relative;
         }
         
         .assistant-icon {
@@ -479,6 +476,30 @@
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
+        }
+        
+        /* Capabilities */
+        .assistant-capabilities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .capability-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 30px;
+            font-size: 11px;
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--color-primary);
+            gap: 4px;
+        }
+        
+        .capability-tag i {
+            font-size: 10px;
         }
         
         .assistant-meta {
@@ -571,6 +592,23 @@
             animation: favorite-pulse 0.3s ease;
         }
         
+        /* Recent indicator */
+        .recent-indicator {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #dc3545;
+            box-shadow: 0 0 0 2px white;
+        }
+        
+        /* Special styling for cards with Flowise integration */
+        .assistant-card[data-flowise-id]:not([data-flowise-id=""]) {
+            border-left: 3px solid #0d6efd;
+        }
+        
         /* Empty state */
         .empty-state {
             background: white;
@@ -618,36 +656,59 @@
             gap: 8px;
         }
         
+        /* Error toast */
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1050;
+            max-width: 350px;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .error-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
         /* Responsive adjustments */
-        @@media (max-width: 768px) {
-            .assistant-grid {
-                grid-template-columns: 1fr;
-            }
-            
+        @@media (max-width: 576px) {
             .search-filters {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 12px;
             }
             
             .search-box {
                 width: 100%;
-                max-width: none;
             }
             
             .filter-controls {
                 width: 100%;
-                flex-wrap: wrap;
                 justify-content: space-between;
             }
             
-            .filter-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 4px;
+            .assistant-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-items, .recent-items {
+                overflow-x: auto;
+                padding-bottom: 12px;
+            }
+            
+            .quick-item, .recent-item {
+                min-width: 180px;
             }
         }
         
-        @@media (min-width: 768px) and (max-width: 992px) {
+        @@media (min-width: 577px) and (max-width: 992px) {
             .assistant-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -658,56 +719,6 @@
                 grid-template-columns: repeat(3, 1fr);
             }
         }
-        .recent-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--color-primary);
-    box-shadow: 0 0 0 2px white;
-}
-
-.assistant-header {
-    position: relative;
-}
-/* Enhanced responsive styling */
-@@media (max-width: 576px) {
-    .search-filters {
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .search-box {
-        width: 100%;
-    }
-    
-    .filter-controls {
-        width: 100%;
-        justify-content: space-between;
-    }
-    
-    .assistant-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .quick-items {
-        overflow-x: auto;
-        padding-bottom: 12px;
-    }
-    
-    .quick-item {
-        min-width: 180px;
-    }
-}
-
-/* Tablet optimization */
-@@media (min-width: 577px) and (max-width: 992px) {
-    .assistant-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
     </style>
 }
 
@@ -721,13 +732,17 @@
             const clearAllFiltersBtn = document.getElementById('clearAllFilters');
             const quickAccessSection = document.getElementById('quickAccessSection');
             const quickAccessItems = document.getElementById('quickAccessItems');
+            const recentConversationsSection = document.getElementById('recentConversationsSection');
+            const recentItems = document.getElementById('recentItems');
             const noResults = document.getElementById('noResults');
             
             // Initialize
             setupEventListeners();
             restoreCollapsedState();
             loadFavorites();
+            loadRecentConversations();
             updateQuickAccess();
+            markRecentConversations();
             applyFilters();
 
             function setupEventListeners() {
@@ -870,6 +885,81 @@
 
                 return favorites;
             }
+            
+            // Load recent conversations from localStorage
+            function loadRecentConversations() {
+                try {
+                    // Get recent conversations from localStorage
+                    const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
+                    
+                    // If no recent conversations, hide section
+                    if (!recentConversations || recentConversations.length === 0) {
+                        recentConversationsSection.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Show section
+                    recentConversationsSection.style.display = 'block';
+                    
+                    // Clear existing items
+                    recentItems.innerHTML = '';
+                    
+                    // Filter to keep only recent conversations (last 7 days)
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    
+                    const recentOnes = recentConversations.filter(conv => {
+                        const lastActive = new Date(conv.lastActive || conv.startTime);
+                        return lastActive > sevenDaysAgo;
+                    }).slice(0, 5); // Limit to 5 most recent
+                    
+                    // If no recent ones after filtering, hide section
+                    if (recentOnes.length === 0) {
+                        recentConversationsSection.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Add each recent conversation
+                    recentOnes.forEach(conv => {
+                        // Get chatbot name - either from conversation or find card
+                        let chatbotName = conv.chatbotName;
+                        if (!chatbotName) {
+                            const card = document.querySelector(`.assistant-card[data-id="${conv.chatbotId}"]`);
+                            if (card) {
+                                chatbotName = card.querySelector('h3').textContent;
+                            } else {
+                                chatbotName = "Assistant";
+                            }
+                        }
+                        
+                        // Create recent item
+                        const recentItem = document.createElement('div');
+                        recentItem.className = 'recent-item';
+                        recentItem.dataset.sessionId = conv.id;
+                        recentItem.onclick = () => continueChat(conv.id);
+                        
+                        // Get relative time
+                        const lastActive = new Date(conv.lastActive || conv.startTime);
+                        const timeAgo = getRelativeTimeString(lastActive);
+                        
+                        recentItem.innerHTML = `
+                            <div class="assistant-icon">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="recent-info">
+                                <div class="recent-name">${chatbotName}</div>
+                                <div class="recent-department">${conv.department || 'Support'}</div>
+                                <div class="recent-time">${timeAgo}</div>
+                            </div>
+                        `;
+                        
+                        recentItems.appendChild(recentItem);
+                    });
+                } catch (error) {
+                    console.error('Error loading recent conversations:', error);
+                    recentConversationsSection.style.display = 'none';
+                }
+            }
 
             // Update quick access section based on favorites
             function updateQuickAccess() {
@@ -914,87 +1004,70 @@
         });
         
         // Toggle favorite status
- function toggleFavorite(event, chatbotId) {
-    // Prevent event bubbling
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const button = event.currentTarget;
-    const icon = button.querySelector('i');
-    
-    // Toggle active class
-    button.classList.toggle('active');
-    button.classList.add('clicked');
-    
-    // After animation completes, remove clicked class
-    setTimeout(() => {
-        button.classList.remove('clicked');
-    }, 300);
-    
-    // Toggle icon
-    if (button.classList.contains('active')) {
-        icon.classList.remove('bi-star');
-        icon.classList.add('bi-star-fill');
-    } else {
-        icon.classList.remove('bi-star-fill');
-        icon.classList.add('bi-star');
-    }
-    
-    try {
-        // Update favorites in localStorage
-        let favorites = [];
-        try {
-            favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-        } catch (error) {
-            console.error('Error parsing favorites:', error);
-            favorites = [];
-        }
-        
-        // Convert chatbotId to number to ensure consistent type comparison
-        const chatbotIdNumber = parseInt(chatbotId, 10);
-        
-        if (button.classList.contains('active')) {
-            // Add to favorites if not already there
-            if (!favorites.includes(chatbotIdNumber)) {
-                favorites.push(chatbotIdNumber);
+        function toggleFavorite(event, chatbotId) {
+            // Prevent event bubbling
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const button = event.currentTarget;
+            const icon = button.querySelector('i');
+            
+            // Toggle active class
+            button.classList.toggle('active');
+            button.classList.add('clicked');
+            
+            // After animation completes, remove clicked class
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 300);
+            
+            // Toggle icon
+            if (button.classList.contains('active')) {
+                icon.classList.remove('bi-star');
+                icon.classList.add('bi-star-fill');
+            } else {
+                icon.classList.remove('bi-star-fill');
+                icon.classList.add('bi-star');
             }
-        } else {
-            // Remove from favorites
-            const index = favorites.indexOf(chatbotIdNumber);
-            if (index > -1) {
-                favorites.splice(index, 1);
+            
+            try {
+                // Update favorites in localStorage
+                let favorites = [];
+                try {
+                    favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
+                } catch (error) {
+                    console.error('Error parsing favorites:', error);
+                    favorites = [];
+                }
+                
+                // Convert chatbotId to number to ensure consistent type comparison
+                const chatbotIdNumber = parseInt(chatbotId, 10);
+                
+                if (button.classList.contains('active')) {
+                    // Add to favorites if not already there
+                    if (!favorites.includes(chatbotIdNumber)) {
+                        favorites.push(chatbotIdNumber);
+                    }
+                } else {
+                    // Remove from favorites
+                    const index = favorites.indexOf(chatbotIdNumber);
+                    if (index > -1) {
+                        favorites.splice(index, 1);
+                    }
+                }
+                
+                // Save updated favorites
+                localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
+                
+                // Update quick access section
+                updateQuickAccess();
+            } catch (error) {
+                console.error('Error updating favorites:', error);
+                showErrorToast('Could not update favorites. Please try again.');
             }
+            
+            return false;
         }
-        
-        // Save updated favorites
-        localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
-        
-        // Update quick access section
-        updateQuickAccess();
-    } catch (error) {
-        console.error('Error updating favorites:', error);
-        showErrorToast('Could not update favorites. Please try again.');
-    }
-    
-    return false;
-}
-
-// Add a simple error toast function
-function showErrorToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'error-toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
-    
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
-}
         
         // Update all UI elements based on favorites
         function updateQuickAccess() {
@@ -1048,65 +1121,159 @@ function showErrorToast(message) {
             });
         }
         
-        // Start a chat with the selected chatbot
-function startChat(chatbotId) {
-    // Generate unique session ID using timestamp and random string
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 10);
-    const sessionId = `session-${timestamp}-${randomString}`;
-    
-    // Find the assistant card to get Flowise ID
-    const assistantCard = document.querySelector(`.assistant-card[data-id="${chatbotId}"]`);
-    const flowiseId = assistantCard ? assistantCard.getAttribute('data-flowise-id') : '';
-    
-    // Store chat info in localStorage
-    localStorage.setItem(sessionId, JSON.stringify({
-        chatbotId: chatbotId,
-        flowiseId: flowiseId, // Store Flowise ID
-        createdAt: new Date().toISOString()
-    }));
-    
-    // Navigate to chat page
-    window.location.href = `/UserChat/Chat/${sessionId}`;
-}
-function markRecentConversations() {
-    try {
-        // Get recent conversations from localStorage
-        const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
+        // Start a new chat with the selected chatbot
+        function startChat(chatbotId) {
+            // Generate unique session ID using timestamp and random string
+            const timestamp = Date.now();
+            const randomString = Math.random().toString(36).substring(2, 10);
+            const sessionId = `session-${timestamp}-${randomString}`;
+            
+            // Find the assistant card to get Flowise ID, name and department
+            const assistantCard = document.querySelector(`.assistant-card[data-id="${chatbotId}"]`);
+            let flowiseId = '';
+            let chatbotName = '';
+            let department = '';
+            
+            if (assistantCard) {
+                flowiseId = assistantCard.getAttribute('data-flowise-id') || '';
+                chatbotName = assistantCard.querySelector('h3').textContent;
+                department = assistantCard.getAttribute('data-department');
+            }
+            
+            // Store chat info in localStorage using sessionId as the key
+            localStorage.setItem(sessionId, JSON.stringify({
+                chatbotId: chatbotId,
+                flowiseId: flowiseId,
+                createdAt: new Date().toISOString()
+            }));
+            
+            // Store session info for history tracking
+            const sessionInfo = {
+                id: sessionId,
+                chatbotId: chatbotId,
+                flowiseId: flowiseId,
+                chatbotName: chatbotName,
+                department: department,
+                startTime: new Date().toISOString(),
+                lastActive: new Date().toISOString()
+            };
+            
+            localStorage.setItem(`chat_session_${sessionId}`, JSON.stringify(sessionInfo));
+            
+            // Update recent conversations
+            updateRecentConversations(sessionInfo);
+            
+            // Navigate to chat page
+            window.location.href = `/UserChat/Chat/${sessionId}`;
+        }
         
-        // Get all assistant cards
-        const cards = document.querySelectorAll('.assistant-card');
+        // Continue an existing chat session
+        function continueChat(sessionId) {
+            window.location.href = `/UserChat/Chat/${sessionId}`;
+        }
         
-        // Clear existing badges
-        document.querySelectorAll('.recent-badge').forEach(badge => badge.remove());
+        // Update recent conversations list
+        function updateRecentConversations(sessionInfo) {
+            try {
+                // Get existing conversations
+                let recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
+                
+                // Add current session to the beginning if not already there
+                const existingIndex = recentConversations.findIndex(c => c.id === sessionInfo.id);
+                if (existingIndex > -1) {
+                    // Update existing entry
+                    recentConversations[existingIndex] = {
+                        ...recentConversations[existingIndex],
+                        lastActive: new Date().toISOString()
+                    };
+                } else {
+                    // Add new entry
+                    recentConversations.unshift(sessionInfo);
+                }
+                
+                // Limit to 10 recent conversations
+                recentConversations = recentConversations.slice(0, 10);
+                
+                // Save updated list
+                localStorage.setItem('recent_conversations', JSON.stringify(recentConversations));
+            } catch (error) {
+                console.error('Error updating recent conversations:', error);
+            }
+        }
         
-        // Add badges to cards with recent conversations
-        recentConversations.forEach(conversation => {
-            if (conversation.chatbotId) {
-                const card = document.querySelector(`.assistant-card[data-id="${conversation.chatbotId}"]`);
-                if (card) {
-                    // Check if conversation is recent (last 24 hours)
-                    const lastActive = new Date(conversation.lastActive || conversation.startTime);
-                    const isRecent = (new Date() - lastActive) < 24 * 60 * 60 * 1000;
-                    
-                    if (isRecent) {
-                        const headerDiv = card.querySelector('.assistant-header');
-                        if (headerDiv) {
-                            const badge = document.createElement('div');
-                            badge.className = 'recent-badge';
-                            badge.title = 'Recent conversation';
-                            headerDiv.appendChild(badge);
+        // Format relative time string (e.g., "2h ago")
+        function getRelativeTimeString(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffSec = Math.round(diffMs / 1000);
+            const diffMin = Math.round(diffSec / 60);
+            const diffHour = Math.round(diffMin / 60);
+            const diffDay = Math.round(diffHour / 24);
+            
+            if (diffSec < 60) return 'Just now';
+            if (diffMin < 60) return `${diffMin}m ago`;
+            if (diffHour < 24) return `${diffHour}h ago`;
+            if (diffDay < 7) return `${diffDay}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+        
+        // Mark chatbots with recent conversations
+        function markRecentConversations() {
+            try {
+                // Get recent conversations from localStorage
+                const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
+                
+                // No need to continue if no recent conversations
+                if (recentConversations.length === 0) return;
+                
+                // Get all assistant cards
+                const cards = document.querySelectorAll('.assistant-card');
+                
+                // Clear existing indicators
+                document.querySelectorAll('.recent-indicator').forEach(indicator => indicator.remove());
+                
+                // Add indicators to cards with recent conversations
+                recentConversations.forEach(conversation => {
+                    if (conversation.chatbotId) {
+                        const card = document.querySelector(`.assistant-card[data-id="${conversation.chatbotId}"]`);
+                        if (card) {
+                            // Check if conversation is recent (last 24 hours)
+                            const lastActive = new Date(conversation.lastActive || conversation.startTime);
+                            const hoursAgo = (new Date() - lastActive) / (1000 * 60 * 60);
+                            
+                            if (hoursAgo < 24) {
+                                const headerDiv = card.querySelector('.assistant-header');
+                                if (headerDiv) {
+                                    const indicator = document.createElement('div');
+                                    indicator.className = 'recent-indicator';
+                                    indicator.title = 'Recent conversation';
+                                    headerDiv.appendChild(indicator);
+                                }
+                            }
                         }
                     }
-                }
+                });
+            } catch (error) {
+                console.error('Error marking recent conversations:', error);
             }
-        });
-    } catch (error) {
-        console.error('Error marking recent conversations:', error);
-    }
-}
-
-// Call this function during initialization
-markRecentConversations();
+        }
+        
+        // Show error toast message
+        function showErrorToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'error-toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
     </script>
 }
