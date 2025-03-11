@@ -193,193 +193,12 @@
     const chatInfo = document.getElementById('chatInfo');
     const sidebar = document.getElementById('chatSidebar');
 
-    // Improved Flowise API integration
-    async function callFlowiseAPI(message) {
-        try {
-            showLoadingIndicator();
-            
-            // Get the Flowise ID and verify it exists
-            const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
-            
-            if (!activeFlowiseId) {
-                console.warn("No Flowise ID available - falling back to regular API");
-                return await callRegularAPI(message);
-            }
-            
-            // Get API URL and key from settings
-            const settings = await fetchSettings();
-            const flowiseApiUrl = settings.flowiseApiUrl;
-            const flowiseApiKey = settings.flowiseApiKey;
-            
-            if (!flowiseApiUrl) {
-                console.warn("No Flowise API URL configured - falling back to regular API");
-                return await callRegularAPI(message);
-            }
-            
-            console.log("Connecting to Flowise using ID:", activeFlowiseId);
-            
-            // Construct the full API URL
-            const apiUrl = `${flowiseApiUrl}prediction/${activeFlowiseId}`;
-            
-            // Set up headers with authentication
-            const headers = {
-                'Content-Type': 'application/json'
-            };
-            
-            if (flowiseApiKey) {
-                headers['Authorization'] = `Bearer ${flowiseApiKey}`;
-                headers['x-api-key'] = flowiseApiKey;
-            }
-            
-            // Make the API request
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: headers,
-                body: JSON.stringify({
-                    question: message,
-                    sessionId: sessionId,
-                    overrideConfig: {
-                        chatId: activeFlowiseId
-                    }
-                })
-            });
-            
-            if (!response.ok) {
-                console.error(`Flowise API error: ${response.status}`);
-                // Fallback to regular API if Flowise fails
-                return await callRegularAPI(message);
-            }
-            
-            // Handle different response formats
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                const data = await response.json();
-                if (typeof data === 'object') {
-                    // Handle different response formats
-                    if (data.text) return data.text;
-                    if (data.response) return data.response;
-                    if (data.answer) return data.answer;
-                    return JSON.stringify(data);
-                }
-                return data;
-            } else {
-                return await response.text();
-            }
-        } catch (error) {
-            console.error('Flowise API call failed:', error);
-            // Fallback to regular API if Flowise throws an error
-            return await callRegularAPI(message);
-        } finally {
-            hideLoadingIndicator();
-        }
-    }
-
-    // Helper function to fetch settings
-    async function fetchSettings() {
-        try {
-            const response = await fetch('/api/settings/flowise');
-            if (!response.ok) {
-                return {
-                    flowiseApiUrl: '',
-                    flowiseApiKey: ''
-                };
-            }
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching settings:', error);
-            return {
-                flowiseApiUrl: '',
-                flowiseApiKey: ''
-            };
-        }
-    }
-    
-    // Fallback to regular API
-    async function callRegularAPI(message) {
-        try {
-            // Use the chatbotId from model
-            const activeChatbotId = chatbotId || 0;
-            
-            console.log("Falling back to regular API with chatbot ID:", activeChatbotId);
-            
-            // Get CSRF token safely
-            const token = document.querySelector('input[name="__RequestVerificationToken"]');
-            const csrfToken = token ? token.value : '';
-            
-            // API endpoint and settings
-            const response = await fetch(`/api/chat/${activeChatbotId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': csrfToken
-                },
-                body: JSON.stringify({
-                    message: message,
-                    sessionId: sessionId || ''
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server responded with status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.response || "Sorry, I received an empty response.";
-        } catch (error) {
-            console.error('API call failed:', error);
-            return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
-        }
-    }
-    
-    // Loading indicator functions
-    function showLoadingIndicator() {
-        const loadingEl = document.createElement('div');
-        loadingEl.className = 'chat-loading';
-        loadingEl.id = 'chatLoading';
-        loadingEl.innerHTML = `
-            <div class="loading-spinner"></div>
-            <span>Connecting to AI...</span>
-        `;
-        document.body.appendChild(loadingEl);
-    }
-
-    function hideLoadingIndicator() {
-        const loadingEl = document.getElementById('chatLoading');
-        if (loadingEl) {
-            loadingEl.remove();
-        }
-    }
-
-    function retrieveChatbotFromSession() {
-        // Get session ID from URL or hidden input
-        const sessionIdFromUrl = window.location.pathname.split('/').pop();
-        if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
-            sessionId = sessionIdFromUrl;
-            
-            // Get chatbot info from localStorage
-            const chatDataJson = localStorage.getItem(sessionId);
-            if (chatDataJson) {
-                try {
-                    const chatData = JSON.parse(chatDataJson);
-                    if (chatData.chatbotId) {
-                        // Update the chatbotId to use in API calls
-                        chatbotId = chatData.chatbotId;
-                        console.log("Retrieved chatbot ID:", chatbotId);
-                        return true;
-                    }
-                } catch (error) {
-                    console.error("Error parsing chat data:", error);
-                }
-            }
-        }
-        return false;
-    }
-    
+    // Initialize when document is ready
     document.addEventListener('DOMContentLoaded', function() {
-        if (!retrieveChatbotFromSession()) {
-            console.warn("Could not retrieve chatbot ID from session - using default from model");
-            // Continue with default model values
-        }
+        console.log("Initial Flowise ID:", flowiseId);
+        
+        // Get chatbot info from session if available
+        retrieveChatbotFromSession();
         
         // Initialize chat
         initializeChat();
@@ -393,21 +212,54 @@
         // Start chat duration timer
         startChatDurationTimer();
         
-        // Scroll to bottom initially
-        scrollToBottom();
-        
-        // Check for existing messages in the model
+        // Add welcome message if no existing messages
         if (@Model.Messages.Count > 0) {
             messageCount = @Model.Messages.Count;
             updateMessageCount();
         } else {
-            // Add welcome message if no existing messages
             addWelcomeMessage();
         }
         
         // Focus input field
         messageInput.focus();
     });
+    
+ function retrieveChatbotFromSession() {
+    try {
+        // Get session ID from URL or hidden input
+        const sessionIdFromUrl = window.location.pathname.split('/').pop();
+        if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
+            sessionId = sessionIdFromUrl;
+            
+            // Get chatbot info from localStorage
+            const chatDataJson = localStorage.getItem(sessionId);
+            if (chatDataJson) {
+                try {
+                    const chatData = JSON.parse(chatDataJson);
+                    if (chatData.chatbotId) {
+                        // Update the chatbotId to use in API calls
+                        chatbotId = chatData.chatbotId;
+                        
+                        // Also check if there's a Flowise ID available
+                        if (chatData.flowiseId) {
+                            flowiseId = chatData.flowiseId;
+                            console.log("Retrieved Flowise ID:", flowiseId);
+                        }
+                        
+                        console.log("Retrieved chatbot ID:", chatbotId);
+                        return true;
+                    }
+                } catch (error) {
+                    console.error("Error parsing chat data:", error);
+                }
+            }
+        }
+        return false;
+    } catch (error) {
+        console.error("Error retrieving chatbot from session:", error);
+        return false;
+    }
+}
     
     function initializeChat() {
         // Initialize or continue session
@@ -489,6 +341,193 @@
             userScrolled = true;
             checkScrollPosition();
         });
+    }
+    
+    // Call Flowise API - direct implementation from Test.cshtml
+async function callFlowiseAPI(message) {
+    try {
+        // Show loading indicator
+        showLoadingIndicator();
+        
+        // Get the active Flowise ID - very important!
+        const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
+        
+        if (!activeFlowiseId) {
+            console.warn("No Flowise ID available - falling back to regular API");
+            return await callRegularAPI(message);
+        }
+        
+        // Get API URL and key from settings
+        const settings = await fetchSettings();
+        let flowiseApiUrl = settings.flowiseApiUrl;
+        const flowiseApiKey = settings.flowiseApiKey;
+        
+        if (!flowiseApiUrl) {
+            console.warn("No Flowise API URL configured - falling back to regular API");
+            return await callRegularAPI(message);
+        }
+        
+        // Normalize URL
+        if (!flowiseApiUrl.endsWith('/')) {
+            flowiseApiUrl += '/';
+        }
+        
+        // Ensure prediction endpoint is used
+        let apiUrl;
+        if (flowiseApiUrl.includes('/prediction/')) {
+            apiUrl = flowiseApiUrl + activeFlowiseId;
+        } else {
+            apiUrl = flowiseApiUrl + 'prediction/' + activeFlowiseId;
+        }
+        
+        console.log("Connecting to Flowise using URL:", apiUrl);
+        
+        // Configure headers
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+        
+        if (flowiseApiKey) {
+            headers['Authorization'] = `Bearer ${flowiseApiKey}`;
+            headers['x-api-key'] = flowiseApiKey;
+        }
+        
+        // Send request to Flowise
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({
+                question: message,
+                sessionId: sessionId,
+                overrideConfig: {
+                    chatId: activeFlowiseId
+                }
+            })
+        });
+        
+        // Check if we got HTML response instead of JSON
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('text/html')) {
+            console.error("Received HTML instead of JSON. API URL might be pointing to UI instead of API endpoint.");
+            return await callRegularAPI(message);
+        }
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API error: ${response.status} - ${errorText}`);
+            return await callRegularAPI(message);
+        }
+        
+        // Parse response - handle different formats and catch parse errors
+        try {
+            const data = await response.json();
+            
+            if (typeof data === 'object' && data !== null) {
+                if (data.text !== undefined) return data.text;
+                if (data.response !== undefined) return data.response;
+                if (data.answer !== undefined) return data.answer;
+                if (data.message !== undefined) return data.message;
+                return JSON.stringify(data);
+            }
+            
+            return data || "No response received";
+        } catch (parseError) {
+            console.error("Error parsing JSON response:", parseError);
+            // Try to get text response as fallback
+            const textResponse = await response.text();
+            if (textResponse && !textResponse.includes('<!DOCTYPE')) {
+                return textResponse;
+            }
+            return await callRegularAPI(message);
+        }
+    } catch (error) {
+        console.error('API call failed:', error);
+        // Fallback to regular API
+        return await callRegularAPI(message);
+    } finally {
+        // Hide loading indicator
+        hideLoadingIndicator();
+    }
+}
+    
+    // Fallback API call
+async function callRegularAPI(message) {
+    try {
+        console.log("Falling back to regular API with chatbot ID:", chatbotId);
+        
+        // Get CSRF token
+        const token = document.querySelector('input[name="__RequestVerificationToken"]');
+        const csrfToken = token ? token.value : '';
+        
+        // Send to the local API endpoint
+        const response = await fetch(`/api/chat/${chatbotId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': csrfToken
+            },
+            body: JSON.stringify({
+                message: message,
+                sessionId: sessionId,
+                chatbotId: chatbotId
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.response || "Sorry, I received an empty response.";
+    } catch (error) {
+        console.error('Regular API call failed:', error);
+        return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
+    }
+}
+    
+    // Helper function to fetch settings
+async function fetchSettings() {
+    try {
+        const response = await fetch('/api/settings/flowise');
+        if (!response.ok) {
+            console.warn("Could not fetch Flowise settings - using defaults");
+            return {
+                flowiseApiUrl: 'http://localhost:3000/api/',
+                flowiseApiKey: ''
+            };
+        }
+        
+        const settings = await response.json();
+        console.log("Fetched API settings:", settings.flowiseApiUrl);
+        return settings;
+    } catch (error) {
+        console.error('Error fetching settings:', error);
+        return {
+            flowiseApiUrl: 'http://localhost:3000/api/',
+            flowiseApiKey: ''
+        };
+    }
+}
+
+    
+    // Loading indicator functions
+    function showLoadingIndicator() {
+        const loadingEl = document.createElement('div');
+        loadingEl.className = 'chat-loading';
+        loadingEl.id = 'chatLoading';
+        loadingEl.innerHTML = `
+            <div class="loading-spinner"></div>
+            <span>Connecting to AI...</span>
+        `;
+        document.body.appendChild(loadingEl);
+    }
+
+    function hideLoadingIndicator() {
+        const loadingEl = document.getElementById('chatLoading');
+        if (loadingEl) {
+            loadingEl.remove();
+        }
     }
     
     function addWelcomeMessage() {
@@ -581,88 +620,6 @@
                 // Scroll to bottom
                 scrollToBottom();
             });
-    }
-
-    function addMessageFeedback(messageElement, responseId) {
-        const feedbackEl = document.createElement('div');
-        feedbackEl.className = 'message-feedback';
-        feedbackEl.innerHTML = `
-            <button class="feedback-btn" onclick="rateBotResponse('${responseId}', 'helpful')">
-                <i class="bi bi-hand-thumbs-up"></i>
-            </button>
-            <button class="feedback-btn" onclick="rateBotResponse('${responseId}', 'unhelpful')">
-                <i class="bi bi-hand-thumbs-down"></i>
-            </button>
-        `;
-        
-        messageElement.querySelector('.message-content').appendChild(feedbackEl);
-    }
-
-    function checkConnectionStatus() {
-        if (!navigator.onLine) {
-            setConnectionStatus(false, "You're offline. Please check your internet connection.");
-            return false;
-        }
-        
-        // Try a simple ping to the API
-        fetch('/api/chat/ping', { method: 'GET' })
-            .then(response => {
-                setConnectionStatus(response.ok, response.ok ? "Connected" : "Connection issues detected");
-                return response.ok;
-            })
-            .catch(() => {
-                setConnectionStatus(false, "Cannot reach server");
-                return false;
-            });
-    }
-
-    function setConnectionStatus(isConnected, message) {
-        const statusElement = document.getElementById('connectionStatus');
-        if (statusElement) {
-            statusElement.textContent = message;
-            statusElement.className = isConnected ? 'connected' : 'disconnected';
-        }
-        
-        isConnected = isConnected;
-        
-        // Add a reconnection button if disconnected
-        if (!isConnected && document.getElementById('reconnectBtn') === null) {
-            const reconnectBtn = document.createElement('button');
-            reconnectBtn.id = 'reconnectBtn';
-            reconnectBtn.className = 'reconnect-button';
-            reconnectBtn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Reconnect';
-            reconnectBtn.onclick = checkConnectionStatus;
-            
-            statusElement.parentNode.appendChild(reconnectBtn);
-        } else if (isConnected) {
-            const reconnectBtn = document.getElementById('reconnectBtn');
-            if (reconnectBtn) reconnectBtn.remove();
-        }
-    }
-
-    function rateBotResponse(responseId, rating) {
-        // Send rating to server
-        fetch('/api/chat/feedback', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                responseId,
-                rating,
-                sessionId
-            })
-        })
-        .then(response => {
-            if (response.ok) {
-                // Show thank you message
-                const feedbackElements = document.querySelectorAll(`.message-feedback[data-response-id="${responseId}"]`);
-                feedbackElements.forEach(el => {
-                    el.innerHTML = '<span class="feedback-thanks">Thanks for your feedback!</span>';
-                });
-            }
-        })
-        .catch(error => console.error('Error sending feedback:', error));
     }
     
     function appendMessage(text, sender, time) {
@@ -1969,6 +1926,35 @@
         font-weight: 500;
     }
     
+    /* Loading Indicator */
+    .chat-loading {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        padding: 12px 16px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        z-index: 1000;
+        font-size: 14px;
+    }
+
+    .loading-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--color-primary);
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @@keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
     /* Responsive Adjustments */
     @@media (max-width: 1200px) {
         .chat-container {
@@ -2084,35 +2070,6 @@
 
     .reconnect-button:hover {
         background-color: var(--color-gray-200);
-    }
-    
-    /* Loading Indicator */
-    .chat-loading {
-        position: fixed;
-        bottom: 24px;
-        right: 24px;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 8px;
-        padding: 12px 16px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        z-index: 1000;
-        font-size: 14px;
-    }
-
-    .loading-spinner {
-        width: 18px;
-        height: 18px;
-        border: 2px solid var(--color-primary);
-        border-radius: 50%;
-        border-top-color: transparent;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @@keyframes spin {
-        to { transform: rotate(360deg); }
     }
 </style>
 }
