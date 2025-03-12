@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ModelMessage = AIHelpdeskSupport.Models.ChatMessage;
 using ViewModelMessage = AIHelpdeskSupport.ViewModels.ChatMessage;
-using AIHelpdeskSupport.Data; // Add this line for ApplicationDbContext
+using AIHelpdeskSupport.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace AIHelpdeskSupport.Controllers
@@ -20,7 +20,7 @@ namespace AIHelpdeskSupport.Controllers
         private readonly IFlowiseService _flowiseService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UserChatController> _logger;
-        private readonly ApplicationDbContext _context; // Add database context
+        private readonly ApplicationDbContext _context; // Database context
 
         public UserChatController(
             IFlowiseService flowiseService, 
@@ -34,7 +34,8 @@ namespace AIHelpdeskSupport.Controllers
             _context = context;
         }
 
-        // Get all available chatbots for the user
+        // GET: /UserChat
+        // Shows all available chatbots for the user
         public async Task<IActionResult> Index()
         {
             var currentUser = await _userManager.GetUserAsync(User);
@@ -71,7 +72,8 @@ namespace AIHelpdeskSupport.Controllers
             return View(filteredChatbots);
         }
 
-        // Start a new chat session
+        // POST: /UserChat/StartChat
+        // Starts a new chat session with a selected chatbot
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartChat(int chatbotId)
@@ -95,7 +97,8 @@ namespace AIHelpdeskSupport.Controllers
                 ChatbotId = chatbotId,
                 UserId = currentUser.Id,
                 StartTime = DateTime.UtcNow,
-                Status = "Active"
+                Status = "Active",
+                LastUpdatedAt = DateTime.UtcNow
             };
 
             _context.ChatSessions.Add(session);
@@ -113,41 +116,86 @@ namespace AIHelpdeskSupport.Controllers
             _context.ChatMessages.Add(welcomeMessage);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(ChatSession), new { sessionId = session.Id });
+            return RedirectToAction(nameof(Chat), new { sessionId = session.Id });
         }
 
-        // API endpoint to send a message
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendMessage(string sessionId, string message)
+        // GET: /UserChat/Chat/{sessionId}
+        // Loads an existing chat session
+        public async Task<IActionResult> Chat(string sessionId)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
+                return Challenge();
+            }
+
+            // Get the chat session
+            var session = await _context.ChatSessions
+                .Include(s => s.Chatbot)
+                .Include(s => s.Messages.OrderBy(m => m.Timestamp))
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+            if (session == null)
+            {
+                return NotFound("Chat session not found");
+            }
+
+            // Create view model
+            var viewModel = new UserChatViewModel
+            {
+                Chatbot = session.Chatbot,
+                SessionId = session.Id,
+                Messages = session.Messages.Select(m => new ViewModels.ChatMessage
+                {
+                    IsUser = m.IsUser,
+                    Content = m.Content,
+                    Timestamp = m.Timestamp
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: /UserChat/SendMessageInSession
+        // For handling messages in existing chat sessions
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("UserChat/SendMessageInSession")]
+        public async Task<IActionResult> SendMessageInSession([FromBody] ChatMessageRequest request)
+        {
+            _logger.LogInformation("SendMessageInSession called: SessionId={SessionId}, Message={MessageLength}",
+                request.SessionId, request.Message?.Length ?? 0);
+            
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                _logger.LogWarning("Unauthorized attempt to send message - user not authenticated");
                 return Unauthorized(new { success = false, message = "User not authorized" });
             }
 
             // Get the chat session
             var session = await _context.ChatSessions
                 .Include(s => s.Chatbot)
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+                .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
 
             if (session == null)
             {
+                _logger.LogWarning("Chat session not found: {SessionId}", request.SessionId);
                 return NotFound(new { success = false, message = "Chat session not found" });
             }
 
-            if (string.IsNullOrEmpty(message))
+            if (string.IsNullOrEmpty(request.Message))
             {
+                _logger.LogWarning("Empty message received");
                 return BadRequest(new { success = false, message = "Message cannot be empty" });
             }
 
             // Add user message to database
             var userMessage = new ModelMessage
             {
-                SessionId = sessionId,
+                SessionId = request.SessionId,
                 IsUser = true,
-                Content = message,
+                Content = request.Message,
                 Timestamp = DateTime.UtcNow
             };
 
@@ -160,10 +208,11 @@ namespace AIHelpdeskSupport.Controllers
             // Call AI service to get response
             string response;
             try {
+                _logger.LogInformation("Calling Flowise service for chatbot {ChatbotId}", session.ChatbotId);
                 response = await _flowiseService.GenerateChatResponseAsync(
                     session.ChatbotId,
-                    message,
-                    sessionId);
+                    request.Message,
+                    request.SessionId);
             }
             catch (Exception ex) {
                 _logger.LogError(ex, "Error generating chat response");
@@ -173,7 +222,7 @@ namespace AIHelpdeskSupport.Controllers
             // Add bot response to database
             var botMessage = new ModelMessage
             {
-                SessionId = sessionId,
+                SessionId = request.SessionId,
                 IsUser = false,
                 Content = response,
                 Timestamp = DateTime.UtcNow
@@ -189,6 +238,7 @@ namespace AIHelpdeskSupport.Controllers
 
             // Calculate response time
             var responseTime = (DateTime.UtcNow - startTime).TotalSeconds;
+            _logger.LogInformation("Response generated in {ResponseTime}s", responseTime);
 
             return Ok(new
             {
@@ -199,16 +249,23 @@ namespace AIHelpdeskSupport.Controllers
             });
         }
 
-        // API endpoint to get chat history
+        // GET: /UserChat/GetChatHistory
+        // API endpoint to get chat history for the current user
         [HttpGet]
+        [Route("UserChat/GetChatHistory")]
         public async Task<IActionResult> GetChatHistory()
         {
+            _logger.LogInformation("GetChatHistory called");
+            
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
+                _logger.LogWarning("Unauthorized attempt to get chat history");
                 return Unauthorized(new { success = false, message = "User not authorized" });
             }
 
+            _logger.LogInformation("Getting chat history for user {UserId}", currentUser.Id);
+            
             var sessions = await _context.ChatSessions
                 .Include(s => s.Chatbot)
                 .Include(s => s.Messages.OrderByDescending(m => m.Timestamp).Take(1))
@@ -230,14 +287,20 @@ namespace AIHelpdeskSupport.Controllers
                 })
                 .ToListAsync();
 
+            _logger.LogInformation("Retrieved {Count} chat sessions", sessions.Count);
+            
             return Ok(sessions);
         }
 
-        // API endpoint to clear chat
+        // POST: /UserChat/ClearChat
+        // Clears chat history for a session
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearChat(string sessionId)
+        [Route("UserChat/ClearChat")]
+        public async Task<IActionResult> ClearChat([FromBody] SessionRequest request)
         {
+            _logger.LogInformation("ClearChat called: SessionId={SessionId}", request.SessionId);
+            
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
@@ -246,7 +309,7 @@ namespace AIHelpdeskSupport.Controllers
 
             // Get the chat session
             var session = await _context.ChatSessions
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+                .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
 
             if (session == null)
             {
@@ -255,7 +318,7 @@ namespace AIHelpdeskSupport.Controllers
 
             // Delete all messages for this session
             var messages = await _context.ChatMessages
-                .Where(m => m.SessionId == sessionId)
+                .Where(m => m.SessionId == request.SessionId)
                 .ToListAsync();
 
             _context.ChatMessages.RemoveRange(messages);
@@ -264,7 +327,7 @@ namespace AIHelpdeskSupport.Controllers
             var chatbot = await _flowiseService.GetChatbotByIdAsync(session.ChatbotId);
             var welcomeMessage = new AIHelpdeskSupport.Models.ChatMessage
             {
-                SessionId = sessionId,
+                SessionId = request.SessionId,
                 IsUser = false,
                 Content = $"Hello! I'm the {chatbot.Name} assistant. How can I help you today?",
                 Timestamp = DateTime.UtcNow
@@ -273,14 +336,20 @@ namespace AIHelpdeskSupport.Controllers
             _context.ChatMessages.Add(welcomeMessage);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Chat cleared successfully: SessionId={SessionId}", request.SessionId);
+            
             return Ok(new { success = true, message = "Chat cleared successfully" });
         }
 
-        // API endpoint to end chat session
+        // POST: /UserChat/EndChat
+        // Ends a chat session
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EndChat(string sessionId)
+        [Route("UserChat/EndChat")]
+        public async Task<IActionResult> EndChat([FromBody] SessionRequest request)
         {
+            _logger.LogInformation("EndChat called: SessionId={SessionId}", request.SessionId);
+            
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
@@ -289,7 +358,7 @@ namespace AIHelpdeskSupport.Controllers
 
             // Get the chat session
             var session = await _context.ChatSessions
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+                .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
 
             if (session == null)
             {
@@ -303,25 +372,58 @@ namespace AIHelpdeskSupport.Controllers
             _context.ChatSessions.Update(session);
             await _context.SaveChangesAsync();
 
+            _logger.LogInformation("Chat ended successfully: SessionId={SessionId}", request.SessionId);
+            
             return Ok(new { success = true, message = "Chat ended successfully" });
         }
 
-        // API endpoint to submit feedback
-
-        // Sample chatbots method (unchanged)
-        private IEnumerable<Chatbot> GetSampleChatbots()
+        // POST: /UserChat/SubmitChatFeedback
+        // Submits feedback for a chat session
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("UserChat/SubmitChatFeedback")]
+        public async Task<IActionResult> SubmitChatFeedback([FromBody] FeedbackRequest request)
         {
-            return new List<Chatbot>
+            _logger.LogInformation("SubmitChatFeedback called: SessionId={SessionId}, Rating={Rating}", 
+                request.SessionId, request.Rating);
+            
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
             {
-                new Chatbot { Id = 1, Name = "Customer Support Bot", Department = "Customer Service", AiModel = "GPT-4", IsActive = true, Description = "Handles general product inquiries and helps customers troubleshoot common issues." },
-                new Chatbot { Id = 2, Name = "IT Helper", Department = "IT Support", AiModel = "Claude 3 Opus", IsActive = true, Description = "Provides technical assistance for internal staff, with expertise in network and software issues." },
-                new Chatbot { Id = 3, Name = "Sales Assistant", Department = "Sales", AiModel = "GPT-3.5 Turbo", IsActive = true, Description = "Assists potential customers with product information and helps qualify leads for the sales team." },
-                new Chatbot { Id = 4, Name = "Billing Support", Department = "Billing", AiModel = "Claude 3 Sonnet", IsActive = true, Description = "Helps customers with invoice questions, payment processing, and account information." },
-                new Chatbot { Id = 5, Name = "Technical Support", Department = "Technical", AiModel = "GPT-4", IsActive = true, Description = "Provides detailed technical support for complex product issues and integration assistance." },
-                new Chatbot { Id = 6, Name = "Operations Bot", Department = "Operations", AiModel = "GPT-3.5 Turbo", IsActive = false, Description = "Assists internal team with operational tasks and process management (currently undergoing updates)." }
-            };
+                return Unauthorized(new { success = false, message = "User not authorized" });
+            }
+
+            try
+            {
+                // Get the session
+                var session = await _context.ChatSessions
+                    .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+                
+                if (session == null)
+                {
+                    return NotFound(new { success = false, message = "Chat session not found" });
+                }
+                
+                // Update feedback
+                session.Rating = request.Rating;
+                session.Feedback = request.Feedback;
+                
+                _context.ChatSessions.Update(session);
+                await _context.SaveChangesAsync();
+                
+                _logger.LogInformation("Feedback submitted successfully: SessionId={SessionId}", request.SessionId);
+                
+                return Ok(new { success = true, message = "Feedback submitted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error submitting chat feedback");
+                return StatusCode(500, new { success = false, message = "An error occurred while processing your feedback" });
+            }
         }
 
+        // GET: /UserChat/History
+        // View chat history
         public IActionResult History()
         {
             // Sample data for frontend development
@@ -397,19 +499,26 @@ namespace AIHelpdeskSupport.Controllers
             return View(chatHistory);
         }
 
+        // GET: /UserChat/Support
+        // Support page
         public IActionResult Support()
         {
             return View();
         }
 
+        // GET: /UserChat/Profile
+        // User profile page
         public async Task<IActionResult> Profile()
         {
             var user = await _userManager.GetUserAsync(User);
             return View(user);
         }
 
+        // POST: /UserChat/SubmitSupportRequest
+        // Submits a support request
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Route("UserChat/SubmitSupportRequest")]
         public async Task<IActionResult> SubmitSupportRequest([FromBody] SupportRequest request)
         {
             try
@@ -443,6 +552,8 @@ namespace AIHelpdeskSupport.Controllers
             }
         }
 
+        // POST: /UserChat/UpdateProfile
+        // Updates user profile information
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfile(ApplicationUser model)
@@ -472,6 +583,8 @@ namespace AIHelpdeskSupport.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
+        // POST: /UserChat/UpdateContact
+        // Updates user contact information
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateContact(ApplicationUser model)
@@ -501,6 +614,8 @@ namespace AIHelpdeskSupport.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
+        // POST: /UserChat/ChangePassword
+        // Changes user password
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
@@ -534,207 +649,37 @@ namespace AIHelpdeskSupport.Controllers
             return RedirectToAction(nameof(Profile));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> SendMessage(int chatbotId, string message, string sessionId)
+        // Helper method to get sample chatbots
+        private IEnumerable<Chatbot> GetSampleChatbots()
         {
-            try
+            return new List<Chatbot>
             {
-                // Get current user
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null)
-                {
-                    return Unauthorized(new { success = false, message = "User not authorized" });
-                }
-
-                if (string.IsNullOrEmpty(message))
-                {
-                    return BadRequest(new { success = false, message = "Message cannot be empty" });
-                }
-
-                // Generate sessionId if not provided
-                if (string.IsNullOrEmpty(sessionId))
-                {
-                    sessionId = Guid.NewGuid().ToString();
-                }
-
-                // In a real implementation, send message to AI service and get response
-                // For demo, just return a simulated response
-                string response = GetSimulatedResponse(message, chatbotId);
-
-                return Ok(new
-                {
-                    success = true,
-                    response,
-                    sessionId,
-                    timestamp = DateTime.Now
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error processing chat message");
-                return StatusCode(500, new { success = false, message = "An error occurred while processing your message" });
-            }
-        }
-
-        private string GetSimulatedResponse(string message, int chatbotId)
-        {
-            // Get chatbot info for context-aware responses
-            var chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == chatbotId);
-            string department = chatbot?.Department ?? "Customer Service";
-
-            // Simple response generation based on message content
-            string lowercaseMessage = message.ToLower();
-
-            if (lowercaseMessage.Contains("hello") || lowercaseMessage.Contains("hi"))
-            {
-                return $"Hello! How can I assist you with {department} today?";
-            }
-            else if (lowercaseMessage.Contains("thank"))
-            {
-                return "You're welcome! Is there anything else I can help you with?";
-            }
-            else if (department == "IT Support")
-            {
-                if (lowercaseMessage.Contains("password") || lowercaseMessage.Contains("reset"))
-                {
-                    return "To reset your password, please go to the login page and click on 'Forgot Password'. You'll receive an email with instructions to create a new password.";
-                }
-                else if (lowercaseMessage.Contains("network") || lowercaseMessage.Contains("internet"))
-                {
-                    return "For network issues, I recommend these steps:\n1. Restart your router\n2. Check if other devices can connect\n3. Try connecting to a different network if possible\n\nIf the problem persists, let me know and I can run a more detailed diagnostic.";
-                }
-            }
-            else if (department == "Sales")
-            {
-                if (lowercaseMessage.Contains("pricing") || lowercaseMessage.Contains("plan") || lowercaseMessage.Contains("subscription"))
-                {
-                    return "We offer several subscription plans:\n- Basic: $19/month (1 user, basic features)\n- Professional: $49/month (up to 5 users, all features)\n- Enterprise: $99/month (unlimited users, priority support)\n\nWould you like more details about what each plan includes?";
-                }
-                else if (lowercaseMessage.Contains("discount") || lowercaseMessage.Contains("offer"))
-                {
-                    return "We're currently offering a 20% discount for annual subscriptions, and new customers can use the code 'WELCOME15' for 15% off their first three months.";
-                }
-            }
-            else if (department == "Billing")
-            {
-                if (lowercaseMessage.Contains("invoice") || lowercaseMessage.Contains("receipt"))
-                {
-                    return "You can find all your invoices in the Billing section of your account dashboard. From there, you can download PDF copies for your records.";
-                }
-                else if (lowercaseMessage.Contains("payment method") || lowercaseMessage.Contains("update card"))
-                {
-                    return "To update your payment method, please go to Account Settings > Billing > Payment Methods. You can add new payment methods and set your default option.";
-                }
-            }
-
-            // Default response if no specific match
-            return $"I understand your question about {message}. Let me help you with that. In {department}, we typically handle this by providing detailed information and step-by-step guidance. Could you provide a bit more context so I can give you the most relevant assistance?";
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SubmitChatFeedback(string sessionId, int rating, string feedback)
-        {
-            try
-            {
-                // Get current user
-                var currentUser = await _userManager.GetUserAsync(User);
-                if (currentUser == null)
-                {
-                    return Unauthorized(new { success = false, message = "User not authorized" });
-                }
-
-                // Log feedback
-                _logger.LogInformation(
-                    "Chat feedback submitted - User: {Username}, SessionId: {SessionId}, Rating: {Rating}",
-                    currentUser.UserName,
-                    sessionId,
-                    rating
-                );
-
-                // In a real app, you would save feedback to database
-                // Here's a simple placeholder for the implementation
-
-                return Ok(new { success = true });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error submitting chat feedback");
-                return StatusCode(500, new { success = false, message = "An error occurred while processing your feedback" });
-            }
-        }
-
-[HttpGet("UserChat/ChatSession/{sessionId}")]
-public async Task<IActionResult> ChatSession(string sessionId)
-{
-    // Move your existing Chat(string sessionId) code here
-    var currentUser = await _userManager.GetUserAsync(User);
-    if (currentUser == null)
-    {
-        return Challenge();
-    }
-
-    // Get the chat session
-    var session = await _context.ChatSessions
-        .Include(s => s.Chatbot)
-        .Include(s => s.Messages.OrderBy(m => m.Timestamp))
-        .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
-
-    if (session == null)
-    {
-        return NotFound("Chat session not found");
-    }
-
-    // Create view model
-    var viewModel = new UserChatViewModel
-    {
-        Chatbot = session.Chatbot,
-        SessionId = session.Id,
-        Messages = session.Messages.Select(m => new ViewModels.ChatMessage
-        {
-            IsUser = m.IsUser,
-            Content = m.Content,
-            Timestamp = m.Timestamp
-        }).ToList()
-    };
-
-    return View("Chat", viewModel);
-}
-
-[HttpGet("UserChat/ChatWithBot/{id}")]
-public async Task<IActionResult> ChatWithBot(int id)
-{
-    // Move your existing Chat(int id) code here
-    // Try to get chatbot from service with Flowise ID
-    var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
-
-    // If not found, create sample data
-    if (chatbot == null)
-    {
-        chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id);
-        if (chatbot == null)
-        {
-            return NotFound();
+                new Chatbot { Id = 1, Name = "Customer Support Bot", Department = "Customer Service", AiModel = "GPT-4", IsActive = true, Description = "Handles general product inquiries and helps customers troubleshoot common issues." },
+                new Chatbot { Id = 2, Name = "IT Helper", Department = "IT Support", AiModel = "Claude 3 Opus", IsActive = true, Description = "Provides technical assistance for internal staff, with expertise in network and software issues." },
+                new Chatbot { Id = 3, Name = "Sales Assistant", Department = "Sales", AiModel = "GPT-3.5 Turbo", IsActive = true, Description = "Assists potential customers with product information and helps qualify leads for the sales team." },
+                new Chatbot { Id = 4, Name = "Billing Support", Department = "Billing", AiModel = "Claude 3 Sonnet", IsActive = true, Description = "Helps customers with invoice questions, payment processing, and account information." },
+                new Chatbot { Id = 5, Name = "Technical Support", Department = "Technical", AiModel = "GPT-4", IsActive = true, Description = "Provides detailed technical support for complex product issues and integration assistance." },
+                new Chatbot { Id = 6, Name = "Operations Bot", Department = "Operations", AiModel = "GPT-3.5 Turbo", IsActive = false, Description = "Assists internal team with operational tasks and process management (currently undergoing updates)." }
+            };
         }
     }
 
-    // Create view model with sample chat messages
-    var viewModel = new UserChatViewModel
+    // Helper classes for request handling
+    public class ChatMessageRequest
     {
-        Chatbot = chatbot,
-        SessionId = Guid.NewGuid().ToString(),
-        Messages = new List<ViewModelMessage>
-        {
-            new ViewModelMessage
-            {
-                IsUser = false,
-                Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I help you today?",
-                Timestamp = DateTime.Now.AddMinutes(-5)
-            }
-        }
-    };
+        public string SessionId { get; set; }
+        public string Message { get; set; }
+    }
 
-    return View("Chat", viewModel);
-}
+    public class SessionRequest
+    {
+        public string SessionId { get; set; }
+    }
+
+    public class FeedbackRequest
+    {
+        public string SessionId { get; set; }
+        public int Rating { get; set; }
+        public string Feedback { get; set; }
     }
 }
