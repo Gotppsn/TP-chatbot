@@ -206,13 +206,13 @@ public async Task<IActionResult> SendMessageInSession([FromBody] ChatMessageRequ
     var responseTime = (DateTime.UtcNow - startTime).TotalSeconds;
     _logger.LogInformation("Response generated in {ResponseTime}s", responseTime);
 
-return Ok(new
-{
-    success = true,
-    response = response,
-    responseTime = responseTime,
-    timestamp = botMessage.Timestamp
-});
+    return Ok(new
+    {
+        success = true,
+        response = response,
+        responseTime = responseTime,
+        timestamp = botMessage.Timestamp
+    });
 }
 
 [HttpGet("Chat/{sessionId}")]
