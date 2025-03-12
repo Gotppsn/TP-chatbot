@@ -452,36 +452,67 @@
             const startTime = performance.now();
             
             try {
-                console.log('Sending message to server:', message);
-                console.log('Session ID:', sessionId);
-                console.log('Current language:', currentLanguage);
+                let response;
                 
-                // Send message to server - with language parameter
-                const response = await fetch('/UserChat/SendMessageInSession', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': csrfToken
-                    },
-                    body: JSON.stringify({
-                        sessionId: sessionId,
-                        message: message,
-                        language: currentLanguage
-                    })
-                });
-                
-                console.log('Response status:', response.status);
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('Error response:', errorText);
-                    throw new Error('Network response was not ok: ' + response.status);
+                // Try direct Flowise API call if flowiseId is available
+                if (flowiseId && flowiseId.length > 5) {
+                    console.log('Using direct Flowise API call with ID:', flowiseId);
+                    try {
+                        // Direct call to Flowise API (similar to Test.cshtml)
+                        const flowiseResponse = await callFlowiseAPI(message);
+                        response = {
+                            success: true,
+                            response: flowiseResponse,
+                            timestamp: new Date().toISOString()
+                        };
+                    } catch (flowiseError) {
+                        console.error('Flowise API call failed, falling back to server endpoint:', flowiseError);
+                        // Fall back to server endpoint
+                        const serverResponse = await fetch('/UserChat/SendMessageInSession', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': csrfToken
+                            },
+                            body: JSON.stringify({
+                                sessionId: sessionId,
+                                message: message,
+                                language: currentLanguage
+                            })
+                        });
+                        
+                        if (!serverResponse.ok) {
+                            throw new Error('Server response was not ok: ' + serverResponse.status);
+                        }
+                        
+                        response = await serverResponse.json();
+                    }
+                } else {
+                    console.log('Using server endpoint');
+                    // Call through server endpoint
+                    const serverResponse = await fetch('/UserChat/SendMessageInSession', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': csrfToken
+                        },
+                        body: JSON.stringify({
+                            sessionId: sessionId,
+                            message: message,
+                            language: currentLanguage
+                        })
+                    });
+                    
+                    if (!serverResponse.ok) {
+                        throw new Error('Network response was not ok: ' + serverResponse.status);
+                    }
+                    
+                    response = await serverResponse.json();
                 }
                 
-                const result = await response.json();
-                console.log('Message response:', result);
+                console.log('Message response:', response);
                 
-                if (result.success) {
+                if (response.success) {
                     // Calculate response time
                     const endTime = performance.now();
                     const responseTime = ((endTime - startTime) / 1000).toFixed(2);
@@ -494,10 +525,10 @@
                     removeTypingIndicator();
                     
                     // Add bot response to chat - Don't modify HTML content from server
-                    const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const botTime = new Date(response.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     
                     // Use the response directly without additional processing if it contains HTML
-                    appendMessage(result.response, 'bot', botTime);
+                    appendMessage(response.response, 'bot', botTime);
                     
                     // Update UI
                     messageCount += 2; // User message + bot response
@@ -507,7 +538,7 @@
                     // Scroll to bottom
                     scrollToBottom();
                 } else {
-                    throw new Error(result.message || 'Unknown error');
+                    throw new Error(response.message || 'Unknown error');
                 }
             } catch (error) {
                 console.error('Error sending message:', error);
@@ -527,6 +558,56 @@
                 // Re-enable input
                 sendButton.disabled = false;
                 messageInput.focus();
+            }
+        }
+        
+        // NEW: Direct API call to Flowise (similar to Test.cshtml)
+        async function callFlowiseAPI(message) {
+            try {
+                // Build the Flowise API URL using the flowiseId
+                // Use default URL format if needed, adjustable to your actual API URL structure
+                const FLOWISE_API_URL = `http://localhost:3000/api/v1/prediction/${flowiseId}`;
+                // Add your API key if necessary
+                const FLOWISE_API_KEY = "0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY";
+                
+                console.log("Calling Flowise API at:", FLOWISE_API_URL);
+                
+                const response = await fetch(FLOWISE_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': FLOWISE_API_KEY ? `Bearer ${FLOWISE_API_KEY}` : '',
+                        'x-api-key': FLOWISE_API_KEY || ''
+                    },
+                    body: JSON.stringify({
+                        question: message,
+                        sessionId: sessionId,
+                        overrideConfig: {
+                            language: currentLanguage,
+                            botName: chatbotNames[currentLanguage]
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API error: ${response.status} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("Flowise API response:", data);
+                
+                if (typeof data === 'object' && data !== null) {
+                    if (data.text !== undefined) {
+                        return data.text;
+                    }
+                    return JSON.stringify(data);
+                }
+                
+                return data || "No response received";
+            } catch (error) {
+                console.error('Flowise API call failed:', error);
+                throw error;
             }
         }
         
