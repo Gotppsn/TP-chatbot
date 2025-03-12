@@ -90,6 +90,36 @@
             <div class="message-date" id="currentDate">
                 @DateTime.Now.ToString("MMMM d, yyyy")
             </div>
+            
+            <!-- Display existing messages -->
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message @(message.IsUser ? "user" : "bot")">
+                    @if (!message.IsUser)
+                    {
+                        <div class="message-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                    }
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>@Html.Raw(message.Content)</p>
+                        </div>
+                        <div class="message-time">@message.Timestamp.ToLocalTime().ToString("h:mm tt")</div>
+                        @if (!message.IsUser)
+                        {
+                            <div class="message-actions">
+                                <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                                <button class="action-btn" title="Rate response">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
         </div>
         
         <!-- Chat input area -->
@@ -151,7 +181,7 @@
                 </div>
             </div>
             
-            <!-- Add new chatbot capabilities section -->
+            <!-- Chatbot capabilities section -->
             <div class="assistant-capabilities">
                 <div class="capability-item">
                     <div class="capability-icon">
@@ -178,7 +208,7 @@
             <h4 class="section-title">CONVERSATION STATS</h4>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-value" id="messageCount">0</div>
+                    <div class="stat-value" id="messageCount">@Model.Messages.Count</div>
                     <div class="stat-label">Messages</div>
                 </div>
                 <div class="stat-item">
@@ -212,558 +242,229 @@
 </div>
 
 @section Scripts {
-<script>
-    // Global variables
-    let sessionId = "@Model.SessionId";
-    let chatbotId = @Model.Chatbot.Id;
-    let flowiseId = "@Model.FlowiseId";
-    let isConnected = true;
-    let userScrolled = false;
-    let isScrolledToBottom = true;
-    let messageCount = 0;
-    let lastMessageTime = new Date();
-    let startTime = new Date();
-    let lastResponseTimes = [];
-    let currentRating = 0;
-    let feedbackSubmitted = false;
-    let currentLanguage = 'en';
-    
-    // Welcome messages in different languages
-    const welcomeMessages = {
-        en: `Hello! I'm the @Model.Chatbot.Name assistant. How can I help you today?`,
-        th: `สวัสดีครับ/ค่ะ! ฉัน @Model.Chatbot.Name ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
-        ja: `こんにちは！私は @Model.Chatbot.Name アシスタントです。今日はどのようにお手伝いできますか？`
-    };
-    
-    // Input placeholder texts in different languages
-    const placeholders = {
-        en: "Type your message here...",
-        th: "พิมพ์ข้อความของคุณที่นี่...",
-        ja: "メッセージを入力してください..."
-    };
-    
-    // Cache key DOM elements
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-    const sendButton = document.getElementById('sendMessage');
-    const chatInfo = document.getElementById('chatInfo');
-    const sidebar = document.getElementById('chatSidebar');
+    <script>
+        // Global variables
+        let sessionId = "@Model.SessionId";
+        let chatbotId = @Model.Chatbot.Id;
+        let flowiseId = "@Model.FlowiseId";
+        let isConnected = true;
+        let userScrolled = false;
+        let isScrolledToBottom = true;
+        let messageCount = @Model.Messages.Count;
+        let lastMessageTime = new Date();
+        let startTime = new Date();
+        let lastResponseTimes = [];
+        let currentRating = 0;
+        let feedbackSubmitted = false;
+        let currentLanguage = 'en';
+        
+        // Welcome messages in different languages
+        const welcomeMessages = {
+            en: `Hello! I'm the @Model.Chatbot.Name assistant. How can I help you today?`,
+            th: `สวัสดีครับ/ค่ะ! ฉัน @Model.Chatbot.Name ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
+            ja: `こんにちは！私は @Model.Chatbot.Name アシスタントです。今日はどのようにお手伝いできますか？`
+        };
+        
+        // Input placeholder texts in different languages
+        const placeholders = {
+            en: "Type your message here...",
+            th: "พิมพ์ข้อความของคุณที่นี่...",
+            ja: "メッセージを入力してください..."
+        };
+        
+        // Cache key DOM elements
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendMessage');
+        const chatInfo = document.getElementById('chatInfo');
+        const sidebar = document.getElementById('chatSidebar');
 
-    // Initialize when document is ready
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Initializing chat interface...");
+        // Initialize when document is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Initializing chat interface...");
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load recent conversations
+            loadRecentConversations();
+            
+            // Set initial message count
+            updateMessageCount();
+            
+            // Focus input field
+            messageInput.focus();
+            
+            // Scroll to bottom of chat
+            scrollToBottom();
+        });
         
-        // First, ensure we have a valid Flowise ID before proceeding
-        validateFlowiseConfiguration()
-            .then(valid => {
-                console.log("Flowise validation result:", valid);
-                
-                // Get chatbot info from session if available
-                retrieveChatbotFromSession();
-                
-                // Initialize chat
-                initializeChat();
-                
-                // Set up event listeners
-                setupEventListeners();
-                
-                // Load recent conversations
-                loadRecentConversations();
-                
-                // Start chat duration timer
-                startChatDurationTimer();
-                
-                // Add welcome message if no existing messages
-                if (@Model.Messages.Count > 0) {
-                    messageCount = @Model.Messages.Count;
-                    updateMessageCount();
-                } else {
-                    addWelcomeMessage();
-                }
-                
-                // Display session ID
-                document.getElementById('sessionIdDisplay').textContent = sessionId;
-                
-                // Focus input field
-                messageInput.focus();
-            })
-            .catch(error => {
-                console.error("Initialization error:", error);
-                showErrorMessage("Chat initialization failed. Please try refreshing the page.");
-            });
-    });
-    
-    // Validate Flowise configuration before starting
-    async function validateFlowiseConfiguration() {
-        try {
-            // Check if we have a valid Flowise ID
-            if (flowiseId && flowiseId !== "") {
-                console.log("Flowwise ID found:", flowiseId);
-                return true;
-            }
+        function setupEventListeners() {
+            // Send message on button click
+            sendButton.addEventListener('click', sendMessage);
             
-            // Try to get settings from API
-            const settings = await fetchSettings();
-            
-            if (!settings.flowiseApiUrl) {
-                console.warn("No Flowise API URL configured.");
-                return false;
-            }
-            
-            console.log("Validated Flowise API URL:", settings.flowiseApiUrl);
-            return true;
-        } catch (error) {
-            console.error("Error validating Flowise configuration:", error);
-            return false;
-        }
-    }
-    
-    function retrieveChatbotFromSession() {
-        try {
-            // Get session ID from URL or hidden input
-            const sessionIdFromUrl = window.location.pathname.split('/').pop();
-            if (sessionIdFromUrl && sessionIdFromUrl.startsWith('session-')) {
-                sessionId = sessionIdFromUrl;
-                
-                // Get chatbot info from localStorage
-                const chatDataJson = localStorage.getItem(sessionId);
-                if (chatDataJson) {
-                    try {
-                        const chatData = JSON.parse(chatDataJson);
-                        if (chatData.chatbotId) {
-                            // Update the chatbotId to use in API calls
-                            chatbotId = chatData.chatbotId;
-                            
-                            // Also check if there's a Flowise ID available
-                            if (chatData.flowiseId) {
-                                flowiseId = chatData.flowiseId;
-                                console.log("Retrieved Flowise ID:", flowiseId);
-                                
-                                // Update hidden field if it exists
-                                const flowiseIdField = document.getElementById('flowiseId');
-                                if (flowiseIdField) {
-                                    flowiseIdField.value = flowiseId;
-                                }
-                            } else {
-                                // Try to get Flowise ID from hidden field
-                                const flowiseIdField = document.getElementById('flowiseId');
-                                if (flowiseIdField && flowiseIdField.value) {
-                                    flowiseId = flowiseIdField.value;
-                                    
-                                    // Store for future reference
-                                    chatData.flowiseId = flowiseId;
-                                    localStorage.setItem(sessionId, JSON.stringify(chatData));
-                                }
-                            }
-                            
-                            console.log("Retrieved chatbot ID:", chatbotId);
-                            return true;
-                        }
-                    } catch (error) {
-                        console.error("Error parsing chat data:", error);
+            // Send message on Enter key (not Shift+Enter)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!sendButton.disabled) {
+                        sendMessage();
                     }
                 }
-            }
-            return false;
-        } catch (error) {
-            console.error("Error retrieving chatbot from session:", error);
-            return false;
-        }
-    }
-    
-    function initializeChat() {
-        // Initialize or continue session
-        if (!sessionId || sessionId === "") {
-            sessionId = generateSessionId();
-            document.getElementById('sessionId').value = sessionId;
-            document.getElementById('sessionIdDisplay').textContent = sessionId;
+            });
             
-            // Store session in localStorage for history
-            storeSessionInfo();
-        } else {
-            // Load messages from localStorage if continuing conversation
-            const savedMessages = getSavedMessages(sessionId);
-            if (savedMessages && savedMessages.length > 0) {
-                renderSavedMessages(savedMessages);
-            }
-        }
-    }
-    
-    function setupEventListeners() {
-        // Send message on button click
-        sendButton.addEventListener('click', sendMessage);
-        
-        // Send message on Enter key (not Shift+Enter)
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (!sendButton.disabled) {
-                    sendMessage();
-                }
-            }
-        });
-        
-        // Auto-resize textarea as user types
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-            sendButton.disabled = this.value.trim() === '';
-        });
-        
-        // Menu toggles
-        document.getElementById('chatMenuBtn').addEventListener('click', function(e) {
-            e.stopPropagation();
-            document.getElementById('chatMenu').classList.toggle('show');
-        });
-        
-        document.getElementById('infoToggle').addEventListener('click', function() {
-            chatInfo.classList.toggle('show');
-        });
-        
-        document.getElementById('infoClose').addEventListener('click', function() {
-            chatInfo.classList.remove('show');
-        });
-        
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            sidebar.classList.toggle('collapsed');
-            this.querySelector('i').classList.toggle('bi-chevron-left');
-            this.querySelector('i').classList.toggle('bi-chevron-right');
-        });
-        
-        document.getElementById('mobileSidebarToggle').addEventListener('click', function() {
-            sidebar.classList.toggle('show');
-        });
-        
-        // Language selector event listener
-        document.getElementById('languageSelect').addEventListener('change', function() {
-            currentLanguage = this.value;
-            updateLanguage();
-        });
-        
-        // Chat actions
-        document.getElementById('clearChat').addEventListener('click', clearChat);
-        document.getElementById('exportChat').addEventListener('click', exportChat);
-        document.getElementById('endChat').addEventListener('click', endChat);
-        
-        // Feedback and rating
-        setupFeedbackListeners();
-        
-        // Close dropdown on click outside
-        document.addEventListener('click', function() {
-            document.getElementById('chatMenu').classList.remove('show');
-        });
-        
-        // Handle scroll events
-        chatMessages.addEventListener('scroll', function() {
-            userScrolled = true;
-            checkScrollPosition();
-        });
-        
-        // Add wheel event listener for precise mouse wheel detection
-        chatMessages.addEventListener('wheel', function(e) {
-            if (e.deltaY < 0) { // Scrolling up
+            // Auto-resize textarea as user types
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                sendButton.disabled = this.value.trim() === '';
+            });
+            
+            // Menu toggles
+            document.getElementById('chatMenuBtn').addEventListener('click', function(e) {
+                e.stopPropagation();
+                document.getElementById('chatMenu').classList.toggle('show');
+            });
+            
+            document.getElementById('infoToggle').addEventListener('click', function() {
+                chatInfo.classList.toggle('show');
+            });
+            
+            document.getElementById('infoClose').addEventListener('click', function() {
+                chatInfo.classList.remove('show');
+            });
+            
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                this.querySelector('i').classList.toggle('bi-chevron-left');
+                this.querySelector('i').classList.toggle('bi-chevron-right');
+            });
+            
+            document.getElementById('mobileSidebarToggle').addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+            
+            // Language selector event listener
+            document.getElementById('languageSelect').addEventListener('change', function() {
+                currentLanguage = this.value;
+                messageInput.placeholder = placeholders[currentLanguage] || placeholders['en'];
+            });
+            
+            // Chat actions
+            document.getElementById('clearChat').addEventListener('click', clearChat);
+            document.getElementById('exportChat').addEventListener('click', exportChat);
+            document.getElementById('endChat').addEventListener('click', endChat);
+            
+            // Feedback and rating
+            setupFeedbackListeners();
+            
+            // Close dropdown on click outside
+            document.addEventListener('click', function() {
+                document.getElementById('chatMenu').classList.remove('show');
+            });
+            
+            // Handle scroll events
+            chatMessages.addEventListener('scroll', function() {
                 userScrolled = true;
-            } else if (isScrolledToBottom) { // Scrolling down and already at bottom
-                userScrolled = false;
-            }
-            // Small delay to check position after scrolling
-            setTimeout(checkScrollPosition, 50);
-        });
-    }
-    
-    // UPDATED: Improved fetchSettings function with better error handling and URL formatting
-    async function fetchSettings() {
-        try {
-            const response = await fetch('/api/settings/flowise');
-            if (!response.ok) {
-                console.warn("Could not fetch Flowise settings - using defaults");
-                return {
-                    flowiseApiUrl: 'http://localhost:3000/api/',
-                    flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
-                };
-            }
-            
-            const settings = await response.json();
-            console.log("Fetched API settings:", settings.flowiseApiUrl);
-            
-            // Ensure URL has correct format
-            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.endsWith('/')) {
-                settings.flowiseApiUrl += '/';
-            }
-            
-            // Ensure URL has protocol
-            if (settings.flowiseApiUrl && !settings.flowiseApiUrl.startsWith('http://') && !settings.flowiseApiUrl.startsWith('https://')) {
-                settings.flowiseApiUrl = 'http://' + settings.flowiseApiUrl;
-            }
-            
-            return settings;
-        } catch (error) {
-            console.error('Error fetching settings:', error);
-            return {
-                flowiseApiUrl: 'http://localhost:3000/api/',
-                flowiseApiKey: '0DE04hQaVt8RqxvR_rMigpeFm7n7twJq7TRlKJB4MqY'
-            };
-        }
-    }
-    
-    // UPDATED: Core function to send messages to Flowise API
-    async function callFlowiseAPI(message) {
-        try {
-            // Show loading indicator
-            showLoadingIndicator();
-            
-            // Get the active Flowise ID
-            const activeFlowiseId = flowiseId || document.getElementById('flowiseId').value;
-            
-            if (!activeFlowiseId) {
-                console.warn("No Flowise ID available - falling back to regular API");
-                return await callRegularAPI(message);
-            }
-            
-            // Get API URL and key from settings
-            const settings = await fetchSettings();
-            let flowiseApiUrl = settings.flowiseApiUrl;
-            const flowiseApiKey = settings.flowiseApiKey;
-            
-            if (!flowiseApiUrl) {
-                console.warn("No Flowise API URL configured - falling back to regular API");
-                return await callRegularAPI(message);
-            }
-            
-            // Normalize URL
-            if (!flowiseApiUrl.endsWith('/')) {
-                flowiseApiUrl += '/';
-            }
-            
-            // Ensure URL has protocol
-            if (!flowiseApiUrl.startsWith('http://') && !flowiseApiUrl.startsWith('https://')) {
-                flowiseApiUrl = 'http://' + flowiseApiUrl;
-            }
-            
-            // Simplify URL construction - directly build prediction endpoint
-            const apiUrl = `${flowiseApiUrl}v1/prediction/${activeFlowiseId}`;
-            console.log("Connecting to Flowise using URL:", apiUrl);
-            
-            // Prepare the bot name for context
-            const botName = document.querySelector('.bot-name').textContent || '@Model.Chatbot.Name';
-            
-            // Send request to Flowise with proper headers
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${flowiseApiKey}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'x-api-key': flowiseApiKey
-                },
-                body: JSON.stringify({
-                    question: message,
-                    sessionId: sessionId,
-                    overrideConfig: {
-                        language: currentLanguage,
-                        botName: botName
-                    }
-                })
+                checkScrollPosition();
             });
             
-            // Check for HTML response which indicates wrong API endpoint
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('text/html')) {
-                console.error("Received HTML instead of JSON. API URL might be pointing to UI instead of API endpoint.");
-                console.log("Attempting fallback to regular API");
-                return await callRegularAPI(message);
-            }
-            
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`API error: ${response.status} - ${errorText}`);
-                return await callRegularAPI(message);
-            }
-            
-            // Parse response with improved error handling
-            try {
-                const data = await response.json();
-                
-                // Handle various response formats
-                if (typeof data === 'object' && data !== null) {
-                    if (data.text !== undefined) return data.text;
-                    if (data.response !== undefined) return data.response;
-                    if (data.answer !== undefined) return data.answer;
-                    if (data.message !== undefined) return data.message;
-                    return JSON.stringify(data);
+            // Add wheel event listener for precise mouse wheel detection
+            chatMessages.addEventListener('wheel', function(e) {
+                if (e.deltaY < 0) { // Scrolling up
+                    userScrolled = true;
+                } else if (isScrolledToBottom) { // Scrolling down and already at bottom
+                    userScrolled = false;
                 }
-                
-                return data || "No response received";
-            } catch (parseError) {
-                console.error("Error parsing JSON response:", parseError);
-                // Try to get text response as fallback
-                const textResponse = await response.text();
-                if (textResponse && !textResponse.includes('<!DOCTYPE')) {
-                    return textResponse;
-                }
-                return await callRegularAPI(message);
-            }
-        } catch (error) {
-            console.error('API call failed:', error);
-            // Fallback to regular API
-            return await callRegularAPI(message);
-        } finally {
-            // Hide loading indicator
-            hideLoadingIndicator();
+                // Small delay to check position after scrolling
+                setTimeout(checkScrollPosition, 50);
+            });
         }
-    }
-    
-    // Fallback API call
-    async function callRegularAPI(message) {
-        try {
-            console.log("Falling back to regular API with chatbot ID:", chatbotId);
+        
+        async function sendMessage() {
+            // Get message text
+            const message = messageInput.value.trim();
+            if (!message) {
+                // Provide visual feedback for empty message
+                messageInput.classList.add('shake-animation');
+                setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
+                return;
+            }
             
             // Get CSRF token
             const token = document.querySelector('input[name="__RequestVerificationToken"]');
             const csrfToken = token ? token.value : '';
             
-            // Send to the local API endpoint
-            const response = await fetch(`/api/chat/${chatbotId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': csrfToken
-                },
-                body: JSON.stringify({
-                    message: message,
-                    sessionId: sessionId,
-                    chatbotId: chatbotId
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`Server responded with status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            return data.response || "Sorry, I received an empty response.";
-        } catch (error) {
-            console.error('Regular API call failed:', error);
-            return "I'm sorry, I'm having trouble connecting to the server. Please try again in a moment.";
-        }
-    }
-    
-    // Loading indicator functions
-    function showLoadingIndicator() {
-        const loadingEl = document.createElement('div');
-        loadingEl.className = 'chat-loading';
-        loadingEl.id = 'chatLoading';
-        loadingEl.innerHTML = `
-            <div class="loading-spinner"></div>
-            <span>Connecting to AI...</span>
-        `;
-        document.body.appendChild(loadingEl);
-    }
-
-    function hideLoadingIndicator() {
-        const loadingEl = document.getElementById('chatLoading');
-        if (loadingEl) {
-            loadingEl.remove();
-        }
-    }
-    
-    function updateLanguage() {
-        // Update placeholder
-        messageInput.placeholder = placeholders[currentLanguage] || placeholders['en'];
-        
-        // Clear previous chat
-        clearChat(false);
-        
-        // Add welcome message in selected language
-        addWelcomeMessage();
-    }
-    
-    function addWelcomeMessage() {
-        try {
-            const message = welcomeMessages[currentLanguage] || welcomeMessages['en'];
-            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            // Get current time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            lastMessageTime = now;
             
-            appendMessage(message, 'bot', time);
-            messageCount++;
-            updateMessageCount();
+            // Add user message to chat
+            appendMessage(message, 'user', timeString);
             
-            // Save welcome message
-            saveMessage(message, false, time);
-        } catch (error) {
-            console.error("Error adding welcome message:", error);
-            const fallbackMessage = "Hello! How can I help you today?";
-            appendMessage(fallbackMessage, 'bot', new Date().toLocaleTimeString([], 
-                { hour: '2-digit', minute: '2-digit' }));
-        }
-    }
-    
-    function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message) {
-            // Provide visual feedback for empty message
-            messageInput.classList.add('shake-animation');
-            setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
-            return;
-        }
-        
-        // Get current time
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        lastMessageTime = now;
-        
-        // Add user message to chat
-        appendMessage(message, 'user', timeString);
-        
-        // Save message to history
-        saveMessage(message, true, timeString);
-        
-        // Clear input and reset height
-        messageInput.value = '';
-        messageInput.style.height = 'auto';
-        sendButton.disabled = true;
-        
-        // Scroll to bottom
-        scrollToBottom();
-        
-        // Show typing indicator
-        showTypingIndicator();
-        
-        // Start timing for response
-        const startTime = performance.now();
-        
-        // Call API
-        callFlowiseAPI(message)
-            .then(response => {
-                // Calculate response time
-                const endTime = performance.now();
-                const responseTime = ((endTime - startTime) / 1000).toFixed(2);
-                trackResponseTime(responseTime);
+            // Clear input and reset height
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            sendButton.disabled = true;
+            
+            // Scroll to bottom
+            scrollToBottom();
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Start timing for response
+            const startTime = performance.now();
+            
+            try {
+                // Send message to server
+                const response = await fetch('/UserChat/SendMessage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        message: message
+                    })
+                });
                 
-                // Update response time display
-                document.getElementById('responseTime').textContent = responseTime + 's';
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 
-                // Remove typing indicator
-                removeTypingIndicator();
+                const result = await response.json();
                 
-                // Add bot response
-                const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
-                appendMessage(response, 'bot', botTime);
-                saveMessage(response, false, botTime);
-                
-                // Update UI
-                messageCount += 2; // User message + bot response
-                updateMessageCount();
-                updateAverageResponseTime();
-                
-                // Scroll to bottom
-                scrollToBottom();
-                
-                // Focus input for next message
-                messageInput.focus();
-            })
-            .catch(error => {
-                console.error('Error:', error);
+                if (result.success) {
+                    // Calculate response time
+                    const endTime = performance.now();
+                    const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+                    trackResponseTime(responseTime);
+                    
+                    // Update response time display
+                    document.getElementById('responseTime').textContent = responseTime + 's';
+                    
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Add bot response to chat
+                    const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    appendMessage(result.response, 'bot', botTime);
+                    
+                    // Update UI
+                    messageCount += 2; // User message + bot response
+                    updateMessageCount();
+                    updateAverageResponseTime();
+                    
+                    // Scroll to bottom
+                    scrollToBottom();
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
                 
                 // Remove typing indicator
                 removeTypingIndicator();
@@ -771,602 +472,485 @@
                 // Show error message
                 const errorMessage = "Sorry, I'm having trouble connecting to the server. Please try again later.";
                 const errorTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                
                 appendMessage(errorMessage, 'bot', errorTime);
-                saveMessage(errorMessage, false, errorTime);
                 
                 // Update UI
                 messageCount += 2; // User message + error message
                 updateMessageCount();
-                
-                // Scroll to bottom
-                scrollToBottom();
-            });
-    }
-    
-    function showErrorMessage(text) {
-        const errorEl = document.createElement('div');
-        errorEl.className = 'error-toast';
-        errorEl.textContent = text;
-        document.body.appendChild(errorEl);
+            }
+            
+            // Focus input for next message
+            messageInput.focus();
+        }
         
-        setTimeout(() => {
-            errorEl.classList.add('show');
-        }, 10);
+        function appendMessage(text, sender, time) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${sender}`;
+            
+            let messageContent = '';
+            
+            if (sender === 'bot') {
+                messageContent = `
+                    <div class="message-avatar">
+                        <i class="bi bi-robot"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>${formatMessageText(text)}</p>
+                        </div>
+                        <div class="message-time">${time}</div>
+                        <div class="message-actions">
+                            <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                            <button class="action-btn" title="Rate response">
+                                <i class="bi bi-hand-thumbs-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                messageContent = `
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <p>${formatMessageText(text)}</p>
+                        </div>
+                        <div class="message-time">${time}</div>
+                    </div>
+                `;
+            }
+            
+            messageEl.innerHTML = messageContent;
+            chatMessages.appendChild(messageEl);
+        }
         
-        setTimeout(() => {
-            errorEl.classList.remove('show');
-            setTimeout(() => errorEl.remove(), 300);
-        }, 4000);
-    }
-    
-    function appendMessage(text, sender, time) {
-        const messageEl = document.createElement('div');
-        messageEl.className = `message ${sender}`;
-        
-        let messageContent = '';
-        
-        if (sender === 'bot') {
-            messageContent = `
+        function showTypingIndicator() {
+            const typingEl = document.createElement('div');
+            typingEl.className = 'message bot typing-indicator';
+            typingEl.id = 'typingIndicator';
+            
+            typingEl.innerHTML = `
                 <div class="message-avatar">
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="message-content">
-                    <div class="message-bubble">
-                        <p>${formatMessageText(text)}</p>
-                    </div>
-                    <div class="message-time">${time}</div>
-                    <div class="message-actions">
-                        <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                        <button class="action-btn" title="Rate response">
-                            <i class="bi bi-hand-thumbs-up"></i>
-                        </button>
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
                     </div>
                 </div>
             `;
-        } else {
-            messageContent = `
-                <div class="message-content">
-                    <div class="message-bubble">
-                        <p>${formatMessageText(text)}</p>
-                    </div>
-                    <div class="message-time">${time}</div>
-                </div>
-            `;
+            
+            chatMessages.appendChild(typingEl);
+            scrollToBottom();
         }
         
-        messageEl.innerHTML = messageContent;
-        chatMessages.appendChild(messageEl);
-    }
-    
-    function showTypingIndicator() {
-        const typingEl = document.createElement('div');
-        typingEl.className = 'message bot typing-indicator';
-        typingEl.id = 'typingIndicator';
-        
-        typingEl.innerHTML = `
-            <div class="message-avatar">
-                <i class="bi bi-robot"></i>
-            </div>
-            <div class="message-content">
-                <div class="typing-indicator">
-                    <span></span><span></span><span></span>
-                </div>
-            </div>
-        `;
-        
-        chatMessages.appendChild(typingEl);
-        scrollToBottom();
-    }
-    
-    function removeTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) {
-            typingIndicator.remove();
+        function removeTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
         }
-    }
-    
-    function scrollToBottom() {
-        if (!userScrolled || isScrolledToBottom) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-    }
-    
-    function checkScrollPosition() {
-        const scrollPosition = chatMessages.scrollTop + chatMessages.clientHeight;
-        isScrolledToBottom = scrollPosition >= chatMessages.scrollHeight - 30; // 30px threshold
         
-        if (isScrolledToBottom) {
-            userScrolled = false;
+        function scrollToBottom() {
+            if (!userScrolled || isScrolledToBottom) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
         }
-    }
-    
-    // Message formatting and processing
-    function formatMessageText(text) {
-        if (!text) return '';
         
-        // Handle objects if any
-        if (typeof text === 'object') {
+        function checkScrollPosition() {
+            const scrollPosition = chatMessages.scrollTop + chatMessages.clientHeight;
+            isScrolledToBottom = scrollPosition >= chatMessages.scrollHeight - 30; // 30px threshold
+            
+            if (isScrolledToBottom) {
+                userScrolled = false;
+            }
+        }
+        
+        // Message formatting and processing
+        function formatMessageText(text) {
+            if (!text) return '';
+            
+            // Handle objects if any
+            if (typeof text === 'object') {
+                try {
+                    text = JSON.stringify(text);
+                } catch (e) {
+                    text = String(text);
+                }
+            }
+            
+            // Escape HTML
+            text = escapeHtml(text);
+            
+            // Handle links
+            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            
+            // Handle newlines
+            text = text.replace(/\n/g, '<br>');
+            
+            return text;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+        
+        // Copy message to clipboard
+        window.copyToClipboard = function(button) {
+            const messageBubble = button.closest('.message-content').querySelector('.message-bubble p');
+            const text = messageBubble.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Visual feedback
+                const originalIcon = button.innerHTML;
+                button.innerHTML = '<i class="bi bi-check"></i>';
+                setTimeout(() => {
+                    button.innerHTML = originalIcon;
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                showErrorMessage('Failed to copy text to clipboard');
+            });
+        }
+        
+        async function loadRecentConversations() {
             try {
-                text = JSON.stringify(text);
-            } catch (e) {
-                text = String(text);
-            }
-        }
-        
-        // Escape HTML
-        text = escapeHtml(text);
-        
-        // Handle links
-        text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
-        
-        // Handle newlines
-        text = text.replace(/\n/g, '<br>');
-        
-        return text;
-    }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        
-        return String(text)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
-    }
-    
-    // Copy message to clipboard
-    window.copyToClipboard = function(button) {
-        const messageBubble = button.closest('.message-content').querySelector('.message-bubble p');
-        const text = messageBubble.textContent;
-        
-        navigator.clipboard.writeText(text).then(() => {
-            // Visual feedback
-            const originalIcon = button.innerHTML;
-            button.innerHTML = '<i class="bi bi-check"></i>';
-            setTimeout(() => {
-                button.innerHTML = originalIcon;
-            }, 2000);
-        }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            showErrorMessage('Failed to copy text to clipboard');
-        });
-    }
-    
-    // Session and history management
-    function generateSessionId() {
-        return `session-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
-    }
-    
-    function storeSessionInfo() {
-        try {
-            // Create session info
-            const sessionInfo = {
-                id: sessionId,
-                chatbotId: chatbotId,
-                flowiseId: flowiseId,
-                chatbotName: '@Model.Chatbot.Name',
-                department: '@Model.Chatbot.Department',
-                startTime: new Date().toISOString(),
-                lastActive: new Date().toISOString()
-            };
-            
-            // Store in localStorage
-            localStorage.setItem(`chat_session_${sessionId}`, JSON.stringify(sessionInfo));
-            
-            // Store additional info in session storage
-            localStorage.setItem(sessionId, JSON.stringify({
-                chatbotId: chatbotId,
-                flowiseId: flowiseId,
-                createdAt: new Date().toISOString()
-            }));
-            
-            // Update recent conversations list
-            updateRecentConversations(sessionInfo);
-        } catch (error) {
-            console.error('Error storing session:', error);
-        }
-    }
-    
-    function updateRecentConversations(sessionInfo) {
-        try {
-            // Get existing conversations
-            let recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
-            
-            // Add current session to the beginning if not already there
-            const existingIndex = recentConversations.findIndex(c => c.id === sessionInfo.id);
-            if (existingIndex > -1) {
-                // Update existing entry
-                recentConversations[existingIndex] = {
-                    ...recentConversations[existingIndex],
-                    lastActive: new Date().toISOString()
-                };
-            } else {
-                // Add new entry
-                recentConversations.unshift(sessionInfo);
-            }
-            
-            // Limit to 10 recent conversations
-            recentConversations = recentConversations.slice(0, 10);
-            
-            // Save updated list
-            localStorage.setItem('recent_conversations', JSON.stringify(recentConversations));
-        } catch (error) {
-            console.error('Error updating recent conversations:', error);
-        }
-    }
-    
-    function saveMessage(content, isUser, time) {
-        try {
-            // Get existing messages
-            let messages = JSON.parse(localStorage.getItem(`chat_messages_${sessionId}`) || '[]');
-            
-            // Add new message
-            messages.push({
-                content,
-                isUser,
-                time,
-                timestamp: new Date().toISOString()
-            });
-            
-            // Save updated messages
-            localStorage.setItem(`chat_messages_${sessionId}`, JSON.stringify(messages));
-            
-            // Update session last active time
-            const sessionInfo = JSON.parse(localStorage.getItem(`chat_session_${sessionId}`) || '{}');
-            if (sessionInfo.id) {
-                sessionInfo.lastActive = new Date().toISOString();
-                localStorage.setItem(`chat_session_${sessionId}`, JSON.stringify(sessionInfo));
+                const response = await fetch('/UserChat/GetChatHistory');
                 
-                // Also update in recent conversations
-                updateRecentConversations(sessionInfo);
-            }
-        } catch (error) {
-            console.error('Error saving message:', error);
-        }
-    }
-    
-    function getSavedMessages(sessionId) {
-        try {
-            return JSON.parse(localStorage.getItem(`chat_messages_${sessionId}`) || '[]');
-        } catch (error) {
-            console.error('Error getting saved messages:', error);
-            return [];
-        }
-    }
-    
-    function renderSavedMessages(messages) {
-        // Group messages by date
-        const messagesByDate = {};
-        
-        messages.forEach(msg => {
-            const timestamp = new Date(msg.timestamp);
-            const dateKey = timestamp.toDateString();
-            
-            if (!messagesByDate[dateKey]) {
-                messagesByDate[dateKey] = [];
-            }
-            
-            messagesByDate[dateKey].push(msg);
-        });
-        
-        // Clear existing messages
-        chatMessages.innerHTML = '';
-        
-        // Render messages by date
-        Object.keys(messagesByDate).forEach(dateKey => {
-            // Add date separator
-            const dateElement = document.createElement('div');
-            dateElement.className = 'message-date';
-            dateElement.textContent = new Date(dateKey).toLocaleDateString(undefined, { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            chatMessages.appendChild(dateElement);
-            
-            // Add messages for this date
-            messagesByDate[dateKey].forEach(msg => {
-                appendMessage(msg.content, msg.isUser ? 'user' : 'bot', msg.time);
-            });
-        });
-        
-        // Update message count
-        messageCount = messages.length;
-        updateMessageCount();
-    }
-    
-    function loadRecentConversations() {
-        try {
-            const conversationList = document.getElementById('conversationList');
-            const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
-            
-            if (recentConversations.length === 0) {
-                return;
-            }
-            
-            // Clear default empty message
-            conversationList.innerHTML = '';
-            
-            // Add each conversation
-            recentConversations.forEach(conversation => {
-                const conversationEl = document.createElement('div');
-                conversationEl.className = 'conversation-item';
-                
-                // Highlight current session
-                if (conversation.id === sessionId) {
-                    conversationEl.classList.add('active');
+                if (!response.ok) {
+                    throw new Error('Failed to load chat history');
                 }
                 
-                // Parse dates
-                const startDate = new Date(conversation.startTime);
-                const lastActive = new Date(conversation.lastActive);
+                const conversations = await response.json();
+                const conversationList = document.getElementById('conversationList');
                 
-                // Format relative time
-                const timeAgo = getRelativeTimeString(lastActive);
-                
-                conversationEl.innerHTML = `
-                    <div class="avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="conversation-info">
-                        <div class="conversation-title">${escapeHtml(conversation.chatbotName)}</div>
-                        <div class="conversation-preview">${escapeHtml(conversation.department)}</div>
-                    </div>
-                    <div class="conversation-time">${timeAgo}</div>
-                `;
-                
-                // Add click handler to load conversation
-                conversationEl.addEventListener('click', () => {
-                    if (conversation.id !== sessionId) {
-                        window.location.href = `/UserChat/Chat/${conversation.id}`;
-                    }
-                });
-                
-                conversationList.appendChild(conversationEl);
-            });
-        } catch (error) {
-            console.error('Error loading recent conversations:', error);
+                // Clear default message if we have conversations
+                if (conversations && conversations.length > 0) {
+                    conversationList.innerHTML = '';
+                    
+                    // Add each conversation
+                    conversations.forEach(conv => {
+                        const conversationEl = document.createElement('div');
+                        conversationEl.className = 'conversation-item';
+                        
+                        // Highlight current session
+                        if (conv.sessionId === sessionId) {
+                            conversationEl.classList.add('active');
+                        }
+                        
+                        // Format relative time
+                        const startDate = new Date(conv.startTime);
+                        const timeAgo = getRelativeTimeString(startDate);
+                        
+                        conversationEl.innerHTML = `
+                            <div class="avatar">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="conversation-info">
+                                <div class="conversation-title">${escapeHtml(conv.chatbotName)}</div>
+                                <div class="conversation-preview">${escapeHtml(conv.department)}</div>
+                            </div>
+                            <div class="conversation-time">${timeAgo}</div>
+                        `;
+                        
+                        // Add click handler to load conversation
+                        conversationEl.addEventListener('click', () => {
+                            if (conv.sessionId !== sessionId) {
+                                window.location.href = `/UserChat/Chat/${conv.sessionId}`;
+                            }
+                        });
+                        
+                        conversationList.appendChild(conversationEl);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading recent conversations:', error);
+            }
         }
-    }
-    
-    function getRelativeTimeString(date) {
-        const now = new Date();
-        const diffMs = now - date;
-        const diffSec = Math.round(diffMs / 1000);
-        const diffMin = Math.round(diffSec / 60);
-        const diffHour = Math.round(diffMin / 60);
-        const diffDay = Math.round(diffHour / 24);
         
-        if (diffSec < 60) return 'Just now';
-        if (diffMin < 60) return `${diffMin}m ago`;
-        if (diffHour < 24) return `${diffHour}h ago`;
-        if (diffDay < 7) return `${diffDay}d ago`;
-        
-        return date.toLocaleDateString();
-    }
-    
-    // UI update functions
-    function updateMessageCount() {
-        document.getElementById('messageCount').textContent = messageCount;
-    }
-    
-    function startChatDurationTimer() {
-        const chatDurationEl = document.getElementById('chatDuration');
-        if (!chatDurationEl) return;
-        
-        setInterval(() => {
+        function getRelativeTimeString(date) {
             const now = new Date();
-            const diffMs = now - startTime;
-            const diffMin = Math.floor(diffMs / 60000);
+            const diffMs = now - date;
+            const diffSec = Math.round(diffMs / 1000);
+            const diffMin = Math.round(diffSec / 60);
+            const diffHour = Math.round(diffMin / 60);
+            const diffDay = Math.round(diffHour / 24);
             
-            chatDurationEl.textContent = `${diffMin}m`;
-        }, 60000); // Update every minute
-    }
-    
-    function trackResponseTime(responseTime) {
-        lastResponseTimes.push(parseFloat(responseTime));
-        updateAverageResponseTime();
-    }
-    
-    function updateAverageResponseTime() {
-        if (lastResponseTimes.length === 0) return;
-        
-        const avgResponseTimeEl = document.getElementById('avgResponseTime');
-        const maxResponseTimeEl = document.getElementById('maxResponseTime');
-        
-        const total = lastResponseTimes.reduce((sum, time) => sum + time, 0);
-        const average = total / lastResponseTimes.length;
-        const maxTime = Math.max(...lastResponseTimes);
-        
-        avgResponseTimeEl.textContent = `${average.toFixed(1)}s`;
-        maxResponseTimeEl.textContent = `${maxTime.toFixed(1)}s`;
-    }
-    
-    // Action functions
-    function clearChat(askConfirmation = true) {
-        // Confirm first
-        if (askConfirmation && !confirm('Are you sure you want to clear this chat? This cannot be undone.')) {
-            return;
+            if (diffSec < 60) return 'Just now';
+            if (diffMin < 60) return `${diffMin}m ago`;
+            if (diffHour < 24) return `${diffHour}h ago`;
+            if (diffDay < 7) return `${diffDay}d ago`;
+            
+            return date.toLocaleDateString();
         }
         
-        // Clear messages
-        chatMessages.innerHTML = '';
+        // UI update functions
+        function updateMessageCount() {
+            document.getElementById('messageCount').textContent = messageCount;
+        }
         
-        // Add date header back
-        const dateElement = document.createElement('div');
-        dateElement.className = 'message-date';
-        dateElement.id = 'currentDate';
-        dateElement.textContent = new Date().toLocaleDateString(undefined, { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
-        chatMessages.appendChild(dateElement);
+        function trackResponseTime(responseTime) {
+            lastResponseTimes.push(parseFloat(responseTime));
+            updateAverageResponseTime();
+        }
         
-        // Clear stored messages
-        localStorage.removeItem(`chat_messages_${sessionId}`);
+        function updateAverageResponseTime() {
+            if (lastResponseTimes.length === 0) return;
+            
+            const avgResponseTimeEl = document.getElementById('avgResponseTime');
+            const maxResponseTimeEl = document.getElementById('maxResponseTime');
+            
+            const total = lastResponseTimes.reduce((sum, time) => sum + time, 0);
+            const average = total / lastResponseTimes.length;
+            const maxTime = Math.max(...lastResponseTimes);
+            
+            avgResponseTimeEl.textContent = `${average.toFixed(1)}s`;
+            maxResponseTimeEl.textContent = `${maxTime.toFixed(1)}s`;
+        }
         
-        // Reset stats
-        messageCount = 0;
-        updateMessageCount();
-        lastResponseTimes = [];
-        updateAverageResponseTime();
-        
-        // Add welcome message back
-        addWelcomeMessage();
-        
-        // Close dropdown
-        document.getElementById('chatMenu').classList.remove('show');
-    }
-    
-    function exportChat() {
-        try {
-            // Get all messages
-            const messages = getSavedMessages(sessionId);
-            if (messages.length === 0) {
-                alert('No messages to export.');
+        // Action functions
+        async function clearChat() {
+            // Confirm first
+            if (!confirm('Are you sure you want to clear this chat? This cannot be undone.')) {
                 return;
             }
             
-            // Format for export
-            let exportText = `Chat with @Model.Chatbot.Name - ${new Date().toLocaleDateString()}\n\n`;
-            
-            messages.forEach(msg => {
-                const sender = msg.isUser ? 'You' : '@Model.Chatbot.Name';
-                exportText += `[${msg.time}] ${sender}:\n${msg.content}\n\n`;
-            });
-            
-            // Create download link
-            const blob = new Blob([exportText], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `chat-${sessionId}-${new Date().toISOString().slice(0, 10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            try {
+                // Get CSRF token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                const csrfToken = token ? token.value : '';
+                
+                const response = await fetch('/UserChat/ClearChat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({ sessionId: sessionId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to clear chat');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload the page to show the cleared chat
+                    window.location.reload();
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error clearing chat:', error);
+                showErrorMessage('Failed to clear chat. Please try again.');
+            }
             
             // Close dropdown
             document.getElementById('chatMenu').classList.remove('show');
-        } catch (error) {
-            console.error('Error exporting chat:', error);
-            alert('Failed to export chat. Please try again.');
-        }
-    }
-    
-    function endChat() {
-        // Confirm first
-        if (!confirm('Are you sure you want to end this chat and start a new one?')) {
-            return;
         }
         
-        window.location.href = '/UserChat';
-    }
-    
-    // Feedback and rating
-    function setupFeedbackListeners() {
-        // Star rating
-        const stars = document.querySelectorAll('.rating-star');
-        stars.forEach(star => {
-            star.addEventListener('click', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-                setRating(rating);
+        async function exportChat() {
+            try {
+                // Format chat for export
+                const messages = Array.from(document.querySelectorAll('.message:not(.typing-indicator)'));
+                
+                if (messages.length === 0) {
+                    alert('No messages to export.');
+                    return;
+                }
+                
+                let exportText = `Chat with @Model.Chatbot.Name - ${new Date().toLocaleDateString()}\n\n`;
+                
+                messages.forEach(msg => {
+                    const isUser = msg.classList.contains('user');
+                    const sender = isUser ? 'You' : '@Model.Chatbot.Name';
+                    const content = msg.querySelector('.message-bubble p').textContent;
+                    const time = msg.querySelector('.message-time').textContent;
+                    
+                    exportText += `[${time}] ${sender}:\n${content}\n\n`;
+                });
+                
+                // Create download link
+                const blob = new Blob([exportText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `chat-${sessionId}-${new Date().toISOString().slice(0, 10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // Close dropdown
+                document.getElementById('chatMenu').classList.remove('show');
+            } catch (error) {
+                console.error('Error exporting chat:', error);
+                showErrorMessage('Failed to export chat. Please try again.');
+            }
+        }
+        
+        async function endChat() {
+            // Confirm first
+            if (!confirm('Are you sure you want to end this chat and start a new one?')) {
+                return;
+            }
+            
+            try {
+                // Get CSRF token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                const csrfToken = token ? token.value : '';
+                
+                const response = await fetch('/UserChat/EndChat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({ sessionId: sessionId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to end chat');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Redirect to index page to start a new chat
+                    window.location.href = '/UserChat';
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error ending chat:', error);
+                showErrorMessage('Failed to end chat. Please try again.');
+            }
+        }
+        
+        // Feedback and rating
+        function setupFeedbackListeners() {
+            // Star rating
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    setRating(rating);
+                });
+                
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    highlightStars(rating);
+                });
             });
             
-            star.addEventListener('mouseover', function() {
-                const rating = parseInt(this.getAttribute('data-rating'));
-                highlightStars(rating);
+            document.getElementById('chatRating').addEventListener('mouseout', function() {
+                highlightStars(currentRating);
             });
-        });
+            
+            // Enable submit button when feedback entered
+            document.getElementById('feedbackText').addEventListener('input', function() {
+                document.getElementById('submitFeedback').disabled = currentRating === 0;
+            });
+            
+            // Submit feedback
+            document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
+        }
         
-        document.getElementById('chatRating').addEventListener('mouseout', function() {
-            highlightStars(currentRating);
-        });
+        function setRating(rating) {
+            currentRating = rating;
+            highlightStars(rating);
+            document.getElementById('submitFeedback').disabled = false;
+        }
         
-        // Enable submit button when feedback entered
-        document.getElementById('feedbackText').addEventListener('input', function() {
-            document.getElementById('submitFeedback').disabled = currentRating === 0;
-        });
+        function highlightStars(rating) {
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach(star => {
+                const starRating = parseInt(star.getAttribute('data-rating'));
+                if (starRating <= rating) {
+                    star.classList.remove('bi-star');
+                    star.classList.add('bi-star-fill');
+                } else {
+                    star.classList.remove('bi-star-fill');
+                    star.classList.add('bi-star');
+                }
+            });
+        }
         
-        // Submit feedback
-        document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
-    }
-    
-    function setRating(rating) {
-        currentRating = rating;
-        highlightStars(rating);
-        document.getElementById('submitFeedback').disabled = false;
-    }
-    
-    function highlightStars(rating) {
-        const stars = document.querySelectorAll('.rating-star');
-        stars.forEach(star => {
-            const starRating = parseInt(star.getAttribute('data-rating'));
-            if (starRating <= rating) {
-                star.classList.remove('bi-star');
-                star.classList.add('bi-star-fill');
-            } else {
-                star.classList.remove('bi-star-fill');
-                star.classList.add('bi-star');
-            }
-        });
-    }
-    
-    function submitFeedback() {
-        if (currentRating === 0 || feedbackSubmitted) return;
-        
-        const feedbackText = document.getElementById('feedbackText').value;
-        
-        // Send feedback to server
-        fetch('/UserChat/SubmitChatFeedback', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-            },
-            body: JSON.stringify({
-                sessionId: sessionId,
-                rating: currentRating,
-                feedback: feedbackText
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                feedbackSubmitted = true;
+        async function submitFeedback() {
+            if (currentRating === 0 || feedbackSubmitted) return;
+            
+            const feedbackText = document.getElementById('feedbackText').value;
+            
+            try {
+                // Get CSRF token
+                const token = document.querySelector('input[name="__RequestVerificationToken"]');
+                const csrfToken = token ? token.value : '';
                 
-                // Update UI
-                const feedbackSection = document.getElementById('feedbackSection');
-                feedbackSection.innerHTML = `
-                    <h4 class="section-title">FEEDBACK SUBMITTED</h4>
-                    <div class="feedback-thank-you">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <p>Thank you for your feedback!</p>
-                    </div>
-                `;
-            } else {
-                alert('Failed to submit feedback. Please try again.');
+                // Send feedback to server
+                const response = await fetch('/UserChat/SubmitChatFeedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        rating: currentRating,
+                        feedback: feedbackText
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    feedbackSubmitted = true;
+                    
+                    // Update UI
+                    const feedbackSection = document.getElementById('feedbackSection');
+                    feedbackSection.innerHTML = `
+                        <h4 class="section-title">FEEDBACK SUBMITTED</h4>
+                        <div class="feedback-thank-you">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <p>Thank you for your feedback!</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error submitting feedback:', error);
+                showErrorMessage('Failed to submit feedback. Please try again.');
             }
-        })
-        .catch(error => {
-            console.error('Error submitting feedback:', error);
-            alert('Failed to submit feedback. Please try again.');
-        });
-    }
-</script>
+        }
+        
+        function showErrorMessage(text) {
+            const errorEl = document.createElement('div');
+            errorEl.className = 'error-toast';
+            errorEl.textContent = text;
+            document.body.appendChild(errorEl);
+            
+            setTimeout(() => {
+                errorEl.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                errorEl.classList.remove('show');
+                setTimeout(() => errorEl.remove(), 300);
+            }, 4000);
+        }
+    </script>
 }
 
 @section Styles {

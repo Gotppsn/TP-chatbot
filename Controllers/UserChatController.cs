@@ -9,26 +9,34 @@ using System.Linq;
 using System.Threading.Tasks;
 using ModelMessage = AIHelpdeskSupport.Models.ChatMessage;
 using ViewModelMessage = AIHelpdeskSupport.ViewModels.ChatMessage;
+using AIHelpdeskSupport.Data; // Add this line for ApplicationDbContext
+using Microsoft.EntityFrameworkCore;
 
 namespace AIHelpdeskSupport.Controllers
 {
-    [Authorize(Roles = "User")]
+    [Authorize] // Ensures only authenticated users can access
     public class UserChatController : Controller
     {
         private readonly IFlowiseService _flowiseService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<UserChatController> _logger;
+        private readonly ApplicationDbContext _context; // Add database context
 
-        public UserChatController(IFlowiseService flowiseService, UserManager<ApplicationUser> userManager, ILogger<UserChatController> logger)
+        public UserChatController(
+            IFlowiseService flowiseService, 
+            UserManager<ApplicationUser> userManager, 
+            ILogger<UserChatController> logger,
+            ApplicationDbContext context)
         {
             _flowiseService = flowiseService;
             _userManager = userManager;
             _logger = logger;
+            _context = context;
         }
 
+        // Get all available chatbots for the user
         public async Task<IActionResult> Index()
         {
-            // Get current user
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
@@ -50,10 +58,293 @@ namespace AIHelpdeskSupport.Controllers
                 (c.Department == currentUser.Department || c.Department == "General")
             ).ToList();
 
+            // Get user's recent chat sessions
+            var recentSessions = await _context.ChatSessions
+                .Include(s => s.Chatbot)
+                .Where(s => s.UserId == currentUser.Id)
+                .OrderByDescending(s => s.StartTime)
+                .Take(5)
+                .ToListAsync();
+
+            ViewBag.RecentSessions = recentSessions;
+
             return View(filteredChatbots);
         }
 
-        // Sample chatbots for frontend development
+        // Start a new chat session
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartChat(int chatbotId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            var chatbot = await _flowiseService.GetChatbotByIdAsync(chatbotId);
+            if (chatbot == null)
+            {
+                return NotFound("Chatbot not found");
+            }
+
+            // Create a new chat session
+            var session = new ChatSession
+            {
+                Id = Guid.NewGuid().ToString(),
+                ChatbotId = chatbotId,
+                UserId = currentUser.Id,
+                StartTime = DateTime.UtcNow,
+                Status = "Active"
+            };
+
+            _context.ChatSessions.Add(session);
+            await _context.SaveChangesAsync();
+
+            // Add welcome message
+            var welcomeMessage = new ModelMessage
+            {
+                SessionId = session.Id,
+                IsUser = false,
+                Content = $"Hello! I'm the {chatbot.Name} assistant. How can I help you today?",
+                Timestamp = DateTime.UtcNow
+            };
+
+            _context.ChatMessages.Add(welcomeMessage);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Chat), new { sessionId = session.Id });
+        }
+
+        // Load a chat session
+        public async Task<IActionResult> Chat(string sessionId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Challenge();
+            }
+
+            // Get the chat session
+            var session = await _context.ChatSessions
+                .Include(s => s.Chatbot)
+                .Include(s => s.Messages.OrderBy(m => m.Timestamp))
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+            if (session == null)
+            {
+                return NotFound("Chat session not found");
+            }
+
+            // Create view model
+            var viewModel = new UserChatViewModel
+            {
+                Chatbot = session.Chatbot,
+                SessionId = session.Id,
+                Messages = session.Messages.Select(m => new ViewModels.ChatMessage
+                {
+                    IsUser = m.IsUser,
+                    Content = m.Content,
+                    Timestamp = m.Timestamp
+                }).ToList()
+            };
+
+            return View(viewModel);
+        }
+
+        // API endpoint to send a message
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendMessage(string sessionId, string message)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized(new { success = false, message = "User not authorized" });
+            }
+
+            // Get the chat session
+            var session = await _context.ChatSessions
+                .Include(s => s.Chatbot)
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+            if (session == null)
+            {
+                return NotFound(new { success = false, message = "Chat session not found" });
+            }
+
+            if (string.IsNullOrEmpty(message))
+            {
+                return BadRequest(new { success = false, message = "Message cannot be empty" });
+            }
+
+            // Add user message to database
+            var userMessage = new ModelMessage
+            {
+                SessionId = sessionId,
+                IsUser = true,
+                Content = message,
+                Timestamp = DateTime.UtcNow
+            };
+
+            _context.ChatMessages.Add(userMessage);
+            await _context.SaveChangesAsync();
+
+            // Start timing for response
+            var startTime = DateTime.UtcNow;
+
+            // Call AI service to get response
+            string response;
+            try {
+                response = await _flowiseService.GenerateChatResponseAsync(
+                    session.ChatbotId,
+                    message,
+                    sessionId);
+            }
+            catch (Exception ex) {
+                _logger.LogError(ex, "Error generating chat response");
+                response = "Sorry, I'm having trouble processing your request right now.";
+            }
+
+            // Add bot response to database
+            var botMessage = new ModelMessage
+            {
+                SessionId = sessionId,
+                IsUser = false,
+                Content = response,
+                Timestamp = DateTime.UtcNow
+            };
+
+            _context.ChatMessages.Add(botMessage);
+            
+            // Update session last activity
+            session.LastUpdatedAt = DateTime.UtcNow;
+            _context.ChatSessions.Update(session);
+            
+            await _context.SaveChangesAsync();
+
+            // Calculate response time
+            var responseTime = (DateTime.UtcNow - startTime).TotalSeconds;
+
+            return Ok(new
+            {
+                success = true,
+                response = response,
+                responseTime = responseTime,
+                timestamp = botMessage.Timestamp
+            });
+        }
+
+        // API endpoint to get chat history
+        [HttpGet]
+        public async Task<IActionResult> GetChatHistory()
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized(new { success = false, message = "User not authorized" });
+            }
+
+            var sessions = await _context.ChatSessions
+                .Include(s => s.Chatbot)
+                .Include(s => s.Messages.OrderByDescending(m => m.Timestamp).Take(1))
+                .Where(s => s.UserId == currentUser.Id)
+                .OrderByDescending(s => s.StartTime)
+                .Take(10)
+                .Select(s => new ChatHistoryViewModel
+                {
+                    SessionId = s.Id,
+                    ChatbotName = s.Chatbot.Name,
+                    Department = s.Chatbot.Department,
+                    StartTime = s.StartTime,
+                    EndTime = s.EndTime,
+                    MessageCount = _context.ChatMessages.Count(m => m.SessionId == s.Id),
+                    LastMessage = s.Messages.FirstOrDefault().Content,
+                    Status = s.Status,
+                    Rating = s.Rating,
+                    Feedback = s.Feedback
+                })
+                .ToListAsync();
+
+            return Ok(sessions);
+        }
+
+        // API endpoint to clear chat
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ClearChat(string sessionId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized(new { success = false, message = "User not authorized" });
+            }
+
+            // Get the chat session
+            var session = await _context.ChatSessions
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+            if (session == null)
+            {
+                return NotFound(new { success = false, message = "Chat session not found" });
+            }
+
+            // Delete all messages for this session
+            var messages = await _context.ChatMessages
+                .Where(m => m.SessionId == sessionId)
+                .ToListAsync();
+
+            _context.ChatMessages.RemoveRange(messages);
+            
+            // Add a new welcome message
+            var chatbot = await _flowiseService.GetChatbotByIdAsync(session.ChatbotId);
+            var welcomeMessage = new AIHelpdeskSupport.Models.ChatMessage
+            {
+                SessionId = sessionId,
+                IsUser = false,
+                Content = $"Hello! I'm the {chatbot.Name} assistant. How can I help you today?",
+                Timestamp = DateTime.UtcNow
+            };
+            
+            _context.ChatMessages.Add(welcomeMessage);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Chat cleared successfully" });
+        }
+
+        // API endpoint to end chat session
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EndChat(string sessionId)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return Unauthorized(new { success = false, message = "User not authorized" });
+            }
+
+            // Get the chat session
+            var session = await _context.ChatSessions
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+            if (session == null)
+            {
+                return NotFound(new { success = false, message = "Chat session not found" });
+            }
+
+            // Update session status
+            session.Status = "Closed";
+            session.EndTime = DateTime.UtcNow;
+            
+            _context.ChatSessions.Update(session);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { success = true, message = "Chat ended successfully" });
+        }
+
+        // API endpoint to submit feedback
+
+        // Sample chatbots method (unchanged)
         private IEnumerable<Chatbot> GetSampleChatbots()
         {
             return new List<Chatbot>

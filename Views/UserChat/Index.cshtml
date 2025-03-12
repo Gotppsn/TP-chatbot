@@ -6,6 +6,9 @@
     var departments = Model.Where(c => c.IsActive)
                           .GroupBy(c => c.Department)
                           .OrderBy(g => g.Key);
+                          
+    // Get recent sessions from ViewBag
+    var recentSessions = ViewBag.RecentSessions as List<ChatSession> ?? new List<ChatSession>();
 }
 
 <div class="assistants-container">
@@ -36,25 +39,30 @@
         </div>
     </div>
 
-    <!-- Quick access section -->
-    <div class="quick-access" id="quickAccessSection" style="display: none;">
-        <div class="section-header">
-            <h2><i class="bi bi-lightning"></i> Quick Access <span class="badge">Favorites</span></h2>
+    <!-- Recent conversations section -->
+    @if (recentSessions.Any())
+    {
+        <div class="recent-conversations" id="recentConversationsSection">
+            <div class="section-header">
+                <h2><i class="bi bi-clock-history"></i> Recent Conversations <span class="badge recent-badge">New</span></h2>
+            </div>
+            <div class="recent-items" id="recentItems">
+                @foreach (var session in recentSessions)
+                {
+                    <div class="recent-item" data-session-id="@session.Id">
+                        <div class="assistant-icon">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="recent-info">
+                            <div class="recent-name">@session.Chatbot.Name</div>
+                            <div class="recent-department">@session.Chatbot.Department</div>
+                            <div class="recent-time">@GetRelativeTime(session.StartTime)</div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
-        <div class="quick-items" id="quickAccessItems">
-            <!-- Will be populated dynamically by JavaScript -->
-        </div>
-    </div>
-
-    <!-- Recent conversations section (new) -->
-    <div class="recent-conversations" id="recentConversationsSection" style="display: none;">
-        <div class="section-header">
-            <h2><i class="bi bi-clock-history"></i> Recent Conversations <span class="badge recent-badge">New</span></h2>
-        </div>
-        <div class="recent-items" id="recentItems">
-            <!-- Will be populated dynamically by JavaScript -->
-        </div>
-    </div>
+    }
 
     <!-- Department sections -->
     <div id="departmentsList">
@@ -90,7 +98,10 @@
                                     <i class="bi bi-robot"></i>
                                 </div>
                                 <h3>@chatbot.Name</h3>
-                                <!-- Indicator for recent conversations will be added here dynamically -->
+                                @if (recentSessions.Any(s => s.ChatbotId == chatbot.Id && (DateTime.UtcNow - s.StartTime).TotalHours < 24))
+                                {
+                                    <div class="recent-indicator" title="Recent conversation"></div>
+                                }
                             </div>
                             <div class="assistant-description">
                                 <p>@(string.IsNullOrEmpty(chatbot.Description) 
@@ -112,13 +123,13 @@
                                 <span class="department-tag">@chatbot.Department</span>
                             </div>
                             <div class="assistant-actions">
-                                <button class="start-chat-btn" onclick="startChat(@chatbot.Id)">
-                                    <i class="bi bi-chat"></i>
-                                    Start Chat
-                                </button>
-                                <button class="favorite-btn" onclick="toggleFavorite(event, @chatbot.Id)" title="Add to favorites">
-                                    <i class="bi bi-star"></i>
-                                </button>
+                                <form asp-action="StartChat" method="post" class="w-100">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="chatbotId" value="@chatbot.Id" />
+                                    <button type="submit" class="start-chat-btn">
+                                        <i class="bi bi-chat"></i> Start Chat
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     }
@@ -151,6 +162,26 @@
         </div>
     }
 </div>
+
+@functions {
+    public string GetRelativeTime(DateTime date)
+    {
+        var now = DateTime.UtcNow;
+        var diff = now - date;
+        
+        if (diff.TotalSeconds < 60)
+            return "Just now";
+        if (diff.TotalMinutes < 60)
+            return $"{(int)diff.TotalMinutes}m ago";
+        if (diff.TotalHours < 24)
+            return $"{(int)diff.TotalHours}h ago";
+        if (diff.TotalDays < 7)
+            return $"{(int)diff.TotalDays}d ago";
+        
+        return date.ToString("MMM d, yyyy");
+    }
+}
+
 
 @section Styles {
     <style>
@@ -730,19 +761,11 @@
             const departmentFilter = document.getElementById('departmentFilter');
             const resetButton = document.getElementById('resetFilters');
             const clearAllFiltersBtn = document.getElementById('clearAllFilters');
-            const quickAccessSection = document.getElementById('quickAccessSection');
-            const quickAccessItems = document.getElementById('quickAccessItems');
-            const recentConversationsSection = document.getElementById('recentConversationsSection');
-            const recentItems = document.getElementById('recentItems');
             const noResults = document.getElementById('noResults');
             
             // Initialize
             setupEventListeners();
             restoreCollapsedState();
-            loadFavorites();
-            loadRecentConversations();
-            updateQuickAccess();
-            markRecentConversations();
             applyFilters();
 
             function setupEventListeners() {
@@ -756,6 +779,16 @@
                 resetButton.addEventListener('click', resetFilters);
                 clearAllFiltersBtn.addEventListener('click', resetFilters);
                 
+                // Recent conversation items click event
+                document.querySelectorAll('.recent-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const sessionId = this.getAttribute('data-session-id');
+                        if (sessionId) {
+                            window.location.href = `/UserChat/Chat/${sessionId}`;
+                        }
+                    });
+                });
+                
                 // Keyboard shortcut for search
                 document.addEventListener('keydown', function(e) {
                     if (e.key === '/' && document.activeElement !== searchInput) {
@@ -766,6 +799,7 @@
             }
             
             function applyFilters() {
+                // Logic for filtering assistants (unchanged)
                 const searchTerm = searchInput.value.toLowerCase().trim();
                 const selectedDepartment = departmentFilter.value;
                 
@@ -859,421 +893,6 @@
                     }
                 });
             }
-            
-            // Load favorites from localStorage
-            function loadFavorites() {
-                let favorites = [];
-                try {
-                    favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-                } catch (error) {
-                    console.error('Error parsing favorites:', error);
-                    favorites = [];
-                }
-
-                // Update UI for each favorite
-                favorites.forEach(id => {
-                    const buttons = document.querySelectorAll(`.assistant-card[data-id="${id}"] .favorite-btn`);
-                    buttons.forEach(button => {
-                        button.classList.add('active');
-                        const icon = button.querySelector('i');
-                        if (icon) {
-                            icon.classList.remove('bi-star');
-                            icon.classList.add('bi-star-fill');
-                        }
-                    });
-                });
-
-                return favorites;
-            }
-            
-            // Load recent conversations from localStorage
-            function loadRecentConversations() {
-                try {
-                    // Get recent conversations from localStorage
-                    const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
-                    
-                    // If no recent conversations, hide section
-                    if (!recentConversations || recentConversations.length === 0) {
-                        recentConversationsSection.style.display = 'none';
-                        return;
-                    }
-                    
-                    // Show section
-                    recentConversationsSection.style.display = 'block';
-                    
-                    // Clear existing items
-                    recentItems.innerHTML = '';
-                    
-                    // Filter to keep only recent conversations (last 7 days)
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    
-                    const recentOnes = recentConversations.filter(conv => {
-                        const lastActive = new Date(conv.lastActive || conv.startTime);
-                        return lastActive > sevenDaysAgo;
-                    }).slice(0, 5); // Limit to 5 most recent
-                    
-                    // If no recent ones after filtering, hide section
-                    if (recentOnes.length === 0) {
-                        recentConversationsSection.style.display = 'none';
-                        return;
-                    }
-                    
-                    // Add each recent conversation
-                    recentOnes.forEach(conv => {
-                        // Get chatbot name - either from conversation or find card
-                        let chatbotName = conv.chatbotName;
-                        if (!chatbotName) {
-                            const card = document.querySelector(`.assistant-card[data-id="${conv.chatbotId}"]`);
-                            if (card) {
-                                chatbotName = card.querySelector('h3').textContent;
-                            } else {
-                                chatbotName = "Assistant";
-                            }
-                        }
-                        
-                        // Create recent item
-                        const recentItem = document.createElement('div');
-                        recentItem.className = 'recent-item';
-                        recentItem.dataset.sessionId = conv.id;
-                        recentItem.onclick = () => continueChat(conv.id);
-                        
-                        // Get relative time
-                        const lastActive = new Date(conv.lastActive || conv.startTime);
-                        const timeAgo = getRelativeTimeString(lastActive);
-                        
-                        recentItem.innerHTML = `
-                            <div class="assistant-icon">
-                                <i class="bi bi-robot"></i>
-                            </div>
-                            <div class="recent-info">
-                                <div class="recent-name">${chatbotName}</div>
-                                <div class="recent-department">${conv.department || 'Support'}</div>
-                                <div class="recent-time">${timeAgo}</div>
-                            </div>
-                        `;
-                        
-                        recentItems.appendChild(recentItem);
-                    });
-                } catch (error) {
-                    console.error('Error loading recent conversations:', error);
-                    recentConversationsSection.style.display = 'none';
-                }
-            }
-
-            // Update quick access section based on favorites
-            function updateQuickAccess() {
-                const favorites = loadFavorites();
-                
-                // Clear quick access items
-                quickAccessItems.innerHTML = '';
-                
-                // Hide section if no favorites
-                if (favorites.length === 0) {
-                    quickAccessSection.style.display = 'none';
-                    return;
-                }
-                
-                // Show section and add favorite items
-                quickAccessSection.style.display = 'block';
-                
-                favorites.forEach(id => {
-                    const card = document.querySelector(`.assistant-card[data-id="${id}"]`);
-                    if (card) {
-                        const name = card.querySelector('h3').textContent;
-                        const department = card.getAttribute('data-department');
-                        
-                        const quickItem = document.createElement('div');
-                        quickItem.className = 'quick-item';
-                        quickItem.onclick = function() { startChat(id); };
-                        
-                        quickItem.innerHTML = `
-                            <div class="assistant-icon">
-                                <i class="bi bi-robot"></i>
-                            </div>
-                            <div class="quick-info">
-                                <div class="quick-name">${name}</div>
-                                <div class="quick-department">${department}</div>
-                            </div>
-                        `;
-                        
-                        quickAccessItems.appendChild(quickItem);
-                    }
-                });
-            }
         });
-        
-        // Toggle favorite status
-        function toggleFavorite(event, chatbotId) {
-            // Prevent event bubbling
-            event.preventDefault();
-            event.stopPropagation();
-            
-            const button = event.currentTarget;
-            const icon = button.querySelector('i');
-            
-            // Toggle active class
-            button.classList.toggle('active');
-            button.classList.add('clicked');
-            
-            // After animation completes, remove clicked class
-            setTimeout(() => {
-                button.classList.remove('clicked');
-            }, 300);
-            
-            // Toggle icon
-            if (button.classList.contains('active')) {
-                icon.classList.remove('bi-star');
-                icon.classList.add('bi-star-fill');
-            } else {
-                icon.classList.remove('bi-star-fill');
-                icon.classList.add('bi-star');
-            }
-            
-            try {
-                // Update favorites in localStorage
-                let favorites = [];
-                try {
-                    favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-                } catch (error) {
-                    console.error('Error parsing favorites:', error);
-                    favorites = [];
-                }
-                
-                // Convert chatbotId to number to ensure consistent type comparison
-                const chatbotIdNumber = parseInt(chatbotId, 10);
-                
-                if (button.classList.contains('active')) {
-                    // Add to favorites if not already there
-                    if (!favorites.includes(chatbotIdNumber)) {
-                        favorites.push(chatbotIdNumber);
-                    }
-                } else {
-                    // Remove from favorites
-                    const index = favorites.indexOf(chatbotIdNumber);
-                    if (index > -1) {
-                        favorites.splice(index, 1);
-                    }
-                }
-                
-                // Save updated favorites
-                localStorage.setItem('favoriteChatbots', JSON.stringify(favorites));
-                
-                // Update quick access section
-                updateQuickAccess();
-            } catch (error) {
-                console.error('Error updating favorites:', error);
-                showErrorToast('Could not update favorites. Please try again.');
-            }
-            
-            return false;
-        }
-        
-        // Update all UI elements based on favorites
-        function updateQuickAccess() {
-            const quickAccessSection = document.getElementById('quickAccessSection');
-            const quickAccessItems = document.getElementById('quickAccessItems');
-            
-            // Load favorites
-            let favorites = [];
-            try {
-                favorites = JSON.parse(localStorage.getItem('favoriteChatbots') || '[]');
-            } catch (error) {
-                console.error('Error parsing favorites:', error);
-                favorites = [];
-            }
-            
-            // Clear current items
-            quickAccessItems.innerHTML = '';
-            
-            // Hide section if no favorites
-            if (favorites.length === 0) {
-                quickAccessSection.style.display = 'none';
-                return;
-            }
-            
-            // Show section
-            quickAccessSection.style.display = 'block';
-            
-            // Add favorite items
-            favorites.forEach(id => {
-                const card = document.querySelector(`.assistant-card[data-id="${id}"]`);
-                if (card) {
-                    const name = card.querySelector('h3').textContent;
-                    const department = card.getAttribute('data-department');
-                    
-                    const quickItem = document.createElement('div');
-                    quickItem.className = 'quick-item';
-                    quickItem.onclick = function() { startChat(id); };
-                    
-                    quickItem.innerHTML = `
-                        <div class="assistant-icon">
-                            <i class="bi bi-robot"></i>
-                        </div>
-                        <div class="quick-info">
-                            <div class="quick-name">${name}</div>
-                            <div class="quick-department">${department}</div>
-                        </div>
-                    `;
-                    
-                    quickAccessItems.appendChild(quickItem);
-                }
-            });
-        }
-        
-        // Start a new chat with the selected chatbot
-        function startChat(chatbotId) {
-            // Generate unique session ID using timestamp and random string
-            const timestamp = Date.now();
-            const randomString = Math.random().toString(36).substring(2, 10);
-            const sessionId = `session-${timestamp}-${randomString}`;
-            
-            // Find the assistant card to get Flowise ID, name and department
-            const assistantCard = document.querySelector(`.assistant-card[data-id="${chatbotId}"]`);
-            let flowiseId = '';
-            let chatbotName = '';
-            let department = '';
-            
-            if (assistantCard) {
-                flowiseId = assistantCard.getAttribute('data-flowise-id') || '';
-                chatbotName = assistantCard.querySelector('h3').textContent;
-                department = assistantCard.getAttribute('data-department');
-            }
-            
-            // Store chat info in localStorage using sessionId as the key
-            localStorage.setItem(sessionId, JSON.stringify({
-                chatbotId: chatbotId,
-                flowiseId: flowiseId,
-                createdAt: new Date().toISOString()
-            }));
-            
-            // Store session info for history tracking
-            const sessionInfo = {
-                id: sessionId,
-                chatbotId: chatbotId,
-                flowiseId: flowiseId,
-                chatbotName: chatbotName,
-                department: department,
-                startTime: new Date().toISOString(),
-                lastActive: new Date().toISOString()
-            };
-            
-            localStorage.setItem(`chat_session_${sessionId}`, JSON.stringify(sessionInfo));
-            
-            // Update recent conversations
-            updateRecentConversations(sessionInfo);
-            
-            // Navigate to chat page
-            window.location.href = `/UserChat/Chat/${sessionId}`;
-        }
-        
-        // Continue an existing chat session
-        function continueChat(sessionId) {
-            window.location.href = `/UserChat/Chat/${sessionId}`;
-        }
-        
-        // Update recent conversations list
-        function updateRecentConversations(sessionInfo) {
-            try {
-                // Get existing conversations
-                let recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
-                
-                // Add current session to the beginning if not already there
-                const existingIndex = recentConversations.findIndex(c => c.id === sessionInfo.id);
-                if (existingIndex > -1) {
-                    // Update existing entry
-                    recentConversations[existingIndex] = {
-                        ...recentConversations[existingIndex],
-                        lastActive: new Date().toISOString()
-                    };
-                } else {
-                    // Add new entry
-                    recentConversations.unshift(sessionInfo);
-                }
-                
-                // Limit to 10 recent conversations
-                recentConversations = recentConversations.slice(0, 10);
-                
-                // Save updated list
-                localStorage.setItem('recent_conversations', JSON.stringify(recentConversations));
-            } catch (error) {
-                console.error('Error updating recent conversations:', error);
-            }
-        }
-        
-        // Format relative time string (e.g., "2h ago")
-        function getRelativeTimeString(date) {
-            const now = new Date();
-            const diffMs = now - date;
-            const diffSec = Math.round(diffMs / 1000);
-            const diffMin = Math.round(diffSec / 60);
-            const diffHour = Math.round(diffMin / 60);
-            const diffDay = Math.round(diffHour / 24);
-            
-            if (diffSec < 60) return 'Just now';
-            if (diffMin < 60) return `${diffMin}m ago`;
-            if (diffHour < 24) return `${diffHour}h ago`;
-            if (diffDay < 7) return `${diffDay}d ago`;
-            
-            return date.toLocaleDateString();
-        }
-        
-        // Mark chatbots with recent conversations
-        function markRecentConversations() {
-            try {
-                // Get recent conversations from localStorage
-                const recentConversations = JSON.parse(localStorage.getItem('recent_conversations') || '[]');
-                
-                // No need to continue if no recent conversations
-                if (recentConversations.length === 0) return;
-                
-                // Get all assistant cards
-                const cards = document.querySelectorAll('.assistant-card');
-                
-                // Clear existing indicators
-                document.querySelectorAll('.recent-indicator').forEach(indicator => indicator.remove());
-                
-                // Add indicators to cards with recent conversations
-                recentConversations.forEach(conversation => {
-                    if (conversation.chatbotId) {
-                        const card = document.querySelector(`.assistant-card[data-id="${conversation.chatbotId}"]`);
-                        if (card) {
-                            // Check if conversation is recent (last 24 hours)
-                            const lastActive = new Date(conversation.lastActive || conversation.startTime);
-                            const hoursAgo = (new Date() - lastActive) / (1000 * 60 * 60);
-                            
-                            if (hoursAgo < 24) {
-                                const headerDiv = card.querySelector('.assistant-header');
-                                if (headerDiv) {
-                                    const indicator = document.createElement('div');
-                                    indicator.className = 'recent-indicator';
-                                    indicator.title = 'Recent conversation';
-                                    headerDiv.appendChild(indicator);
-                                }
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error('Error marking recent conversations:', error);
-            }
-        }
-        
-        // Show error toast message
-        function showErrorToast(message) {
-            const toast = document.createElement('div');
-            toast.className = 'error-toast';
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 300);
-            }, 4000);
-        }
     </script>
 }
