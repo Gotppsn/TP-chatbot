@@ -12,6 +12,8 @@ public class ChatSession
     public int? Rating { get; set; }
     public DateTime LastUpdatedAt { get; set; }
     public string? Feedback { get; set; }
+    public bool IsHidden { get; set; } // Add this line
+    public DateTime? HiddenAt { get; set; } // Add this line
     
     // Navigation properties
     public virtual Chatbot Chatbot { get; set; } = null!;
