@@ -7,7 +7,9 @@ public class ChatMessage
     public bool IsUser { get; set; }
     public string Content { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public bool IsVisible { get; set; } = true;
     
     // Navigation property
     public virtual ChatSession Session { get; set; } = null!;
 }}
+

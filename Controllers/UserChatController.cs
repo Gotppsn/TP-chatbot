@@ -236,17 +236,19 @@ public async Task<IActionResult> Chat(string sessionId)
     }
 
     // Create view model
-    var viewModel = new UserChatViewModel
-    {
-        Chatbot = session.Chatbot,
-        SessionId = session.Id,
-        Messages = session.Messages.Select(m => new ViewModels.ChatMessage
+var viewModel = new UserChatViewModel
+{
+    Chatbot = session.Chatbot,
+    SessionId = session.Id,
+    Messages = session.Messages
+        .Where(m => m.IsVisible) // 👈 Add this filter
+        .Select(m => new ViewModels.ChatMessage
         {
             IsUser = m.IsUser,
             Content = m.Content,
             Timestamp = m.Timestamp
         }).ToList()
-    };
+};
 
     return View(viewModel);
 }
@@ -295,53 +297,57 @@ public async Task<IActionResult> Chat(string sessionId)
 
         // POST: /UserChat/ClearChat
         // Clears chat history for a session
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("UserChat/ClearChat")]
-        public async Task<IActionResult> ClearChat([FromBody] SessionRequest request)
-        {
-            _logger.LogInformation("ClearChat called: SessionId={SessionId}", request.SessionId);
-            
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Unauthorized(new { success = false, message = "User not authorized" });
-            }
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/ClearChat")]
+public async Task<IActionResult> ClearChat([FromBody] SessionRequest request)
+{
+    _logger.LogInformation("ClearChat called: SessionId={SessionId}", request.SessionId);
+    
+    // Authentication check
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
 
-            // Get the chat session
-            var session = await _context.ChatSessions
-                .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
 
-            if (session == null)
-            {
-                return NotFound(new { success = false, message = "Chat session not found" });
-            }
+    if (session == null)
+    {
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
 
-            // Delete all messages for this session
-            var messages = await _context.ChatMessages
-                .Where(m => m.SessionId == request.SessionId)
-                .ToListAsync();
+    // Mark all messages as hidden instead of deleting them
+    var messages = await _context.ChatMessages
+        .Where(m => m.SessionId == request.SessionId)
+        .ToListAsync();
 
-            _context.ChatMessages.RemoveRange(messages);
-            
-            // Add a new welcome message
-            var chatbot = await _flowiseService.GetChatbotByIdAsync(session.ChatbotId);
-            var welcomeMessage = new AIHelpdeskSupport.Models.ChatMessage
-            {
-                SessionId = request.SessionId,
-                IsUser = false,
-                Content = $"Hello! I'm the {chatbot.Name} assistant. How can I help you today?",
-                Timestamp = DateTime.UtcNow
-            };
-            
-            _context.ChatMessages.Add(welcomeMessage);
-            await _context.SaveChangesAsync();
+    foreach (var message in messages)
+    {
+        message.IsVisible = false; // Mark as hidden instead of deleting
+    }
+    
+    // Add a new welcome message
+    var chatbot = await _flowiseService.GetChatbotByIdAsync(session.ChatbotId);
+    var welcomeMessage = new AIHelpdeskSupport.Models.ChatMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = false,
+        Content = $"Hello! I'm the {chatbot.Name} assistant. How can I help you today?",
+        Timestamp = DateTime.UtcNow,
+        IsVisible = true // Ensure this is visible
+    };
+    
+    _context.ChatMessages.Add(welcomeMessage);
+    await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Chat cleared successfully: SessionId={SessionId}", request.SessionId);
-            
-            return Ok(new { success = true, message = "Chat cleared successfully" });
-        }
-
+    _logger.LogInformation("Chat cleared successfully (messages hidden): SessionId={SessionId}", request.SessionId);
+    
+    return Ok(new { success = true, message = "Chat cleared successfully" });
+}
         // POST: /UserChat/EndChat
         // Ends a chat session
         [HttpPost]
@@ -798,6 +804,36 @@ public async Task<IActionResult> GetBotResponse([FromBody] ChatMessageRequest re
     await _context.SaveChangesAsync();
 
     return Ok(new { success = true, response });
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/HideChat")]
+public async Task<IActionResult> HideChat([FromBody] SessionRequest request)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
+
+    // Mark as hidden instead of deleting
+    session.IsHidden = true;
+    session.HiddenAt = DateTime.UtcNow;
+    
+    _context.ChatSessions.Update(session);
+    await _context.SaveChangesAsync();
+
+    return Ok(new { success = true, message = "Chat hidden successfully" });
 }
 
         // Helper method to get sample chatbots
