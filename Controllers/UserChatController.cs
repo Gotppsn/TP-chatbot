@@ -650,6 +650,156 @@ public async Task<IActionResult> Chat(string sessionId)
             return RedirectToAction(nameof(Profile));
         }
 
+        [HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/SaveUserMessage")]
+public async Task<IActionResult> SaveUserMessage([FromBody] ChatMessageRequest request)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .Include(s => s.Chatbot)
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
+
+    if (string.IsNullOrEmpty(request.Message))
+    {
+        return BadRequest(new { success = false, message = "Message cannot be empty" });
+    }
+
+    // Add user message to database
+    var userMessage = new ModelMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = true,
+        Content = request.Message,
+        Timestamp = DateTime.UtcNow
+    };
+
+    _context.ChatMessages.Add(userMessage);
+    
+    // Update session last activity
+    session.LastUpdatedAt = DateTime.UtcNow;
+    _context.ChatSessions.Update(session);
+    
+    await _context.SaveChangesAsync();
+
+    return Ok(new { success = true });
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/SaveBotMessage")]
+public async Task<IActionResult> SaveBotMessage([FromBody] ChatMessageRequest request)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
+
+    if (string.IsNullOrEmpty(request.Message))
+    {
+        return BadRequest(new { success = false, message = "Message cannot be empty" });
+    }
+
+    // Add bot message to database
+    var botMessage = new ModelMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = false,
+        Content = request.Message,
+        Timestamp = DateTime.UtcNow
+    };
+
+    _context.ChatMessages.Add(botMessage);
+    
+    // Update session last activity
+    session.LastUpdatedAt = DateTime.UtcNow;
+    _context.ChatSessions.Update(session);
+    
+    await _context.SaveChangesAsync();
+
+    return Ok(new { success = true });
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/GetBotResponse")]
+public async Task<IActionResult> GetBotResponse([FromBody] ChatMessageRequest request)
+{
+    // This is a fallback method for when direct Flowise API call fails
+    // It assumes the user message is already saved (by SaveUserMessage)
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .Include(s => s.Chatbot)
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
+
+    // Get response from AI service
+    string language = request.Language ?? "en";
+    string response;
+    
+    try {
+        response = await _flowiseService.GenerateChatResponseAsync(
+            session.ChatbotId, 
+            request.Message, 
+            request.SessionId,
+            language);
+    }
+    catch (Exception ex) {
+        _logger.LogError(ex, "Error generating chat response");
+        response = "Sorry, I'm having trouble processing your request right now.";
+    }
+
+    // Add bot response to database
+    var botMessage = new ModelMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = false,
+        Content = response,
+        Timestamp = DateTime.UtcNow
+    };
+
+    _context.ChatMessages.Add(botMessage);
+    
+    // Update session last activity
+    session.LastUpdatedAt = DateTime.UtcNow;
+    _context.ChatSessions.Update(session);
+    
+    await _context.SaveChangesAsync();
+
+    return Ok(new { success = true, response });
+}
+
         // Helper method to get sample chatbots
         private IEnumerable<Chatbot> GetSampleChatbots()
         {

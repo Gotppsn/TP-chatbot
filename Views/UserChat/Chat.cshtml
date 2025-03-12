@@ -410,156 +410,184 @@
             document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage] || chatbotNames['en'];
         }
         
-        async function sendMessage() {
-            // Get message text
-            const message = messageInput.value.trim();
-            if (!message) {
-                // Provide visual feedback for empty message
-                messageInput.classList.add('shake-animation');
-                setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
-                return;
-            }
-            
-            // Get CSRF token
-            const token = document.querySelector('input[name="__RequestVerificationToken"]');
-            if (!token) {
-                console.error('CSRF token not found');
-                showErrorMessage('Security token missing. Please refresh the page.');
-                return;
-            }
-            const csrfToken = token.value;
-            
-            // Get current time
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            lastMessageTime = now;
-            
-            // Add user message to chat
-            appendMessage(message, 'user', timeString);
-            
-            // Clear input and reset height
-            messageInput.value = '';
-            messageInput.style.height = 'auto';
-            sendButton.disabled = true;
-            
-            // Scroll to bottom
-            scrollToBottom();
-            
-            // Show typing indicator
-            showTypingIndicator();
-            
-            // Start timing for response
-            const startTime = performance.now();
-            
-            try {
-                let response;
-                
-                // Try direct Flowise API call if flowiseId is available
-                if (flowiseId && flowiseId.length > 5) {
-                    console.log('Using direct Flowise API call with ID:', flowiseId);
-                    try {
-                        // Direct call to Flowise API (similar to Test.cshtml)
-                        const flowiseResponse = await callFlowiseAPI(message);
-                        response = {
-                            success: true,
-                            response: flowiseResponse,
-                            timestamp: new Date().toISOString()
-                        };
-                    } catch (flowiseError) {
-                        console.error('Flowise API call failed, falling back to server endpoint:', flowiseError);
-                        // Fall back to server endpoint
-                        const serverResponse = await fetch('/UserChat/SendMessageInSession', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'RequestVerificationToken': csrfToken
-                            },
-                            body: JSON.stringify({
-                                sessionId: sessionId,
-                                message: message,
-                                language: currentLanguage
-                            })
-                        });
-                        
-                        if (!serverResponse.ok) {
-                            throw new Error('Server response was not ok: ' + serverResponse.status);
-                        }
-                        
-                        response = await serverResponse.json();
-                    }
-                } else {
-                    console.log('Using server endpoint');
-                    // Call through server endpoint
-                    const serverResponse = await fetch('/UserChat/SendMessageInSession', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'RequestVerificationToken': csrfToken
-                        },
-                        body: JSON.stringify({
-                            sessionId: sessionId,
-                            message: message,
-                            language: currentLanguage
-                        })
-                    });
-                    
-                    if (!serverResponse.ok) {
-                        throw new Error('Network response was not ok: ' + serverResponse.status);
-                    }
-                    
-                    response = await serverResponse.json();
-                }
-                
-                console.log('Message response:', response);
-                
-                if (response.success) {
-                    // Calculate response time
-                    const endTime = performance.now();
-                    const responseTime = ((endTime - startTime) / 1000).toFixed(2);
-                    trackResponseTime(responseTime);
-                    
-                    // Update response time display
-                    document.getElementById('responseTime').textContent = responseTime + 's';
-                    
-                    // Remove typing indicator
-                    removeTypingIndicator();
-                    
-                    // Add bot response to chat - Don't modify HTML content from server
-                    const botTime = new Date(response.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    
-                    // Use the response directly without additional processing if it contains HTML
-                    appendMessage(response.response, 'bot', botTime);
-                    
-                    // Update UI
-                    messageCount += 2; // User message + bot response
-                    updateMessageCount();
-                    updateAverageResponseTime();
-                    
-                    // Scroll to bottom
-                    scrollToBottom();
-                } else {
-                    throw new Error(response.message || 'Unknown error');
-                }
-            } catch (error) {
-                console.error('Error sending message:', error);
-                
-                // Remove typing indicator
-                removeTypingIndicator();
-                
-                // Show error message
-                const errorMessage = "Sorry, I'm having trouble connecting to the server. Please try again later.";
-                const errorTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                appendMessage(errorMessage, 'bot', errorTime);
-                
-                // Update UI
-                messageCount += 2; // User message + error message
-                updateMessageCount();
-            } finally {
-                // Re-enable input
-                sendButton.disabled = false;
-                messageInput.focus();
-            }
+async function sendMessage() {
+    // Get message text and validation code (unchanged)
+    const message = messageInput.value.trim();
+    if (!message) {
+        // Provide visual feedback for empty message
+        messageInput.classList.add('shake-animation');
+        setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
+        return;
+    }
+    
+    // Get CSRF token
+    const token = document.querySelector('input[name="__RequestVerificationToken"]');
+    if (!token) {
+        console.error('CSRF token not found');
+        showErrorMessage('Security token missing. Please refresh the page.');
+        return;
+    }
+    const csrfToken = token.value;
+    
+    // UI updates for user message (unchanged)
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    lastMessageTime = now;
+    
+    // Add user message to chat
+    appendMessage(message, 'user', timeString);
+    
+    // Clear input and reset height
+    messageInput.value = '';
+    messageInput.style.height = 'auto';
+    sendButton.disabled = true;
+    
+    // Scroll to bottom
+    scrollToBottom();
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // Start timing for response
+    const startTime = performance.now();
+    
+    try {
+        // IMPORTANT CHANGE: Always send user message to server first
+        // This ensures the user message is saved to the database
+        const saveUserMessageResponse = await fetch('/UserChat/SaveUserMessage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': csrfToken
+            },
+            body: JSON.stringify({
+                sessionId: sessionId,
+                message: message,
+                language: currentLanguage
+            })
+        });
+        
+        if (!saveUserMessageResponse.ok) {
+            throw new Error('Failed to save user message: ' + saveUserMessageResponse.status);
         }
+        
+        let botResponse;
+        
+        // Try direct Flowise API call if flowiseId is available
+        if (flowiseId && flowiseId.length > 5) {
+            console.log('Using direct Flowise API call with ID:', flowiseId);
+            try {
+                // Direct call to Flowise API
+                botResponse = await callFlowiseAPI(message);
+                
+                // IMPORTANT CHANGE: Save bot response to server
+                // This ensures the bot response is saved to the database
+                const saveBotMessageResponse = await fetch('/UserChat/SaveBotMessage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        message: botResponse,
+                        language: currentLanguage
+                    })
+                });
+                
+                if (!saveBotMessageResponse.ok) {
+                    console.warn('Failed to save bot message, but continuing:', saveBotMessageResponse.status);
+                }
+                
+            } catch (flowiseError) {
+                console.error('Flowise API call failed, falling back to server endpoint:', flowiseError);
+                // Fall back to server endpoint (original approach)
+                const serverResponse = await fetch('/UserChat/GetBotResponse', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        message: message,
+                        language: currentLanguage
+                    })
+                });
+                
+                if (!serverResponse.ok) {
+                    throw new Error('Server response was not ok: ' + serverResponse.status);
+                }
+                
+                const responseData = await serverResponse.json();
+                botResponse = responseData.response;
+            }
+        } else {
+            // Use original server endpoint that handles both saving and response
+            const serverResponse = await fetch('/UserChat/SendMessageInSession', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': csrfToken
+                },
+                body: JSON.stringify({
+                    sessionId: sessionId,
+                    message: message,
+                    language: currentLanguage
+                })
+            });
+            
+            if (!serverResponse.ok) {
+                throw new Error('Network response was not ok: ' + serverResponse.status);
+            }
+            
+            const responseData = await serverResponse.json();
+            botResponse = responseData.response;
+        }
+        
+        // Calculate response time
+        const endTime = performance.now();
+        const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+        trackResponseTime(responseTime);
+        
+        // Update response time display
+        document.getElementById('responseTime').textContent = responseTime + 's';
+        
+        // Remove typing indicator
+        removeTypingIndicator();
+        
+        // Add bot response to chat
+        const botTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        appendMessage(botResponse, 'bot', botTime);
+        
+        // Update UI
+        messageCount += 2; // User message + bot response
+        updateMessageCount();
+        updateAverageResponseTime();
+        
+        // Scroll to bottom
+        scrollToBottom();
+        
+    } catch (error) {
+        console.error('Error sending message:', error);
+        
+        // Remove typing indicator
+        removeTypingIndicator();
+        
+        // Show error message
+        const errorMessage = "Sorry, I'm having trouble connecting to the server. Please try again later.";
+        const errorTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        appendMessage(errorMessage, 'bot', errorTime);
+        
+        // Update UI
+        messageCount += 2; // User message + error message
+        updateMessageCount();
+    } finally {
+        // Re-enable input
+        sendButton.disabled = false;
+        messageInput.focus();
+    }
+}
         
         // NEW: Direct API call to Flowise (similar to Test.cshtml)
         async function callFlowiseAPI(message) {
