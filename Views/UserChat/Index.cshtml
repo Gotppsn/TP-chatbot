@@ -780,14 +780,14 @@
                 clearAllFiltersBtn.addEventListener('click', resetFilters);
                 
                 // Recent conversation items click event
-                document.querySelectorAll('.recent-item').forEach(item => {
-                    item.addEventListener('click', function() {
-                        const sessionId = this.getAttribute('data-session-id');
-                        if (sessionId) {
-                            window.location.href = `/UserChat/Chat/${sessionId}`;
-                        }
-                    });
-                });
+document.querySelectorAll('.recent-item').forEach(item => {
+    item.addEventListener('click', function() {
+        const sessionId = this.getAttribute('data-session-id');
+        if (sessionId) {
+            window.location.href = `/UserChat/ChatSession/${sessionId}`;
+        }
+    });
+});
                 
                 // Keyboard shortcut for search
                 document.addEventListener('keydown', function(e) {

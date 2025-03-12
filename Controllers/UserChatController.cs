@@ -113,43 +113,7 @@ namespace AIHelpdeskSupport.Controllers
             _context.ChatMessages.Add(welcomeMessage);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Chat), new { sessionId = session.Id });
-        }
-
-        // Load a chat session
-        public async Task<IActionResult> Chat(string sessionId)
-        {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Challenge();
-            }
-
-            // Get the chat session
-            var session = await _context.ChatSessions
-                .Include(s => s.Chatbot)
-                .Include(s => s.Messages.OrderBy(m => m.Timestamp))
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
-
-            if (session == null)
-            {
-                return NotFound("Chat session not found");
-            }
-
-            // Create view model
-            var viewModel = new UserChatViewModel
-            {
-                Chatbot = session.Chatbot,
-                SessionId = session.Id,
-                Messages = session.Messages.Select(m => new ViewModels.ChatMessage
-                {
-                    IsUser = m.IsUser,
-                    Content = m.Content,
-                    Timestamp = m.Timestamp
-                }).ToList()
-            };
-
-            return View(viewModel);
+            return RedirectToAction(nameof(ChatSession), new { sessionId = session.Id });
         }
 
         // API endpoint to send a message
@@ -357,40 +321,6 @@ namespace AIHelpdeskSupport.Controllers
                 new Chatbot { Id = 6, Name = "Operations Bot", Department = "Operations", AiModel = "GPT-3.5 Turbo", IsActive = false, Description = "Assists internal team with operational tasks and process management (currently undergoing updates)." }
             };
         }
-
-public async Task<IActionResult> Chat(int id)
-{
-    // Try to get chatbot from service with Flowise ID
-    var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
-
-    // If not found, create sample data
-    if (chatbot == null)
-    {
-        chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id);
-        if (chatbot == null)
-        {
-            return NotFound();
-        }
-    }
-
-    // Create view model with sample chat messages
-    var viewModel = new UserChatViewModel
-    {
-        Chatbot = chatbot,
-        SessionId = Guid.NewGuid().ToString(),
-        Messages = new List<ViewModelMessage>
-        {
-            new ViewModelMessage
-            {
-                IsUser = false,
-                Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I help you today?",
-                Timestamp = DateTime.Now.AddMinutes(-5)
-            }
-        }
-    };
-
-    return View(viewModel);
-}
 
         public IActionResult History()
         {
@@ -734,59 +664,77 @@ public async Task<IActionResult> Chat(int id)
             }
         }
 
-        [HttpGet("UserChat/Chat/{sessionId}")]
-        public async Task<IActionResult> ChatSession(string sessionId)
+[HttpGet("UserChat/ChatSession/{sessionId}")]
+public async Task<IActionResult> ChatSession(string sessionId)
+{
+    // Move your existing Chat(string sessionId) code here
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Challenge();
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .Include(s => s.Chatbot)
+        .Include(s => s.Messages.OrderBy(m => m.Timestamp))
+        .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound("Chat session not found");
+    }
+
+    // Create view model
+    var viewModel = new UserChatViewModel
+    {
+        Chatbot = session.Chatbot,
+        SessionId = session.Id,
+        Messages = session.Messages.Select(m => new ViewModels.ChatMessage
         {
-            if (string.IsNullOrEmpty(sessionId) || !sessionId.StartsWith("session-"))
-            {
-                return NotFound();
-            }
+            IsUser = m.IsUser,
+            Content = m.Content,
+            Timestamp = m.Timestamp
+        }).ToList()
+    };
 
-            // Extract chatbot ID from localStorage or fallback to default
-            // In a real app, this would come from a database
-            // For now we'll handle specific known session IDs
-            Chatbot chatbot = null;
+    return View("Chat", viewModel);
+}
 
-            if (sessionId == "session-1234-abcd")
-            {
-                chatbot = new Chatbot
-                {
-                    Id = 1,
-                    Name = "Customer Support Bot",
-                    Department = "Customer Service",
-                    AiModel = "GPT-4"
-                };
-            }
-            else if (sessionId == "session-9012-ijkl")
-            {
-                chatbot = new Chatbot
-                {
-                    Id = 3,
-                    Name = "Sales Assistant",
-                    Department = "Sales",
-                    AiModel = "GPT-3.5 Turbo"
-                };
-            }
-            else
-            {
-                // Generic fallback
-                chatbot = new Chatbot
-                {
-                    Id = 0,
-                    Name = "AI Assistant",
-                    Department = "Support",
-                    AiModel = "Claude"
-                };
-            }
+[HttpGet("UserChat/ChatWithBot/{id}")]
+public async Task<IActionResult> ChatWithBot(int id)
+{
+    // Move your existing Chat(int id) code here
+    // Try to get chatbot from service with Flowise ID
+    var chatbot = await _flowiseService.GetChatbotByIdAsync(id);
 
-            var viewModel = new UserChatViewModel
-            {
-                Chatbot = chatbot,
-                SessionId = sessionId,
-                Messages = new List<ViewModelMessage>()
-            };
-
-            return View("Chat", viewModel);
+    // If not found, create sample data
+    if (chatbot == null)
+    {
+        chatbot = GetSampleChatbots().FirstOrDefault(c => c.Id == id);
+        if (chatbot == null)
+        {
+            return NotFound();
         }
+    }
+
+    // Create view model with sample chat messages
+    var viewModel = new UserChatViewModel
+    {
+        Chatbot = chatbot,
+        SessionId = Guid.NewGuid().ToString(),
+        Messages = new List<ViewModelMessage>
+        {
+            new ViewModelMessage
+            {
+                IsUser = false,
+                Content = $"👋 Hello! I'm {chatbot.Name}, your AI support agent for {chatbot.Department}. How can I help you today?",
+                Timestamp = DateTime.Now.AddMinutes(-5)
+            }
+        }
+    };
+
+    return View("Chat", viewModel);
+}
     }
 }

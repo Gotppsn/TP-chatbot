@@ -111,7 +111,7 @@ app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "chatSession",
-        pattern: "UserChat/Chat/{sessionId}",
+        pattern: "UserChat/ChatSession/{sessionId}",
         defaults: new { controller = "UserChat", action = "ChatSession" });
         
     endpoints.MapControllerRoute(
