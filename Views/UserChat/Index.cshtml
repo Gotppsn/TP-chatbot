@@ -784,7 +784,7 @@ document.querySelectorAll('.recent-item').forEach(item => {
     item.addEventListener('click', function() {
         const sessionId = this.getAttribute('data-session-id');
         if (sessionId) {
-            window.location.href = `/UserChat/ChatSession/${sessionId}`;
+            window.location.href = `/Chat/${sessionId}`;
         }
     });
 });

@@ -4,6 +4,17 @@
     ViewData["Title"] = "Chat Support";
     bool isContinuingConversation = !string.IsNullOrEmpty(Model.SessionId);
     string sessionId = Model.SessionId;
+    
+    // Parse the localized names JSON if available
+    var localizedNames = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Model.Chatbot?.LocalizedNamesJson))
+    {
+        try
+        {
+            localizedNames = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(Model.Chatbot.LocalizedNamesJson);
+        }
+        catch { /* Use empty dictionary if parsing fails */ }
+    }
 }
 
 <div class="chat-container">
@@ -47,7 +58,7 @@
             <div class="chat-header-info">
                 <div class="bot-icon"><i class="bi bi-robot"></i></div>
                 <div class="bot-details">
-                    <div class="bot-name">@Model.Chatbot.Name</div>
+                    <div class="bot-name" id="chatbotNameDisplay">@Model.Chatbot.Name</div>
                     <div class="bot-status">
                         <span class="status-indicator online"></span>
                         <span>@Model.Chatbot.Department</span>
@@ -258,11 +269,18 @@
         let feedbackSubmitted = false;
         let currentLanguage = 'en';
         
+        // Localized chatbot names
+        const chatbotNames = {
+            en: "@Html.Raw(Model.Chatbot.Name)", // Default English name
+            th: "@Html.Raw(localizedNames.ContainsKey("th") ? localizedNames["th"] : Model.Chatbot.Name)",
+            ja: "@Html.Raw(localizedNames.ContainsKey("ja") ? localizedNames["ja"] : Model.Chatbot.Name)"
+        };
+        
         // Welcome messages in different languages
         const welcomeMessages = {
-            en: `Hello! I'm the @Model.Chatbot.Name assistant. How can I help you today?`,
-            th: `สวัสดีครับ/ค่ะ! ฉัน @Model.Chatbot.Name ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
-            ja: `こんにちは！私は @Model.Chatbot.Name アシスタントです。今日はどのようにお手伝いできますか？`
+            en: `Hello! I'm the ${chatbotNames.en} assistant. How can I help you today?`,
+            th: `สวัสดีครับ/ค่ะ! ฉัน ${chatbotNames.th} ผู้ช่วยของคุณ มีอะไรให้ช่วยไหมครับ/คะ?`,
+            ja: `こんにちは！私は${chatbotNames.ja} アシスタントです。今日はどのようにお手伝いできますか？`
         };
         
         // Input placeholder texts in different languages
@@ -280,27 +298,27 @@
         const sidebar = document.getElementById('chatSidebar');
 
         // Initialize when document is ready
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Initializing chat interface...");
-    console.log("Session ID:", sessionId);
-    console.log("Chatbot ID:", chatbotId);
-    console.log("Flowise ID:", flowiseId);
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Load recent conversations
-    loadRecentConversations();
-    
-    // Set initial message count
-    updateMessageCount();
-    
-    // Focus input field
-    messageInput.focus();
-    
-    // Scroll to bottom of chat
-    scrollToBottom();
-});
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Initializing chat interface...");
+            console.log("Session ID:", sessionId);
+            console.log("Chatbot ID:", chatbotId);
+            console.log("Flowise ID:", flowiseId);
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Load recent conversations
+            loadRecentConversations();
+            
+            // Set initial message count
+            updateMessageCount();
+            
+            // Focus input field
+            messageInput.focus();
+            
+            // Scroll to bottom of chat
+            scrollToBottom();
+        });
         
         function setupEventListeners() {
             // Send message on button click
@@ -350,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Language selector event listener
             document.getElementById('languageSelect').addEventListener('change', function() {
                 currentLanguage = this.value;
-                messageInput.placeholder = placeholders[currentLanguage] || placeholders['en'];
+                updateLanguage();
             });
             
             // Chat actions
@@ -382,6 +400,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Small delay to check position after scrolling
                 setTimeout(checkScrollPosition, 50);
             });
+        }
+        
+        function updateLanguage() {
+            // Update placeholder
+            messageInput.placeholder = placeholders[currentLanguage] || placeholders['en'];
+            
+            // Update chatbot name display
+            document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage] || chatbotNames['en'];
         }
         
 async function sendMessage() {
@@ -428,9 +454,10 @@ async function sendMessage() {
     try {
         console.log('Sending message to server:', message);
         console.log('Session ID:', sessionId);
+        console.log('Current language:', currentLanguage);
         
-        // Send message to server - UPDATED ENDPOINT
-        const response = await fetch('/UserChat/SendSessionMessage', {
+        // Send message to server - with language parameter
+        const response = await fetch('/UserChat/SendMessageInSession', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -438,67 +465,68 @@ async function sendMessage() {
             },
             body: JSON.stringify({
                 sessionId: sessionId,
-                message: message
+                message: message,
+                language: currentLanguage // Add language parameter
             })
         });
-        
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Error response:', errorText);
-            throw new Error('Network response was not ok: ' + response.status);
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    throw new Error('Network response was not ok: ' + response.status);
+                }
+                
+                const result = await response.json();
+                console.log('Message response:', result);
+                
+                if (result.success) {
+                    // Calculate response time
+                    const endTime = performance.now();
+                    const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+                    trackResponseTime(responseTime);
+                    
+                    // Update response time display
+                    document.getElementById('responseTime').textContent = responseTime + 's';
+                    
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Add bot response to chat
+                    const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    appendMessage(result.response, 'bot', botTime);
+                    
+                    // Update UI
+                    messageCount += 2; // User message + bot response
+                    updateMessageCount();
+                    updateAverageResponseTime();
+                    
+                    // Scroll to bottom
+                    scrollToBottom();
+                } else {
+                    throw new Error(result.message || 'Unknown error');
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                
+                // Remove typing indicator
+                removeTypingIndicator();
+                
+                // Show error message
+                const errorMessage = "Sorry, I'm having trouble connecting to the server. Please try again later.";
+                const errorTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                appendMessage(errorMessage, 'bot', errorTime);
+                
+                // Update UI
+                messageCount += 2; // User message + error message
+                updateMessageCount();
+            } finally {
+                // Re-enable input
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
         }
-        
-        const result = await response.json();
-        console.log('Message response:', result);
-        
-        if (result.success) {
-            // Calculate response time
-            const endTime = performance.now();
-            const responseTime = ((endTime - startTime) / 1000).toFixed(2);
-            trackResponseTime(responseTime);
-            
-            // Update response time display
-            document.getElementById('responseTime').textContent = responseTime + 's';
-            
-            // Remove typing indicator
-            removeTypingIndicator();
-            
-            // Add bot response to chat
-            const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            appendMessage(result.response, 'bot', botTime);
-            
-            // Update UI
-            messageCount += 2; // User message + bot response
-            updateMessageCount();
-            updateAverageResponseTime();
-            
-            // Scroll to bottom
-            scrollToBottom();
-        } else {
-            throw new Error(result.message || 'Unknown error');
-        }
-    } catch (error) {
-        console.error('Error sending message:', error);
-        
-        // Remove typing indicator
-        removeTypingIndicator();
-        
-        // Show error message
-        const errorMessage = "Sorry, I'm having trouble connecting to the server. Please try again later.";
-        const errorTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        appendMessage(errorMessage, 'bot', errorTime);
-        
-        // Update UI
-        messageCount += 2; // User message + error message
-        updateMessageCount();
-    } finally {
-        // Re-enable input
-        sendButton.disabled = false;
-        messageInput.focus();
-    }
-}
         
         function appendMessage(text, sender, time) {
             const messageEl = document.createElement('div');
@@ -637,94 +665,94 @@ async function sendMessage() {
             });
         }
         
-async function loadRecentConversations() {
-    try {
-        // Show loading indicator
-        const conversationList = document.getElementById('conversationList');
-        conversationList.innerHTML = '<div class="loading-indicator">Loading conversations...</div>';
-        
-        const response = await fetch('/UserChat/GetChatHistory');
-        
-        // Log response for debugging
-        console.log('Chat history response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`Failed to load chat history: ${response.status}`);
-        }
-        
-        const conversations = await response.json();
-        console.log('Received conversations:', conversations);
-        
-        // Clear and rebuild the conversation list
-        conversationList.innerHTML = '';
-        
-        if (conversations && conversations.length > 0) {
-            // Add each conversation
-            conversations.forEach(conv => {
-                // Create conversation item
-                const conversationEl = document.createElement('div');
-                conversationEl.className = 'conversation-item';
+        async function loadRecentConversations() {
+            try {
+                // Show loading indicator
+                const conversationList = document.getElementById('conversationList');
+                conversationList.innerHTML = '<div class="loading-indicator">Loading conversations...</div>';
                 
-                // Highlight current session
-                if (conv.sessionId === sessionId) {
-                    conversationEl.classList.add('active');
+                const response = await fetch('/UserChat/GetChatHistory');
+                
+                // Log response for debugging
+                console.log('Chat history response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to load chat history: ${response.status}`);
                 }
                 
-                // Format relative time
-                let timeAgo;
-                try {
-                    const startDate = new Date(conv.startTime);
-                    timeAgo = getRelativeTimeString(startDate);
-                } catch (err) {
-                    console.error('Time parsing error:', err);
-                    timeAgo = 'Unknown time';
+                const conversations = await response.json();
+                console.log('Received conversations:', conversations);
+                
+                // Clear and rebuild the conversation list
+                conversationList.innerHTML = '';
+                
+                if (conversations && conversations.length > 0) {
+                    // Add each conversation
+                    conversations.forEach(conv => {
+                        // Create conversation item
+                        const conversationEl = document.createElement('div');
+                        conversationEl.className = 'conversation-item';
+                        
+                        // Highlight current session
+                        if (conv.sessionId === sessionId) {
+                            conversationEl.classList.add('active');
+                        }
+                        
+                        // Format relative time
+                        let timeAgo;
+                        try {
+                            const startDate = new Date(conv.startTime);
+                            timeAgo = getRelativeTimeString(startDate);
+                        } catch (err) {
+                            console.error('Time parsing error:', err);
+                            timeAgo = 'Unknown time';
+                        }
+                        
+                        // Safely escape HTML content
+                        const chatbotName = escapeHtml(conv.chatbotName || 'Unknown Bot');
+                        const department = escapeHtml(conv.department || 'General');
+                        
+                        conversationEl.innerHTML = `
+                            <div class="avatar">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="conversation-info">
+                                <div class="conversation-title">${chatbotName}</div>
+                                <div class="conversation-preview">${department}</div>
+                            </div>
+                            <div class="conversation-time">${timeAgo}</div>
+                        `;
+                        
+                        // Add click handler to load conversation
+                        conversationEl.addEventListener('click', () => {
+                            if (conv.sessionId !== sessionId) {
+                                window.location.href = `/Chat/${conv.sessionId}`;
+                            }
+                        });
+                        
+                        conversationList.appendChild(conversationEl);
+                    });
+                } else {
+                    // Show empty state
+                    conversationList.innerHTML = `
+                        <div class="empty-conversations-msg">
+                            <i class="bi bi-chat-square-text"></i>
+                            <p>Start a new conversation</p>
+                        </div>
+                    `;
                 }
-                
-                // Safely escape HTML content
-                const chatbotName = escapeHtml(conv.chatbotName || 'Unknown Bot');
-                const department = escapeHtml(conv.department || 'General');
-                
-                conversationEl.innerHTML = `
-                    <div class="avatar">
-                        <i class="bi bi-robot"></i>
+            } catch (error) {
+                console.error('Error loading recent conversations:', error);
+                // Show error state
+                const conversationList = document.getElementById('conversationList');
+                conversationList.innerHTML = `
+                    <div class="error-state">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <p>Failed to load conversations</p>
                     </div>
-                    <div class="conversation-info">
-                        <div class="conversation-title">${chatbotName}</div>
-                        <div class="conversation-preview">${department}</div>
-                    </div>
-                    <div class="conversation-time">${timeAgo}</div>
                 `;
-                
-                // Add click handler to load conversation
-                conversationEl.addEventListener('click', () => {
-                    if (conv.sessionId !== sessionId) {
-                        window.location.href = `/UserChat/Chat/${conv.sessionId}`;
-                    }
-                });
-                
-                conversationList.appendChild(conversationEl);
-            });
-        } else {
-            // Show empty state
-            conversationList.innerHTML = `
-                <div class="empty-conversations-msg">
-                    <i class="bi bi-chat-square-text"></i>
-                    <p>Start a new conversation</p>
-                </div>
-            `;
+            }
         }
-    } catch (error) {
-        console.error('Error loading recent conversations:', error);
-        // Show error state
-        const conversationList = document.getElementById('conversationList');
-        conversationList.innerHTML = `
-            <div class="error-state">
-                <i class="bi bi-exclamation-triangle"></i>
-                <p>Failed to load conversations</p>
-            </div>
-        `;
-    }
-}
         
         function getRelativeTimeString(date) {
             const now = new Date();

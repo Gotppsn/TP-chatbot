@@ -125,60 +125,77 @@ public class FlowiseService : IFlowiseService
         return chatbot;
     }
 
-    public async Task<string> GenerateChatResponseAsync(int chatbotId, string message, string sessionId)
+public async Task<string> GenerateChatResponseAsync(int chatbotId, string message, string sessionId, string language = "en")
+{
+    try
     {
-        try
+        ConfigureHttpClient();
+        
+        var chatbot = await _context.Chatbots.FindAsync(chatbotId);
+        if (chatbot == null)
+            return "Chatbot not found";
+
+        if (string.IsNullOrEmpty(chatbot.FlowiseId))
+            return "Chatbot has no Flowise ID configured";
+
+        var settings = _context.SystemSettings.FirstOrDefault();
+        string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
+        
+        // Get localized name if available
+        string botName = chatbot.Name;
+        if (!string.IsNullOrEmpty(chatbot.LocalizedNamesJson) && language != "en")
         {
-            ConfigureHttpClient();
-            
-            var chatbot = await _context.Chatbots.FindAsync(chatbotId);
-            if (chatbot == null)
-                return "Chatbot not found";
-
-            if (string.IsNullOrEmpty(chatbot.FlowiseId))
-                return "Chatbot has no Flowise ID configured";
-
-            var settings = _context.SystemSettings.FirstOrDefault();
-            string apiKey = settings?.FlowiseApiKey ?? _configuration["Flowise:ApiKey"] ?? "";
-            
-            var payload = new
+            try
             {
-                question = message,
-                sessionId = sessionId,
-                overrideConfig = new
+                var localizedNames = JsonSerializer.Deserialize<Dictionary<string, string>>(chatbot.LocalizedNamesJson);
+                if (localizedNames != null && localizedNames.ContainsKey(language))
                 {
-                    chatId = chatbot.FlowiseId
+                    botName = localizedNames[language];
                 }
-            };
-
-            _logger.LogInformation("Sending request to Flowise API: {Endpoint} with chatId: {ChatId}", 
-                _httpClient.BaseAddress + "prediction", chatbot.FlowiseId);
-
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-            HttpResponseMessage response;
-            
-            response = await _httpClient.PostAsJsonAsync("prediction", payload, cts.Token);
-            
-            if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
-                response = await _httpClient.PostAsJsonAsync($"prediction?apiKey={apiKey}", payload, cts.Token);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                var errorContent = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Flowise API error: {StatusCode} - {Error}",
-                    response.StatusCode, errorContent);
-                return $"Error from Flowise API: {response.StatusCode} - {errorContent}";
             }
-
-            var result = await response.Content.ReadAsStringAsync();
-            return result;
+            catch { /* Use default name on error */ }
         }
-        catch (Exception ex)
+        
+        var payload = new
         {
-            _logger.LogError(ex, "Error generating chat response");
-            return $"An error occurred while processing your request: {ex.Message}";
+            question = message,
+            sessionId = sessionId,
+            overrideConfig = new
+            {
+                chatId = chatbot.FlowiseId,
+                language = language,
+                botName = botName
+            }
+        };
+
+        _logger.LogInformation("Sending request to Flowise API: {Endpoint} with chatId: {ChatId}, language: {Language}", 
+            _httpClient.BaseAddress + "prediction", chatbot.FlowiseId, language);
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        HttpResponseMessage response;
+        
+        response = await _httpClient.PostAsJsonAsync("prediction", payload, cts.Token);
+        
+        if (!response.IsSuccessStatusCode && response.StatusCode == System.Net.HttpStatusCode.Unauthorized && !string.IsNullOrEmpty(apiKey))
+            response = await _httpClient.PostAsJsonAsync($"prediction?apiKey={apiKey}", payload, cts.Token);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            _logger.LogError("Flowise API error: {StatusCode} - {Error}",
+                response.StatusCode, errorContent);
+            return $"Error from Flowise API: {response.StatusCode} - {errorContent}";
         }
+
+        var result = await response.Content.ReadAsStringAsync();
+        return result;
     }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error generating chat response");
+        return $"An error occurred while processing your request: {ex.Message}";
+    }
+}
 
     public async Task GetChatbotByIdAsync(object chatbotId)
     {

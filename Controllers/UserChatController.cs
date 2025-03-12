@@ -119,136 +119,137 @@ namespace AIHelpdeskSupport.Controllers
             return RedirectToAction(nameof(Chat), new { sessionId = session.Id });
         }
 
-        // GET: /UserChat/Chat/{sessionId}
-        // Loads an existing chat session
-        public async Task<IActionResult> Chat(string sessionId)
+[HttpPost]
+[ValidateAntiForgeryToken]
+[Route("UserChat/SendMessageInSession")]
+public async Task<IActionResult> SendMessageInSession([FromBody] ChatMessageRequest request)
+{
+    _logger.LogInformation("SendMessageInSession called: SessionId={SessionId}, Message={MessageLength}",
+        request.SessionId, request.Message?.Length ?? 0);
+    
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        _logger.LogWarning("Unauthorized attempt to send message - user not authenticated");
+        return Unauthorized(new { success = false, message = "User not authorized" });
+    }
+
+    // Get the chat session
+    var session = await _context.ChatSessions
+        .Include(s => s.Chatbot)
+        .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        _logger.LogWarning("Chat session not found: {SessionId}", request.SessionId);
+        return NotFound(new { success = false, message = "Chat session not found" });
+    }
+
+    if (string.IsNullOrEmpty(request.Message))
+    {
+        _logger.LogWarning("Empty message received");
+        return BadRequest(new { success = false, message = "Message cannot be empty" });
+    }
+
+    // Add user message to database
+    var userMessage = new ModelMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = true,
+        Content = request.Message,
+        Timestamp = DateTime.UtcNow
+    };
+
+    _context.ChatMessages.Add(userMessage);
+    await _context.SaveChangesAsync();
+
+    // Start timing for response
+    var startTime = DateTime.UtcNow;
+
+    // Call AI service to get response - INCLUDE LANGUAGE PARAMETER
+    string response;
+    try {
+        _logger.LogInformation("Calling Flowise service for chatbot {ChatbotId}", session.ChatbotId);
+        
+        // Extract language from request if available (optional parameter)
+        string language = request.Language ?? "en";
+        
+        response = await _flowiseService.GenerateChatResponseAsync(
+            session.ChatbotId, 
+            request.Message, 
+            request.SessionId,
+            language);
+    }
+    catch (Exception ex) {
+        _logger.LogError(ex, "Error generating chat response");
+        response = "Sorry, I'm having trouble processing your request right now.";
+    }
+
+    // Add bot response to database
+    var botMessage = new ModelMessage
+    {
+        SessionId = request.SessionId,
+        IsUser = false,
+        Content = response,
+        Timestamp = DateTime.UtcNow
+    };
+
+    _context.ChatMessages.Add(botMessage);
+    
+    // Update session last activity
+    session.LastUpdatedAt = DateTime.UtcNow;
+    _context.ChatSessions.Update(session);
+    
+    await _context.SaveChangesAsync();
+
+    // Calculate response time
+    var responseTime = (DateTime.UtcNow - startTime).TotalSeconds;
+    _logger.LogInformation("Response generated in {ResponseTime}s", responseTime);
+
+    return Ok(new
+    {
+        success = true,
+        response = response,
+        responseTime = responseTime,
+        timestamp = botMessage.Timestamp
+    });
+}
+
+[HttpGet("Chat/{sessionId}")]
+public async Task<IActionResult> Chat(string sessionId)
+{
+    var currentUser = await _userManager.GetUserAsync(User);
+    if (currentUser == null)
+    {
+        return Challenge();
+    }
+
+    // Get the chat session with eager loading
+    var session = await _context.ChatSessions
+        .Include(s => s.Chatbot)
+        .Include(s => s.Messages.OrderBy(m => m.Timestamp))
+        .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
+
+    if (session == null)
+    {
+        return NotFound("Chat session not found");
+    }
+
+    // Create view model
+    var viewModel = new UserChatViewModel
+    {
+        Chatbot = session.Chatbot,
+        SessionId = session.Id,
+        Messages = session.Messages.Select(m => new ViewModels.ChatMessage
         {
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                return Challenge();
-            }
+            IsUser = m.IsUser,
+            Content = m.Content,
+            Timestamp = m.Timestamp
+        }).ToList()
+    };
 
-            // Get the chat session
-            var session = await _context.ChatSessions
-                .Include(s => s.Chatbot)
-                .Include(s => s.Messages.OrderBy(m => m.Timestamp))
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == currentUser.Id);
-
-            if (session == null)
-            {
-                return NotFound("Chat session not found");
-            }
-
-            // Create view model
-            var viewModel = new UserChatViewModel
-            {
-                Chatbot = session.Chatbot,
-                SessionId = session.Id,
-                Messages = session.Messages.Select(m => new ViewModels.ChatMessage
-                {
-                    IsUser = m.IsUser,
-                    Content = m.Content,
-                    Timestamp = m.Timestamp
-                }).ToList()
-            };
-
-            return View(viewModel);
-        }
-
-        // POST: /UserChat/SendMessageInSession
-        // For handling messages in existing chat sessions
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("UserChat/SendMessageInSession")]
-        public async Task<IActionResult> SendMessageInSession([FromBody] ChatMessageRequest request)
-        {
-            _logger.LogInformation("SendMessageInSession called: SessionId={SessionId}, Message={MessageLength}",
-                request.SessionId, request.Message?.Length ?? 0);
-            
-            var currentUser = await _userManager.GetUserAsync(User);
-            if (currentUser == null)
-            {
-                _logger.LogWarning("Unauthorized attempt to send message - user not authenticated");
-                return Unauthorized(new { success = false, message = "User not authorized" });
-            }
-
-            // Get the chat session
-            var session = await _context.ChatSessions
-                .Include(s => s.Chatbot)
-                .FirstOrDefaultAsync(s => s.Id == request.SessionId && s.UserId == currentUser.Id);
-
-            if (session == null)
-            {
-                _logger.LogWarning("Chat session not found: {SessionId}", request.SessionId);
-                return NotFound(new { success = false, message = "Chat session not found" });
-            }
-
-            if (string.IsNullOrEmpty(request.Message))
-            {
-                _logger.LogWarning("Empty message received");
-                return BadRequest(new { success = false, message = "Message cannot be empty" });
-            }
-
-            // Add user message to database
-            var userMessage = new ModelMessage
-            {
-                SessionId = request.SessionId,
-                IsUser = true,
-                Content = request.Message,
-                Timestamp = DateTime.UtcNow
-            };
-
-            _context.ChatMessages.Add(userMessage);
-            await _context.SaveChangesAsync();
-
-            // Start timing for response
-            var startTime = DateTime.UtcNow;
-
-            // Call AI service to get response
-            string response;
-            try {
-                _logger.LogInformation("Calling Flowise service for chatbot {ChatbotId}", session.ChatbotId);
-                response = await _flowiseService.GenerateChatResponseAsync(
-                    session.ChatbotId,
-                    request.Message,
-                    request.SessionId);
-            }
-            catch (Exception ex) {
-                _logger.LogError(ex, "Error generating chat response");
-                response = "Sorry, I'm having trouble processing your request right now.";
-            }
-
-            // Add bot response to database
-            var botMessage = new ModelMessage
-            {
-                SessionId = request.SessionId,
-                IsUser = false,
-                Content = response,
-                Timestamp = DateTime.UtcNow
-            };
-
-            _context.ChatMessages.Add(botMessage);
-            
-            // Update session last activity
-            session.LastUpdatedAt = DateTime.UtcNow;
-            _context.ChatSessions.Update(session);
-            
-            await _context.SaveChangesAsync();
-
-            // Calculate response time
-            var responseTime = (DateTime.UtcNow - startTime).TotalSeconds;
-            _logger.LogInformation("Response generated in {ResponseTime}s", responseTime);
-
-            return Ok(new
-            {
-                success = true,
-                response = response,
-                responseTime = responseTime,
-                timestamp = botMessage.Timestamp
-            });
-        }
-
+    return View(viewModel);
+}
         // GET: /UserChat/GetChatHistory
         // API endpoint to get chat history for the current user
         [HttpGet]
@@ -669,6 +670,7 @@ namespace AIHelpdeskSupport.Controllers
     {
         public string SessionId { get; set; }
         public string Message { get; set; }
+        public string Language { get; set; }
     }
 
     public class SessionRequest

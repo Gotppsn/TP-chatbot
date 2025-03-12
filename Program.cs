@@ -107,12 +107,13 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // Configure routes
+// Configure routes
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
         name: "chatSession",
-        pattern: "UserChat/ChatSession/{sessionId}",
-        defaults: new { controller = "UserChat", action = "ChatSession" });
+        pattern: "UserChat/Chat/{sessionId}",
+        defaults: new { controller = "UserChat", action = "Chat" });
         
     endpoints.MapControllerRoute(
         name: "default",
