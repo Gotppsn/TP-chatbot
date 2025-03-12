@@ -103,34 +103,34 @@
             </div>
             
             <!-- Display existing messages -->
-            @foreach (var message in Model.Messages)
+ @foreach (var message in Model.Messages)
+{
+    <div class="message @(message.IsUser ? "user" : "bot")">
+        @if (!message.IsUser)
+        {
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+        }
+        <div class="message-content">
+            <div class="message-bubble">
+                <p>@Html.Raw(message.Content)</p>
+            </div>
+            <div class="message-time">@message.Timestamp.ToLocalTime().ToString("h:mm tt")</div>
+            @if (!message.IsUser)
             {
-                <div class="message @(message.IsUser ? "user" : "bot")">
-                    @if (!message.IsUser)
-                    {
-                        <div class="message-avatar">
-                            <i class="bi bi-robot"></i>
-                        </div>
-                    }
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>@Html.Raw(message.Content)</p>
-                        </div>
-                        <div class="message-time">@message.Timestamp.ToLocalTime().ToString("h:mm tt")</div>
-                        @if (!message.IsUser)
-                        {
-                            <div class="message-actions">
-                                <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
-                                    <i class="bi bi-clipboard"></i>
-                                </button>
-                                <button class="action-btn" title="Rate response">
-                                    <i class="bi bi-hand-thumbs-up"></i>
-                                </button>
-                            </div>
-                        }
-                    </div>
+                <div class="message-actions">
+                    <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" title="Rate response">
+                        <i class="bi bi-hand-thumbs-up"></i>
+                    </button>
                 </div>
             }
+        </div>
+    </div>
+}
         </div>
         
         <!-- Chat input area -->
@@ -410,65 +410,65 @@
             document.getElementById('chatbotNameDisplay').textContent = chatbotNames[currentLanguage] || chatbotNames['en'];
         }
         
-async function sendMessage() {
-    // Get message text
-    const message = messageInput.value.trim();
-    if (!message) {
-        // Provide visual feedback for empty message
-        messageInput.classList.add('shake-animation');
-        setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
-        return;
-    }
-    
-    // Get CSRF token
-    const token = document.querySelector('input[name="__RequestVerificationToken"]');
-    if (!token) {
-        console.error('CSRF token not found');
-        showErrorMessage('Security token missing. Please refresh the page.');
-        return;
-    }
-    const csrfToken = token.value;
-    
-    // Get current time
-    const now = new Date();
-    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    lastMessageTime = now;
-    
-    // Add user message to chat
-    appendMessage(message, 'user', timeString);
-    
-    // Clear input and reset height
-    messageInput.value = '';
-    messageInput.style.height = 'auto';
-    sendButton.disabled = true;
-    
-    // Scroll to bottom
-    scrollToBottom();
-    
-    // Show typing indicator
-    showTypingIndicator();
-    
-    // Start timing for response
-    const startTime = performance.now();
-    
-    try {
-        console.log('Sending message to server:', message);
-        console.log('Session ID:', sessionId);
-        console.log('Current language:', currentLanguage);
-        
-        // Send message to server - with language parameter
-        const response = await fetch('/UserChat/SendMessageInSession', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': csrfToken
-            },
-            body: JSON.stringify({
-                sessionId: sessionId,
-                message: message,
-                language: currentLanguage // Add language parameter
-            })
-        });
+        async function sendMessage() {
+            // Get message text
+            const message = messageInput.value.trim();
+            if (!message) {
+                // Provide visual feedback for empty message
+                messageInput.classList.add('shake-animation');
+                setTimeout(() => messageInput.classList.remove('shake-animation'), 500);
+                return;
+            }
+            
+            // Get CSRF token
+            const token = document.querySelector('input[name="__RequestVerificationToken"]');
+            if (!token) {
+                console.error('CSRF token not found');
+                showErrorMessage('Security token missing. Please refresh the page.');
+                return;
+            }
+            const csrfToken = token.value;
+            
+            // Get current time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            lastMessageTime = now;
+            
+            // Add user message to chat
+            appendMessage(message, 'user', timeString);
+            
+            // Clear input and reset height
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            sendButton.disabled = true;
+            
+            // Scroll to bottom
+            scrollToBottom();
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Start timing for response
+            const startTime = performance.now();
+            
+            try {
+                console.log('Sending message to server:', message);
+                console.log('Session ID:', sessionId);
+                console.log('Current language:', currentLanguage);
+                
+                // Send message to server - with language parameter
+                const response = await fetch('/UserChat/SendMessageInSession', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': csrfToken
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        message: message,
+                        language: currentLanguage // Add language parameter
+                    })
+                });
                 
                 console.log('Response status:', response.status);
                 
@@ -478,35 +478,37 @@ async function sendMessage() {
                     throw new Error('Network response was not ok: ' + response.status);
                 }
                 
-                const result = await response.json();
-                console.log('Message response:', result);
-                
-                if (result.success) {
-                    // Calculate response time
-                    const endTime = performance.now();
-                    const responseTime = ((endTime - startTime) / 1000).toFixed(2);
-                    trackResponseTime(responseTime);
-                    
-                    // Update response time display
-                    document.getElementById('responseTime').textContent = responseTime + 's';
-                    
-                    // Remove typing indicator
-                    removeTypingIndicator();
-                    
-                    // Add bot response to chat
-                    const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    appendMessage(result.response, 'bot', botTime);
-                    
-                    // Update UI
-                    messageCount += 2; // User message + bot response
-                    updateMessageCount();
-                    updateAverageResponseTime();
-                    
-                    // Scroll to bottom
-                    scrollToBottom();
-                } else {
-                    throw new Error(result.message || 'Unknown error');
-                }
+    const result = await response.json();
+    console.log('Message response:', result);
+    
+    if (result.success) {
+        // Calculate response time
+        const endTime = performance.now();
+        const responseTime = ((endTime - startTime) / 1000).toFixed(2);
+        trackResponseTime(responseTime);
+        
+        // Update response time display
+        document.getElementById('responseTime').textContent = responseTime + 's';
+        
+        // Remove typing indicator
+        removeTypingIndicator();
+        
+        // Add bot response to chat - Don't modify HTML content from server
+        const botTime = new Date(result.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Use the response directly without additional processing if it contains HTML
+        appendMessage(result.response, 'bot', botTime);
+        
+        // Update UI
+        messageCount += 2; // User message + bot response
+        updateMessageCount();
+        updateAverageResponseTime();
+        
+        // Scroll to bottom
+        scrollToBottom();
+    } else {
+        throw new Error(result.message || 'Unknown error');
+    }
             } catch (error) {
                 console.error('Error sending message:', error);
                 
@@ -528,46 +530,49 @@ async function sendMessage() {
             }
         }
         
-        function appendMessage(text, sender, time) {
-            const messageEl = document.createElement('div');
-            messageEl.className = `message ${sender}`;
-            
-            let messageContent = '';
-            
-            if (sender === 'bot') {
-                messageContent = `
-                    <div class="message-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>${formatMessageText(text)}</p>
-                        </div>
-                        <div class="message-time">${time}</div>
-                        <div class="message-actions">
-                            <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                            <button class="action-btn" title="Rate response">
-                                <i class="bi bi-hand-thumbs-up"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                messageContent = `
-                    <div class="message-content">
-                        <div class="message-bubble">
-                            <p>${formatMessageText(text)}</p>
-                        </div>
-                        <div class="message-time">${time}</div>
-                    </div>
-                `;
-            }
-            
-            messageEl.innerHTML = messageContent;
-            chatMessages.appendChild(messageEl);
-        }
+function appendMessage(text, sender, time) {
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${sender}`;
+    
+    let messageContent = '';
+    
+    // Format the message text - Now properly handles HTML
+    const formattedText = formatMessageText(text);
+    
+    if (sender === 'bot') {
+        messageContent = `
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-bubble">
+                    <p>${formattedText}</p>
+                </div>
+                <div class="message-time">${time}</div>
+                <div class="message-actions">
+                    <button class="action-btn" title="Copy to clipboard" onclick="copyToClipboard(this)">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                    <button class="action-btn" title="Rate response">
+                        <i class="bi bi-hand-thumbs-up"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    } else {
+        messageContent = `
+            <div class="message-content">
+                <div class="message-bubble">
+                    <p>${formattedText}</p>
+                </div>
+                <div class="message-time">${time}</div>
+            </div>
+        `;
+    }
+    
+    messageEl.innerHTML = messageContent;
+    chatMessages.appendChild(messageEl);
+}
         
         function showTypingIndicator() {
             const typingEl = document.createElement('div');
@@ -648,22 +653,23 @@ async function sendMessage() {
         }
         
         // Copy message to clipboard
-        window.copyToClipboard = function(button) {
-            const messageBubble = button.closest('.message-content').querySelector('.message-bubble p');
-            const text = messageBubble.textContent;
-            
-            navigator.clipboard.writeText(text).then(() => {
-                // Visual feedback
-                const originalIcon = button.innerHTML;
-                button.innerHTML = '<i class="bi bi-check"></i>';
-                setTimeout(() => {
-                    button.innerHTML = originalIcon;
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy text: ', err);
-                showErrorMessage('Failed to copy text to clipboard');
-            });
-        }
+window.copyToClipboard = function(button) {
+    const messageBubble = button.closest('.message-content').querySelector('.message-bubble p');
+    // Use innerText to get the rendered text rather than HTML
+    const text = messageBubble.innerText || messageBubble.textContent;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        // Visual feedback
+        const originalIcon = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check"></i>';
+        setTimeout(() => {
+            button.innerHTML = originalIcon;
+        }, 2000);
+    }).catch(err => {
+        console.error('Failed to copy text: ', err);
+        showErrorMessage('Failed to copy text to clipboard');
+    });
+}
         
         async function loadRecentConversations() {
             try {
